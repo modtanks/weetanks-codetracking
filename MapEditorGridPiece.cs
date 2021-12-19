@@ -1,0 +1,625 @@
+using UnityEngine;
+
+public class MapEditorGridPiece : MonoBehaviour
+{
+	public Renderer myRend;
+
+	public Color selectedColor;
+
+	public Color notSelectedColor;
+
+	public Color OriginalNotSelectedColor;
+
+	public GameObject[] myProp;
+
+	public GameObject[] myPropPrefab;
+
+	public float Yheight;
+
+	public bool mouseOnMe;
+
+	public bool selected;
+
+	public int mission;
+
+	public bool[] propOnMe;
+
+	private bool check;
+
+	public int[] myPropID;
+
+	public int SpawnDifficulty;
+
+	public int ID;
+
+	public int IDlayer;
+
+	public int offsetX;
+
+	public int offsetY;
+
+	public int MyTeamNumber = -1;
+
+	public Color[] TeamColors;
+
+	public GameObject PlacingSmoke;
+
+	public MapEditorProp[] myMEP;
+
+	public int[] rotationDirection;
+
+	private bool ShowingProps;
+
+	private int lastKnownLayer = -1;
+
+	public int lastKnownMission = -1;
+
+	public bool RunOnceSinceTesting;
+
+	private void Start()
+	{
+		myRend = GetComponent<Renderer>();
+		myRend.material.color = notSelectedColor;
+		OriginalNotSelectedColor = notSelectedColor;
+		SetGridPieceColor();
+	}
+
+	private void OnMouseEnter()
+	{
+		if (!(MapEditorMaster.instance == null) && !(GameMaster.instance == null) && !MapEditorMaster.instance.OnTeamsMenu && !MapEditorMaster.instance.isTesting && !MapEditorMaster.instance.inPlayingMode && !GameMaster.instance.GameHasPaused && MapEditorMaster.instance.SelectedProp >= 0 && selected && !check)
+		{
+			checkSelections();
+		}
+	}
+
+	private void OnMouseOver()
+	{
+		if (!(MapEditorMaster.instance == null) && !(GameMaster.instance == null) && !MapEditorMaster.instance.OnTeamsMenu && !MapEditorMaster.instance.isTesting && !MapEditorMaster.instance.inPlayingMode && !GameMaster.instance.GameHasPaused && MapEditorMaster.instance.SelectedProp >= 0 && !MapEditorMaster.instance.RemoveMode)
+		{
+			if (myRend != null)
+			{
+				myRend.material.color = selectedColor;
+			}
+			if (!mouseOnMe)
+			{
+				mouseOnMe = true;
+			}
+		}
+	}
+
+	private void OnMouseExit()
+	{
+		if (!(MapEditorMaster.instance == null) && !(GameMaster.instance == null) && !MapEditorMaster.instance.isTesting && !MapEditorMaster.instance.inPlayingMode)
+		{
+			myRend.material.color = notSelectedColor;
+			mouseOnMe = false;
+		}
+	}
+
+	public void checkSelections()
+	{
+		if (!Input.GetKey(KeyCode.LeftShift) || MapEditorMaster.instance.selectedFields <= 0)
+		{
+			return;
+		}
+		if (MapEditorMaster.instance.startSelectionField.position.x == base.transform.position.x || MapEditorMaster.instance.startSelectionField.position.z == base.transform.position.z)
+		{
+			selected = true;
+			float maxDistance = Vector3.Distance(base.transform.position, MapEditorMaster.instance.startSelectionField.position);
+			Vector3 direction = MapEditorMaster.instance.startSelectionField.position - base.transform.position;
+			RaycastHit[] array = Physics.RaycastAll(base.transform.position, direction, maxDistance);
+			for (int i = 0; i < array.Length; i++)
+			{
+				if (array[i].transform.tag == "MapeditorField")
+				{
+					MapEditorGridPiece component = array[i].transform.GetComponent<MapEditorGridPiece>();
+					if (!component.selected)
+					{
+						component.selected = true;
+					}
+				}
+			}
+			maxDistance = Vector3.Distance(base.transform.position, MapEditorMaster.instance.startSelectionField.position);
+			direction = MapEditorMaster.instance.startSelectionField.position - base.transform.position;
+			RaycastHit[] array2 = Physics.RaycastAll(base.transform.position, -direction, 500f);
+			for (int j = 0; j < array2.Length; j++)
+			{
+				if (array2[j].transform.tag == "MapeditorField")
+				{
+					MapEditorGridPiece component2 = array2[j].transform.GetComponent<MapEditorGridPiece>();
+					if (component2.selected)
+					{
+						component2.selected = false;
+					}
+				}
+			}
+			return;
+		}
+		selected = false;
+		float num = Mathf.Abs(MapEditorMaster.instance.startSelectionField.position.x - base.transform.position.x);
+		float num2 = Mathf.Abs(MapEditorMaster.instance.startSelectionField.position.z - base.transform.position.z);
+		GameObject[] array4;
+		if (num > num2)
+		{
+			Vector3 vector = new Vector3(base.transform.position.x, base.transform.position.y, MapEditorMaster.instance.startSelectionField.position.z);
+			GameObject[] array3 = GameObject.FindGameObjectsWithTag("MapeditorField");
+			MapEditorGridPiece mapEditorGridPiece = null;
+			array4 = array3;
+			foreach (GameObject obj in array4)
+			{
+				MapEditorGridPiece component3 = obj.GetComponent<MapEditorGridPiece>();
+				if (obj.transform.position == vector)
+				{
+					mapEditorGridPiece = component3;
+				}
+				else if (component3.selected)
+				{
+					component3.selected = false;
+				}
+			}
+			if (mapEditorGridPiece != null)
+			{
+				mapEditorGridPiece.selected = true;
+				mapEditorGridPiece.checkSelections();
+			}
+			return;
+		}
+		Vector3 vector2 = new Vector3(MapEditorMaster.instance.startSelectionField.position.x, base.transform.position.y, base.transform.position.z);
+		GameObject[] array5 = GameObject.FindGameObjectsWithTag("MapeditorField");
+		MapEditorGridPiece mapEditorGridPiece2 = null;
+		array4 = array5;
+		foreach (GameObject obj2 in array4)
+		{
+			MapEditorGridPiece component4 = obj2.GetComponent<MapEditorGridPiece>();
+			if (obj2.transform.position == vector2)
+			{
+				mapEditorGridPiece2 = component4;
+			}
+			else if (component4.selected)
+			{
+				component4.selected = false;
+			}
+		}
+		if (mapEditorGridPiece2 != null)
+		{
+			mapEditorGridPiece2.selected = true;
+			mapEditorGridPiece2.checkSelections();
+		}
+	}
+
+	private void HideProps()
+	{
+		for (int i = 0; i < 5; i++)
+		{
+			if (IDlayer != i && myProp[i] != null)
+			{
+				myProp[i].SetActive(value: false);
+			}
+		}
+	}
+
+	private void ShowProps()
+	{
+		for (int i = 0; i < 5; i++)
+		{
+			if (myProp[i] != null)
+			{
+				myProp[i].SetActive(value: true);
+			}
+		}
+	}
+
+	private void Update()
+	{
+		if (MapEditorMaster.instance.isTesting || MapEditorMaster.instance.inPlayingMode)
+		{
+			RunOnceSinceTesting = false;
+			myRend.material.color = Color.clear;
+			return;
+		}
+		if (!RunOnceSinceTesting)
+		{
+			RunOnceSinceTesting = true;
+			Color color = notSelectedColor;
+			notSelectedColor = OriginalNotSelectedColor;
+			if (myPropID[IDlayer] > 3 && myPropID[IDlayer] < 40)
+			{
+				notSelectedColor = color;
+				notSelectedColor = TeamColors[myMEP[IDlayer].TeamNumber];
+				myRend.material.color = notSelectedColor;
+			}
+		}
+		base.transform.position = new Vector3(base.transform.position.x, MapEditorMaster.instance.CurrentLayer * 2, base.transform.position.z);
+		IDlayer = MapEditorMaster.instance.CurrentLayer;
+		if (lastKnownLayer != IDlayer)
+		{
+			Color color2 = notSelectedColor;
+			notSelectedColor = OriginalNotSelectedColor;
+			if (myPropID[IDlayer] > 3 && myPropID[IDlayer] < 40)
+			{
+				notSelectedColor = color2;
+				notSelectedColor = TeamColors[myMEP[IDlayer].TeamNumber];
+				myRend.material.color = notSelectedColor;
+			}
+			lastKnownLayer = IDlayer;
+			if (MapEditorMaster.instance.ShowAllLayers)
+			{
+				ShowingProps = true;
+				ShowProps();
+			}
+			else
+			{
+				ShowingProps = false;
+				HideProps();
+			}
+			if ((bool)myProp[IDlayer])
+			{
+				myProp[IDlayer].SetActive(value: true);
+			}
+		}
+		if (!ShowingProps && MapEditorMaster.instance.ShowAllLayers)
+		{
+			ShowingProps = true;
+			ShowProps();
+		}
+		else if (ShowingProps && !MapEditorMaster.instance.ShowAllLayers)
+		{
+			ShowingProps = false;
+			HideProps();
+		}
+		if (!propOnMe[IDlayer])
+		{
+			if (mouseOnMe && !check)
+			{
+				myRend.material.color = selectedColor;
+				if (Input.GetMouseButtonUp(0) && selected)
+				{
+					PlaceProp();
+					MapEditorMaster.instance.startSelectionField = null;
+					MapEditorMaster.instance.selectedFields = 0;
+					selected = false;
+				}
+				else if (Input.GetMouseButton(0) && !selected)
+				{
+					if (MapEditorMaster.instance.selectedFields < 1)
+					{
+						MapEditorMaster.instance.startSelectionField = base.transform;
+						selected = true;
+					}
+					if (Input.GetKey(KeyCode.LeftShift))
+					{
+						check = true;
+						checkSelections();
+					}
+					else
+					{
+						selected = true;
+					}
+					MapEditorMaster.instance.selectedFields++;
+				}
+			}
+			else if (!mouseOnMe && Input.GetKey(KeyCode.LeftShift))
+			{
+				check = false;
+			}
+			if (Input.GetMouseButtonUp(0) && selected)
+			{
+				PlaceProp();
+				MapEditorMaster.instance.startSelectionField = null;
+				MapEditorMaster.instance.selectedFields = 0;
+				selected = false;
+			}
+			if (selected)
+			{
+				myRend.material.color = selectedColor;
+				if (!Input.GetMouseButton(0))
+				{
+					selected = false;
+				}
+			}
+			else if (!mouseOnMe)
+			{
+				myRend.material.color = notSelectedColor;
+			}
+		}
+		else
+		{
+			check = false;
+		}
+		if (myProp[IDlayer] == null && propOnMe[IDlayer])
+		{
+			propOnMe[IDlayer] = false;
+			myPropID[IDlayer] = -1;
+		}
+	}
+
+	private void OnEnable()
+	{
+		SetGridPieceColor();
+	}
+
+	private void PlaceProp()
+	{
+		if (!MapEditorMaster.instance.canPlaceProp || propOnMe[IDlayer] || (MapEditorMaster.instance.SelectedProp == 4 && MapEditorMaster.instance.playerOnePlaced[GameMaster.instance.CurrentMission] == 1) || (MapEditorMaster.instance.SelectedProp == 5 && MapEditorMaster.instance.playerTwoPlaced[GameMaster.instance.CurrentMission] == 1) || (MapEditorMaster.instance.SelectedProp == 28 && MapEditorMaster.instance.playerThreePlaced[GameMaster.instance.CurrentMission] == 1) || (MapEditorMaster.instance.SelectedProp == 29 && MapEditorMaster.instance.playerFourPlaced[GameMaster.instance.CurrentMission] == 1))
+		{
+			return;
+		}
+		if ((MapEditorMaster.instance.SelectedProp > 3 && MapEditorMaster.instance.SelectedProp < 40) || MapEditorMaster.instance.SelectedProp == 46)
+		{
+			if (IDlayer > 0)
+			{
+				MapEditorMaster.instance.ShowErrorMessage("ERROR: Must be placed on the floor!");
+				return;
+			}
+		}
+		else if ((MapEditorMaster.instance.SelectedProp == 3 || MapEditorMaster.instance.SelectedProp == 46 || MapEditorMaster.instance.SelectedProp == 47 || MapEditorMaster.instance.SelectedProp == 48) && IDlayer > 0 && myPropID[IDlayer - 1] != 0 && myPropID[IDlayer - 1] != 1 && myPropID[IDlayer - 1] != 2)
+		{
+			MapEditorMaster.instance.ShowErrorMessage("ERROR: No Block Below!");
+			return;
+		}
+		if (MapEditorMaster.instance.SelectedProp > 5 && MapEditorMaster.instance.SelectedProp < 40 && MapEditorMaster.instance.SelectedProp != 28 && MapEditorMaster.instance.SelectedProp != 29)
+		{
+			if (MapEditorMaster.instance.enemyTanksPlaced[GameMaster.instance.CurrentMission] >= MapEditorMaster.instance.maxEnemyTanks)
+			{
+				MapEditorMaster.instance.ShowErrorMessage("ERROR: Max enemies reached!");
+				return;
+			}
+			MapEditorMaster.instance.enemyTanksPlaced[GameMaster.instance.CurrentMission]++;
+		}
+		if (MapEditorMaster.instance.SelectedProp == 4)
+		{
+			if (MapEditorMaster.instance.playerOnePlaced[GameMaster.instance.CurrentMission] >= 1)
+			{
+				return;
+			}
+			MapEditorMaster.instance.playerOnePlaced[GameMaster.instance.CurrentMission] = 1;
+		}
+		if (MapEditorMaster.instance.SelectedProp == 5)
+		{
+			if (MapEditorMaster.instance.playerTwoPlaced[GameMaster.instance.CurrentMission] >= 1)
+			{
+				return;
+			}
+			MapEditorMaster.instance.playerTwoPlaced[GameMaster.instance.CurrentMission] = 1;
+		}
+		if (MapEditorMaster.instance.SelectedProp == 28)
+		{
+			if (MapEditorMaster.instance.playerThreePlaced[GameMaster.instance.CurrentMission] >= 1)
+			{
+				return;
+			}
+			MapEditorMaster.instance.playerThreePlaced[GameMaster.instance.CurrentMission] = 1;
+		}
+		if (MapEditorMaster.instance.SelectedProp == 29)
+		{
+			if (MapEditorMaster.instance.playerFourPlaced[GameMaster.instance.CurrentMission] >= 1)
+			{
+				return;
+			}
+			MapEditorMaster.instance.playerFourPlaced[GameMaster.instance.CurrentMission] = 1;
+		}
+		Object.Destroy(Object.Instantiate(PlacingSmoke, base.transform.position, Quaternion.identity), 2f);
+		if (MapEditorMaster.instance.SelectedProp < 4 || MapEditorMaster.instance.SelectedProp >= 40)
+		{
+			MapEditorMaster.instance.PlayAudio(MapEditorMaster.instance.PlaceHeavy);
+		}
+		else
+		{
+			MapEditorMaster.instance.PlayAudio(MapEditorMaster.instance.PlaceLight);
+		}
+		Yheight = MapEditorMaster.instance.PropStartHeight[MapEditorMaster.instance.SelectedProp];
+		myProp[IDlayer] = Object.Instantiate(MapEditorMaster.instance.Props[MapEditorMaster.instance.SelectedProp], base.transform.position + new Vector3(0f, Yheight, 0f), Quaternion.identity);
+		MapEditorProp mapEditorProp = myProp[IDlayer].GetComponent<MapEditorProp>();
+		if (mapEditorProp == null)
+		{
+			mapEditorProp = myProp[IDlayer].GetComponentInChildren<MapEditorProp>();
+		}
+		mapEditorProp.myMEGP = this;
+		mapEditorProp.LayerNumber = IDlayer;
+		myMEP[IDlayer] = mapEditorProp;
+		if ((bool)mapEditorProp)
+		{
+			rotationDirection[IDlayer] = MapEditorMaster.instance.LastPlacedRotation;
+			for (int i = 0; i < MapEditorMaster.instance.LastPlacedRotation; i++)
+			{
+				mapEditorProp.RotateProp();
+			}
+		}
+		if (mapEditorProp.isEnemyTank)
+		{
+			MapEditorMaster.instance.ColorsTeamsPlaced[MapEditorMaster.instance.LastPlacedColor]++;
+			mapEditorProp.TeamNumber = MapEditorMaster.instance.LastPlacedColor;
+			MyTeamNumber = MapEditorMaster.instance.LastPlacedColor;
+		}
+		else if (mapEditorProp.isPlayerOne || mapEditorProp.isPlayerTwo || mapEditorProp.isPlayerThree || mapEditorProp.isPlayerFour)
+		{
+			MapEditorMaster.instance.ColorsTeamsPlaced[1]++;
+			mapEditorProp.TeamNumber = 1;
+			MyTeamNumber = 1;
+		}
+		myPropPrefab[IDlayer] = MapEditorMaster.instance.Props[MapEditorMaster.instance.SelectedProp];
+		myProp[IDlayer].transform.parent = GameMaster.instance.Levels[0].transform;
+		propOnMe[IDlayer] = true;
+		myPropID[IDlayer] = MapEditorMaster.instance.SelectedProp;
+		SetCustomMaterial(mapEditorProp);
+		SetGridPieceColor();
+	}
+
+	public void SetGridPieceColor()
+	{
+		if (MapEditorMaster.instance.isTesting || MapEditorMaster.instance.inPlayingMode)
+		{
+			if ((bool)myRend)
+			{
+				myRend.material.color = OriginalNotSelectedColor;
+			}
+		}
+		else
+		{
+			if (!(myMEP[IDlayer] != null) || !(myRend != null))
+			{
+				return;
+			}
+			if (myMEP[IDlayer].isEnemyTank || myMEP[IDlayer].isPlayerOne || myMEP[IDlayer].isPlayerTwo || myMEP[IDlayer].isPlayerThree || myMEP[IDlayer].isPlayerFour)
+			{
+				if (myMEP[IDlayer].TeamNumber > -1)
+				{
+					myRend.material.color = TeamColors[myMEP[IDlayer].TeamNumber];
+					notSelectedColor = TeamColors[myMEP[IDlayer].TeamNumber];
+				}
+			}
+			else
+			{
+				myRend.material.color = OriginalNotSelectedColor;
+				notSelectedColor = OriginalNotSelectedColor;
+			}
+		}
+	}
+
+	private void SetCustomMaterial(MapEditorProp MEP)
+	{
+		if (myPropID[IDlayer] == 19)
+		{
+			MEP.CustomAInumber = 0;
+			MEP.myCustomMaterial = MapEditorMaster.instance.CustomMaterial[0];
+			SetCustomTanksMaterials(0, MEP.ColoredObjects);
+		}
+		else if (myPropID[IDlayer] == 20)
+		{
+			MEP.CustomAInumber = 1;
+			MEP.myCustomMaterial = MapEditorMaster.instance.CustomMaterial[1];
+			SetCustomTanksMaterials(1, MEP.ColoredObjects);
+		}
+		else if (myPropID[IDlayer] == 21)
+		{
+			MEP.CustomAInumber = 2;
+			MEP.myCustomMaterial = MapEditorMaster.instance.CustomMaterial[2];
+			SetCustomTanksMaterials(2, MEP.ColoredObjects);
+		}
+	}
+
+	private void SetCustomTanksMaterials(int ID, MeshRenderer[] objects)
+	{
+		foreach (MeshRenderer meshRenderer in objects)
+		{
+			for (int j = 0; j < meshRenderer.sharedMaterials.Length; j++)
+			{
+				if (meshRenderer.sharedMaterials[j].name == "CustomTank")
+				{
+					Material[] sharedMaterials = meshRenderer.sharedMaterials;
+					sharedMaterials[j] = MapEditorMaster.instance.CustomMaterial[ID];
+					meshRenderer.sharedMaterials = sharedMaterials;
+				}
+			}
+		}
+	}
+
+	public void SpawnInProps(int propID, int direction, int Team, int LayerHeight, int SpawnDifficulty)
+	{
+		if (propOnMe[LayerHeight])
+		{
+			return;
+		}
+		rotationDirection[LayerHeight] = direction;
+		Yheight = MapEditorMaster.instance.PropStartHeight[propID];
+		myProp[LayerHeight] = Object.Instantiate(MapEditorMaster.instance.Props[propID], new Vector3(base.transform.position.x, Yheight + (float)(LayerHeight * 2), base.transform.position.z), Quaternion.identity);
+		MapEditorProp mapEditorProp = myProp[LayerHeight].GetComponent<MapEditorProp>();
+		if (mapEditorProp == null)
+		{
+			mapEditorProp = myProp[LayerHeight].GetComponentInChildren<MapEditorProp>();
+		}
+		if (mapEditorProp == null)
+		{
+			mapEditorProp = myProp[LayerHeight].transform.GetChild(0).GetComponentInChildren<MapEditorProp>();
+		}
+		if (mapEditorProp == null)
+		{
+			mapEditorProp = myProp[LayerHeight].transform.GetChild(0).GetChild(0).GetComponentInChildren<MapEditorProp>();
+		}
+		if (!(mapEditorProp != null))
+		{
+			return;
+		}
+		mapEditorProp.myMEGP = this;
+		myMEP[LayerHeight] = mapEditorProp;
+		myPropPrefab[LayerHeight] = MapEditorMaster.instance.Props[propID];
+		myProp[LayerHeight].transform.parent = GameMaster.instance.Levels[0].transform;
+		propOnMe[LayerHeight] = true;
+		myPropID[LayerHeight] = propID;
+		mapEditorProp.LayerNumber = LayerHeight;
+		if (Team > -1)
+		{
+			mapEditorProp.TeamNumber = Team;
+			MapEditorMaster.instance.ColorsTeamsPlaced[Team]++;
+		}
+		if (mapEditorProp != null)
+		{
+			mapEditorProp.MyDifficultySpawn = SpawnDifficulty;
+			applyPropRotation(mapEditorProp, rotationDirection[LayerHeight]);
+			SetCustomMaterial(mapEditorProp);
+			SetGridPieceColor();
+			DifficultyCheck component = mapEditorProp.transform.parent.GetComponent<DifficultyCheck>();
+			if ((bool)component)
+			{
+				component.myDifficulty = SpawnDifficulty;
+			}
+		}
+	}
+
+	public void Reset()
+	{
+		GameObject[] array = myProp;
+		foreach (GameObject gameObject in array)
+		{
+			if ((bool)gameObject)
+			{
+				Object.Destroy(gameObject);
+			}
+		}
+		for (int j = 0; j < 5; j++)
+		{
+			propOnMe[j] = false;
+			myPropID[j] = -1;
+			myProp[j] = null;
+			myPropPrefab[j] = null;
+			myMEP[j] = null;
+			rotationDirection[j] = 0;
+			MyTeamNumber = -1;
+		}
+		SpawnDifficulty = 0;
+		lastKnownMission = -1;
+		Yheight = 0f;
+		mission = 0;
+		notSelectedColor = OriginalNotSelectedColor;
+		myRend.material.color = OriginalNotSelectedColor;
+		SetGridPieceColor();
+	}
+
+	public void applyPropRotation(MapEditorProp MEP, int dir)
+	{
+		Quaternion quaternion = Quaternion.Euler(0f, 90f * (float)dir, 0f);
+		if (MEP.transform.tag == "Player" || MEP.isEnemyTank)
+		{
+			MEP.transform.parent.transform.parent.transform.rotation *= quaternion;
+		}
+		else if (MEP.transform.parent != null)
+		{
+			if (MEP.removeParentOnDelete)
+			{
+				MEP.transform.parent.transform.rotation *= Quaternion.Euler(new Vector3(0f, 90f, 0f));
+			}
+			else if (MEP.transform.parent.name == "Hole" || MEP.transform.parent.name == "Hole(Clone)")
+			{
+				MEP.transform.parent.transform.rotation *= quaternion;
+			}
+			else
+			{
+				MEP.transform.rotation *= quaternion;
+			}
+		}
+		else
+		{
+			MEP.transform.rotation *= quaternion;
+		}
+	}
+}
