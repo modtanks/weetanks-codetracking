@@ -140,7 +140,7 @@ public class FollowTank : MonoBehaviour
 
 	private void SearchMyPlayer()
 	{
-		if (GameMaster.instance.Players.Count > 0 && !isPlayer2Spotlight && GameMaster.instance.Players[0] != null)
+		if (GameMaster.instance.Players.Count > 0 && !isPlayer2Spotlight && !isPlayer3Spotlight && !isPlayer4Spotlight && GameMaster.instance.Players[0] != null)
 		{
 			bodyTank = GameMaster.instance.Players[0].transform;
 		}

@@ -866,7 +866,7 @@ public class PlayerBulletScript : MonoBehaviour
 			}
 			if (isElectric && !IsElectricCharged && (bool)component5)
 			{
-				component5.StunMe(3);
+				component5.StunMe(3f);
 				TimesBounced = 9999;
 				yield break;
 			}
@@ -1005,12 +1005,12 @@ public class PlayerBulletScript : MonoBehaviour
 				MoveTankScript component2 = collision.gameObject.GetComponent<MoveTankScript>();
 				if (component2 != null)
 				{
-					component2.StunMe(3);
+					component2.StunMe(3f);
 				}
 				EnemyAI component3 = collision.gameObject.GetComponent<EnemyAI>();
 				if (component3 != null && component3.HTscript.EnemyID != 15)
 				{
-					component3.StunMe(3);
+					component3.StunMe(3f);
 				}
 			}
 		}
@@ -1087,9 +1087,16 @@ public class PlayerBulletScript : MonoBehaviour
 			}
 			if (component != null && !component.immuneToExplosion)
 			{
-				if (component.ShieldFade.ShieldHealth > 0)
+				if ((bool)component.ShieldFade)
 				{
-					component.ShieldFade.ShieldHealth = 0;
+					if (component.ShieldFade.ShieldHealth > 0)
+					{
+						component.ShieldFade.ShieldHealth = 0;
+					}
+					else
+					{
+						component.health--;
+					}
 				}
 				else
 				{

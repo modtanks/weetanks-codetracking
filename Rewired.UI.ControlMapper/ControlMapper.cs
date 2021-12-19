@@ -3604,14 +3604,9 @@ public class ControlMapper : MonoBehaviour
 
 	public void OnButtonActivated(ButtonInfo buttonInfo)
 	{
-		if (!initialized || !inputAllowed)
+		if (initialized && inputAllowed)
 		{
-			return;
-		}
-		string identifier = buttonInfo.identifier;
-		if (identifier != null)
-		{
-			switch (identifier)
+			switch (buttonInfo.identifier)
 			{
 			case "PlayerSelection":
 				OnPlayerSelected(buttonInfo.intData, redraw: true);
@@ -6078,6 +6073,7 @@ public class ControlMapper : MonoBehaviour
 
 	private void ClearCompletely()
 	{
+		Clear();
 		ClearSpawnedObjects();
 		ClearAllVars();
 	}

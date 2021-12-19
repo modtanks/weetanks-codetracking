@@ -122,14 +122,14 @@ public class ElectroBoss : MonoBehaviour
 			{
 				component.StartCoroutine(component.Shake(0.12f, 0.2f));
 			}
-			Collider[] array = Physics.OverlapSphere(base.transform.position, 14f);
+			Collider[] array = Physics.OverlapSphere(base.transform.position, 12f);
 			foreach (Collider collider in array)
 			{
 				Rigidbody component2 = collider.GetComponent<Rigidbody>();
 				if (component2 != null && (collider.tag == "Player" || collider.tag == "Enemy"))
 				{
 					float num5 = Vector3.Distance(component2.transform.position, base.transform.position);
-					float num6 = (21f - num5) * 1f;
+					float num6 = (16.8f - num5) * 1f;
 					Vector3 vector = component2.transform.position - base.transform.position;
 					component2.AddForce(vector * num6, ForceMode.Impulse);
 				}

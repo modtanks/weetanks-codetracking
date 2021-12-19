@@ -227,7 +227,7 @@ public class PauseMenuScript : MonoBehaviour
 				StopTestingButtonMarker.SetActive(value: false);
 			}
 		}
-		if (SteamTest.instance.SteamOverlayActive && !myCanvas.enabled)
+		if ((bool)SteamTest.instance && SteamTest.instance.SteamOverlayActive && !myCanvas.enabled)
 		{
 			PauseGame();
 		}
@@ -381,7 +381,7 @@ public class PauseMenuScript : MonoBehaviour
 				OptionsMainMenu.instance.musicVolumeLvl = musicLvlBefore;
 				musicLvlBefore = 0;
 			}
-			Time.timeScale = 1f;
+			Time.timeScale = 0f;
 			OptionsMainMenu.instance.StartLevel = 0;
 			OptionsMainMenu.instance.MapSize = 285;
 			StartCoroutine(LoadYourAsyncScene(0));

@@ -31,6 +31,10 @@ public class ZombieTankSpawner : MonoBehaviour
 
 	public GameObject SecondTankPrefab;
 
+	public GameObject ThirdTankPrefab;
+
+	public GameObject FourthTankPrefab;
+
 	public GameObject MagicPoof;
 
 	public AudioClip MagicSound;
@@ -38,6 +42,10 @@ public class ZombieTankSpawner : MonoBehaviour
 	public Vector3 playerLocation;
 
 	public Vector3 player2Location;
+
+	public Vector3 player3Location;
+
+	public Vector3 player4Location;
 
 	public CountDownScript counterScript;
 
@@ -65,8 +73,21 @@ public class ZombieTankSpawner : MonoBehaviour
 	{
 		playerLocation = GameObject.Find("Main_Tank_FBX_Survival").transform.position;
 		player2Location = GameObject.Find("Second_Tank_FBX_Survival").transform.position;
+		player3Location = GameObject.Find("Third_Tank_FBX_Survival").transform.position;
+		player4Location = GameObject.Find("Fourth_Tank_FBX_Survival").transform.position;
 		SpawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoint");
 		StartCoroutine(Spawner());
+	}
+
+	private void Start()
+	{
+		for (int i = 0; i < GameMaster.instance.Levels.Count; i++)
+		{
+			if (i != GameMaster.instance.CurrentMission)
+			{
+				Object.Destroy(GameMaster.instance.Levels[i]);
+			}
+		}
 	}
 
 	private IEnumerator Spawner()
@@ -143,7 +164,7 @@ public class ZombieTankSpawner : MonoBehaviour
 	{
 		timerRunning = true;
 		yield return new WaitForSeconds(1f);
-		if (GameObject.Find("Main_Tank_FBX_Survival") == null && GameObject.Find("Main_Tank_FBX_Survival(Clone)") == null)
+		if (GameObject.Find("Main_Tank_FBX_Survival") == null && GameObject.Find("Main_Tank_FBX_Survival(Clone)") == null && GameMaster.instance.PlayerJoined[0])
 		{
 			Debug.LogWarning("BLUE TANK SPAWNED!");
 			GameMaster.instance.AmountGoodTanks++;
@@ -154,8 +175,11 @@ public class ZombieTankSpawner : MonoBehaviour
 			component.Play();
 			Play2DClipAtPoint(MagicSound);
 		}
-		if (GameObject.Find("Second_Tank_FBX_Survival") == null && GameObject.Find("Second_Tank_FBX_Survival(Clone)") == null)
+		if ((GameMaster.instance.PlayerDied[1] && GameMaster.instance.PlayerJoined[1]) || GameMaster.instance.PlayerJoining[1])
 		{
+			GameMaster.instance.PlayerDied[1] = false;
+			GameMaster.instance.PlayerJoining[1] = false;
+			GameMaster.instance.PlayerJoined[1] = true;
 			Debug.LogWarning("RED TANK SPAWNED!");
 			GameMaster.instance.AmountGoodTanks++;
 			Object.Instantiate(SecondTankPrefab, player2Location, Quaternion.identity);
@@ -165,6 +189,33 @@ public class ZombieTankSpawner : MonoBehaviour
 			component2.Play();
 			Play2DClipAtPoint(MagicSound);
 		}
+		if ((GameMaster.instance.PlayerDied[2] && GameMaster.instance.PlayerJoined[2]) || GameMaster.instance.PlayerJoining[2])
+		{
+			GameMaster.instance.PlayerDied[2] = false;
+			GameMaster.instance.PlayerJoining[2] = false;
+			GameMaster.instance.PlayerJoined[2] = true;
+			GameMaster.instance.AmountGoodTanks++;
+			Object.Instantiate(ThirdTankPrefab, player3Location, Quaternion.identity);
+			GameObject obj3 = Object.Instantiate(MagicPoof, player3Location, Quaternion.identity);
+			ParticleSystem component3 = obj3.GetComponent<ParticleSystem>();
+			obj3.transform.Rotate(new Vector3(-90f, 0f, 0f));
+			component3.Play();
+			Play2DClipAtPoint(MagicSound);
+		}
+		if ((GameMaster.instance.PlayerDied[3] && GameMaster.instance.PlayerJoined[3]) || GameMaster.instance.PlayerJoining[3])
+		{
+			GameMaster.instance.PlayerDied[3] = false;
+			GameMaster.instance.PlayerJoining[3] = false;
+			GameMaster.instance.PlayerJoined[3] = true;
+			GameMaster.instance.AmountGoodTanks++;
+			Object.Instantiate(FourthTankPrefab, player4Location, Quaternion.identity);
+			GameObject obj4 = Object.Instantiate(MagicPoof, player4Location, Quaternion.identity);
+			ParticleSystem component4 = obj4.GetComponent<ParticleSystem>();
+			obj4.transform.Rotate(new Vector3(-90f, 0f, 0f));
+			component4.Play();
+			Play2DClipAtPoint(MagicSound);
+		}
+		GameMaster.instance.FindPlayers();
 		yield return new WaitForSeconds(3f);
 		if (!counterScript.start)
 		{

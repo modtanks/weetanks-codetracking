@@ -8,6 +8,8 @@ public class EnemyAI : MonoBehaviour
 	[Header("AI Behaviour")]
 	public bool IsCompanion;
 
+	public int CompanionID = 1;
+
 	public int difficulty;
 
 	public int NotSeeBulletChancePercentage = 5;
@@ -757,7 +759,7 @@ public class EnemyAI : MonoBehaviour
 		}
 	}
 
-	public void StunMe(int sec)
+	public void StunMe(float sec)
 	{
 		isStunned = true;
 		stunTimer = sec;
@@ -1448,27 +1450,49 @@ public class EnemyAI : MonoBehaviour
 		{
 			return;
 		}
-		for (int i = 0; i < GameMaster.instance.Players.Count; i++)
+		bool flag = false;
+		for (int i = 0; i < 4; i++)
 		{
-			if (GameMaster.instance.Players[i] != base.gameObject)
+			if (GameMaster.instance.PlayerDown[i] && !GoingToPlayer)
 			{
-				if (GameMaster.instance.PlayerDown[i] && !GoingToPlayer)
+				flag = true;
+				foreach (GameObject player in GameMaster.instance.Players)
 				{
-					DownedPlayer = GameMaster.instance.Players[i];
-					StartCoroutine(CheckIfPlayerStraightLine());
-					PAI.SearchForPlayer = true;
-					PAI.SearchAIblock();
-					return;
+					MoveTankScript component = player.GetComponent<MoveTankScript>();
+					if ((bool)component)
+					{
+						if (component.playerId == i)
+						{
+							DownedPlayer = player;
+							StartCoroutine(CheckIfPlayerStraightLine());
+							PAI.SearchForPlayer = true;
+							PAI.SearchAIblock();
+							return;
+						}
+					}
+					else if (player.GetComponent<EnemyAI>().CompanionID == i)
+					{
+						DownedPlayer = player;
+						StartCoroutine(CheckIfPlayerStraightLine());
+						PAI.SearchForPlayer = true;
+						PAI.SearchAIblock();
+						return;
+					}
 				}
-				if (GameMaster.instance.PlayerDown[i] && GoingToPlayer && !boosting && canBoost)
+			}
+			else if (GameMaster.instance.PlayerDown[i] && GoingToPlayer)
+			{
+				flag = true;
+				if (!boosting && canBoost)
 				{
 					ActivateBooster();
 					return;
 				}
 			}
 		}
-		if (GoingToPlayer && DownedPlayer == null)
+		if (GoingToPlayer && flag)
 		{
+			DownedPlayer = null;
 			DisablePathFinding();
 		}
 	}

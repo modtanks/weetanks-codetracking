@@ -87,7 +87,7 @@ public class DestroySecondPlayer : MonoBehaviour
 
 	private void Update()
 	{
-		if (!(GameMaster.instance != null) || ((bool)GameMaster.instance.CM && GameMaster.instance.PlayerModeWithAI[1] == 1) || ((bool)GameMaster.instance.CM && GameMaster.instance.PlayerModeWithAI[2] == 1) || ((bool)GameMaster.instance.CM && GameMaster.instance.PlayerModeWithAI[3] == 1))
+		if (!(GameMaster.instance != null) || GameMaster.instance.isZombieMode || ((bool)GameMaster.instance.CM && GameMaster.instance.PlayerModeWithAI[1] == 1) || ((bool)GameMaster.instance.CM && GameMaster.instance.PlayerModeWithAI[2] == 1) || ((bool)GameMaster.instance.CM && GameMaster.instance.PlayerModeWithAI[3] == 1))
 		{
 			return;
 		}
@@ -106,7 +106,7 @@ public class DestroySecondPlayer : MonoBehaviour
 				}
 			}
 		}
-		if (((GameMaster.instance.GameHasPaused || GameMaster.instance.GameHasStarted) && GameMaster.instance.CurrentMission != 0) || !disabled || (GameMaster.instance.isZombieMode && GameMaster.instance.PlayerModeWithAI[1] == 1))
+		if (GameMaster.instance.GameHasPaused || GameMaster.instance.GameHasStarted || !disabled || (GameMaster.instance.isZombieMode && GameMaster.instance.PlayerModeWithAI[1] == 1))
 		{
 			return;
 		}

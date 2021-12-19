@@ -190,15 +190,20 @@ public class PlaneScript : MonoBehaviour
 						if (SkipTankIndexKid.Contains(num3) && OptionsMainMenu.instance.currentDifficulty == 1)
 						{
 							gameObject = null;
-							continue;
 						}
-						if (SkipTankIndexToddler.Contains(num3) && OptionsMainMenu.instance.currentDifficulty == 0)
+						else if (SkipTankIndexToddler.Contains(num3) && OptionsMainMenu.instance.currentDifficulty == 0)
 						{
 							gameObject = null;
-							continue;
 						}
-						gameObject = Tanks[num3];
-						component.index = num3;
+						else if (num3 != 15 && num3 != 16 && num3 != 17)
+						{
+							gameObject = Tanks[num3];
+							component.index = num3;
+						}
+						else
+						{
+							gameObject = null;
+						}
 					}
 					while (gameObject == null);
 				}

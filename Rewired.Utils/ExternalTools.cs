@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using Rewired.Internal;
+using Rewired.Internal.Windows;
 using Rewired.Utils.Interfaces;
 using Rewired.Utils.Platforms.Windows;
 using UnityEngine;
@@ -382,6 +383,11 @@ public class ExternalTools : IExternalTools
 	public int GetAndroidAPILevel()
 	{
 		return -1;
+	}
+
+	public void WindowsStandalone_ForwardRawInput(IntPtr rawInputHeaderIndices, IntPtr rawInputDataIndices, uint indicesCount, IntPtr rawInputData, uint rawInputDataSize)
+	{
+		Functions.ForwardRawInput(rawInputHeaderIndices, rawInputDataIndices, indicesCount, rawInputData, rawInputDataSize);
 	}
 
 	public bool UnityUI_Graphic_GetRaycastTarget(object graphic)

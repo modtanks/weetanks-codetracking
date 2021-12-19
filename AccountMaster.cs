@@ -319,23 +319,28 @@ public class AccountMaster : MonoBehaviour
 		FileStream fileStream = new FileStream(path, FileMode.Open);
 		UserCredentials userCredentials = binaryFormatter.Deserialize(fileStream) as UserCredentials;
 		fileStream.Close();
-		if (userCredentials != null)
+		if (userCredentials == null)
 		{
-			if (userCredentials.hash != SystemInfo.deviceUniqueIdentifier)
-			{
-				SignOut(manual: false);
-				return;
-			}
-			if (ST.SteamAccountID > 1000 && userCredentials.steamid > 1000 && ST.SteamAccountID == userCredentials.steamid)
-			{
-				StartCoroutine(CreateAccountViaSteam("https://www.weetanks.com/create_steam_account.php", ST.username, ST.SteamAccountID, IsSignIn: true));
-				return;
-			}
-			Username = userCredentials.name;
-			Key = userCredentials.key;
-			Debug.Log("LOADING:" + userCredentials.key);
-			UserID = userCredentials.id;
-			StartCoroutine(LoadCloudData());
+			return;
+		}
+		if (userCredentials.hash != SystemInfo.deviceUniqueIdentifier)
+		{
+			SignOut(manual: false);
+			return;
+		}
+		if (ST.SteamAccountID > 1000 && userCredentials.steamid > 1000 && ST.SteamAccountID == userCredentials.steamid)
+		{
+			StartCoroutine(CreateAccountViaSteam("https://www.weetanks.com/create_steam_account.php", ST.username, ST.SteamAccountID, IsSignIn: true));
+			return;
+		}
+		Username = userCredentials.name;
+		Key = userCredentials.key;
+		Debug.Log("LOADING:" + userCredentials.key);
+		UserID = userCredentials.id;
+		StartCoroutine(LoadCloudData());
+		if (userCredentials.steamid > 1000)
+		{
+			SteamUserID = userCredentials.steamid;
 		}
 	}
 
@@ -412,7 +417,7 @@ public class AccountMaster : MonoBehaviour
 			Debug.Log("Error While Sending: " + keyRequest.error);
 			if ((bool)NMC)
 			{
-				NMC.StartCoroutine(NMC.FailedTransferSteam());
+				NMC.StartCoroutine(NMC.FailedTransferSteam(null));
 			}
 			yield break;
 		}
@@ -420,7 +425,7 @@ public class AccountMaster : MonoBehaviour
 		{
 			if ((bool)NMC)
 			{
-				NMC.StartCoroutine(NMC.FailedTransferSteam());
+				NMC.StartCoroutine(NMC.FailedTransferSteam(null));
 			}
 			yield break;
 		}
@@ -444,16 +449,24 @@ public class AccountMaster : MonoBehaviour
 			Debug.Log("Error While Sending: " + uwr.error);
 			if ((bool)NMC)
 			{
-				NMC.StartCoroutine(NMC.FailedTransferSteam());
+				NMC.StartCoroutine(NMC.FailedTransferSteam(null));
 			}
 			yield break;
 		}
 		Debug.Log("Received: " + uwr.downloadHandler.text);
-		if (uwr.downloadHandler.text.Contains("FAILED"))
+		if (uwr.downloadHandler.text.Contains("already connected"))
 		{
 			if ((bool)NMC)
 			{
-				NMC.StartCoroutine(NMC.FailedTransferSteam());
+				NMC.StartCoroutine(NMC.FailedTransferSteam(uwr.downloadHandler.text));
+			}
+			yield break;
+		}
+		if (uwr.downloadHandler.text.Contains("FAILED") || uwr.downloadHandler.text.Contains("false"))
+		{
+			if ((bool)NMC)
+			{
+				NMC.StartCoroutine(NMC.FailedTransferSteam(null));
 			}
 			yield break;
 		}
@@ -461,25 +474,36 @@ public class AccountMaster : MonoBehaviour
 		{
 			if ((bool)NMC)
 			{
-				NMC.StartCoroutine(NMC.FailedTransferSteam());
+				isSignedIn = true;
+				string[] array = uwr.downloadHandler.text.Split(char.Parse("/"));
+				SteamUserID = SteamTest.instance.SteamAccountID;
+				SaveCredentials();
+				if (array.Length > 3 && array[3] != null)
+				{
+					AssignData(array[3]);
+				}
+				if ((bool)NMC)
+				{
+					NMC.StartCoroutine(NMC.SuccesTransferSteam());
+				}
 			}
 			yield break;
 		}
 		isSignedIn = true;
-		string[] array = uwr.downloadHandler.text.Split(char.Parse("/"));
+		string[] array2 = uwr.downloadHandler.text.Split(char.Parse("/"));
 		SteamUserID = SteamTest.instance.SteamAccountID;
-		UserID = array[1];
-		GameMaster.instance.AccountID = int.Parse(array[1]);
-		if (array[0] != "null")
+		UserID = array2[1];
+		GameMaster.instance.AccountID = int.Parse(array2[1]);
+		if (array2[0] != "null")
 		{
-			Key = array[0];
+			Key = array2[0];
 		}
-		Username = array[2];
+		Username = array2[2];
 		isSignedIn = true;
 		SaveCredentials();
-		if (array.Length > 3 && array[3] != null)
+		if (array2.Length > 3 && array2[3] != null)
 		{
-			AssignData(array[3]);
+			AssignData(array2[3]);
 		}
 		if ((bool)NMC)
 		{

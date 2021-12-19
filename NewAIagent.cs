@@ -147,6 +147,7 @@ public class NewAIagent : MonoBehaviour
 			if (SuicideTimer < 0.33f)
 			{
 				Boom();
+				SuicideTimer = 2f;
 			}
 			SuicideTimer -= Time.deltaTime;
 		}
@@ -290,7 +291,7 @@ public class NewAIagent : MonoBehaviour
 			AreaDamageEnemies(base.transform.position, 3.8f, 1f);
 		}
 		Play2DClipAtPoint(Deathsound);
-		myHealth.health--;
+		myHealth.health = -9;
 	}
 
 	private void AreaDamageEnemies(Vector3 location, float radius, float damage)

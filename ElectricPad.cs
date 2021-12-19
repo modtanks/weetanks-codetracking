@@ -205,13 +205,13 @@ public class ElectricPad : MonoBehaviour
 			MoveTankScript component = other.GetComponent<MoveTankScript>();
 			if ((bool)component)
 			{
-				component.StunMe(2);
+				component.StunMe(1.5f);
 				return;
 			}
 			EnemyAI component2 = other.GetComponent<EnemyAI>();
 			if ((bool)component2)
 			{
-				component2.StunMe(2);
+				component2.StunMe(1.5f);
 			}
 		}
 		else if (other.tag == "Enemy" && (Active || ActiveBecauseCloseToBoss) && GameMaster.instance.CurrentMission != 69)
@@ -219,7 +219,7 @@ public class ElectricPad : MonoBehaviour
 			EnemyAI component3 = other.GetComponent<EnemyAI>();
 			if ((bool)component3 && !component3.isElectric)
 			{
-				component3.StunMe(2);
+				component3.StunMe(1.5f);
 			}
 		}
 		else if (other.tag == "Bullet" && (Active || ActiveBecauseCloseToBoss))
@@ -282,14 +282,14 @@ public class ElectricPad : MonoBehaviour
 				MoveTankScript component = PlayerOnMe.GetComponent<MoveTankScript>();
 				if ((bool)component && !component.isStunned)
 				{
-					component.StunMe(2);
+					component.StunMe(2f);
 				}
 				else
 				{
 					EnemyAI component2 = PlayerOnMe.GetComponent<EnemyAI>();
 					if ((bool)component2 && !component2.isStunned)
 					{
-						component2.StunMe(2);
+						component2.StunMe(2f);
 					}
 				}
 			}

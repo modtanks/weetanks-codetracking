@@ -30,15 +30,23 @@ public class CheckSurroundings : MonoBehaviour
 
 	private void CheckForWalls()
 	{
-		if (GameMaster.instance.GameHasStarted || MapEditorMaster.instance.isTesting || MapEditorMaster.instance.inPlayingMode)
+		if ((bool)MapEditorMaster.instance)
 		{
-			myCollider.enabled = false;
-			MyRend.gameObject.SetActive(value: false);
+			if (GameMaster.instance.GameHasStarted || MapEditorMaster.instance.isTesting || MapEditorMaster.instance.inPlayingMode)
+			{
+				myCollider.enabled = false;
+				MyRend.gameObject.SetActive(value: false);
+			}
+			else
+			{
+				myCollider.enabled = true;
+				MyRend.gameObject.SetActive(value: true);
+			}
 		}
 		else
 		{
-			myCollider.enabled = true;
-			MyRend.gameObject.SetActive(value: true);
+			myCollider.enabled = false;
+			MyRend.gameObject.SetActive(value: false);
 		}
 		if (EastCollider == null && !GameMaster.instance.GameHasStarted)
 		{
@@ -86,7 +94,7 @@ public class CheckSurroundings : MonoBehaviour
 				Collider[] array2 = array;
 				foreach (Collider collider2 in array2)
 				{
-					if (collider2.tag == "Solid" && (collider2.gameObject.layer == LayerMask.NameToLayer("Wall") || collider2.gameObject.layer == LayerMask.NameToLayer("NoBounceWall") || collider2.gameObject.layer == LayerMask.NameToLayer("CorkWall")))
+					if ((collider2.tag == "Solid" || collider2.tag == "MapBorder") && (collider2.gameObject.layer == LayerMask.NameToLayer("Wall") || collider2.gameObject.layer == LayerMask.NameToLayer("NoBounceWall") || collider2.gameObject.layer == LayerMask.NameToLayer("CorkWall")))
 					{
 						WestCollider = collider2;
 						flag2 = true;
@@ -119,7 +127,7 @@ public class CheckSurroundings : MonoBehaviour
 				Collider[] array2 = array;
 				foreach (Collider collider3 in array2)
 				{
-					if (collider3.tag == "Solid" && (collider3.gameObject.layer == LayerMask.NameToLayer("Wall") || collider3.gameObject.layer == LayerMask.NameToLayer("NoBounceWall") || collider3.gameObject.layer == LayerMask.NameToLayer("CorkWall")))
+					if ((collider3.tag == "Solid" || collider3.tag == "MapBorder") && (collider3.gameObject.layer == LayerMask.NameToLayer("Wall") || collider3.gameObject.layer == LayerMask.NameToLayer("NoBounceWall") || collider3.gameObject.layer == LayerMask.NameToLayer("CorkWall")))
 					{
 						NorthCollider = collider3;
 						flag3 = true;
@@ -151,7 +159,7 @@ public class CheckSurroundings : MonoBehaviour
 			Collider[] array2 = array;
 			foreach (Collider collider4 in array2)
 			{
-				if (collider4.tag == "Solid" && (collider4.gameObject.layer == LayerMask.NameToLayer("Wall") || collider4.gameObject.layer == LayerMask.NameToLayer("NoBounceWall") || collider4.gameObject.layer == LayerMask.NameToLayer("CorkWall")))
+				if ((collider4.tag == "Solid" || collider4.tag == "MapBorder") && (collider4.gameObject.layer == LayerMask.NameToLayer("Wall") || collider4.gameObject.layer == LayerMask.NameToLayer("NoBounceWall") || collider4.gameObject.layer == LayerMask.NameToLayer("CorkWall")))
 				{
 					SouthCollider = collider4;
 					flag4 = true;

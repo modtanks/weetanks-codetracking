@@ -501,7 +501,7 @@ public class EnemyBulletScript : MonoBehaviour
 						}
 						else
 						{
-							component2.StunMe(3);
+							component2.StunMe(3f);
 						}
 					}
 					EnemyAI component4 = collision.gameObject.GetComponent<EnemyAI>();
@@ -517,7 +517,7 @@ public class EnemyBulletScript : MonoBehaviour
 						}
 						else
 						{
-							component2.StunMe(3);
+							component2.StunMe(3f);
 						}
 					}
 				}

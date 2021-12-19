@@ -201,7 +201,6 @@ public class FiringTank : MonoBehaviour
 		{
 			if (tempRaycastResult.gameObject.transform.tag == "IgnoreMobile")
 			{
-				Debug.LogError("FIRING TANK SEES IGNORATION");
 				return true;
 			}
 		}

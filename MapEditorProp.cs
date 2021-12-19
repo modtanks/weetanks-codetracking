@@ -134,10 +134,18 @@ public class MapEditorProp : MonoBehaviour
 		{
 			OriginalBodyColor = myRend.materials[0].color;
 		}
+		myEnemyAI = GetComponent<EnemyAI>();
+		MTS = GetComponent<MoveTankScript>();
+		HT = GetComponent<HealthTanks>();
+		FT = GetComponent<FiringTank>();
 	}
 
 	private void Start()
 	{
+		myEnemyAI = GetComponent<EnemyAI>();
+		MTS = GetComponent<MoveTankScript>();
+		HT = GetComponent<HealthTanks>();
+		FT = GetComponent<FiringTank>();
 		if ((bool)myRend && OriginalBodyColor == Color.black && myRend.materials[0].color != Color.black)
 		{
 			OriginalBodyColor = myRend.materials[0].color;
@@ -174,10 +182,6 @@ public class MapEditorProp : MonoBehaviour
 		{
 			SetCustomTankProperties();
 		}
-		myEnemyAI = GetComponent<EnemyAI>();
-		MTS = GetComponent<MoveTankScript>();
-		HT = GetComponent<HealthTanks>();
-		FT = GetComponent<FiringTank>();
 		SetTankBodyColor();
 		StartCoroutine(SetColorAfterPlacement());
 		if (MapEditorMaster.instance != null && !MapEditorMaster.instance.inPlayingMode)

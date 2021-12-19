@@ -72,6 +72,8 @@ public class NewMenuControl : MonoBehaviour
 
 	public GameObject OnlineMyMapParent;
 
+	public GameObject OnlineButton;
+
 	public TMP_InputField Lobby_Code;
 
 	public TextMeshProUGUI LobbyCodeText;
@@ -222,6 +224,11 @@ public class NewMenuControl : MonoBehaviour
 		Play2DClipAtPoint(Jingles[num]);
 	}
 
+	private void Awake()
+	{
+		Time.timeScale = 1f;
+	}
+
 	private void GetMapFiles()
 	{
 		foreach (GameObject mapObject in MapObjects)
@@ -331,7 +338,7 @@ public class NewMenuControl : MonoBehaviour
 
 	public void EnableTransferMenu()
 	{
-		TransferAccountText.text = "Hey! Wee Tanks detected you are playing via Steam and already have an account.\n\n Would you like to connect <color=#0000FF>" + AccountMaster.instance.Username + "</color> to your Steam (<color=#0000FF>" + SteamTest.instance.username + "</color>) account?";
+		TransferAccountText.text = "Hey! Wee Tanks detected you have a Steam account.\n\n Would you like to connect <color=#0000FF>" + AccountMaster.instance.Username + "</color> to your Steam (<color=#0000FF>" + SteamTest.instance.username + "</color>) account?";
 		enableMenu(24);
 	}
 
@@ -1265,9 +1272,16 @@ public class NewMenuControl : MonoBehaviour
 	{
 	}
 
-	public IEnumerator FailedTransferSteam()
+	public IEnumerator FailedTransferSteam(string custommessage)
 	{
-		TransferAccountText.text = "Failed!";
+		if (custommessage != null)
+		{
+			TransferAccountText.text = custommessage;
+		}
+		else
+		{
+			TransferAccountText.text = "Failed!";
+		}
 		yield return new WaitForSeconds(2f);
 		enableMenu(0);
 	}
@@ -1310,6 +1324,11 @@ public class NewMenuControl : MonoBehaviour
 			{
 				CreateAccountNotificationText.gameObject.SetActive(value: true);
 				CreateAccountNotificationText.text = "Password has to be at least 6 long";
+			}
+			else if (Create_PasswordInput.text.Contains("/") || Create_PasswordInput.text.Contains("$") || Create_PasswordInput.text.Contains("{") || Create_PasswordInput.text.Contains("}") || Create_PasswordInput.text.Contains(",") || Create_PasswordInput.text.Contains(".") || Create_PasswordInput.text.Contains("'"))
+			{
+				CreateAccountNotificationText.gameObject.SetActive(value: true);
+				CreateAccountNotificationText.text = "Name has invalid characters";
 			}
 			else if (Create_PasswordInput.text != Create_PasswordInputCheck.text)
 			{
@@ -1897,6 +1916,7 @@ public class NewMenuControl : MonoBehaviour
 		LIS.gameObject.SetActive(value: true);
 		LIS.Play = true;
 		AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(lvlNumber);
+		OnlineButton.SetActive(value: false);
 		while (!asyncLoad.isDone)
 		{
 			yield return null;

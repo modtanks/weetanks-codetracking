@@ -743,14 +743,14 @@ public class ThemeSettings : ScriptableObject
 	{
 		if (!(item == null))
 		{
-			SelectableSettings_Base selectableSettings_Base = ((item as Button != null) ? ((themeClass == null || !(themeClass == "inputGridField")) ? _buttonSettings : _inputGridFieldSettings) : ((item as Scrollbar != null) ? _scrollbarSettings : ((item as Slider != null) ? ((SelectableSettings_Base)_sliderSettings) : ((SelectableSettings_Base)((!(item as Toggle != null)) ? _selectableSettings : ((themeClass == null || !(themeClass == "button")) ? _selectableSettings : _buttonSettings))))));
+			SelectableSettings_Base selectableSettings_Base = ((item as Button != null) ? ((!(themeClass == "inputGridField")) ? _buttonSettings : _inputGridFieldSettings) : ((item as Scrollbar != null) ? _scrollbarSettings : ((item as Slider != null) ? ((SelectableSettings_Base)_sliderSettings) : ((SelectableSettings_Base)((!(item as Toggle != null)) ? _selectableSettings : ((!(themeClass == "button")) ? _selectableSettings : _buttonSettings))))));
 			selectableSettings_Base.Apply(item);
 		}
 	}
 
 	private void Apply(string themeClass, Image item)
 	{
-		if (item == null || themeClass == null)
+		if (item == null)
 		{
 			return;
 		}
@@ -835,12 +835,7 @@ public class ThemeSettings : ScriptableObject
 	{
 		if (!(item == null))
 		{
-			TextSettings textSettings = themeClass switch
-			{
-				"button" => _buttonTextSettings, 
-				"inputGridField" => _inputGridFieldTextSettings, 
-				_ => _textSettings, 
-			};
+			TextSettings textSettings = ((themeClass == "button") ? _buttonTextSettings : ((!(themeClass == "inputGridField")) ? _textSettings : _inputGridFieldTextSettings));
 			if (textSettings.font != null)
 			{
 				item.font = textSettings.font;

@@ -290,7 +290,7 @@ public class UpgradeField : MonoBehaviour
 			inPlacingMode = true;
 			if (GameMaster.instance.isPlayingWithController || isPlayer2)
 			{
-				UpgradeText.text = "Press <sprite=5> to place Turret";
+				UpgradeText.text = "Press " + myMTS.player.controllers.maps.GetFirstButtonMapWithAction("Use", skipDisabledMaps: true).elementIdentifierName + " to place Turret";
 			}
 			else
 			{

@@ -69,13 +69,13 @@ public class ElectricWall : MonoBehaviour
 			MoveTankScript component = other.GetComponent<MoveTankScript>();
 			if ((bool)component)
 			{
-				component.StunMe(2);
+				component.StunMe(2f);
 				return;
 			}
 			EnemyAI component2 = other.GetComponent<EnemyAI>();
 			if ((bool)component2)
 			{
-				component2.StunMe(2);
+				component2.StunMe(2f);
 			}
 		}
 		else if (other.tag == "Enemy" && isCharged && GameMaster.instance.CurrentMission != 69)
@@ -83,7 +83,7 @@ public class ElectricWall : MonoBehaviour
 			EnemyAI component3 = other.GetComponent<EnemyAI>();
 			if ((bool)component3 && !component3.isElectric)
 			{
-				component3.StunMe(2);
+				component3.StunMe(2f);
 			}
 		}
 		else if (other.tag == "Bullet")

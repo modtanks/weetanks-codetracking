@@ -18,6 +18,8 @@ public class PathfindingAI : MonoBehaviour
 
 	public bool SearchForPlayer;
 
+	public int ScanRange = 24;
+
 	private int amountOfScans;
 
 	private int scannedDone = 1;
@@ -140,7 +142,7 @@ public class PathfindingAI : MonoBehaviour
 			PathIDS.Clear();
 			amountToScan = CheckAllDirections(BlockScripts.Find((PathGridPieceClass x) => x.ID == 0), IsOverwrite: false) + scannedDone;
 			amountOfScans++;
-			while (scannedDone != amountToScan && amountOfScans < 24)
+			while (scannedDone != amountToScan && amountOfScans < ScanRange)
 			{
 				int num = 0;
 				int i;

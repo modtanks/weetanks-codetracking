@@ -9,19 +9,16 @@ public class LoadCampaignMap : MonoBehaviour
 	public GameObject LoadMap(SingleMapEditorData SMED, int number)
 	{
 		GameObject gameObject = new GameObject("Level" + number);
-		Debug.Log("new level");
 		foreach (MapPiecesClass missionDataProp in SMED.MissionDataProps)
 		{
 			if (missionDataProp == null)
 			{
 				continue;
 			}
-			Debug.Log("with data!");
 			for (int i = 0; i < 5; i++)
 			{
 				if (missionDataProp.propID[i] > -1)
 				{
-					Debug.Log("with prop data");
 					SpawnInProp(missionDataProp.propID[i], missionDataProp.propRotation[i], i, gameObject, missionDataProp.ID, missionDataProp.SpawnDifficulty);
 				}
 			}

@@ -268,7 +268,7 @@ public class MoveTankScript : MonoBehaviour
 		}
 	}
 
-	public void StunMe(int sec)
+	public void StunMe(float sec)
 	{
 		if (GameMaster.instance.CurrentMission == 69)
 		{

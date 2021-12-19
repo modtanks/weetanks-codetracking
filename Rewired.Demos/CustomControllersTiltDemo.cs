@@ -15,7 +15,7 @@ public class CustomControllersTiltDemo : MonoBehaviour
 
 	private void Awake()
 	{
-		Screen.orientation = ScreenOrientation.LandscapeLeft;
+		Screen.orientation = ScreenOrientation.Landscape;
 		player = ReInput.players.GetPlayer(0);
 		ReInput.InputSourceUpdateEvent += OnInputUpdate;
 		controller = (CustomController)player.controllers.GetControllerWithTag(ControllerType.Custom, "TiltController");

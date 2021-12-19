@@ -481,15 +481,11 @@ public class GameMaster : MonoBehaviour
 					{
 						ReInput.players.GetPlayer(i).controllers.AddController(ReInput.players.GetPlayer(0).controllers.GetController(ControllerType.Joystick, 0), removeFromOtherPlayers: true);
 					}
-					if (ReInput.players.GetPlayer(i).controllers.joystickCount > 0 && ReInput.players.GetPlayer(0).controllers.joystickCount < 1 && !PlayerJoined[i] && ReInput.players.GetPlayer(i).GetAnyButton())
+					if (ReInput.players.GetPlayer(i).controllers.joystickCount > 0 && ReInput.players.GetPlayer(0).controllers.joystickCount < 1 && !PlayerJoined[i] && ReInput.players.GetPlayer(i).GetAnyButton() && !isPlayingWithController && !ReInput.players.GetPlayer(i).GetButton("Escape"))
 					{
-						if (!isPlayingWithController && !ReInput.players.GetPlayer(i).GetButton("Escape"))
-						{
-							ReInput.players.GetPlayer(0).controllers.AddController(ReInput.players.GetPlayer(i).controllers.GetController(ControllerType.Joystick, 0), removeFromOtherPlayers: true);
-							isPlayingWithController = true;
-							return;
-						}
-						Debug.Log("input on player thats not using his controller!!!!");
+						ReInput.players.GetPlayer(0).controllers.AddController(ReInput.players.GetPlayer(i).controllers.GetController(ControllerType.Joystick, 0), removeFromOtherPlayers: true);
+						isPlayingWithController = true;
+						return;
 					}
 					if (PlayerJoined[i] || PlayerJoining[i] || PlayerLeftCooldown || !ReInput.players.GetPlayer(i).GetButtonDown("Escape"))
 					{
@@ -498,11 +494,11 @@ public class GameMaster : MonoBehaviour
 					Debug.Log("CHANGING STATE!");
 					if ((i != 1 || PlayerModeWithAI[1] != 1) && (i != 2 || PlayerModeWithAI[2] != 1) && (i != 3 || PlayerModeWithAI[3] != 1))
 					{
-						if (GameHasStarted && !GameHasPaused && CurrentMission != 0)
+						if (GameHasStarted && !GameHasPaused)
 						{
 							PlayerJoining[i] = true;
 						}
-						else if ((!GameHasPaused && !GameHasStarted && PlayerModeWithAI[1] != 1) || isZombieMode || CurrentMission == 0)
+						else if (!GameHasPaused && !GameHasStarted && PlayerModeWithAI[1] != 1)
 						{
 							PlayerJoined[i] = true;
 							Debug.Log("added a good tank , player joined");
@@ -687,12 +683,8 @@ public class GameMaster : MonoBehaviour
 				NAS.NextRound();
 			}
 		}
-		else
+		else if (inMenuMode && GameObject.FindGameObjectsWithTag("Enemy").Length < 1)
 		{
-			if (!inMenuMode || GameObject.FindGameObjectsWithTag("Enemy").Length >= 1)
-			{
-				return;
-			}
 			Object.Destroy(currentLoadedLevel);
 			GameObject[] first = GameObject.FindGameObjectsWithTag("Temp");
 			GameObject[] second = GameObject.FindGameObjectsWithTag("Bullet");
@@ -702,38 +694,25 @@ public class GameMaster : MonoBehaviour
 				Object.Destroy(array2[m]);
 			}
 			int num6 = 0;
-			int num7 = 0;
-			int num8 = maxMissionReached;
-			if (num8 < maxMissionReachedHard)
+			int num7 = maxMissionReached;
+			if (num7 < maxMissionReachedHard)
 			{
-				num8 = maxMissionReachedHard;
+				num7 = maxMissionReachedHard;
 			}
-			if (num8 < maxMissionReachedKid)
+			if (num7 < maxMissionReachedKid)
 			{
-				num8 = maxMissionReachedKid;
+				num7 = maxMissionReachedKid;
 			}
-			int num9 = Mathf.CeilToInt((float)num8 / 10f) * 10;
-			int num10 = ((maxMissionReached < 1) ? 10 : num9);
-			if (num10 < 1)
+			int num8 = Mathf.CeilToInt((float)num7 / 10f) * 10;
+			if (maxMissionReached < 1)
 			{
-				num10 = 0;
+				_ = 10;
 			}
-			do
-			{
-				num7 = Random.Range(0, Levels.Count);
-				string text = Levels[num7].name;
-				string text2 = "";
-				for (int n = 0; n < text.Length; n++)
-				{
-					if (char.IsDigit(text[n]))
-					{
-						text2 += text[n];
-					}
-				}
-				num6 = int.Parse(text2);
-			}
-			while (num6 > num10);
-			GameObject gameObject2 = Object.Instantiate(Levels[num7], lvlPos, Quaternion.identity);
+			else
+				_ = num8;
+			_ = 1;
+			num6 = Random.Range(0, Levels.Count);
+			GameObject gameObject2 = Object.Instantiate(Levels[num6], lvlPos, Quaternion.identity);
 			gameObject2.SetActive(value: true);
 			currentLoadedLevel = gameObject2;
 			array2 = GameObject.FindGameObjectsWithTag("Player");
@@ -1098,6 +1077,7 @@ public class GameMaster : MonoBehaviour
 		Debug.Log("Start new level!");
 		AmountCalledInTanks = 0;
 		HandlePlayerQueue();
+		OnlyCompanionLeft = false;
 		SaveData(skipCloud: false);
 		AmountPlayersThatNeedRevive = 0;
 		AmountEnemyTanks = 0;

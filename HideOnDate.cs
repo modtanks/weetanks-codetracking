@@ -11,6 +11,8 @@ public class HideOnDate : MonoBehaviour
 
 	public bool DayCheck;
 
+	public GameObject[] ToEnable;
+
 	private void Start()
 	{
 		Debug.Log("Current month = " + DateTime.Now.Month + " and currenty day = " + DateTime.Now.Day);
@@ -39,6 +41,12 @@ public class HideOnDate : MonoBehaviour
 		if (MonthCheck && DayCheck)
 		{
 			base.gameObject.SetActive(value: true);
+			OptionsMainMenu.instance.SnowMode = true;
+			GameObject[] toEnable = ToEnable;
+			for (int i = 0; i < toEnable.Length; i++)
+			{
+				toEnable[i].SetActive(value: true);
+			}
 		}
 		else
 		{

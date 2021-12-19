@@ -280,7 +280,12 @@ public class MineScript : MonoBehaviour
 					{
 						component.Play2DClipAtPoint(component.Buzz);
 					}
-					if (component.health == 1 && component.ShieldFade.ShieldHealth < 1 && isMineByPlayer == 0 && !component.isMainTank)
+					int num = 0;
+					if (component.ShieldFade != null)
+					{
+						num = component.ShieldFade.ShieldHealth;
+					}
+					if (component.health == 1 && num < 1 && isMineByPlayer == 0 && !component.isMainTank)
 					{
 						Object.Instantiate(HitTextP1, collider.transform.position, Quaternion.identity);
 						if (GameMaster.instance != null)
@@ -294,7 +299,7 @@ public class MineScript : MonoBehaviour
 							}
 						}
 					}
-					else if (component.health == 1 && component.ShieldFade.ShieldHealth < 1 && isMineByPlayer == 1 && !component.isMainTank)
+					else if (component.health == 1 && num < 1 && isMineByPlayer == 1 && !component.isMainTank)
 					{
 						Object.Instantiate(HitTextP2, collider.transform.position, Quaternion.identity);
 						if (GameMaster.instance != null)
@@ -308,7 +313,7 @@ public class MineScript : MonoBehaviour
 							}
 						}
 					}
-					else if (component.health == 1 && component.ShieldFade.ShieldHealth < 1 && isMineByPlayer == 2 && !component.isMainTank)
+					else if (component.health == 1 && num < 1 && isMineByPlayer == 2 && !component.isMainTank)
 					{
 						Object.Instantiate(HitTextP3, collider.transform.position, Quaternion.identity);
 						if (GameMaster.instance != null)
@@ -322,7 +327,7 @@ public class MineScript : MonoBehaviour
 							}
 						}
 					}
-					else if (component.health == 1 && component.ShieldFade.ShieldHealth < 1 && isMineByPlayer == 3 && !component.isMainTank)
+					else if (component.health == 1 && num < 1 && isMineByPlayer == 3 && !component.isMainTank)
 					{
 						Object.Instantiate(HitTextP4, collider.transform.position, Quaternion.identity);
 						if (GameMaster.instance != null)
@@ -338,7 +343,7 @@ public class MineScript : MonoBehaviour
 					}
 					if (GameMaster.instance.GameHasStarted)
 					{
-						if (component.ShieldFade.ShieldHealth > 0)
+						if (num > 0)
 						{
 							component.ShieldFade.ShieldHealth = 0;
 						}
@@ -372,10 +377,10 @@ public class MineScript : MonoBehaviour
 			Rigidbody component9 = collider2.GetComponent<Rigidbody>();
 			if (component9 != null && (collider2.tag == "Player" || collider2.tag == "Enemy"))
 			{
-				float num = Vector3.Distance(component9.transform.position, base.transform.position);
-				float num2 = (radius * 2.5f - num) * 2f;
+				float num2 = Vector3.Distance(component9.transform.position, base.transform.position);
+				float num3 = (radius * 2.5f - num2) * 2f;
 				Vector3 vector = component9.transform.position - base.transform.position;
-				component9.AddForce(vector * num2, ForceMode.Impulse);
+				component9.AddForce(vector * num3, ForceMode.Impulse);
 			}
 		}
 	}

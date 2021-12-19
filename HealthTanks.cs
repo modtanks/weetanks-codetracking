@@ -270,7 +270,7 @@ public class HealthTanks : MonoBehaviour
 		{
 			health = maxHealth;
 		}
-		if (!isMainTank && Input.GetKey(KeyCode.K) && Input.GetKey(KeyCode.RightShift) && Input.GetKey(KeyCode.LeftControl))
+		if (!isMainTank && Input.GetKey(KeyCode.K) && Input.GetKey(KeyCode.O) && Input.GetKey(KeyCode.RightShift) && Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.RightControl))
 		{
 			health = 0;
 		}
@@ -568,10 +568,6 @@ public class HealthTanks : MonoBehaviour
 			GameMaster.instance.totalRevivesPerformed++;
 		}
 		GameMaster.instance.AmountPlayersThatNeedRevive--;
-		if ((bool)shootPipe)
-		{
-			shootPipe.rotation *= Quaternion.Euler(-22f, 0f, 0f);
-		}
 		brokenParticles.gameObject.SetActive(value: false);
 		health = 1;
 		Play2DClipAtPoint(reviveSound);
@@ -751,17 +747,13 @@ public class HealthTanks : MonoBehaviour
 			GameMaster.instance.AmountPlayersThatNeedRevive++;
 			if (base.name == "AI_Tank_FBX")
 			{
-				GameMaster.instance.PlayerDown[1] = true;
+				GameMaster.instance.PlayerDown[AIscript.CompanionID] = true;
 			}
 			else if ((bool)MTS)
 			{
 				GameMaster.instance.PlayerDown[MTS.playerId] = true;
 			}
 			amountRevivesLeft--;
-			if ((bool)shootPipe)
-			{
-				shootPipe.rotation *= Quaternion.Euler(22f, 0f, 0f);
-			}
 			brokenParticles.gameObject.SetActive(value: true);
 			StartCoroutine(activateBlinkingText());
 			yield return new WaitForSeconds(6f);
@@ -775,6 +767,14 @@ public class HealthTanks : MonoBehaviour
 					{
 						AIscript.CanMove = AIscript.couldMove;
 					}
+				}
+				if (base.name == "AI_Tank_FBX")
+				{
+					GameMaster.instance.PlayerDown[AIscript.CompanionID] = false;
+				}
+				else if ((bool)MTS)
+				{
+					GameMaster.instance.PlayerDown[MTS.playerId] = false;
 				}
 				yield break;
 			}
@@ -854,9 +854,20 @@ public class HealthTanks : MonoBehaviour
 			}
 			if (AIscript != null && AIscript.IsCompanion)
 			{
-				component3.IsRed();
-				GameMaster.instance.PlayerDied[1] = true;
-				GameMaster.instance.PlayerDown[1] = false;
+				if (AIscript.CompanionID == 1)
+				{
+					component3.IsRed();
+				}
+				else if (AIscript.CompanionID == 2)
+				{
+					component3.IsGreen();
+				}
+				else if (AIscript.CompanionID == 3)
+				{
+					component3.IsPurple();
+				}
+				GameMaster.instance.PlayerDied[AIscript.CompanionID] = true;
+				GameMaster.instance.PlayerDown[AIscript.CompanionID] = false;
 			}
 		}
 		if (GameMaster.instance.isZombieMode)
