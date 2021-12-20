@@ -16,6 +16,10 @@ public class OnTeamsMenu : MonoBehaviour
 
 	public TMP_Dropdown DifficultyPick;
 
+	public bool PointOnMe;
+
+	public float DisableMenuAtDistance = 100f;
+
 	private void Start()
 	{
 		for (int i = 0; i < 4; i++)
@@ -25,7 +29,11 @@ public class OnTeamsMenu : MonoBehaviour
 
 	public void OnPointerEnter()
 	{
-		UpdateMenu();
+		if (!GameMaster.instance.GameHasPaused)
+		{
+			UpdateMenu();
+			PointOnMe = true;
+		}
 	}
 
 	private void UpdateMenu()
@@ -47,15 +55,24 @@ public class OnTeamsMenu : MonoBehaviour
 		Debug.Log("Exiting Teams menu!");
 		MapEditorMaster.instance.TeamsCursorMenu.SetActive(value: false);
 		MapEditorMaster.instance.OnTeamsMenu = false;
+		PointOnMe = false;
 	}
 
 	private void Update()
 	{
+		if (GameMaster.instance.GameHasPaused && PointOnMe)
+		{
+			OnPointerExit();
+		}
 		if (PrevNumber != CurrentTeamNumber)
 		{
 			UpdateMenu();
 			Debug.Log("Team Number changed, now updated!");
 			MapEditorMaster.instance.TeamsCursorMenu.SetActive(value: true);
+		}
+		if (PointOnMe && Vector3.Distance(base.transform.position, Input.mousePosition) > DisableMenuAtDistance)
+		{
+			OnPointerExit();
 		}
 	}
 
@@ -83,6 +100,7 @@ public class OnTeamsMenu : MonoBehaviour
 	public void ChangeDifficultySpawn()
 	{
 		Debug.Log("Changed difficulty!" + DifficultyPick.value);
+		CurrentDifficulty = DifficultyPick.value;
 		SelectedMEP.MyDifficultySpawn = DifficultyPick.value;
 		SelectedMEP.myMEGP.SpawnDifficulty = DifficultyPick.value;
 	}

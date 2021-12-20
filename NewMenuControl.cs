@@ -20,6 +20,13 @@ public class NewMenuControl : MonoBehaviour
 
 	public int Selection;
 
+	[Header("Temp Selection")]
+	public int Temp_scene;
+
+	public MainMenuButtons Temp_MMB;
+
+	public int Temp_startingLevel;
+
 	[Header("Audio")]
 	public AudioClip errorSound;
 
@@ -217,6 +224,8 @@ public class NewMenuControl : MonoBehaviour
 
 	public float waitingTimeBetweenRequests = 0.8f;
 
+	public PlayerInputsMenu PIM;
+
 	private IEnumerator PlayJingle()
 	{
 		yield return new WaitForSeconds(0.4f);
@@ -385,7 +394,6 @@ public class NewMenuControl : MonoBehaviour
 
 	private void Start()
 	{
-		player = ReInput.players.GetPlayer(0);
 		OptionsMainMenu.instance.MapSize = 285;
 		StartCoroutine(PlayJingle());
 		StartCoroutine(CheckData());
@@ -569,10 +577,8 @@ public class NewMenuControl : MonoBehaviour
 		}
 	}
 
-	private void OnMapClick(string mapname, int mapsize)
+	private void OnMapStart()
 	{
-		OptionsMainMenu.instance.MapEditorMapName = mapname;
-		OptionsMainMenu.instance.MapSize = mapsize;
 		if (MapLoading)
 		{
 			StartCoroutine(LoadYourAsyncScene(3));
@@ -583,10 +589,37 @@ public class NewMenuControl : MonoBehaviour
 		}
 	}
 
+	private void OnMapClick(string mapname, int mapsize)
+	{
+		Temp_MMB = null;
+		Temp_scene = 100;
+		Temp_startingLevel = 0;
+		PIM.CanPlayWithAI = true;
+		PIM.SetControllers();
+		enableMenu(25);
+		StartCoroutine("doing");
+		OptionsMainMenu.instance.MapEditorMapName = mapname;
+		OptionsMainMenu.instance.MapSize = mapsize;
+	}
+
 	private void Update()
 	{
-		input.x = player.GetAxis("Move Horizontal");
-		input.y = player.GetAxis("Move Vertically");
+		this.player = ReInput.players.GetPlayer(0);
+		bool flag = false;
+		for (int i = 0; i < ReInput.players.playerCount; i++)
+		{
+			Player player = ReInput.players.GetPlayer(i);
+			if (player.isPlaying)
+			{
+				input.x = player.GetAxis("Move Horizontal");
+				input.y = player.GetAxis("Move Vertically");
+				flag = player.GetButtonUp("Menu Use");
+				if (input.y < 0f || input.y > 0f || flag)
+				{
+					break;
+				}
+			}
+		}
 		if (NoKillsText != null)
 		{
 			if (StatisticsOpenMenu == 1 && !NoKillsText.gameObject.activeSelf)
@@ -645,11 +678,11 @@ public class NewMenuControl : MonoBehaviour
 		}
 		if (HoldingShift)
 		{
-			for (int i = 0; i < keyCodes.Length; i++)
+			for (int j = 0; j < keyCodes.Length; j++)
 			{
-				if (Input.GetKeyDown(keyCodes[i]))
+				if (Input.GetKeyDown(keyCodes[j]))
 				{
-					EnteredCode += i;
+					EnteredCode += j;
 				}
 			}
 		}
@@ -693,7 +726,7 @@ public class NewMenuControl : MonoBehaviour
 				StartCoroutine("doing");
 			}
 		}
-		if (player.GetButtonUp("Menu Use"))
+		if (flag)
 		{
 			GameMaster.instance.isPlayingWithController = true;
 			doButton(currentScript);
@@ -1403,10 +1436,15 @@ public class NewMenuControl : MonoBehaviour
 		}
 		else if (MMB.IsNewClassicCampaign)
 		{
-			OptionsMainMenu.instance.StartLevel = 0;
-			StartCoroutine(LoadYourAsyncScene(1));
-			TTL.ContinueCheckpoint = 0;
-			TTL.ClassicCampaign = true;
+			Temp_MMB = MMB;
+			Temp_scene = 1;
+			Temp_startingLevel = 0;
+			PIM.CanPlayWithAI = true;
+			PIM.SetControllers();
+			deselectButton(MMB);
+			enableMenu(25);
+			StartCoroutine("doing");
+			MMB.Selected = false;
 		}
 		else if (MMB.IsAcceptTransferAccount)
 		{
@@ -1470,8 +1508,26 @@ public class NewMenuControl : MonoBehaviour
 			StartCoroutine("doing");
 			MMB.Selected = false;
 		}
+		else if (MMB.IsSelectPlayerController)
+		{
+			Debug.Log("Value is now at : " + PIM.Dropdowns[MMB.PlayerNumber].value);
+			if (PIM.Dropdowns[MMB.PlayerNumber].value < PIM.Dropdowns[MMB.PlayerNumber].options.Count - 1)
+			{
+				PIM.Dropdowns[MMB.PlayerNumber].value = ++PIM.Dropdowns[MMB.PlayerNumber].value;
+			}
+			else
+			{
+				PIM.Dropdowns[MMB.PlayerNumber].value = 0;
+			}
+			PIM.Dropdowns[MMB.PlayerNumber].RefreshShownValue();
+		}
 		else if (MMB.IsRefreshButton)
 		{
+			if (currentMenu == 25)
+			{
+				PIM.SetControllers();
+				return;
+			}
 			GetMapFiles();
 			deselectButton(MMB);
 			StartCoroutine("doing");
@@ -1582,26 +1638,6 @@ public class NewMenuControl : MonoBehaviour
 				OptionsMainMenu.instance.FriendlyFire = false;
 				FriendlyFiretext.text = "( )";
 				OptionsMainMenu.instance.SaveNewData();
-			}
-		}
-		else if (MMB.IsAICompanionLess)
-		{
-			PlayMenuChangeSound();
-			if (OptionsMainMenu.instance.AIcompanion > 0)
-			{
-				OptionsMainMenu.instance.AIcompanion--;
-				OptionsMainMenu.instance.SaveNewData();
-				AICompaniontext.text = OptionsMainMenu.instance.AIcompanion.ToString();
-			}
-		}
-		else if (MMB.IsAICompanionMore)
-		{
-			PlayMenuChangeSound();
-			if (OptionsMainMenu.instance.AIcompanion < 3)
-			{
-				OptionsMainMenu.instance.AIcompanion++;
-				OptionsMainMenu.instance.SaveNewData();
-				AICompaniontext.text = OptionsMainMenu.instance.AIcompanion.ToString();
 			}
 		}
 		else if (MMB.IsDisableSnow)
@@ -1843,11 +1879,89 @@ public class NewMenuControl : MonoBehaviour
 		}
 		else if (MMB.IsSurvivalMap)
 		{
-			LoadLevel(2, MMB, MMB.SurvivalMapNumber);
+			Temp_MMB = MMB;
+			Temp_scene = 2;
+			Temp_startingLevel = MMB.SurvivalMapNumber;
+			PIM.CanPlayWithAI = false;
+			PIM.SetControllers();
+			deselectButton(MMB);
+			enableMenu(25);
+			StartCoroutine("doing");
 		}
 		else if (MMB.IsContinue)
 		{
-			LoadLevel(1, MMB, MMB.ContinueLevel);
+			Temp_MMB = MMB;
+			Temp_scene = 1;
+			Temp_startingLevel = MMB.ContinueLevel;
+			PIM.CanPlayWithAI = true;
+			PIM.SetControllers();
+			deselectButton(MMB);
+			enableMenu(25);
+			StartCoroutine("doing");
+		}
+		else
+		{
+			if (!MMB.StartMatchButton)
+			{
+				return;
+			}
+			for (int j = 0; j < 4; j++)
+			{
+				bool flag = false;
+				for (int k = 0; k < ReInput.controllers.GetControllers(ControllerType.Joystick).Length; k++)
+				{
+					if (PIM.Dropdowns[j].captionText.text == ReInput.controllers.GetController(ControllerType.Joystick, k).name)
+					{
+						Debug.Log("FOUND ONE!!!: " + ReInput.controllers.GetController(ControllerType.Joystick, k).name);
+						ReInput.players.GetPlayer(j).controllers.AddController(ReInput.controllers.GetController(ControllerType.Joystick, k), removeFromOtherPlayers: true);
+						flag = true;
+						OptionsMainMenu.instance.PlayerJoined[j] = true;
+					}
+				}
+				if (!flag)
+				{
+					if (j == 0)
+					{
+						ReInput.players.GetPlayer(j).controllers.ClearAllControllers();
+						ReInput.players.GetPlayer(j).controllers.AddController(ReInput.controllers.GetController(ControllerType.Keyboard, 0), removeFromOtherPlayers: true);
+						ReInput.players.GetPlayer(j).controllers.AddController(ReInput.controllers.GetController(ControllerType.Mouse, 0), removeFromOtherPlayers: true);
+						OptionsMainMenu.instance.PlayerJoined[j] = true;
+					}
+					else if (PIM.Dropdowns[j].captionText.text.Contains("AI"))
+					{
+						OptionsMainMenu.instance.AIcompanion[j] = true;
+						OptionsMainMenu.instance.PlayerJoined[j] = false;
+					}
+					else
+					{
+						OptionsMainMenu.instance.PlayerJoined[j] = false;
+					}
+				}
+			}
+			if (Temp_scene == 100)
+			{
+				OnMapStart();
+			}
+			else if (Temp_scene == 1)
+			{
+				PIM.CanPlayWithAI = true;
+				if (Temp_startingLevel == 0 && Temp_scene == 1)
+				{
+					OptionsMainMenu.instance.StartLevel = 0;
+					StartCoroutine(LoadYourAsyncScene(1));
+					TTL.ContinueCheckpoint = 0;
+					TTL.ClassicCampaign = true;
+				}
+				else
+				{
+					LoadLevel(Temp_scene, Temp_MMB, Temp_startingLevel);
+				}
+			}
+			else if (Temp_scene == 2)
+			{
+				PIM.CanPlayWithAI = false;
+				LoadLevel(Temp_scene, Temp_MMB, Temp_startingLevel);
+			}
 		}
 	}
 

@@ -358,7 +358,7 @@ public class PlayerKillsUI : MonoBehaviour
 	{
 		for (int i = 0; i < GameMaster.instance.PlayerJoined.Count; i++)
 		{
-			if (GameMaster.instance.PlayerJoined[i])
+			if (GameMaster.instance.PlayerJoined[i] || OptionsMainMenu.instance.AIcompanion[i])
 			{
 				PlayerkillsTitle[i].text = PkillsTitle_original[i];
 				Pkills[i].text = "x " + GameMaster.instance.Playerkills[i];
@@ -368,25 +368,9 @@ public class PlayerKillsUI : MonoBehaviour
 		Pkills[0].text = "x " + GameMaster.instance.Playerkills[0];
 		for (int j = 1; j < GameMaster.instance.PlayerJoining.Count; j++)
 		{
-			if (j != 1 || GameMaster.instance.PlayerModeWithAI[1] != 1)
+			if (!GameMaster.instance.PlayerJoined[j] && !OptionsMainMenu.instance.AIcompanion[j])
 			{
-				int num = ((GameMaster.instance.PlayerModeWithAI[1] == 1) ? (j - 1) : j);
-				if (GameMaster.instance.PlayerJoining[j])
-				{
-					PlayerkillsTitle[j].text = "P" + j;
-					Pkills[j].text = "Next round";
-					PlayerBox[j].SetActive(value: true);
-				}
-				else if (!GameMaster.instance.PlayerJoined[j] && GameMaster.instance.numberOfControllers >= num)
-				{
-					PlayerkillsTitle[j].text = "P" + j;
-					Pkills[j].text = "Press START";
-					PlayerBox[j].SetActive(value: true);
-				}
-				else if (!GameMaster.instance.PlayerJoined[j] && GameMaster.instance.numberOfControllers < num)
-				{
-					PlayerBox[j].SetActive(value: false);
-				}
+				PlayerBox[j].SetActive(value: false);
 			}
 		}
 	}

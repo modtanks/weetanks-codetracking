@@ -23,7 +23,7 @@ public class SettingsData
 
 	public int difficultySetting;
 
-	public int AIcompanion;
+	public bool[] AIcompanion;
 
 	public bool SnowyMode;
 

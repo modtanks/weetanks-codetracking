@@ -318,14 +318,14 @@ public class GameMaster : MonoBehaviour
 			{
 				PlayerJoined[0] = true;
 			}
-			if (OptionsMainMenu.instance.AIcompanion > 0 && !isZombieMode)
+			if (OptionsMainMenu.instance.AIcompanion[1] && !isZombieMode)
 			{
 				PlayerModeWithAI[1] = 1;
 				if (MapEditorMaster.instance == null)
 				{
 					PlayerJoined[1] = true;
 				}
-				if (OptionsMainMenu.instance.AIcompanion > 1)
+				if (OptionsMainMenu.instance.AIcompanion[2])
 				{
 					PlayerModeWithAI[2] = 1;
 					if (MapEditorMaster.instance == null)
@@ -333,7 +333,7 @@ public class GameMaster : MonoBehaviour
 						PlayerJoined[2] = true;
 					}
 				}
-				if (OptionsMainMenu.instance.AIcompanion > 2)
+				if (OptionsMainMenu.instance.AIcompanion[3])
 				{
 					PlayerModeWithAI[3] = 1;
 					if (MapEditorMaster.instance == null)
@@ -367,6 +367,10 @@ public class GameMaster : MonoBehaviour
 		{
 			lvlPos = currentLoadedLevel.transform.position;
 			Object.Destroy(currentLoadedLevel);
+		}
+		for (int j = 0; j < 4; j++)
+		{
+			PlayerJoined[j] = OptionsMainMenu.instance.PlayerJoined[j];
 		}
 		Debug.LogError("End of start!");
 	}
@@ -477,16 +481,6 @@ public class GameMaster : MonoBehaviour
 				}
 				for (int i = 0; i < num2; i++)
 				{
-					if (!isPlayingWithController && ReInput.players.GetPlayer(i).controllers.joystickCount < 1 && i > 0 && (i != 1 || PlayerModeWithAI[1] != 1) && (i != 2 || PlayerModeWithAI[2] != 1) && (i != 3 || PlayerModeWithAI[3] != 1))
-					{
-						ReInput.players.GetPlayer(i).controllers.AddController(ReInput.players.GetPlayer(0).controllers.GetController(ControllerType.Joystick, 0), removeFromOtherPlayers: true);
-					}
-					if (ReInput.players.GetPlayer(i).controllers.joystickCount > 0 && ReInput.players.GetPlayer(0).controllers.joystickCount < 1 && !PlayerJoined[i] && ReInput.players.GetPlayer(i).GetAnyButton() && !isPlayingWithController && !ReInput.players.GetPlayer(i).GetButton("Escape"))
-					{
-						ReInput.players.GetPlayer(0).controllers.AddController(ReInput.players.GetPlayer(i).controllers.GetController(ControllerType.Joystick, 0), removeFromOtherPlayers: true);
-						isPlayingWithController = true;
-						return;
-					}
 					if (PlayerJoined[i] || PlayerJoining[i] || PlayerLeftCooldown || !ReInput.players.GetPlayer(i).GetButtonDown("Escape"))
 					{
 						continue;
@@ -1281,12 +1275,16 @@ public class GameMaster : MonoBehaviour
 		{
 			Debug.Log("Current player before change:" + player.name);
 		}
-		if (OptionsMainMenu.instance.AIcompanion <= 0 || (bool)CM)
+		if ((!OptionsMainMenu.instance.AIcompanion[1] && !OptionsMainMenu.instance.AIcompanion[2] && !OptionsMainMenu.instance.AIcompanion[3]) || (bool)CM)
 		{
 			return;
 		}
-		for (int i = 1; i <= OptionsMainMenu.instance.AIcompanion; i++)
+		for (int i = 1; i < OptionsMainMenu.instance.AIcompanion.Length; i++)
 		{
+			if (!OptionsMainMenu.instance.AIcompanion[i])
+			{
+				continue;
+			}
 			Debug.Log("CHANGING COMPANION" + i);
 			PlayerModeWithAI[i] = 1;
 			for (int j = 0; j < Players.Count; j++)

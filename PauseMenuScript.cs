@@ -161,10 +161,25 @@ public class PauseMenuScript : MonoBehaviour
 			OptionsMainMenu.instance.StartLevel += 10;
 			CheckpointText.text = "Checkpoint " + OptionsMainMenu.instance.StartLevel;
 		}
+		bool flag = false;
+		bool flag2 = false;
+		for (int i = 0; i < ReInput.players.playerCount; i++)
+		{
+			Player player = ReInput.players.GetPlayer(i);
+			if (player.isPlaying && GameMaster.instance.PlayerJoined[i])
+			{
+				input.x = player.GetAxis("Move Horizontal");
+				input.y = player.GetAxis("Move Vertically");
+				flag = player.GetButtonUp("Menu Use");
+				flag2 = player.GetButtonDown("Escape");
+				if (input.y < 0f || input.y > 0f || flag || flag2)
+				{
+					break;
+				}
+			}
+		}
 		if (GameMaster.instance.GameHasPaused)
 		{
-			input.x = player.GetAxis("Move Horizontal");
-			input.y = player.GetAxis("Move Vertically");
 			if ((bool)GameMaster.instance && (bool)TanksLeft_Text)
 			{
 				TanksLeft_Text.text = "Tanks left: " + GameMaster.instance.Lives;
@@ -205,7 +220,7 @@ public class PauseMenuScript : MonoBehaviour
 				Debug.LogError("GOING UP");
 				StartCoroutine("doing");
 			}
-			if (player.GetButtonUp("Menu Use"))
+			if (flag)
 			{
 				doButton(currentScript);
 			}
@@ -231,7 +246,7 @@ public class PauseMenuScript : MonoBehaviour
 		{
 			PauseGame();
 		}
-		if (player.GetButtonUp("Escape"))
+		if (flag2)
 		{
 			if (GameMaster.instance.inMapEditor)
 			{
@@ -381,7 +396,7 @@ public class PauseMenuScript : MonoBehaviour
 				OptionsMainMenu.instance.musicVolumeLvl = musicLvlBefore;
 				musicLvlBefore = 0;
 			}
-			Time.timeScale = 0f;
+			Time.timeScale = 0.1f;
 			OptionsMainMenu.instance.StartLevel = 0;
 			OptionsMainMenu.instance.MapSize = 285;
 			StartCoroutine(LoadYourAsyncScene(0));

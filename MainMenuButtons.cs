@@ -33,6 +33,12 @@ public class MainMenuButtons : MonoBehaviour, IPointerEnterHandler, IEventSystem
 
 	public GameObject ShowObjectWhenSelected;
 
+	public bool StartMatchButton;
+
+	public bool IsSelectPlayerController;
+
+	public int PlayerNumber;
+
 	[Header("Mid Menu")]
 	public bool IsClassicCampaign;
 

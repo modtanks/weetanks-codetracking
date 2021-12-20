@@ -44,21 +44,21 @@ public class DestroySecondPlayer : MonoBehaviour
 		{
 			return;
 		}
-		if ((OptionsMainMenu.instance.AIcompanion > 0 || GameMaster.instance.PlayerModeWithAI[1] == 1) && !GameMaster.instance.isZombieMode && PlayerID == 1)
+		if ((OptionsMainMenu.instance.AIcompanion[1] || GameMaster.instance.PlayerModeWithAI[1] == 1) && !GameMaster.instance.isZombieMode && PlayerID == 1)
 		{
 			if ((bool)GameMaster.instance.CM)
 			{
 				DisableMe();
 			}
 		}
-		else if ((OptionsMainMenu.instance.AIcompanion > 1 || GameMaster.instance.PlayerModeWithAI[2] == 1) && !GameMaster.instance.isZombieMode && PlayerID == 2)
+		else if ((OptionsMainMenu.instance.AIcompanion[2] || GameMaster.instance.PlayerModeWithAI[2] == 1) && !GameMaster.instance.isZombieMode && PlayerID == 2)
 		{
 			if ((bool)GameMaster.instance.CM)
 			{
 				DisableMe();
 			}
 		}
-		else if ((OptionsMainMenu.instance.AIcompanion > 2 || GameMaster.instance.PlayerModeWithAI[3] == 1) && !GameMaster.instance.isZombieMode && PlayerID == 3)
+		else if ((OptionsMainMenu.instance.AIcompanion[3] || GameMaster.instance.PlayerModeWithAI[3] == 1) && !GameMaster.instance.isZombieMode && PlayerID == 3)
 		{
 			if ((bool)GameMaster.instance.CM)
 			{

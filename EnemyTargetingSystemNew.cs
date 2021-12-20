@@ -1408,7 +1408,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		{
 			component.MaxBounces = AIscript.amountOfBounces;
 			component.papaTank = AIscript.gameObject;
-			component.ShotByPlayer = 1;
+			component.ShotByPlayer = AIscript.CompanionID;
 			component.TankScriptAI = this;
 			component.EnemyTankScript = this;
 		}

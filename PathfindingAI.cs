@@ -134,7 +134,6 @@ public class PathfindingAI : MonoBehaviour
 			{
 				continue;
 			}
-			Debug.Log("start the search!");
 			BlockScripts.Clear();
 			AddPGPC(component, null, 2, diagonal: false, overwrite: false);
 			amountOfScans = 0;
@@ -186,13 +185,11 @@ public class PathfindingAI : MonoBehaviour
 				}
 				else if (myAI.isWallHugger)
 				{
-					Debug.Log("Wall hugger searching" + blockScripts.Count);
 					if (blockScripts.Count < 1)
 					{
 						return;
 					}
 					pathGridPieceClass = blockScripts.Find((PathGridPieceClass x) => x.myPAB.SolidSouthOfMe && !x.myPAB.inMe.Contains(myAI.gameObject));
-					Debug.Log("Wall hugger found:" + pathGridPieceClass);
 					flag = true;
 				}
 				else if (myAI.isAggressive && (bool)myAI.ETSN)
@@ -227,12 +224,10 @@ public class PathfindingAI : MonoBehaviour
 				}
 			}
 			while (!flag);
-			Debug.Log("Found one");
 			pathGridPieceClass.myPAB.MR.material.color = Color.blue;
 			PathIDS.Add(pathGridPieceClass.ID);
 			pathGridPieceClass.PrevCalls = pathGridPieceClass.PrevCalls.OrderBy((PrevCallers w) => w.OurScore).ToList();
 			int prevCallerID = pathGridPieceClass.PrevCalls[0].IDcaller;
-			Debug.Log(pathGridPieceClass.PrevCalls[0].AmountPieces);
 			for (int k = 0; k < pathGridPieceClass.PrevCalls[0].AmountPieces; k++)
 			{
 				PathGridPieceClass pathGridPieceClass2 = BlockScripts.Find((PathGridPieceClass x) => x.ID == prevCallerID);

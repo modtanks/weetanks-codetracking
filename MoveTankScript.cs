@@ -309,47 +309,10 @@ public class MoveTankScript : MonoBehaviour
 
 	private void CheckControllerType()
 	{
-		playerController = player.controllers.GetLastActiveController();
-		if (playerController != null)
-		{
-			if (player.controllers.joystickCount > 0)
-			{
-				playerController = player.controllers.Joysticks[0];
-				if (playerId == 0)
-				{
-					GameMaster.instance.isPlayingWithController = true;
-				}
-			}
-			else
-			{
-				playerController = player.controllers.Keyboard;
-				if (playerId == 0)
-				{
-					GameMaster.instance.isPlayingWithController = false;
-				}
-			}
-			if (playerController.type != ControllerType.Joystick)
-			{
-				if (playerId != 0)
-				{
-					Debug.Log("No joystick");
-				}
-				IsUsingController = false;
-			}
-			else if (playerController.type == ControllerType.Joystick)
-			{
-				_ = playerId;
-				IsUsingController = true;
-			}
-			else if (playerId != 0 && GameMaster.instance.GameHasStarted)
-			{
-				HTtanks.health = -100;
-			}
-		}
-		else if (playerId != 0 && GameMaster.instance.GameHasStarted)
+		int joystickCount = player.controllers.joystickCount;
+		if (playerId > 0 && joystickCount < 1 && GameMaster.instance.GameHasStarted)
 		{
 			HTtanks.health = -100;
-			GameMaster.instance.PlayerJoined[playerId] = false;
 		}
 	}
 

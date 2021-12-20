@@ -19,7 +19,9 @@ public class OptionsMainMenu : MonoBehaviour
 
 	public bool MarkedTanks;
 
-	public int AIcompanion;
+	public bool[] AIcompanion;
+
+	public bool[] PlayerJoined;
 
 	public bool SnowMode;
 
@@ -173,11 +175,6 @@ public class OptionsMainMenu : MonoBehaviour
 			if (settingsData.xraybullets)
 			{
 				showxraybullets = settingsData.xraybullets;
-			}
-			AIcompanion = settingsData.AIcompanion;
-			if (AIcompanion > 4)
-			{
-				AIcompanion = 0;
 			}
 			Debug.LogWarning("Settings-Data loaded from save file");
 		}

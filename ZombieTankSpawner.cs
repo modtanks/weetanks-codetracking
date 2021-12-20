@@ -191,6 +191,7 @@ public class ZombieTankSpawner : MonoBehaviour
 		}
 		if ((GameMaster.instance.PlayerDied[2] && GameMaster.instance.PlayerJoined[2]) || GameMaster.instance.PlayerJoining[2])
 		{
+			Debug.LogWarning("THIRD TANK SPAWNED!");
 			GameMaster.instance.PlayerDied[2] = false;
 			GameMaster.instance.PlayerJoining[2] = false;
 			GameMaster.instance.PlayerJoined[2] = true;
@@ -204,6 +205,7 @@ public class ZombieTankSpawner : MonoBehaviour
 		}
 		if ((GameMaster.instance.PlayerDied[3] && GameMaster.instance.PlayerJoined[3]) || GameMaster.instance.PlayerJoining[3])
 		{
+			Debug.LogWarning("FOURTH TANK SPAWNED!");
 			GameMaster.instance.PlayerDied[3] = false;
 			GameMaster.instance.PlayerJoining[3] = false;
 			GameMaster.instance.PlayerJoined[3] = true;

@@ -441,9 +441,14 @@ public class EnemyAI : MonoBehaviour
 		{
 			InvokeRepeating("CheckForDownedPlayer", 0.4f, 0.4f);
 		}
-		if ((bool)MapEditorMaster.instance && !isShiny && (bool)GameObject.Find("Cube.003").GetComponent<MeshRenderer>() && Body != null && MapEditorMaster.instance.TeamColorEnabled[MyTeam])
+		if ((bool)MapEditorMaster.instance && !isShiny && (bool)GameObject.Find("Cube.003").GetComponent<MeshRenderer>() && Body != null)
 		{
-			Body.materials[0].SetColor("_Color", MapEditorMaster.instance.TeamColors[MyTeam]);
+			Debug.Log("TEAM : " + MyTeam);
+			Debug.Log(MapEditorMaster.instance.TeamColorEnabled.Length + " is the length...");
+			if (MapEditorMaster.instance.TeamColorEnabled[MyTeam])
+			{
+				Body.materials[0].SetColor("_Color", MapEditorMaster.instance.TeamColors[MyTeam]);
+			}
 		}
 		if (isLevel50Boss && OptionsMainMenu.instance.currentDifficulty > 1)
 		{
@@ -1421,6 +1426,12 @@ public class EnemyAI : MonoBehaviour
 
 	private IEnumerator CheckIfPlayerStraightLine()
 	{
+		if (!DownedPlayer)
+		{
+			GoingToPlayer = false;
+			CanGoStraightToPlayer = false;
+			yield break;
+		}
 		LayerMask layersToIgnore = ~((1 << LayerMask.NameToLayer("EnemyDetectionLayer")) | (1 << LayerMask.NameToLayer("BulletDetectField")) | (1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("Other")) | (1 << LayerMask.NameToLayer("OneWayBlock")));
 		float seconds = Random.Range(0.4f, 0.6f);
 		yield return new WaitForSeconds(seconds);

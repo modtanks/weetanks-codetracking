@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Rewired;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -38,6 +39,14 @@ public class CrosshairScript : MonoBehaviour
 
 	private void Update()
 	{
+		if (ReInput.players.GetPlayer(0).controllers.GetLastActiveController().type == ControllerType.Joystick)
+		{
+			showCursor = false;
+		}
+		else
+		{
+			showCursor = true;
+		}
 		RI.enabled = showCursor;
 		if (SelectedCrosshair == null)
 		{

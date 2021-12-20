@@ -226,7 +226,7 @@ public class MapEditorProp : MonoBehaviour
 			{
 				myEnemyAI.MyTeam = TeamNumber;
 			}
-			if (!myRend)
+			if (!myRend || TeamNumber <= -1)
 			{
 				return;
 			}
@@ -261,7 +261,7 @@ public class MapEditorProp : MonoBehaviour
 		}
 		else
 		{
-			if (!MTS)
+			if (!MTS || TeamNumber <= -1)
 			{
 				return;
 			}
@@ -351,15 +351,17 @@ public class MapEditorProp : MonoBehaviour
 			Vector3 vector = Camera.main.GetComponent<Camera>().WorldToScreenPoint(base.transform.position);
 			Debug.Log("target is " + vector.x + " pixels from the left");
 			Debug.Log("target is " + vector.y + " pixels from the bottom");
-			float height = MapEditorMaster.instance.OTM.GetComponent<RectTransform>().rect.height;
-			Debug.Log("height is " + height);
+			float num = (float)Screen.height / 1080f;
+			float num2 = MapEditorMaster.instance.OTM.GetComponent<RectTransform>().rect.height * num;
+			Debug.Log("height is " + num2);
+			MapEditorMaster.instance.OTM.DisableMenuAtDistance = ((Screen.height < 1080) ? num2 : (num2 / 1.55f));
 			if (base.transform.position.z < 0f)
 			{
-				MapEditorMaster.instance.OTM.transform.position = Camera.main.GetComponent<Camera>().WorldToScreenPoint(base.transform.position) + new Vector3(0f, height / 2f, 0f);
+				MapEditorMaster.instance.OTM.transform.position = Camera.main.GetComponent<Camera>().WorldToScreenPoint(base.transform.position) + new Vector3(0f, num2 / 2f, 0f);
 			}
 			else
 			{
-				MapEditorMaster.instance.OTM.transform.position = Camera.main.GetComponent<Camera>().WorldToScreenPoint(base.transform.position) - new Vector3(0f, height / 2f, 0f);
+				MapEditorMaster.instance.OTM.transform.position = Camera.main.GetComponent<Camera>().WorldToScreenPoint(base.transform.position) - new Vector3(0f, num2 / 2f, 0f);
 			}
 		}
 		if ((bool)SecondRend)
@@ -454,7 +456,7 @@ public class MapEditorProp : MonoBehaviour
 					myEnemyAI.amountOfBounces = MapEditorMaster.instance.CustomBounces[CustomAInumber];
 				}
 			}
-			if (notSelectedColor[1] != MapEditorMaster.instance.CustomTankColor[CustomAInumber])
+			if (notSelectedColor.Length != 0 && notSelectedColor[1] != MapEditorMaster.instance.CustomTankColor[CustomAInumber])
 			{
 				notSelectedColor[1] = MapEditorMaster.instance.CustomTankColor[CustomAInumber];
 				notSelectedColor[2] = MapEditorMaster.instance.CustomTankColor[CustomAInumber];
