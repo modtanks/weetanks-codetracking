@@ -90,7 +90,7 @@ public class FiringTank : MonoBehaviour
 		{
 			if (firedBullets > 0)
 			{
-				if (!tankMovingScript.isPlayer2)
+				if (tankMovingScript.playerId == 0)
 				{
 					for (int i = 0; i < GameMaster.instance.PKU.Bullets.Length; i++)
 					{
@@ -104,7 +104,7 @@ public class FiringTank : MonoBehaviour
 						}
 					}
 				}
-				else
+				else if (tankMovingScript.playerId == 1)
 				{
 					for (int j = 0; j < GameMaster.instance.PKU.BulletsP2.Length; j++)
 					{
@@ -118,21 +118,65 @@ public class FiringTank : MonoBehaviour
 						}
 					}
 				}
-			}
-			else if (!tankMovingScript.isPlayer2)
-			{
-				RawImage[] bullets = GameMaster.instance.PKU.Bullets;
-				for (int k = 0; k < bullets.Length; k++)
+				else if (tankMovingScript.playerId == 2)
 				{
-					bullets[k].gameObject.SetActive(value: true);
+					for (int k = 0; k < GameMaster.instance.PKU.BulletsP3.Length; k++)
+					{
+						if (k < firedBullets)
+						{
+							GameMaster.instance.PKU.BulletsP3[k].gameObject.SetActive(value: false);
+						}
+						else
+						{
+							GameMaster.instance.PKU.BulletsP3[k].gameObject.SetActive(value: true);
+						}
+					}
+				}
+				else if (tankMovingScript.playerId == 3)
+				{
+					for (int l = 0; l < GameMaster.instance.PKU.BulletsP3.Length; l++)
+					{
+						if (l < firedBullets)
+						{
+							GameMaster.instance.PKU.BulletsP4[l].gameObject.SetActive(value: false);
+						}
+						else
+						{
+							GameMaster.instance.PKU.BulletsP4[l].gameObject.SetActive(value: true);
+						}
+					}
 				}
 			}
-			else
+			else if (tankMovingScript.playerId == 0)
+			{
+				RawImage[] bullets = GameMaster.instance.PKU.Bullets;
+				for (int m = 0; m < bullets.Length; m++)
+				{
+					bullets[m].gameObject.SetActive(value: true);
+				}
+			}
+			else if (tankMovingScript.playerId == 1)
 			{
 				RawImage[] bullets = GameMaster.instance.PKU.BulletsP2;
-				for (int k = 0; k < bullets.Length; k++)
+				for (int m = 0; m < bullets.Length; m++)
 				{
-					bullets[k].gameObject.SetActive(value: true);
+					bullets[m].gameObject.SetActive(value: true);
+				}
+			}
+			else if (tankMovingScript.playerId == 2)
+			{
+				RawImage[] bullets = GameMaster.instance.PKU.BulletsP3;
+				for (int m = 0; m < bullets.Length; m++)
+				{
+					bullets[m].gameObject.SetActive(value: true);
+				}
+			}
+			else if (tankMovingScript.playerId == 3)
+			{
+				RawImage[] bullets = GameMaster.instance.PKU.BulletsP4;
+				for (int m = 0; m < bullets.Length; m++)
+				{
+					bullets[m].gameObject.SetActive(value: true);
 				}
 			}
 		}

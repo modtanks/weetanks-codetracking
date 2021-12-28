@@ -21,6 +21,8 @@ public class PlayerInputsMenu : MonoBehaviour
 
 	public bool CallFromController;
 
+	public GameObject CompanionNote;
+
 	private void Start()
 	{
 		SetControllers();
@@ -34,6 +36,11 @@ public class PlayerInputsMenu : MonoBehaviour
 	{
 		string text = Dropdowns[playerID].captionText.text;
 		Debug.Log("value is now:" + text + CallFromController);
+		int num = 0;
+		if (text.Contains("AI"))
+		{
+			num++;
+		}
 		if (!CallFromController && !text.Contains("Keyboard") && !text.Contains("AI"))
 		{
 			for (int i = 0; i < Dropdowns.Length; i++)
@@ -44,11 +51,30 @@ public class PlayerInputsMenu : MonoBehaviour
 				}
 			}
 		}
+		for (int j = 0; j < Dropdowns.Length; j++)
+		{
+			if (j != playerID && Dropdowns[j].captionText.text.Contains("AI"))
+			{
+				num++;
+			}
+		}
+		if (num > 1)
+		{
+			CompanionNote.SetActive(value: true);
+		}
+		else
+		{
+			CompanionNote.SetActive(value: false);
+		}
 		CallFromController = false;
 	}
 
 	public void SetControllers()
 	{
+		for (int i = 0; i < OptionsMainMenu.instance.AIcompanion.Length; i++)
+		{
+			OptionsMainMenu.instance.AIcompanion[i] = false;
+		}
 		OptionsList.Clear();
 		OptionsListPlayerOne.Clear();
 		Controllers = ReInput.controllers.GetControllers(ControllerType.Joystick);
@@ -80,19 +106,19 @@ public class PlayerInputsMenu : MonoBehaviour
 		TMP_Dropdown.OptionData optionData3 = new TMP_Dropdown.OptionData();
 		optionData3.text = "None";
 		OptionsList.Insert(0, optionData3);
-		for (int j = 0; j < Dropdowns.Length; j++)
+		for (int k = 0; k < Dropdowns.Length; k++)
 		{
-			Dropdowns[j].ClearOptions();
-			if (j == 0)
+			Dropdowns[k].ClearOptions();
+			if (k == 0)
 			{
 				TMP_Dropdown.OptionData optionData4 = new TMP_Dropdown.OptionData();
 				optionData4.text = "Mouse & Keyboard";
 				OptionsListPlayerOne.Insert(0, optionData4);
-				Dropdowns[j].AddOptions(OptionsListPlayerOne);
+				Dropdowns[k].AddOptions(OptionsListPlayerOne);
 			}
 			else
 			{
-				Dropdowns[j].AddOptions(OptionsList);
+				Dropdowns[k].AddOptions(OptionsList);
 			}
 		}
 	}

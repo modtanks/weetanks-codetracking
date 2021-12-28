@@ -37,6 +37,48 @@ public class SteamTest : MonoBehaviour
 		}
 	}
 
+	private void Update()
+	{
+		if (!SteamManager.Initialized || !GameMaster.instance)
+		{
+			return;
+		}
+		if (GameMaster.instance.inMenuMode)
+		{
+			SteamFriends.SetRichPresence("steam_display", "#Status_AtMainMenu");
+		}
+		else if (GameMaster.instance.inTankeyTown)
+		{
+			SteamFriends.SetRichPresence("steam_display", "#Status_InTankeyTown");
+		}
+		else if ((bool)MapEditorMaster.instance)
+		{
+			if (!MapEditorMaster.instance.inPlayingMode)
+			{
+				SteamFriends.SetRichPresence("steam_display", "#Status_InMapEditor");
+				return;
+			}
+			SteamFriends.SetRichPresence("gamestatus", "Custom Campaign");
+			string pchValue = "Mission " + (GameMaster.instance.CurrentMission + 1);
+			SteamFriends.SetRichPresence("Level", pchValue);
+			SteamFriends.SetRichPresence("steam_display", "#StatusWithLevel");
+		}
+		else if (GameMaster.instance.isZombieMode)
+		{
+			SteamFriends.SetRichPresence("gamestatus", "Survival Mode");
+			string pchValue2 = "Wave " + ZombieTankSpawner.instance.Wave;
+			SteamFriends.SetRichPresence("Level", pchValue2);
+			SteamFriends.SetRichPresence("steam_display", "#StatusWithLevel");
+		}
+		else if (GameMaster.instance.isOfficialCampaign)
+		{
+			SteamFriends.SetRichPresence("gamestatus", "Campaign");
+			string pchValue3 = "Mission " + (GameMaster.instance.CurrentMission + 1);
+			SteamFriends.SetRichPresence("Level", pchValue3);
+			SteamFriends.SetRichPresence("steam_display", "#StatusWithLevel");
+		}
+	}
+
 	private void OnEnable()
 	{
 		if (SteamManager.Initialized)

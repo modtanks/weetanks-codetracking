@@ -86,7 +86,14 @@ public class PlayerBulletScript : MonoBehaviour
 
 	public GameObject papaTank;
 
+	[Header("Debug Info")]
+	public List<GameObject> MyPreviousColliders;
+
+	public List<GameObject> MyPreviousCollidersInteractions;
+
 	public GameObject WallGonnaBounceInTo;
+
+	public float CurrentSpeed;
 
 	public GameObject PreviousBouncedWall;
 
@@ -304,6 +311,7 @@ public class PlayerBulletScript : MonoBehaviour
 
 	private void Update()
 	{
+		CurrentSpeed = rb.velocity.magnitude;
 		if (GameMaster.instance.inMapEditor && !GameMaster.instance.GameHasStarted)
 		{
 			End(isEndingGame: true);
@@ -312,7 +320,7 @@ public class PlayerBulletScript : MonoBehaviour
 		{
 			End(isEndingGame: true);
 		}
-		if ((GameMaster.instance.AmountEnemyTanks < 1 || GameMaster.instance.restartGame || !GameMaster.instance.PlayerAlive) && !GameMaster.instance.isZombieMode && !GameMaster.instance.CM && !GameMaster.instance.inMenuMode && !MapEditorMaster.instance)
+		if ((GameMaster.instance.AmountEnemyTanks < 1 || GameMaster.instance.restartGame || !GameMaster.instance.PlayerAlive) && !GameMaster.instance.isZombieMode && !GameMaster.instance.CM && !GameMaster.instance.inTankeyTown && !GameMaster.instance.inMenuMode && !MapEditorMaster.instance)
 		{
 			if (GameMaster.instance.PlayerAlive && GameMaster.instance.CurrentMission == 99)
 			{
@@ -512,17 +520,7 @@ public class PlayerBulletScript : MonoBehaviour
 
 	private void OnCollision(Collision collision)
 	{
-		if (CollidersIgnoring.Count > 0)
-		{
-			foreach (Collider item in CollidersIgnoring)
-			{
-				if (item != null)
-				{
-					Physics.IgnoreCollision(GetComponent<Collider>(), item, ignore: false);
-				}
-			}
-			CollidersIgnoring.Clear();
-		}
+		MyPreviousColliders.Add(collision.gameObject);
 		if (collision.gameObject.tag == "Bullet" && !isExplosive && !isSilver)
 		{
 			PlayerBulletScript component = collision.gameObject.GetComponent<PlayerBulletScript>();
@@ -620,6 +618,7 @@ public class PlayerBulletScript : MonoBehaviour
 			IgnoreThatCollision(collision);
 			yield break;
 		}
+		MyPreviousCollidersInteractions.Add(collision.gameObject);
 		if (collision.gameObject != WallGonnaBounceInTo && (collision.gameObject.tag == "Solid" || collision.gameObject.tag == "MapBorder"))
 		{
 			float num = Vector3.Distance(base.transform.position, upcomingPosition);
@@ -1054,6 +1053,17 @@ public class PlayerBulletScript : MonoBehaviour
 			AchievementsTracker.instance.HasMissed = true;
 		}
 		TimesBounced++;
+		if (CollidersIgnoring.Count > 0)
+		{
+			foreach (Collider item in CollidersIgnoring)
+			{
+				if (item != null)
+				{
+					Physics.IgnoreCollision(GetComponent<Collider>(), item, ignore: false);
+				}
+			}
+			CollidersIgnoring.Clear();
+		}
 		GameObject obj = Object.Instantiate(bounceParticles, base.transform.position, Quaternion.identity);
 		obj.GetComponent<ParticleSystem>().Play();
 		Object.Destroy(obj.gameObject, 3f);

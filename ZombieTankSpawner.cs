@@ -15,13 +15,51 @@ public class ZombieTankSpawner : MonoBehaviour
 
 	public int maxSpawnedAmount = 30;
 
+	public float[] MultipliersAmountOfPlayers;
+
+	public float multiplier = 1f;
+
+	[Header("Audio")]
+	public AudioClip Katsjing;
+
+	public AudioClip denied;
+
+	[Header("Prices")]
+	public int[] BuildPrices;
+
+	public int[] SpeedPrices;
+
+	public int[] ShieldPrices;
+
+	public int RocketPrice;
+
+	public int TripminePrice;
+
+	public int TurretPrice;
+
+	public int TurretRepairPrice;
+
+	public int[] TurretUpgradePrices;
+
+	[Header("Upgraded Stats")]
+	public int[] UpgradedSpeeds;
+
+	public int[] UpgradedBuildSpeeds;
+
+	[Header("Game Setup")]
 	public GameObject[] SpawnPoints;
 
 	public GameObject[] Tanks;
 
 	public GameObject[] BossTanks;
 
+	public float[] TankSpawnChance;
+
 	public int[] TanksSpawnRound;
+
+	public int[] EnemyLimit;
+
+	public int[] CurrentAmountOfEnemyTypes;
 
 	public MusicHandler musicScript;
 
@@ -55,6 +93,8 @@ public class ZombieTankSpawner : MonoBehaviour
 
 	public bool timerRunning;
 
+	private int WeatherCooldown;
+
 	public static ZombieTankSpawner instance => _instance;
 
 	private void Awake()
@@ -81,6 +121,16 @@ public class ZombieTankSpawner : MonoBehaviour
 
 	private void Start()
 	{
+		int num = 0;
+		foreach (bool item in GameMaster.instance.PlayerJoined)
+		{
+			if (item)
+			{
+				num++;
+			}
+		}
+		multiplier = MultipliersAmountOfPlayers[num];
+		maxSpawnedAmount = Mathf.RoundToInt((float)maxSpawnedAmount * multiplier);
 		for (int i = 0; i < GameMaster.instance.Levels.Count; i++)
 		{
 			if (i != GameMaster.instance.CurrentMission)
@@ -103,36 +153,28 @@ public class ZombieTankSpawner : MonoBehaviour
 		}
 		if (spawned < spawnAmount && GameMaster.instance.GameHasStarted && GameMaster.instance.AmountEnemyTanks < maxSpawnedAmount)
 		{
-			float num2 = 0.4f;
 			bool flag = false;
-			if (Wave >= 14 && Random.value < 0.04f)
+			if (Wave >= 14 && Random.value < 0.04f && CurrentAmountOfEnemyTypes[9] < EnemyLimit[9])
 			{
-				SpawnTank(BossTanks[0]);
+				SpawnTank(BossTanks[0], 9);
 				spawned++;
 				amountEnemies++;
+				flag = true;
 			}
-			for (int i = 0; i < Tanks.Length; i++)
+			while (!flag)
 			{
-				if (TanksSpawnRound[i] <= Wave)
+				for (int i = 0; i < Tanks.Length; i++)
 				{
-					if (Random.value > num2 && spawned < spawnAmount)
+					float num2 = ((i > 0) ? ((float)CurrentAmountOfEnemyTypes[i] / 32f) : 0f);
+					if (Random.value + num2 <= TankSpawnChance[i] && TanksSpawnRound[i] <= Wave && CurrentAmountOfEnemyTypes[i] < EnemyLimit[i])
 					{
-						flag = true;
-						SpawnTank(Tanks[i]);
+						SpawnTank(Tanks[i], i);
 						spawned++;
 						amountEnemies++;
-					}
-					else if (num2 > 0.2f)
-					{
-						num2 -= 0.1f;
+						flag = true;
+						break;
 					}
 				}
-			}
-			if (!flag && spawned < spawnAmount)
-			{
-				SpawnTank(Tanks[0]);
-				spawned++;
-				amountEnemies++;
 			}
 		}
 		if (!timerRunning && GameMaster.instance.GameHasStarted && GameMaster.instance.AmountEnemyTanks < 1 && spawned == spawnAmount)
@@ -153,8 +195,9 @@ public class ZombieTankSpawner : MonoBehaviour
 		StartCoroutine(Spawner());
 	}
 
-	private void SpawnTank(GameObject tankPrefab)
+	private void SpawnTank(GameObject tankPrefab, int type)
 	{
+		CurrentAmountOfEnemyTypes[type]++;
 		int num = Random.Range(0, SpawnPoints.Length);
 		Object.Instantiate(tankPrefab, SpawnPoints[num].transform.position, base.transform.rotation);
 		GameMaster.instance.AmountEnemyTanks++;
@@ -163,6 +206,31 @@ public class ZombieTankSpawner : MonoBehaviour
 	private IEnumerator Timer()
 	{
 		timerRunning = true;
+		if ((bool)CloudGeneration.instance && WeatherCooldown < 1)
+		{
+			int[] array = new int[13]
+			{
+				0, 0, 0, 0, 0, 0, 1, 1, 1, 2,
+				2, 3, 3
+			};
+			int num = array[Random.Range(0, array.Length)];
+			if (num > 0 && num != CloudGeneration.instance.CurrentWeatherType)
+			{
+				WeatherCooldown += num;
+				CloudGeneration.instance.MakeItDark();
+				CloudGeneration.instance.StartCoroutine(CloudGeneration.instance.SetWeatherType(num, force: true));
+			}
+			else
+			{
+				WeatherCooldown++;
+				CloudGeneration.instance.MakeItDay();
+				CloudGeneration.instance.StartCoroutine(CloudGeneration.instance.SetWeatherType(0, force: true));
+			}
+		}
+		else if (WeatherCooldown > 0)
+		{
+			WeatherCooldown--;
+		}
 		yield return new WaitForSeconds(1f);
 		if (GameObject.Find("Main_Tank_FBX_Survival") == null && GameObject.Find("Main_Tank_FBX_Survival(Clone)") == null && GameMaster.instance.PlayerJoined[0])
 		{

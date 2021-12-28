@@ -1433,8 +1433,14 @@ public class EnemyAI : MonoBehaviour
 			yield break;
 		}
 		LayerMask layersToIgnore = ~((1 << LayerMask.NameToLayer("EnemyDetectionLayer")) | (1 << LayerMask.NameToLayer("BulletDetectField")) | (1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("Other")) | (1 << LayerMask.NameToLayer("OneWayBlock")));
-		float seconds = Random.Range(0.4f, 0.6f);
+		float seconds = Random.Range(0.2f, 0.4f);
 		yield return new WaitForSeconds(seconds);
+		if (!DownedPlayer)
+		{
+			GoingToPlayer = false;
+			CanGoStraightToPlayer = false;
+			yield break;
+		}
 		Vector3 vector = DownedPlayer.transform.position - base.transform.position;
 		Debug.DrawRay(base.transform.position, vector * 8f, Color.blue, 1f);
 		bool flag = false;
@@ -1501,7 +1507,7 @@ public class EnemyAI : MonoBehaviour
 				}
 			}
 		}
-		if (GoingToPlayer && flag)
+		if (GoingToPlayer && !flag)
 		{
 			DownedPlayer = null;
 			DisablePathFinding();

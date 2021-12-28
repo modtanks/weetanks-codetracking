@@ -82,14 +82,21 @@ public class MineScript : MonoBehaviour
 		{
 			DetinationTime -= Time.deltaTime;
 		}
-		if (GameMaster.instance != null && MapEditorMaster.instance == null)
+		if (GameMaster.instance != null && MapEditorMaster.instance == null && !GameMaster.instance.inTankeyTown)
 		{
 			if (DetinationTime < 0.1f || (((GameMaster.instance.AmountEnemyTanks < 1 && !GameMaster.instance.isZombieMode && GameMaster.instance.CurrentMission != 99) || GameMaster.instance.restartGame || !GameMaster.instance.PlayerAlive) && !isHuntingEnemies))
 			{
 				InitiateDeath();
 			}
 		}
-		else if ((bool)MapEditorMaster.instance && (DetinationTime < 0.1f || GameMaster.instance.restartGame || !GameMaster.instance.GameHasStarted))
+		else if ((bool)MapEditorMaster.instance)
+		{
+			if (DetinationTime < 0.1f || GameMaster.instance.restartGame || !GameMaster.instance.GameHasStarted)
+			{
+				InitiateDeath();
+			}
+		}
+		else if (GameMaster.instance.inTankeyTown && DetinationTime < 0.1f)
 		{
 			InitiateDeath();
 		}
@@ -101,7 +108,7 @@ public class MineScript : MonoBehaviour
 
 	private void InitiateDeath()
 	{
-		if (GameMaster.instance.GameHasStarted || isHuntingEnemies || GameMaster.instance.isZombieMode)
+		if (!GameMaster.instance.inTankeyTown && (GameMaster.instance.GameHasStarted || isHuntingEnemies || GameMaster.instance.isZombieMode))
 		{
 			AreaDamageEnemies(base.transform.position, 3.5f, 1f);
 			if (GameMaster.instance.CurrentMission == 49)

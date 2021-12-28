@@ -120,6 +120,10 @@ public class RocketScript : MonoBehaviour
 				TargetTanks(onlyPlayers: false);
 			}
 		}
+		else if (GameMaster.instance.isZombieMode)
+		{
+			TargetTanks(onlyPlayers: true);
+		}
 		else if ((bool)MapEditorMaster.instance)
 		{
 			TargetTanks(onlyPlayers: false);

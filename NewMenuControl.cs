@@ -1871,6 +1871,10 @@ public class NewMenuControl : MonoBehaviour
 			enableMenu(10);
 			StartCoroutine("doing");
 		}
+		else if (MMB.IsToTankeyTown)
+		{
+			StartCoroutine(LoadYourAsyncScene(7));
+		}
 		else if (MMB.IsSurvivalMode)
 		{
 			deselectButton(MMB);

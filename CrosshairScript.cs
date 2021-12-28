@@ -39,9 +39,27 @@ public class CrosshairScript : MonoBehaviour
 
 	private void Update()
 	{
-		if (ReInput.players.GetPlayer(0).controllers.GetLastActiveController().type == ControllerType.Joystick)
+		if (ReInput.players.GetPlayer(0).controllers.GetController(ControllerType.Joystick, 0) == null)
 		{
-			showCursor = false;
+			showCursor = true;
+		}
+		else if (ReInput.players.GetPlayer(0) != null)
+		{
+			if (ReInput.players.GetPlayer(0).controllers.GetLastActiveController() != null)
+			{
+				if (ReInput.players.GetPlayer(0).controllers.GetLastActiveController().type == ControllerType.Joystick)
+				{
+					showCursor = false;
+				}
+				else
+				{
+					showCursor = true;
+				}
+			}
+			else
+			{
+				showCursor = true;
+			}
 		}
 		else
 		{

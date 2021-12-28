@@ -37,6 +37,8 @@ public class CloudGeneration : MonoBehaviour
 
 	public Light SunSecond;
 
+	public Light Moon;
+
 	public GameObject CloudPrefab;
 
 	public List<GameObject> SpawnedClouds = new List<GameObject>();
@@ -46,6 +48,15 @@ public class CloudGeneration : MonoBehaviour
 	public float CloudHeight = 10f;
 
 	public float CloudSize = 5f;
+
+	[Header("standard values")]
+	public float SunOriginalIntensity;
+
+	public float SecondSunOriginalIntensity;
+
+	public float MoonOriginalIntensity;
+
+	public Color OriginalAmbientColor;
 
 	private static CloudGeneration _instance;
 
@@ -78,6 +89,10 @@ public class CloudGeneration : MonoBehaviour
 
 	private void Start()
 	{
+		SunOriginalIntensity = Sun.intensity;
+		SecondSunOriginalIntensity = SunSecond.intensity;
+		MoonOriginalIntensity = Moon.intensity;
+		OriginalAmbientColor = RenderSettings.ambientLight;
 		float num = base.transform.position.x - CloudWidth * CloudSize / 2f;
 		float num2 = base.transform.position.z - CloudHeight * CloudSize / 2f;
 		for (int i = 0; (float)i < CloudWidth; i++)
@@ -95,6 +110,8 @@ public class CloudGeneration : MonoBehaviour
 		Sun.color = StateSunColor[CurrentWeatherType];
 		SunSecond.color = StateSunSecondColor[CurrentWeatherType];
 		RenderSettings.fog = true;
+		RenderSettings.fogColor = Color.clear;
+		RenderSettings.fogDensity = 0f;
 		Sun.intensity = StateSunIntensity[CurrentWeatherType];
 		SunSecond.intensity = StateSunSecondIntensity[CurrentWeatherType];
 		RenderSettings.fog = false;
@@ -164,15 +181,97 @@ public class CloudGeneration : MonoBehaviour
 		GameMaster.instance.Play2DClipAtPoint(Thunders[Random.Range(0, Thunders.Length)], 1f);
 	}
 
-	public void ChangedRound()
+	public void ChangeAmbientColorTo(Color clr)
 	{
-		if (GameMaster.instance.NightLevels.Contains(GameMaster.instance.CurrentMission))
+		StartCoroutine(MakeDark(clr));
+	}
+
+	public void MakeItDark()
+	{
+		StartCoroutine(MakeDark(Color.black));
+		StartCoroutine(ChangeToMoon());
+	}
+
+	public void MakeItDay()
+	{
+		StartCoroutine(MakeDark(OriginalAmbientColor));
+		StartCoroutine(ChangeToSun());
+	}
+
+	private IEnumerator ChangeToMoon()
+	{
+		float CurrentSunInt = Sun.intensity;
+		float CurrentSunSecInt = SunSecond.intensity;
+		float CurrentMoonInt = Moon.intensity;
+		float SunIntDesire = 0f;
+		float SunSecIntDesire = 0f;
+		float MoonDesire = 0.14f;
+		float t = 0f;
+		while (t < 1f)
 		{
-			RenderSettings.skybox = SkyBoxDark;
+			Sun.intensity = Mathf.Lerp(CurrentSunInt, SunIntDesire, t);
+			SunSecond.intensity = Mathf.Lerp(CurrentSunSecInt, SunSecIntDesire, t);
+			Moon.intensity = Mathf.Lerp(CurrentMoonInt, MoonDesire, t);
+			t += Time.deltaTime / 2f;
+			yield return null;
 		}
-		else
+	}
+
+	private IEnumerator ChangeToSun()
+	{
+		float CurrentSunInt = Sun.intensity;
+		float CurrentSunSecInt = SunSecond.intensity;
+		float CurrentMoonInt = Moon.intensity;
+		float SunIntDesire = SunOriginalIntensity;
+		float SunSecIntDesire = SecondSunOriginalIntensity;
+		float MoonDesire = MoonOriginalIntensity;
+		float t = 0f;
+		while (t < 1f)
 		{
-			RenderSettings.skybox = SkyBoxClear;
+			Sun.intensity = Mathf.Lerp(CurrentSunInt, SunIntDesire, t);
+			SunSecond.intensity = Mathf.Lerp(CurrentSunSecInt, SunSecIntDesire, t);
+			Moon.intensity = Mathf.Lerp(CurrentMoonInt, MoonDesire, t);
+			t += Time.deltaTime / 2f;
+			yield return null;
+		}
+	}
+
+	private IEnumerator MakeDark(Color clr)
+	{
+		Color CurrentColor = RenderSettings.ambientLight;
+		float t = 0f;
+		while (t < 1f)
+		{
+			t += Time.deltaTime / 2f;
+			RenderSettings.ambientLight = Color.Lerp(CurrentColor, clr, t);
+			yield return null;
+		}
+		Debug.Log("AMBIENT SET");
+		RenderSettings.ambientLight = clr;
+	}
+
+	private IEnumerator ChangeFogColor(Color ToCLR, float density)
+	{
+		Color CurrentColor = RenderSettings.ambientLight;
+		float CurrentDensity = RenderSettings.fogDensity;
+		float t = 0f;
+		while (t < 1f)
+		{
+			t += Time.deltaTime / 2f;
+			RenderSettings.fogColor = Color.Lerp(CurrentColor, ToCLR, t);
+			RenderSettings.fogDensity = Mathf.Lerp(CurrentDensity, density, t);
+			yield return null;
+		}
+		Debug.Log("AMBIENT SET");
+		RenderSettings.fogColor = ToCLR;
+	}
+
+	private IEnumerator DisableClouds()
+	{
+		yield return new WaitForSeconds(12f);
+		foreach (GameObject spawnedCloud in SpawnedClouds)
+		{
+			spawnedCloud.SetActive(value: false);
 		}
 	}
 
@@ -180,17 +279,13 @@ public class CloudGeneration : MonoBehaviour
 	{
 		int OldWeatherType = CurrentWeatherType;
 		CurrentWeatherType = type;
+		Debug.Log("setting weather type to:" + type);
 		yield return new WaitForSeconds(0.25f);
 		if (!(type != OldWeatherType || force))
 		{
 			yield break;
 		}
 		CurrentWeatherType = type;
-		RenderSettings.ambientLight = AmbientColor[type];
-		Sun.color = StateSunColor[type];
-		SunSecond.color = StateSunSecondColor[type];
-		Sun.intensity = StateSunIntensity[type];
-		SunSecond.intensity = StateSunSecondIntensity[type];
 		GlobalVolume.profile = PPPs[type];
 		Debug.Log(type);
 		PlayAudio(type);
@@ -199,29 +294,34 @@ public class CloudGeneration : MonoBehaviour
 		case 0:
 		{
 			OptionsMainMenu.instance.SnowMode = false;
-			RenderSettings.fog = false;
+			StartCoroutine(ChangeFogColor(Color.clear, 0f));
 			Thunder.isLightning = false;
 			if (Rain.isPlaying)
 			{
 				Rain.Stop();
 				RainImpact.Stop();
 			}
-			foreach (GameObject spawnedCloud in SpawnedClouds)
-			{
-				spawnedCloud.SetActive(value: false);
-			}
+			StartCoroutine(DisableClouds());
 			ParticleSystem[] componentsInChildren = GetComponentsInChildren<ParticleSystem>();
 			for (int i = 0; i < componentsInChildren.Length; i++)
 			{
 				componentsInChildren[i].Stop();
 			}
+			foreach (GameObject spawnedCloud in SpawnedClouds)
+			{
+				ParticleSystem component4 = spawnedCloud.transform.GetChild(0).GetComponent<ParticleSystem>();
+				if ((bool)component4)
+				{
+					component4.Stop();
+				}
+			}
 			foreach (Transform item in base.transform)
 			{
-				CloudController component = item.GetComponent<CloudController>();
-				if ((bool)component)
+				CloudController component5 = item.GetComponent<CloudController>();
+				if ((bool)component5)
 				{
-					component.myPS.Stop();
-					component.enabled = false;
+					component5.myPS.Stop();
+					component5.enabled = false;
 				}
 			}
 			break;
@@ -230,8 +330,7 @@ public class CloudGeneration : MonoBehaviour
 			OptionsMainMenu.instance.SnowMode = false;
 			Thunder.isLightning = false;
 			RenderSettings.fog = true;
-			RenderSettings.fogColor = StateSunColor[type];
-			RenderSettings.fogDensity = 0.00025f;
+			StartCoroutine(ChangeFogColor(StateSunColor[type], 0.00025f));
 			if (Rain.isPlaying)
 			{
 				Rain.Stop();
@@ -241,34 +340,24 @@ public class CloudGeneration : MonoBehaviour
 			{
 				spawnedCloud2.SetActive(value: true);
 			}
+			foreach (GameObject spawnedCloud3 in SpawnedClouds)
+			{
+				ParticleSystem component3 = spawnedCloud3.transform.GetChild(0).GetComponent<ParticleSystem>();
+				if ((bool)component3)
+				{
+					component3.Stop();
+				}
+			}
 			DoClouds();
 			break;
 		case 2:
 			OptionsMainMenu.instance.SnowMode = false;
 			Thunder.isLightning = false;
 			RenderSettings.fog = true;
-			RenderSettings.fogColor = StateSunColor[type];
-			RenderSettings.fogDensity = 0.00025f;
+			StartCoroutine(ChangeFogColor(StateSunColor[type], 0.00025f));
 			RainSource.clip = RainLoop;
 			RainSource.loop = true;
 			RainSource.Play();
-			if (!Rain.isPlaying)
-			{
-				Rain.Play();
-				RainImpact.Play();
-			}
-			foreach (GameObject spawnedCloud3 in SpawnedClouds)
-			{
-				spawnedCloud3.SetActive(value: true);
-			}
-			DoClouds();
-			break;
-		case 3:
-			OptionsMainMenu.instance.SnowMode = false;
-			Thunder.isLightning = true;
-			RenderSettings.fog = true;
-			RenderSettings.fogColor = StateSunColor[type];
-			RenderSettings.fogDensity = 0.00025f;
 			if (!Rain.isPlaying)
 			{
 				Rain.Play();
@@ -278,16 +367,45 @@ public class CloudGeneration : MonoBehaviour
 			{
 				spawnedCloud4.SetActive(value: true);
 			}
+			foreach (GameObject spawnedCloud5 in SpawnedClouds)
+			{
+				ParticleSystem component2 = spawnedCloud5.transform.GetChild(0).GetComponent<ParticleSystem>();
+				if ((bool)component2)
+				{
+					component2.Stop();
+				}
+			}
+			DoClouds();
+			break;
+		case 3:
+			OptionsMainMenu.instance.SnowMode = false;
+			Thunder.isLightning = true;
+			RenderSettings.fog = true;
+			StartCoroutine(ChangeFogColor(StateSunColor[type], 0.00025f));
+			if (!Rain.isPlaying)
+			{
+				Rain.Play();
+				RainImpact.Play();
+			}
+			foreach (GameObject spawnedCloud6 in SpawnedClouds)
+			{
+				spawnedCloud6.SetActive(value: true);
+			}
+			foreach (GameObject spawnedCloud7 in SpawnedClouds)
+			{
+				ParticleSystem component = spawnedCloud7.transform.GetChild(0).GetComponent<ParticleSystem>();
+				if ((bool)component)
+				{
+					component.Stop();
+				}
+			}
 			DoClouds();
 			break;
 		case 4:
 			OptionsMainMenu.instance.SnowMode = true;
 			break;
 		}
-		if (GameMaster.instance.NightLevels.Contains(GameMaster.instance.CurrentMission))
-		{
-			RenderSettings.ambientLight = Color.black;
-		}
+		GameMaster.instance.NightLevels.Contains(GameMaster.instance.CurrentMission);
 	}
 
 	public void DoClouds()

@@ -19,11 +19,23 @@ public class SuicideTankScript : MonoBehaviour
 
 	public bool canShoot = true;
 
+	public bool canShootAirRockets;
+
+	public RocketScript RS;
+
+	public GameObject RocketPrefab;
+
+	public Transform RocketSpawnLocation;
+
 	private void Start()
 	{
 		if (canShoot)
 		{
 			StartCoroutine("ShootRandom");
+		}
+		if (canShootAirRockets)
+		{
+			StartCoroutine("ShootAirRandom");
 		}
 	}
 
@@ -51,6 +63,17 @@ public class SuicideTankScript : MonoBehaviour
 				canSeePlayer = false;
 			}
 		}
+	}
+
+	private IEnumerator ShootAirRandom()
+	{
+		float seconds = (float)ShootInterval + Random.Range(0f, ShootInterval);
+		yield return new WaitForSeconds(seconds);
+		RS.Launch();
+		yield return new WaitForSeconds(ShootInterval);
+		GameObject gameObject = Object.Instantiate(RocketPrefab, RocketSpawnLocation);
+		RS = gameObject.GetComponent<RocketScript>();
+		StartCoroutine("ShootAirRandom");
 	}
 
 	private IEnumerator ShootRandom()

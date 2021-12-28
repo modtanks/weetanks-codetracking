@@ -92,8 +92,6 @@ public class MoveTankScript : MonoBehaviour
 
 	public int[] Upgrades;
 
-	public int[] UpgradedSpeeds;
-
 	[Header("TankTracks")]
 	public ParticleSystem skidMarkCreator;
 
@@ -122,13 +120,16 @@ public class MoveTankScript : MonoBehaviour
 	private void OnEnable()
 	{
 		HTtanks = GetComponent<HealthTanks>();
-		if (GameMaster.instance != null && base.name == "Second_Tank_FBX_body")
+		if (GameMaster.instance != null)
 		{
-			isPlayer2 = true;
-		}
-		if (GameMaster.instance.CurrentMission != 49)
-		{
-			GetComponent<Rigidbody>().constraints = (RigidbodyConstraints)80;
+			if (base.name == "Second_Tank_FBX_body")
+			{
+				isPlayer2 = true;
+			}
+			if (GameMaster.instance.CurrentMission != 49)
+			{
+				GetComponent<Rigidbody>().constraints = (RigidbodyConstraints)80;
+			}
 		}
 		skidMarkCreator.Stop();
 	}
@@ -142,7 +143,7 @@ public class MoveTankScript : MonoBehaviour
 		InvokeRepeating("CheckTypeInput", 0.1f, 0.1f);
 		InvokeRepeating("AlertTeleportationFields", 1f, 1f);
 		skidMarkCreator.Stop();
-		if (GameMaster.instance.isOfficialCampaign)
+		if ((bool)GameMaster.instance && GameMaster.instance.isOfficialCampaign)
 		{
 			base.transform.position = new Vector3(base.transform.position.x, 0.04f, base.transform.position.z);
 		}
@@ -318,6 +319,10 @@ public class MoveTankScript : MonoBehaviour
 
 	private void Update()
 	{
+		if (player.GetButtonDown(13))
+		{
+			HonkIt();
+		}
 		CheckControllerType();
 		if (GameMaster.instance.GameHasPaused)
 		{
@@ -341,9 +346,9 @@ public class MoveTankScript : MonoBehaviour
 				HTtanks.amountRevivesLeft = -1;
 			}
 		}
-		if (GameMaster.instance != null && GameMaster.instance.isZombieMode && TankSpeed != (float)UpgradedSpeeds[Upgrades[1]])
+		if (GameMaster.instance != null && GameMaster.instance.isZombieMode && TankSpeed != (float)ZombieTankSpawner.instance.UpgradedSpeeds[Upgrades[1]])
 		{
-			TankSpeed = UpgradedSpeeds[Upgrades[1]];
+			TankSpeed = ZombieTankSpawner.instance.UpgradedSpeeds[Upgrades[1]];
 		}
 		if (stunTimer > 0f)
 		{
@@ -524,7 +529,7 @@ public class MoveTankScript : MonoBehaviour
 
 	public void HonkIt()
 	{
-		if (canHonkIt && !GameMaster.instance.isZombieMode)
+		if (canHonkIt)
 		{
 			canHonkIt = false;
 			Play2DClipAtPoint(Honk, 0.5f);
@@ -534,7 +539,7 @@ public class MoveTankScript : MonoBehaviour
 
 	private IEnumerator ResetHonk()
 	{
-		yield return new WaitForSeconds(1f);
+		yield return new WaitForSeconds(0.5f);
 		canHonkIt = true;
 	}
 

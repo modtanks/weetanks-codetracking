@@ -6,18 +6,18 @@ public class FireworkSounds : MonoBehaviour
 
 	private int _numberOfParticles;
 
-	private ParticleSystem particleSystem;
+	private ParticleSystem PS;
 
 	private void Start()
 	{
-		particleSystem = GetComponent<ParticleSystem>();
+		PS = GetComponent<ParticleSystem>();
 	}
 
 	private void Update()
 	{
 		if ((bool)OnBirthSound)
 		{
-			int particleCount = particleSystem.particleCount;
+			int particleCount = PS.particleCount;
 			if (particleCount >= _numberOfParticles && particleCount > _numberOfParticles)
 			{
 				GameMaster.instance.Play2DClipAtPoint(OnBirthSound, 1f);

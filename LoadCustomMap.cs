@@ -98,6 +98,13 @@ public class LoadCustomMap : MonoBehaviour
 			MapEditorMaster.instance.NoBordersMissions = mapEditorData.NoBordersMissions;
 		}
 		GameMaster.instance.Levels[0].SetActive(value: false);
+		StartCoroutine(DisableTheGame());
+	}
+
+	private IEnumerator DisableTheGame()
+	{
+		yield return new WaitForSeconds(1f);
+		GameMaster.instance.DisableGame();
 	}
 
 	private IEnumerator PlaceAllProps(List<MapPiecesClass> allPropData, bool oldVersion)

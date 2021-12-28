@@ -55,7 +55,11 @@ public class WeeTurret : MonoBehaviour
 
 	public GameObject UpgradeParts;
 
+	public GameObject[] SecondUpgradeParts;
+
 	public int PlacedByPlayer;
+
+	public float ScannerRange = 20f;
 
 	private float timeTakenDuringLerp;
 
@@ -77,6 +81,11 @@ public class WeeTurret : MonoBehaviour
 	private void Awake()
 	{
 		UpgradeParts.SetActive(value: false);
+		GameObject[] secondUpgradeParts = SecondUpgradeParts;
+		for (int i = 0; i < secondUpgradeParts.Length; i++)
+		{
+			secondUpgradeParts[i].SetActive(value: false);
+		}
 	}
 
 	private void SearchTargets()
@@ -116,73 +125,80 @@ public class WeeTurret : MonoBehaviour
 				turning = false;
 				return;
 			}
-			float num = float.PositiveInfinity;
+			closestTarget = null;
 			foreach (Transform target in Targets)
 			{
-				float num2 = Vector3.Distance(target.transform.position, MyHead.transform.position);
-				if (num2 < num && num2 <= 20f)
+				if (Vector3.Distance(target.transform.position, MyHead.transform.position) <= ScannerRange)
 				{
-					num = num2;
-					closestTarget = target;
+					Debug.Log("Enemy in range!!!");
+					Vector3 vector = new Vector3(target.transform.position.x, MyHead.transform.position.y, target.transform.position.z) - MyHead.transform.position;
+					Ray ray = new Ray(MyHead.transform.position, vector);
+					Debug.DrawRay(MyHead.transform.position, vector * ScannerRange, Color.red, 0.1f);
+					LayerMask layerMask = ~((1 << LayerMask.NameToLayer("EnemyDetectionLayer")) | (1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("BulletDetectField")) | (1 << LayerMask.NameToLayer("Other")) | (1 << LayerMask.NameToLayer("OneWayBlock")));
+					RaycastHit[] array3 = (from h in Physics.RaycastAll(ray, 50f, layerMask)
+						orderby h.distance
+						select h).ToArray();
+					for (int j = 0; j < array3.Length; j++)
+					{
+						RaycastHit raycastHit = array3[j];
+						if (raycastHit.collider.tag == "Turret")
+						{
+							Debug.Log("Hit turret!!!");
+							if (raycastHit.collider.GetComponent<WeeTurret>() != this)
+							{
+								break;
+							}
+							continue;
+						}
+						if (raycastHit.collider.tag == "Solid" || raycastHit.collider.tag == "Player" || raycastHit.collider.tag == "Mine")
+						{
+							Debug.Log("SOMETHING IN THE WAY:" + raycastHit.collider.tag, raycastHit.collider.gameObject);
+							break;
+						}
+						if (raycastHit.collider.tag == "Enemy")
+						{
+							Debug.Log("SEEING NEMEY:" + raycastHit.collider.tag);
+							closestTarget = target;
+							break;
+						}
+					}
+				}
+				if (closestTarget != null)
+				{
+					break;
 				}
 			}
 		}
-		if (!(closestTarget != null) || turning)
+		if (closestTarget != null && !turning)
 		{
-			return;
-		}
-		Vector3 direction = closestTarget.transform.position - MyHead.transform.position;
-		direction.y = 1f;
-		Ray ray = new Ray(MyHead.transform.position, direction);
-		LayerMask layerMask = ~((1 << LayerMask.NameToLayer("EnemyDetectionLayer")) | (1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("BulletDetectField")) | (1 << LayerMask.NameToLayer("Other")) | (1 << LayerMask.NameToLayer("OneWayBlock")));
-		RaycastHit[] array3 = (from h in Physics.RaycastAll(ray, 100f, layerMask)
-			orderby h.distance
-			select h).ToArray();
-		for (int j = 0; j < array3.Length; j++)
-		{
-			RaycastHit raycastHit = array3[j];
-			if (raycastHit.collider.tag == "Turret")
+			if (!LastTarget)
 			{
-				if (raycastHit.collider.GetComponent<WeeTurret>() != this)
-				{
-					return;
-				}
-				continue;
+				GameMaster.instance.Play2DClipAtPoint(TargetFound, 1f);
 			}
-			if (raycastHit.collider.tag == "Solid" || raycastHit.collider.tag == "Player" || raycastHit.collider.tag == "Mine")
+			else if (LastTarget != closestTarget)
 			{
-				TargetInSight = false;
-				return;
+				GameMaster.instance.Play2DClipAtPoint(TargetFound, 1f);
 			}
-			_ = raycastHit.collider.tag == "Enemy";
+			LastTarget = closestTarget;
+			TargetInSight = true;
+			Rigidbody component = closestTarget.GetComponent<Rigidbody>();
+			float num = Vector3.Distance(closestTarget.transform.position, MyHead.transform.position);
+			Vector3 vector2 = ((!(component.velocity.magnitude > 0.8f)) ? closestTarget.position : (closestTarget.position + closestTarget.transform.forward * (num / 3f)));
+			Vector3 forward = vector2 - MyHead.transform.position;
+			startRot = MyHead.transform.rotation;
+			GotRandomLookTarget = false;
+			CoolingDown = false;
+			forward.y = 0f;
+			rotation = Quaternion.LookRotation(forward) * Quaternion.Euler(-90f, 90f, 0f);
+			float num2 = Quaternion.Angle(MyHead.transform.rotation, rotation);
+			timeTakenDuringLerp = num2 / 180f * 0.5f;
+			if (timeTakenDuringLerp < 0.2f)
+			{
+				timeTakenDuringLerp = 0.2f;
+			}
+			_timeStartedLerping = Time.time;
+			turning = true;
 		}
-		if (!LastTarget)
-		{
-			GameMaster.instance.Play2DClipAtPoint(TargetFound, 1f);
-		}
-		else if (LastTarget != closestTarget)
-		{
-			GameMaster.instance.Play2DClipAtPoint(TargetFound, 1f);
-		}
-		LastTarget = closestTarget;
-		TargetInSight = true;
-		Rigidbody component = closestTarget.GetComponent<Rigidbody>();
-		float num3 = Vector3.Distance(closestTarget.transform.position, MyHead.transform.position);
-		Vector3 vector = ((!(component.velocity.magnitude > 0.8f)) ? closestTarget.position : (closestTarget.position + closestTarget.transform.forward * (num3 / 3f)));
-		direction = vector - MyHead.transform.position;
-		startRot = MyHead.transform.rotation;
-		GotRandomLookTarget = false;
-		CoolingDown = false;
-		direction.y = 0f;
-		rotation = Quaternion.LookRotation(direction) * Quaternion.Euler(-90f, 90f, 0f);
-		float num4 = Quaternion.Angle(MyHead.transform.rotation, rotation);
-		timeTakenDuringLerp = num4 / 180f * 0.5f;
-		if (timeTakenDuringLerp < 0.2f)
-		{
-			timeTakenDuringLerp = 0.2f;
-		}
-		_timeStartedLerping = Time.time;
-		turning = true;
 	}
 
 	private void RotateTo(bool ToShoot)
@@ -293,9 +309,23 @@ public class WeeTurret : MonoBehaviour
 	public void Upgrade()
 	{
 		upgradeLevel++;
-		Health = 10 + upgradeLevel * 5;
+		if (upgradeLevel == 1)
+		{
+			shootSpeed = 1f;
+			ScannerRange = 25f;
+			UpgradeParts.SetActive(value: true);
+		}
+		else if (upgradeLevel == 2)
+		{
+			shootSpeed = 0.5f;
+			ScannerRange = 30f;
+			GameObject[] secondUpgradeParts = SecondUpgradeParts;
+			for (int i = 0; i < secondUpgradeParts.Length; i++)
+			{
+				secondUpgradeParts[i].SetActive(value: true);
+			}
+		}
+		Health = 5 + upgradeLevel * 5;
 		maxHealth = Health;
-		shootSpeed = 1f;
-		UpgradeParts.SetActive(value: true);
 	}
 }

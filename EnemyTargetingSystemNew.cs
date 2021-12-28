@@ -545,7 +545,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				}
 			}
 		}
-		else if (isHuntingEnemies)
+		else if (isHuntingEnemies || GameMaster.instance.inMenuMode)
 		{
 			GameObject[] array = GameObject.FindGameObjectsWithTag("Enemy");
 			foreach (GameObject gameObject3 in array)
@@ -909,7 +909,6 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 	{
 		startRot = base.transform.rotation;
 		_timeStartedLerping = Time.time;
-		Debug.Log("Special turn towards killing");
 		angleSize = Quaternion.Angle(base.transform.rotation, rot);
 		if (AIscript.CanMove && !AIscript.isAggro)
 		{
@@ -924,10 +923,6 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		{
 			Vector3 forward = startingPosition - base.transform.position;
 			rotation = Quaternion.LookRotation(forward);
-		}
-		else
-		{
-			Debug.LogWarning("GOT HERE WIHT VECTOR ZERO!!");
 		}
 	}
 

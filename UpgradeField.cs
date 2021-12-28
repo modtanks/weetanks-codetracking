@@ -25,28 +25,6 @@ public class UpgradeField : MonoBehaviour
 
 	public TextMeshProUGUI CostText;
 
-	[Header("Audio")]
-	public AudioClip Katsjing;
-
-	public AudioClip denied;
-
-	[Header("Prices")]
-	public int[] BuildPrices;
-
-	public int[] SpeedPrices;
-
-	public int[] ShieldPrices;
-
-	public int RocketPrice;
-
-	public int TripminePrice;
-
-	public int TurretPrice;
-
-	public int TurretRepairPrice;
-
-	public int[] TurretUpgradePrices;
-
 	private int theCost;
 
 	public bool isPlayer2;
@@ -94,10 +72,10 @@ public class UpgradeField : MonoBehaviour
 			myTurret = null;
 		}
 		isPlayer2 = MTS.isPlayer2;
-		if (isBuild && MTS.Upgrades[0] <= 2)
+		if (isBuild && MTS.Upgrades[0] <= 3)
 		{
 			UpgradeLevel = MTS.Upgrades[0];
-			string text2 = ((UpgradeLevel + 1 == 1) ? "I" : ((UpgradeLevel + 1 == 2) ? "II" : "III"));
+			string text2 = ((UpgradeLevel + 1 == 1) ? "I" : ((UpgradeLevel + 1 == 2) ? "II" : ((UpgradeLevel + 1 == 3) ? "III" : "IV")));
 			if (GameMaster.instance.isPlayingWithController || isPlayer2)
 			{
 				UpgradeText.text = "Press " + text + " to buy: Build Upgrade " + text2;
@@ -106,14 +84,14 @@ public class UpgradeField : MonoBehaviour
 			{
 				UpgradeText.text = "Press " + myMTS.player.controllers.maps.GetFirstButtonMapWithAction("Use", skipDisabledMaps: true).elementIdentifierName + " to buy: Build Upgrade " + text2;
 			}
-			CostText.text = "(cost x " + BuildPrices[UpgradeLevel] + ")";
-			theCost = BuildPrices[UpgradeLevel];
+			CostText.text = "(cost x " + ZombieTankSpawner.instance.BuildPrices[UpgradeLevel] + ")";
+			theCost = ZombieTankSpawner.instance.BuildPrices[UpgradeLevel];
 			upgradeType = 0;
 		}
-		else if (isSpeed && MTS.Upgrades[1] <= 2)
+		else if (isSpeed && MTS.Upgrades[1] <= 3)
 		{
 			UpgradeLevel = MTS.Upgrades[1];
-			string text3 = ((UpgradeLevel + 1 == 1) ? "I" : ((UpgradeLevel + 1 == 2) ? "II" : "III"));
+			string text3 = ((UpgradeLevel + 1 == 1) ? "I" : ((UpgradeLevel + 1 == 2) ? "II" : ((UpgradeLevel + 1 == 3) ? "III" : "IV")));
 			if (GameMaster.instance.isPlayingWithController || isPlayer2)
 			{
 				UpgradeText.text = "Press " + text + " to buy: Speed Upgrade " + text3;
@@ -122,14 +100,14 @@ public class UpgradeField : MonoBehaviour
 			{
 				UpgradeText.text = "Press " + myMTS.player.controllers.maps.GetFirstButtonMapWithAction("Use", skipDisabledMaps: true).elementIdentifierName + " to buy: Speed Upgrade " + text3;
 			}
-			CostText.text = "(cost x " + SpeedPrices[UpgradeLevel] + ")";
-			theCost = SpeedPrices[UpgradeLevel];
+			CostText.text = "(cost x " + ZombieTankSpawner.instance.SpeedPrices[UpgradeLevel] + ")";
+			theCost = ZombieTankSpawner.instance.SpeedPrices[UpgradeLevel];
 			upgradeType = 1;
 		}
-		else if (isShield && MTS.Upgrades[2] <= 2)
+		else if (isShield && MTS.Upgrades[2] <= 3)
 		{
 			UpgradeLevel = MTS.Upgrades[2];
-			string text4 = ((UpgradeLevel + 1 == 1) ? "I" : ((UpgradeLevel + 1 == 2) ? "II" : "III"));
+			string text4 = ((UpgradeLevel + 1 == 1) ? "I" : ((UpgradeLevel + 1 == 2) ? "II" : ((UpgradeLevel + 1 == 3) ? "III" : "IV")));
 			if (GameMaster.instance.isPlayingWithController || isPlayer2)
 			{
 				UpgradeText.text = "Press " + text + " to buy: Armour Upgrade " + text4;
@@ -138,8 +116,8 @@ public class UpgradeField : MonoBehaviour
 			{
 				UpgradeText.text = "Press " + myMTS.player.controllers.maps.GetFirstButtonMapWithAction("Use", skipDisabledMaps: true).elementIdentifierName + " to buy: Armour Upgrade " + text4;
 			}
-			CostText.text = "(cost x " + ShieldPrices[UpgradeLevel] + ")";
-			theCost = ShieldPrices[UpgradeLevel];
+			CostText.text = "(cost x " + ZombieTankSpawner.instance.ShieldPrices[UpgradeLevel] + ")";
+			theCost = ZombieTankSpawner.instance.ShieldPrices[UpgradeLevel];
 			upgradeType = 2;
 		}
 		else if (isRocket && MTS.Upgrades[3] <= 0)
@@ -153,8 +131,8 @@ public class UpgradeField : MonoBehaviour
 			{
 				UpgradeText.text = "Press " + myMTS.player.controllers.maps.GetFirstButtonMapWithAction("Use", skipDisabledMaps: true).elementIdentifierName + " to buy: Rocket Upgrade ";
 			}
-			CostText.text = "(cost x " + RocketPrice + ")";
-			theCost = RocketPrice;
+			CostText.text = "(cost x " + ZombieTankSpawner.instance.RocketPrice + ")";
+			theCost = ZombieTankSpawner.instance.RocketPrice;
 			upgradeType = 3;
 		}
 		else if (isMine && MTS.Upgrades[4] <= 0)
@@ -168,8 +146,8 @@ public class UpgradeField : MonoBehaviour
 			{
 				UpgradeText.text = "Press " + myMTS.player.controllers.maps.GetFirstButtonMapWithAction("Use", skipDisabledMaps: true).elementIdentifierName + " to buy: Tripmine Upgrade ";
 			}
-			CostText.text = "(cost x " + TripminePrice + ")";
-			theCost = TripminePrice;
+			CostText.text = "(cost x " + ZombieTankSpawner.instance.TripminePrice + ")";
+			theCost = ZombieTankSpawner.instance.TripminePrice;
 			upgradeType = 4;
 		}
 		else if (isTurret && MTS.Upgrades[5] <= 0)
@@ -183,8 +161,8 @@ public class UpgradeField : MonoBehaviour
 			{
 				UpgradeText.text = "Press " + myMTS.player.controllers.maps.GetFirstButtonMapWithAction("Use", skipDisabledMaps: true).elementIdentifierName + " to buy: Turret";
 			}
-			CostText.text = "(cost x " + TurretPrice + ")";
-			theCost = TurretPrice;
+			CostText.text = "(cost x " + ZombieTankSpawner.instance.TurretPrice + ")";
+			theCost = ZombieTankSpawner.instance.TurretPrice;
 			upgradeType = 5;
 		}
 		else
@@ -196,7 +174,7 @@ public class UpgradeField : MonoBehaviour
 			UpgradeLevel = MTS.Upgrades[5];
 			if (myTurret.Health >= myTurret.maxHealth)
 			{
-				if (myTurret.upgradeLevel < 1)
+				if (myTurret.upgradeLevel < 2)
 				{
 					if (GameMaster.instance.isPlayingWithController || isPlayer2)
 					{
@@ -206,13 +184,13 @@ public class UpgradeField : MonoBehaviour
 					{
 						UpgradeText.text = "Press " + myMTS.player.controllers.maps.GetFirstButtonMapWithAction("Use", skipDisabledMaps: true).elementIdentifierName + " to upgrade Turret";
 					}
-					CostText.text = "(cost x " + TurretUpgradePrices[myTurret.upgradeLevel] + ")";
-					theCost = TurretUpgradePrices[myTurret.upgradeLevel];
+					CostText.text = "(cost x " + ZombieTankSpawner.instance.TurretUpgradePrices[myTurret.upgradeLevel] + ")";
+					theCost = ZombieTankSpawner.instance.TurretUpgradePrices[myTurret.upgradeLevel];
 				}
 			}
 			else
 			{
-				int num = ((myTurret.upgradeLevel < 1) ? TurretRepairPrice : (TurretRepairPrice * 2));
+				int num = ((myTurret.upgradeLevel < 1) ? ZombieTankSpawner.instance.TurretRepairPrice : (ZombieTankSpawner.instance.TurretRepairPrice * 2));
 				if (GameMaster.instance.isPlayingWithController || isPlayer2)
 				{
 					UpgradeText.text = "Press " + text + " to buy: Repair Turret";
@@ -235,14 +213,14 @@ public class UpgradeField : MonoBehaviour
 			Debug.Log("REPAIRING OR UPGRADING!");
 			if (myTurret.Health >= myTurret.maxHealth)
 			{
-				if (myTurret.upgradeLevel < 1)
+				if (myTurret.upgradeLevel < 2)
 				{
 					GameMaster.instance.Playerkills[playerID] -= theCost;
 					if ((bool)myTurret)
 					{
 						myTurret.Upgrade();
 					}
-					Play2DClipAtPoint(Katsjing);
+					Play2DClipAtPoint(ZombieTankSpawner.instance.Katsjing);
 					Show = false;
 					startTime = Time.time;
 					StartCoroutine(WaitBox());
@@ -261,7 +239,7 @@ public class UpgradeField : MonoBehaviour
 				{
 					myTurret.Repair();
 				}
-				Play2DClipAtPoint(Katsjing);
+				Play2DClipAtPoint(ZombieTankSpawner.instance.Katsjing);
 				Show = false;
 				startTime = Time.time;
 				StartCoroutine(WaitBox());
@@ -273,7 +251,7 @@ public class UpgradeField : MonoBehaviour
 		if ((bool)AchievementsTracker.instance)
 		{
 			AchievementsTracker.instance.BoughtUpgrade = true;
-			if (myMTS.Upgrades[0] > 2 && myMTS.Upgrades[1] > 2 && myMTS.Upgrades[2] > 2 && myMTS.Upgrades[3] > 0 && myMTS.Upgrades[4] > 0 && myMTS.Upgrades[5] > 0)
+			if (myMTS.Upgrades[0] > 3 && myMTS.Upgrades[1] > 3 && myMTS.Upgrades[2] > 3 && myMTS.Upgrades[3] > 0 && myMTS.Upgrades[4] > 0 && myMTS.Upgrades[5] > 0)
 			{
 				AchievementsTracker.instance.completeOtherAchievement(13);
 			}
@@ -282,6 +260,11 @@ public class UpgradeField : MonoBehaviour
 		{
 			myMTS.HTtanks.health++;
 			myMTS.HTtanks.maxHealth++;
+			if (myMTS.Upgrades[upgradeType] == 4)
+			{
+				myMTS.HTtanks.health = 7;
+				myMTS.HTtanks.maxHealth = 7;
+			}
 		}
 		if (upgradeType == 5)
 		{
@@ -299,7 +282,7 @@ public class UpgradeField : MonoBehaviour
 			CostText.text = "";
 			OP.StartPlacing();
 			GameMaster.instance.PKU.NewUpgrade(1, upgradeType, UpgradeLevel);
-			Play2DClipAtPoint(Katsjing);
+			Play2DClipAtPoint(ZombieTankSpawner.instance.Katsjing);
 		}
 		else
 		{
@@ -307,7 +290,7 @@ public class UpgradeField : MonoBehaviour
 			startTime = Time.time;
 			StartCoroutine(WaitBox());
 			GameMaster.instance.PKU.NewUpgrade(playerID, upgradeType, UpgradeLevel);
-			Play2DClipAtPoint(Katsjing);
+			Play2DClipAtPoint(ZombieTankSpawner.instance.Katsjing);
 		}
 	}
 
@@ -335,8 +318,8 @@ public class UpgradeField : MonoBehaviour
 				}
 				else
 				{
-					Play2DClipAtPoint(denied);
-					GameMaster.instance.PKU.StartCoroutine("StartPlayerDeniedAnimation", 1);
+					Play2DClipAtPoint(ZombieTankSpawner.instance.denied);
+					GameMaster.instance.PKU.StartCoroutine("StartPlayerDeniedAnimation", myMTS.playerId + 1);
 				}
 			}
 			if (Vector3.Distance(myRect.localScale, newpos) > 0.01f)

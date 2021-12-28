@@ -182,6 +182,12 @@ public class HealthTanks : MonoBehaviour
 				Armour.transform.GetChild(0).gameObject.SetActive(value: false);
 				Armour.transform.GetChild(1).gameObject.SetActive(value: false);
 				Armour.transform.GetChild(2).gameObject.SetActive(value: false);
+				if (GameMaster.instance.isZombieMode && base.transform.tag == "Player")
+				{
+					Armour.transform.GetChild(3).gameObject.SetActive(value: false);
+					Armour.transform.GetChild(4).gameObject.SetActive(value: false);
+					Armour.transform.GetChild(5).gameObject.SetActive(value: false);
+				}
 				return;
 			}
 			if (base.transform.tag == "Enemy" || isGary)
@@ -209,6 +215,24 @@ public class HealthTanks : MonoBehaviour
 					Armour.transform.GetChild(1).gameObject.SetActive(value: true);
 					Armour.transform.GetChild(2).gameObject.SetActive(value: true);
 				}
+				if ((float)health >= 5f + num && GameMaster.instance.isZombieMode && base.transform.tag == "Player")
+				{
+					Armour.transform.GetChild(3).gameObject.SetActive(value: true);
+					Armour.transform.GetChild(4).gameObject.SetActive(value: false);
+					Armour.transform.GetChild(5).gameObject.SetActive(value: false);
+				}
+				if ((float)health >= 6f + num && GameMaster.instance.isZombieMode && base.transform.tag == "Player")
+				{
+					Armour.transform.GetChild(3).gameObject.SetActive(value: true);
+					Armour.transform.GetChild(4).gameObject.SetActive(value: true);
+					Armour.transform.GetChild(5).gameObject.SetActive(value: false);
+				}
+				if ((float)health >= 7f + num && GameMaster.instance.isZombieMode && base.transform.tag == "Player")
+				{
+					Armour.transform.GetChild(3).gameObject.SetActive(value: true);
+					Armour.transform.GetChild(4).gameObject.SetActive(value: true);
+					Armour.transform.GetChild(5).gameObject.SetActive(value: true);
+				}
 			}
 			else
 			{
@@ -216,6 +240,12 @@ public class HealthTanks : MonoBehaviour
 				Armour.transform.GetChild(0).gameObject.SetActive(value: false);
 				Armour.transform.GetChild(1).gameObject.SetActive(value: false);
 				Armour.transform.GetChild(2).gameObject.SetActive(value: false);
+				if (GameMaster.instance.isZombieMode && base.transform.tag == "Player")
+				{
+					Armour.transform.GetChild(3).gameObject.SetActive(value: false);
+					Armour.transform.GetChild(4).gameObject.SetActive(value: false);
+					Armour.transform.GetChild(5).gameObject.SetActive(value: false);
+				}
 			}
 		}
 		else if (Armour != null)
@@ -224,13 +254,23 @@ public class HealthTanks : MonoBehaviour
 			Armour.transform.GetChild(0).gameObject.SetActive(value: false);
 			Armour.transform.GetChild(1).gameObject.SetActive(value: false);
 			Armour.transform.GetChild(2).gameObject.SetActive(value: false);
+			if (GameMaster.instance.isZombieMode && base.transform.tag == "Player")
+			{
+				Armour.transform.GetChild(3).gameObject.SetActive(value: false);
+				Armour.transform.GetChild(4).gameObject.SetActive(value: false);
+				Armour.transform.GetChild(5).gameObject.SetActive(value: false);
+			}
 		}
 	}
 
 	private void Update()
 	{
-		if (!canGetHurt)
+		if (!canGetHurt || GameMaster.instance.inTankeyTown)
 		{
+			if (GameMaster.instance.inTankeyTown)
+			{
+				health = 999;
+			}
 			return;
 		}
 		if (!GameMaster.instance.GameHasStarted && isSpawnedIn)
@@ -274,18 +314,18 @@ public class HealthTanks : MonoBehaviour
 		{
 			health = 0;
 		}
-		if (isMainTank && Input.GetKey(KeyCode.K) && GameMaster.instance.AmountGoodTanks < 2 && GameMaster.instance.PlayerModeWithAI[1] == 1 && (bool)GetComponent<EnemyAI>())
+		if (isMainTank && Input.GetKey(KeyCode.K) && GameMaster.instance.PlayerDied[0] && GameMaster.instance.PlayerModeWithAI[1] == 1 && (bool)GetComponent<EnemyAI>())
 		{
 			if ((bool)MapEditorMaster.instance)
 			{
 				if (GameMaster.instance.PlayerTeamColor[0] == GameMaster.instance.PlayerTeamColor[1] && GameMaster.instance.PlayerTeamColor[1] != 0)
 				{
-					health = -1;
+					health = -199;
 				}
 			}
 			else
 			{
-				health = -1;
+				health = -199;
 			}
 		}
 		if (health < 1 && !isMainTank && !ChargeDying)
@@ -362,7 +402,7 @@ public class HealthTanks : MonoBehaviour
 				}
 				else
 				{
-					GameMaster.instance.PlayerDown[1] = false;
+					GameMaster.instance.PlayerDown[component4.CompanionID] = false;
 				}
 			}
 		}
@@ -427,6 +467,8 @@ public class HealthTanks : MonoBehaviour
 		if (GameMaster.instance.isZombieMode)
 		{
 			GameMaster.instance.survivalTanksKilled++;
+			int num = ((EnemyID != -10) ? ((EnemyID == -11) ? 1 : ((EnemyID == -12) ? 2 : ((EnemyID == -13) ? 3 : ((EnemyID == -14) ? 4 : ((EnemyID == -15) ? 5 : ((EnemyID == -110) ? 9 : 0)))))) : 0);
+			ZombieTankSpawner.instance.CurrentAmountOfEnemyTypes[num]--;
 			AccountMaster.instance.SaveCloudData(0, EnemyID, 0, bounceKill: false);
 		}
 		else if (!GameMaster.instance.inMenuMode && !GameMaster.instance.inMapEditor)
@@ -563,6 +605,19 @@ public class HealthTanks : MonoBehaviour
 		StartCoroutine(canHurtAgain(1));
 		reviveText.SetActive(value: false);
 		dying = false;
+		MoveTankScript component = GetComponent<MoveTankScript>();
+		if ((bool)component)
+		{
+			GameMaster.instance.PlayerDown[component.playerId] = false;
+		}
+		else
+		{
+			EnemyAI component2 = GetComponent<EnemyAI>();
+			if ((bool)component2)
+			{
+				GameMaster.instance.PlayerDown[component2.CompanionID] = false;
+			}
+		}
 		if (GameMaster.instance.PlayerModeWithAI[1] != 1)
 		{
 			GameMaster.instance.totalRevivesPerformed++;

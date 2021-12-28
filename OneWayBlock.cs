@@ -46,6 +46,8 @@ public class OneWayBlock : MonoBehaviour
 
 	public Collider PlayerObject;
 
+	public bool FastBreaker;
+
 	private void Start()
 	{
 		CanvasIndicator.SetActive(value: true);
@@ -78,6 +80,7 @@ public class OneWayBlock : MonoBehaviour
 		}
 		if (MyColliders.Count < 1)
 		{
+			FastBreaker = false;
 			DisableCollision();
 		}
 	}
@@ -86,6 +89,10 @@ public class OneWayBlock : MonoBehaviour
 	{
 		if ((collision.tag == "Player" || collision.tag == "Enemy") && !MyColliders.Contains(collision))
 		{
+			if (collision.gameObject.GetComponent<HealthTanks>().EnemyID == -13)
+			{
+				FastBreaker = true;
+			}
 			MyColliders.Add(collision);
 			CheckEnteringObject(collision);
 		}
@@ -198,6 +205,10 @@ public class OneWayBlock : MonoBehaviour
 	{
 		if (MyColliders.Contains(collision))
 		{
+			if (collision.gameObject.GetComponent<HealthTanks>().EnemyID == -13)
+			{
+				FastBreaker = false;
+			}
 			MyColliders.Remove(collision);
 			CheckLeavingObject(collision);
 		}
@@ -214,7 +225,7 @@ public class OneWayBlock : MonoBehaviour
 			ImageIndicator.SetActive(value: true);
 			Indicator.GetComponent<RectTransform>().sizeDelta = new Vector2(0.5f * (float)Mathf.RoundToInt(wayblockScript.blocker), 0.25f);
 			MoveTankScript component = PlayerObject.GetComponent<MoveTankScript>();
-			wayblockScript.blocker += Time.deltaTime * buildspeed[component.Upgrades[0]];
+			wayblockScript.blocker += Time.deltaTime * (float)ZombieTankSpawner.instance.UpgradedBuildSpeeds[component.Upgrades[0]];
 			if (wayblockScript.blocker > 9.5f)
 			{
 				mySource.volume = 0f;
@@ -241,7 +252,8 @@ public class OneWayBlock : MonoBehaviour
 			blockAnimator.SetFloat("Health", blocker);
 			if (MyColliders.Count > 0 && blocker > 0.4f)
 			{
-				blocker -= Time.deltaTime * breakspeed;
+				float num = (FastBreaker ? 3f : 1f);
+				blocker -= Time.deltaTime * breakspeed * num;
 			}
 			else if (blocker > 9.5f)
 			{

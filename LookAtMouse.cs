@@ -1,4 +1,5 @@
 using System;
+using Rewired;
 using UnityEngine;
 
 public class LookAtMouse : MonoBehaviour
@@ -59,7 +60,7 @@ public class LookAtMouse : MonoBehaviour
 			{
 				ThirdPersonCam.gameObject.SetActive(value: true);
 			}
-			if (myController.playerId > 0 || (GameMaster.instance.isPlayingWithController && myController.playerId == 0))
+			if (myController.playerId > 0 || (ReInput.players.GetPlayer(0).controllers.GetLastActiveController().type == ControllerType.Joystick && myController.playerId == 0))
 			{
 				GetInput();
 				if ((double)Math.Abs(input.x) < 0.65 && (double)Mathf.Abs(input.y) < 0.65)
@@ -69,7 +70,7 @@ public class LookAtMouse : MonoBehaviour
 				CalculateDirection();
 				Rotate();
 			}
-			else if (!GameMaster.instance.isPlayingWithController && myController.playerId == 0)
+			else if (ReInput.players.GetPlayer(0).controllers.GetLastActiveController().type != ControllerType.Joystick && myController.playerId == 0)
 			{
 				if ((bool)mousescript)
 				{
@@ -101,11 +102,8 @@ public class LookAtMouse : MonoBehaviour
 
 	private void GetInput()
 	{
-		if (HealthScript.health > 0)
-		{
-			input.x = myController.player.GetAxis("Look Horizontal");
-			input.y = myController.player.GetAxis("Look Vertically");
-		}
+		input.x = myController.player.GetAxis("Look Horizontal");
+		input.y = myController.player.GetAxis("Look Vertically");
 	}
 
 	private void CalculateDirection()

@@ -3,27 +3,17 @@ using UnityEngine;
 
 public class AccountMenuHandler : MonoBehaviour
 {
-	public TextMeshProUGUI CreateAcc;
-
-	public GameObject CreateAccSlider;
-
-	public TextMeshProUGUI SignInAcc;
-
-	public GameObject SignInAccSlider;
-
-	public GameObject SignOutAccSlider;
-
-	public GameObject SignOutButton;
-
-	public GameObject CampaignsAccSlider;
-
-	public GameObject CampaignsButton;
-
 	public TextMeshProUGUI CurrentlySignedInAs;
 
 	public NewMenuControl NMC;
 
 	public GameObject LobbyButton;
+
+	public GameObject[] SignedInObjects;
+
+	public GameObject[] SignedOutObjects;
+
+	public MainMenuButtons BackButton;
 
 	public GameObject LobbySlider;
 
@@ -37,31 +27,33 @@ public class AccountMenuHandler : MonoBehaviour
 	{
 		if (AccountMaster.instance.Username != null && AccountMaster.instance.UserID != null && AccountMaster.instance.Key != null)
 		{
-			CreateAccSlider.SetActive(value: false);
-			SignInAccSlider.SetActive(value: false);
-			CreateAcc.gameObject.SetActive(value: false);
-			SignInAcc.gameObject.SetActive(value: false);
-			SignOutButton.SetActive(value: true);
-			SignOutAccSlider.SetActive(value: true);
-			CampaignsAccSlider.SetActive(value: true);
-			CampaignsButton.SetActive(value: true);
-			LobbyButton.SetActive(value: false);
-			LobbySlider.SetActive(value: false);
+			GameObject[] signedInObjects = SignedInObjects;
+			for (int i = 0; i < signedInObjects.Length; i++)
+			{
+				signedInObjects[i].SetActive(value: true);
+			}
+			signedInObjects = SignedOutObjects;
+			for (int i = 0; i < signedInObjects.Length; i++)
+			{
+				signedInObjects[i].SetActive(value: false);
+			}
+			BackButton.Place = 3;
 			CurrentlySignedInAs.gameObject.SetActive(value: true);
 			CurrentlySignedInAs.text = "Currently signed in as: " + AccountMaster.instance.Username + " (" + AccountMaster.instance.PDO.marbles + " marbles)";
 		}
 		else
 		{
-			CreateAccSlider.SetActive(value: true);
-			SignInAccSlider.SetActive(value: true);
-			CreateAcc.gameObject.SetActive(value: true);
-			SignInAcc.gameObject.SetActive(value: true);
-			SignOutButton.SetActive(value: false);
-			SignOutAccSlider.SetActive(value: false);
-			CampaignsAccSlider.SetActive(value: false);
-			CampaignsButton.SetActive(value: false);
-			LobbyButton.SetActive(value: false);
-			LobbySlider.SetActive(value: false);
+			GameObject[] signedInObjects = SignedInObjects;
+			for (int i = 0; i < signedInObjects.Length; i++)
+			{
+				signedInObjects[i].SetActive(value: false);
+			}
+			signedInObjects = SignedOutObjects;
+			for (int i = 0; i < signedInObjects.Length; i++)
+			{
+				signedInObjects[i].SetActive(value: true);
+			}
+			BackButton.Place = 2;
 			CurrentlySignedInAs.gameObject.SetActive(value: false);
 			CurrentlySignedInAs.text = "";
 		}

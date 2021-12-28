@@ -362,10 +362,6 @@ public class NewAnimationsScript : MonoBehaviour
 		checkPoint = false;
 		Debug.LogError("WHAT HERE ALREADY!");
 		Play2DClipAtPoint(Click);
-		if ((bool)CloudGeneration.instance)
-		{
-			CloudGeneration.instance.ChangedRound();
-		}
 		if (GameMaster.instance.Lives >= 1)
 		{
 			if (GameMaster.instance.MissionNames.Count > GameMaster.instance.CurrentMission)

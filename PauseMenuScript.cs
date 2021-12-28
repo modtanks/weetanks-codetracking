@@ -166,7 +166,7 @@ public class PauseMenuScript : MonoBehaviour
 		for (int i = 0; i < ReInput.players.playerCount; i++)
 		{
 			Player player = ReInput.players.GetPlayer(i);
-			if (player.isPlaying && GameMaster.instance.PlayerJoined[i])
+			if ((player.isPlaying && GameMaster.instance.PlayerJoined[i]) || (bool)MapEditorMaster.instance)
 			{
 				input.x = player.GetAxis("Move Horizontal");
 				input.y = player.GetAxis("Move Vertically");

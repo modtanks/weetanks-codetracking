@@ -93,6 +93,8 @@ public class MainMenuButtons : MonoBehaviour, IPointerEnterHandler, IEventSystem
 
 	public bool IsAcceptTransferAccount;
 
+	public bool IsToTankeyTown;
+
 	[Header("Options - Gameplay")]
 	public bool IsFriendlyFire;
 
@@ -353,7 +355,7 @@ public class MainMenuButtons : MonoBehaviour, IPointerEnterHandler, IEventSystem
 		}
 		if (NMC != null)
 		{
-			if (NMC.Selection != Place && !NMC.selectedRKS)
+			if (NMC.Selection != Place)
 			{
 				NMC.Selection = Place;
 				StartCoroutine(PlayMarkerSound());

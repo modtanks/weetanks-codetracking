@@ -261,19 +261,13 @@ public class PlayerKillsUI : MonoBehaviour
 			KillsAnimator.SetBool("Kill", value: false);
 			break;
 		case 2:
-			KillsAnimator.SetBool("KillP2", value: true);
-			yield return new WaitForSeconds(0.1f);
-			KillsAnimator.SetBool("KillP2", value: false);
+			KillsAnimator.Play("Player2Kill", -1, 0f);
 			break;
 		case 3:
-			KillsAnimator.SetBool("KillP3", value: true);
-			yield return new WaitForSeconds(0.1f);
-			KillsAnimator.SetBool("KillP3", value: false);
+			KillsAnimator.Play("Player3Kill", -1, 0f);
 			break;
 		case 4:
-			KillsAnimator.SetBool("KillP4", value: true);
-			yield return new WaitForSeconds(0.1f);
-			KillsAnimator.SetBool("KillP4", value: false);
+			KillsAnimator.Play("Player4Kill", -1, 0f);
 			break;
 		}
 	}
@@ -283,24 +277,18 @@ public class PlayerKillsUI : MonoBehaviour
 		switch (player)
 		{
 		case 1:
-			KillsAnimator.SetBool("Denied", value: true);
+			KillsAnimator.SetBool("DeniedP1", value: true);
 			yield return new WaitForSeconds(0.1f);
-			KillsAnimator.SetBool("Denied", value: false);
+			KillsAnimator.SetBool("DeniedP1", value: false);
 			break;
 		case 2:
-			KillsAnimator.SetBool("DeniedP2", value: true);
-			yield return new WaitForSeconds(0.1f);
-			KillsAnimator.SetBool("DeniedP2", value: false);
+			KillsAnimator.Play("Player2Denied", -1, 0f);
 			break;
 		case 3:
-			KillsAnimator.SetBool("DeniedP3", value: true);
-			yield return new WaitForSeconds(0.1f);
-			KillsAnimator.SetBool("DeniedP3", value: false);
+			KillsAnimator.Play("Player3Denied", -1, 0f);
 			break;
 		case 4:
-			KillsAnimator.SetBool("DeniedP4", value: true);
-			yield return new WaitForSeconds(0.1f);
-			KillsAnimator.SetBool("DeniedP4", value: false);
+			KillsAnimator.Play("Player4Denied", -1, 0f);
 			break;
 		}
 	}
@@ -363,6 +351,14 @@ public class PlayerKillsUI : MonoBehaviour
 				PlayerkillsTitle[i].text = PkillsTitle_original[i];
 				Pkills[i].text = "x " + GameMaster.instance.Playerkills[i];
 				PlayerBox[i].SetActive(value: true);
+			}
+			if (OptionsMainMenu.instance.AIcompanion[i])
+			{
+				StatsTanks[i].gameObject.SetActive(value: false);
+			}
+			else if (GameMaster.instance.PlayerJoined[i])
+			{
+				StatsTanks[i].gameObject.SetActive(value: true);
 			}
 		}
 		Pkills[0].text = "x " + GameMaster.instance.Playerkills[0];

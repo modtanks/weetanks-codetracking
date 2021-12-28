@@ -199,8 +199,6 @@ public class MapEditorMaster : MonoBehaviour
 
 	public float minScalePoints = 0.5f;
 
-	private float minScalePointsBoosted = 0.1f;
-
 	public float maxScalePoints = 1.5f;
 
 	private float maxScalePointsBoosted = 10f;

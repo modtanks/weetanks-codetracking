@@ -23,6 +23,8 @@ public class GameMaster : MonoBehaviour
 
 	public bool isOfficialCampaign;
 
+	public bool inTankeyTown;
+
 	[Header("Stats")]
 	public int Lives = 3;
 
@@ -298,10 +300,13 @@ public class GameMaster : MonoBehaviour
 		}
 		AudioListener.volume = 1f;
 		LoadData();
-		GameObject[] objectsEnablingAtStart = ObjectsEnablingAtStart;
-		for (int i = 0; i < objectsEnablingAtStart.Length; i++)
+		if (ObjectsEnablingAtStart != null)
 		{
-			objectsEnablingAtStart[i].SetActive(value: true);
+			GameObject[] objectsEnablingAtStart = ObjectsEnablingAtStart;
+			for (int i = 0; i < objectsEnablingAtStart.Length; i++)
+			{
+				objectsEnablingAtStart[i].SetActive(value: true);
+			}
 		}
 		MainCamera = Camera.main;
 		ambientCLR = RenderSettings.ambientLight;
@@ -562,7 +567,12 @@ public class GameMaster : MonoBehaviour
 				PlayerAlive = false;
 				defeated();
 			}
-			if (!isZombieMode && !inMapEditor)
+			if (inTankeyTown)
+			{
+				FindPlayers();
+				return;
+			}
+			if (!isZombieMode && !inMapEditor && !inTankeyTown)
 			{
 				if (GameHasStarted)
 				{
@@ -592,7 +602,7 @@ public class GameMaster : MonoBehaviour
 					}
 				}
 			}
-			if (AmountEnemyTanks < 1 && !Victory && levelIsLoaded && !isZombieMode && !inMapEditor && !MapEditorMaster.instance)
+			if (AmountEnemyTanks < 1 && !Victory && levelIsLoaded && !inTankeyTown && !isZombieMode && !inMapEditor && !MapEditorMaster.instance)
 			{
 				if (CurrentMission != 99)
 				{
@@ -604,7 +614,7 @@ public class GameMaster : MonoBehaviour
 				}
 				return;
 			}
-			if (!Victory && levelIsLoaded && GameHasStarted && (bool)MapEditorMaster.instance && !inMapEditor)
+			if (!Victory && levelIsLoaded && GameHasStarted && (bool)MapEditorMaster.instance && !inMapEditor && !inTankeyTown)
 			{
 				int num3 = 0;
 				int[] array = new int[5];
@@ -978,10 +988,6 @@ public class GameMaster : MonoBehaviour
 		{
 			NAS.FinishGame();
 		}
-		if ((bool)CloudGeneration.instance)
-		{
-			CloudGeneration.instance.StartCoroutine(CloudGeneration.instance.SetWeatherType(0, force: true));
-		}
 	}
 
 	private int CalcMarbles(int amount)
@@ -1108,17 +1114,10 @@ public class GameMaster : MonoBehaviour
 				floor.SetActive(value: true);
 			}
 		}
-		Moon.SetActive(value: false);
-		RenderSettings.ambientLight = ambientCLR;
-		GameObject[] sun = Sun;
-		for (int j = 0; j < sun.Length; j++)
-		{
-			sun[j].SetActive(value: true);
-		}
 		if (TrainLevelBlocks.Length != 0)
 		{
-			sun = TrainLevelBlocks;
-			foreach (GameObject gameObject in sun)
+			GameObject[] trainLevelBlocks = TrainLevelBlocks;
+			foreach (GameObject gameObject in trainLevelBlocks)
 			{
 				gameObject.SetActive(value: true);
 				if (gameObject.transform.tag == "Snow" && !OptionsMainMenu.instance.SnowMode)
@@ -1127,28 +1126,32 @@ public class GameMaster : MonoBehaviour
 				}
 			}
 		}
+		bool flag = false;
 		foreach (int nightLevel in NightLevels)
 		{
 			if (CurrentMission == nightLevel)
 			{
-				RenderSettings.ambientLight = Color.black;
-				sun = Sun;
-				for (int j = 0; j < sun.Length; j++)
-				{
-					sun[j].SetActive(value: false);
-				}
-				Moon.SetActive(value: true);
+				flag = true;
+				CloudGeneration.instance.MakeItDark();
 				break;
 			}
+		}
+		if ((bool)MapEditorMaster.instance)
+		{
+			CloudGeneration.instance.StartCoroutine(CloudGeneration.instance.SetWeatherType(MapEditorMaster.instance.WeatherTypes[CurrentMission], force: false));
+		}
+		if (!flag)
+		{
+			CloudGeneration.instance.MakeItDay();
 		}
 		foreach (int trainLevel in TrainLevels)
 		{
 			if (CurrentMission == trainLevel)
 			{
-				sun = TrainLevelBlocks;
-				for (int j = 0; j < sun.Length; j++)
+				GameObject[] trainLevelBlocks = TrainLevelBlocks;
+				for (int j = 0; j < trainLevelBlocks.Length; j++)
 				{
-					sun[j].SetActive(value: false);
+					trainLevelBlocks[j].SetActive(value: false);
 				}
 				break;
 			}
@@ -1308,14 +1311,11 @@ public class GameMaster : MonoBehaviour
 			1 => AIPlayer2Prefab, 
 			_ => AIPlayer4Prefab, 
 		}, position, rotation, Players[playerIndex].transform.parent.transform.parent);
-		Debug.Log("name of new AI" + gameObject.name);
 		if ((bool)MapEditorMaster.instance)
 		{
 			MapEditorGridPiece myMEGP = Players[playerIndex].GetComponent<MapEditorProp>().myMEGP;
 			MapEditorProp mapEditorProp = gameObject.transform.GetChild(0).gameObject.AddComponent<MapEditorProp>();
-			EnemyAI component = gameObject.transform.GetChild(0).gameObject.GetComponent<EnemyAI>();
-			Debug.Log("TEAM NUMBER OF THE MTS = " + Players[playerIndex].GetComponent<MapEditorProp>().TeamNumber);
-			component.MyTeam = Players[playerIndex].GetComponent<MapEditorProp>().TeamNumber;
+			gameObject.transform.GetChild(0).gameObject.GetComponent<EnemyAI>().MyTeam = Players[playerIndex].GetComponent<MapEditorProp>().TeamNumber;
 			mapEditorProp.TeamNumber = Players[playerIndex].GetComponent<MapEditorProp>().TeamNumber;
 			if (playerType == 1)
 			{
@@ -1340,6 +1340,8 @@ public class GameMaster : MonoBehaviour
 			Object.Destroy(gameObject);
 			AmountGoodTanks = 1;
 		}
+		DisableGame();
+		disableTheGame();
 	}
 
 	private IEnumerator DisableGameDelay()
@@ -1359,13 +1361,7 @@ public class GameMaster : MonoBehaviour
 		{
 			if (CurrentMission == nightLevel)
 			{
-				RenderSettings.ambientLight = Color.black;
-				GameObject[] sun = Sun;
-				for (int j = 0; j < sun.Length; j++)
-				{
-					sun[j].SetActive(value: false);
-				}
-				Moon.SetActive(value: true);
+				CloudGeneration.instance.MakeItDark();
 				break;
 			}
 		}
@@ -1400,17 +1396,12 @@ public class GameMaster : MonoBehaviour
 			yield return new WaitForSeconds(1f);
 		}
 		Debug.Log("Reset test level");
-		Moon.SetActive(value: false);
-		RenderSettings.ambientLight = ambientCLR;
-		GameObject[] sun = Sun;
-		for (int i = 0; i < sun.Length; i++)
+		CloudGeneration.instance.MakeItDay();
+		CloudGeneration.instance.StartCoroutine(CloudGeneration.instance.SetWeatherType(0, force: true));
+		GameObject[] array = GameObject.FindGameObjectsWithTag("Mine");
+		for (int i = 0; i < array.Length; i++)
 		{
-			sun[i].SetActive(value: true);
-		}
-		sun = GameObject.FindGameObjectsWithTag("Mine");
-		for (int i = 0; i < sun.Length; i++)
-		{
-			Object.Destroy(sun[i]);
+			Object.Destroy(array[i]);
 		}
 		Camera.main.GetComponent<AudioSource>().volume = 0.1f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
 		MapEditorMaster.instance.isTesting = false;
@@ -1433,10 +1424,10 @@ public class GameMaster : MonoBehaviour
 		MapEditorMaster.instance.playerTwoPlaced[CurrentMission] = 0;
 		MapEditorMaster.instance.canPlaceProp = false;
 		MapEditorMaster.instance.StartCoroutine(MapEditorMaster.instance.PlacePropTimer(2f));
-		sun = GameObject.FindGameObjectsWithTag("MapeditorField");
-		for (int i = 0; i < sun.Length; i++)
+		array = GameObject.FindGameObjectsWithTag("MapeditorField");
+		for (int i = 0; i < array.Length; i++)
 		{
-			MapEditorGridPiece component2 = sun[i].GetComponent<MapEditorGridPiece>();
+			MapEditorGridPiece component2 = array[i].GetComponent<MapEditorGridPiece>();
 			for (int k = 0; k < 5; k++)
 			{
 				if (component2.propOnMe[k])
@@ -1530,10 +1521,6 @@ public class GameMaster : MonoBehaviour
 			{
 				component.ETSN.enabled = false;
 			}
-		}
-		if ((bool)CloudGeneration.instance)
-		{
-			CloudGeneration.instance.StartCoroutine(CloudGeneration.instance.SetWeatherType(0, force: true));
 		}
 		enemies = array;
 		foreach (GameObject gameObject in enemies)
@@ -1970,10 +1957,6 @@ public class GameMaster : MonoBehaviour
 		GameObject[] array2 = Enemies.Concat(Bosses).Concat(EnemyScripts).Concat(Players)
 			.ToArray();
 		EnemyTankTracksAudio = 0;
-		if ((bool)MapEditorMaster.instance)
-		{
-			CloudGeneration.instance.StartCoroutine(CloudGeneration.instance.SetWeatherType(MapEditorMaster.instance.WeatherTypes[CurrentMission], force: false));
-		}
 		if (CurrentMission == 0)
 		{
 			counter = 0f;
@@ -2022,26 +2005,14 @@ public class GameMaster : MonoBehaviour
 		Debug.LogError("NEW ROUND!");
 		ZombieTankSpawner component = GetComponent<ZombieTankSpawner>();
 		component.Wave++;
-		Moon.SetActive(value: false);
-		RenderSettings.ambientLight = ambientCLR;
 		GameObject[] sun = Sun;
 		for (int i = 0; i < sun.Length; i++)
 		{
 			sun[i].SetActive(value: true);
 		}
-		if (component.Wave % 12 == 0)
-		{
-			RenderSettings.ambientLight = Color.black;
-			sun = Sun;
-			for (int i = 0; i < sun.Length; i++)
-			{
-				sun[i].SetActive(value: false);
-			}
-			Moon.SetActive(value: true);
-		}
 		component.amountEnemies = 0;
 		component.spawned = 0;
-		component.spawnAmount = component.Wave * 2 + Mathf.RoundToInt(Random.Range(-(component.Wave / 2), component.Wave / 2));
+		component.spawnAmount = Mathf.RoundToInt((float)(component.Wave * 2 + Mathf.RoundToInt(Random.Range(-(component.Wave / 2), component.Wave / 2))) * component.multiplier);
 		if (component.spawnAmount < 1)
 		{
 			component.spawnAmount = 2;
