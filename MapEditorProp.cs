@@ -500,6 +500,7 @@ public class MapEditorProp : MonoBehaviour
 					{
 						myEnemyAI.armour.SetActive(value: true);
 						myEnemyAI.armoured = true;
+						num4 = ((num4 > 3) ? 3 : num4);
 						for (int i = 0; i < num4; i++)
 						{
 							myEnemyAI.armour.transform.GetChild(i).gameObject.SetActive(value: true);

@@ -247,6 +247,12 @@ public class HealthTanks : MonoBehaviour
 					Armour.transform.GetChild(5).gameObject.SetActive(value: false);
 				}
 			}
+			if (!GameMaster.instance.isZombieMode)
+			{
+				Armour.transform.GetChild(3).gameObject.SetActive(value: false);
+				Armour.transform.GetChild(4).gameObject.SetActive(value: false);
+				Armour.transform.GetChild(5).gameObject.SetActive(value: false);
+			}
 		}
 		else if (Armour != null)
 		{
@@ -582,6 +588,8 @@ public class HealthTanks : MonoBehaviour
 				GameMaster.instance.totalWins++;
 				AccountMaster.instance.SaveCloudData(1, 1, 0, bounceKill: false);
 				GameMaster.instance.SaveData(skipCloud: false);
+				int amount = ((OptionsMainMenu.instance.currentDifficulty == 0) ? 10 : ((OptionsMainMenu.instance.currentDifficulty == 1) ? 20 : ((OptionsMainMenu.instance.currentDifficulty == 2) ? 30 : 40)));
+				AccountMaster.instance.IncreaseMarbles(amount);
 				GameMaster.instance.GameHasStarted = false;
 				KingTankScript component6 = base.transform.parent.gameObject.GetComponent<KingTankScript>();
 				if ((bool)component6)

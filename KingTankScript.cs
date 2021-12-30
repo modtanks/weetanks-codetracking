@@ -338,6 +338,8 @@ public class KingTankScript : MonoBehaviour
 			{
 				if (CurrentLayer == 1 && MHC.BossPhase == 2)
 				{
+					LAO.LookStraight = false;
+					LAO.FollowPlayer = true;
 					MHC.StartCoroutine(MHC.StartPhase2a());
 					IsInMortarMode = false;
 					MyAnimator.SetBool("MortarMode", value: false);
@@ -350,6 +352,8 @@ public class KingTankScript : MonoBehaviour
 				}
 				else if (MHC.BossPhase == 4)
 				{
+					LAO.LookStraight = false;
+					LAO.FollowPlayer = true;
 					MHC.BossPhase = 2;
 					MHC.StartCoroutine(MHC.StartPhase2a());
 					IsInMortarMode = false;
@@ -357,6 +361,8 @@ public class KingTankScript : MonoBehaviour
 				}
 				else
 				{
+					LAO.LookStraight = false;
+					LAO.FollowPlayer = true;
 					Debug.Log("BOSS PHASE BACK TO ZERO");
 					MHC.BossPhase = 0;
 					MHC.StartCoroutine(MHC.StartPhase1a());
@@ -367,6 +373,8 @@ public class KingTankScript : MonoBehaviour
 		}
 		else
 		{
+			LAO.LookStraight = false;
+			LAO.FollowPlayer = true;
 			MyAnimator.SetBool("MortarMode", value: false);
 			StartCoroutine(ExitMortarMode());
 		}

@@ -843,10 +843,14 @@ public class PlayerBulletScript : MonoBehaviour
 				}
 				if (component5.isLevel10Boss || component5.isLevel30Boss || component5.isLevel50Boss || component5.isLevel70Boss)
 				{
-					BossHealthBar component6 = GameObject.Find("BossHealthBar").GetComponent<BossHealthBar>();
-					if ((bool)component6)
+					GameObject gameObject = GameObject.Find("BossHealthBar");
+					if ((bool)gameObject)
 					{
-						component6.StartCoroutine(component6.MakeBarWhite());
+						BossHealthBar component6 = gameObject.GetComponent<BossHealthBar>();
+						if ((bool)component6)
+						{
+							component6.StartCoroutine(component6.MakeBarWhite());
+						}
 					}
 					AchievementsTracker.instance.HasShotBoss = true;
 				}

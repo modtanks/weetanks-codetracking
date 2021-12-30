@@ -806,7 +806,6 @@ public class MapEditorMaster : MonoBehaviour
 			ShowErrorMessage("ERROR: Need to have reached checkpoint 50");
 			return;
 		}
-		Debug.Log("Armour toggle set to:" + CustomArmoured[customtank]);
 		canChangeValues = false;
 		StartCoroutine(ChangeBack());
 		CustomTankScript.PropID = 19 + customtank;
@@ -819,7 +818,6 @@ public class MapEditorMaster : MonoBehaviour
 		AccuracySlider.value = CustomAccuracy[customtank];
 		ArmouredSlider.value = CustomArmourPoints[customtank];
 		ScaleSlider.value = CustomTankScale[customtank];
-		Debug.Log("Setting custom tank = " + customtank);
 		if (FCP != null)
 		{
 			_ = CustomMaterial[customtank].color;
@@ -827,7 +825,6 @@ public class MapEditorMaster : MonoBehaviour
 			FCP.color = CustomMaterial[customtank].color;
 		}
 		SelectedCustomTank = customtank;
-		Debug.Log("MINES toggle set to:" + CustomLayMines[customtank] + "custom tank number=" + customtank);
 		CanLayMinesToggle.isOn = CustomLayMines[customtank];
 		BulletTypeList.value = CustomBulletType[customtank];
 		MusicList.value = CustomMusic[customtank];

@@ -81,6 +81,13 @@ public class MissionHundredController : MonoBehaviour
 		{
 			CratesPositions.Add(item.transform.position);
 		}
+		for (int i = 0; i < 4; i++)
+		{
+			if (!GameMaster.instance.PlayerJoined[i] || GameMaster.instance.PlayerModeWithAI[i] != 0)
+			{
+				Object.Destroy(DestroyableCratesToRespawn[i]);
+			}
+		}
 	}
 
 	private void Update()
@@ -175,7 +182,7 @@ public class MissionHundredController : MonoBehaviour
 				list.Add(15);
 			}
 		}
-		if (Random.Range(0, 8) == 0)
+		if (Random.Range(0, 6) == 0)
 		{
 			list.Add(16);
 		}
@@ -253,7 +260,7 @@ public class MissionHundredController : MonoBehaviour
 				list.Add(15);
 			}
 		}
-		if (Random.Range(0, 8) == 0)
+		if (Random.Range(0, 5) == 0)
 		{
 			list.Add(16);
 		}
@@ -331,7 +338,7 @@ public class MissionHundredController : MonoBehaviour
 		KTS.transform.rotation = KTS.StartingRotation;
 		for (int j = 0; j < DestroyableCratesToRespawn.Count; j++)
 		{
-			if (DestroyableCratesToRespawn[j] == null)
+			if (DestroyableCratesToRespawn[j] == null && GameMaster.instance.PlayerJoined[j] && GameMaster.instance.PlayerModeWithAI[j] == 0)
 			{
 				GameObject value = Object.Instantiate(CrateToSpawn, CratesPositions[j], Quaternion.identity);
 				DestroyableCratesToRespawn[j] = value;

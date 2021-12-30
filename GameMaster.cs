@@ -1081,9 +1081,13 @@ public class GameMaster : MonoBehaviour
 		SaveData(skipCloud: false);
 		AmountPlayersThatNeedRevive = 0;
 		AmountEnemyTanks = 0;
-		for (int i = 0; i < AmountTeamTanks.Length; i++)
+		for (int i = 0; i < PlayerDown.Count; i++)
 		{
-			AmountTeamTanks[i] = 0;
+			PlayerDown[i] = false;
+		}
+		for (int j = 0; j < AmountTeamTanks.Length; j++)
+		{
+			AmountTeamTanks[j] = 0;
 		}
 		EnemyTankTracksAudio = 0;
 		if ((bool)currentLoadedLevel && !MapEditorMaster.instance)
@@ -1149,9 +1153,9 @@ public class GameMaster : MonoBehaviour
 			if (CurrentMission == trainLevel)
 			{
 				GameObject[] trainLevelBlocks = TrainLevelBlocks;
-				for (int j = 0; j < trainLevelBlocks.Length; j++)
+				for (int k = 0; k < trainLevelBlocks.Length; k++)
 				{
-					trainLevelBlocks[j].SetActive(value: false);
+					trainLevelBlocks[k].SetActive(value: false);
 				}
 				break;
 			}
@@ -1689,13 +1693,17 @@ public class GameMaster : MonoBehaviour
 		HandlePlayerQueue();
 		DestroyTemps();
 		AmountPlayersThatNeedRevive = 0;
+		for (int i = 0; i < PlayerDown.Count; i++)
+		{
+			PlayerDown[i] = false;
+		}
 		GameObject[] array;
 		if (PlayerJoined.Count > 1 && CurrentMission < 99 && !MapEditorMaster.instance)
 		{
 			Debug.LogWarning("Reset players" + PlayerJoined.Count);
-			for (int i = 0; i < PlayerJoined.Count; i++)
+			for (int j = 0; j < PlayerJoined.Count; j++)
 			{
-				switch (i)
+				switch (j)
 				{
 				case 0:
 					Debug.LogWarning(" players 1");
@@ -1710,7 +1718,7 @@ public class GameMaster : MonoBehaviour
 					}
 					continue;
 				case 1:
-					if (PlayerModeWithAI[i] == 1)
+					if (PlayerModeWithAI[j] == 1)
 					{
 						if (!currentLoadedLevel.transform.Find("AI_Tank_FBX"))
 						{
@@ -1723,7 +1731,7 @@ public class GameMaster : MonoBehaviour
 					}
 					continue;
 				case 2:
-					if (PlayerModeWithAI[i] == 1)
+					if (PlayerModeWithAI[j] == 1)
 					{
 						if (!currentLoadedLevel.transform.Find("AI_Tank_FBX_third"))
 						{
@@ -1736,7 +1744,7 @@ public class GameMaster : MonoBehaviour
 					}
 					continue;
 				}
-				if (PlayerModeWithAI[i] == 1)
+				if (PlayerModeWithAI[j] == 1)
 				{
 					if (!currentLoadedLevel.transform.Find("AI_Tank_FBX_fourth"))
 					{
@@ -1769,29 +1777,29 @@ public class GameMaster : MonoBehaviour
 		{
 			Debug.Log("RESETTING MAP PIECES THINGIES");
 			array = GameObject.FindGameObjectsWithTag("MapeditorField");
-			for (int j = 0; j < array.Length; j++)
+			for (int k = 0; k < array.Length; k++)
 			{
-				MapEditorGridPiece component2 = array[j].GetComponent<MapEditorGridPiece>();
-				for (int k = 0; k < 5; k++)
+				MapEditorGridPiece component2 = array[k].GetComponent<MapEditorGridPiece>();
+				for (int l = 0; l < 5; l++)
 				{
-					if (component2.propOnMe[k] && component2.mission == CurrentMission && (component2.myPropID[k] == 4 || component2.myPropID[k] == 5 || component2.myPropID[k] == 28 || component2.myPropID[k] == 29))
+					if (component2.propOnMe[l] && component2.mission == CurrentMission && (component2.myPropID[l] == 4 || component2.myPropID[l] == 5 || component2.myPropID[l] == 28 || component2.myPropID[l] == 29))
 					{
-						if ((component2.myPropID[k] != 5 || PlayerTeamColor[0] == PlayerTeamColor[1]) && (component2.myPropID[k] != 28 || PlayerTeamColor[0] == PlayerTeamColor[2]) && (component2.myPropID[k] != 29 || PlayerTeamColor[0] == PlayerTeamColor[3]))
+						if ((component2.myPropID[l] != 5 || PlayerTeamColor[0] == PlayerTeamColor[1]) && (component2.myPropID[l] != 28 || PlayerTeamColor[0] == PlayerTeamColor[2]) && (component2.myPropID[l] != 29 || PlayerTeamColor[0] == PlayerTeamColor[3]))
 						{
 							int team = -1;
 							if (component2.MyTeamNumber > -1)
 							{
 								team = component2.MyTeamNumber;
 							}
-							Object.Destroy(component2.myProp[k]);
-							component2.propOnMe[k] = false;
-							component2.SpawnInProps(component2.myPropID[k], component2.rotationDirection[k], team, k, component2.SpawnDifficulty);
+							Object.Destroy(component2.myProp[l]);
+							component2.propOnMe[l] = false;
+							component2.SpawnInProps(component2.myPropID[l], component2.rotationDirection[l], team, l, component2.SpawnDifficulty);
 						}
 					}
-					else if (component2.propOnMe[k] && component2.mission == CurrentMission && component2.myProp[k] == null && (component2.myPropID[k] == 40 || component2.myPropID[k] == 45 || component2.myPropID[k] == 2 || component2.myPropID[k] == 49))
+					else if (component2.propOnMe[l] && component2.mission == CurrentMission && component2.myProp[l] == null && (component2.myPropID[l] == 40 || component2.myPropID[l] == 45 || component2.myPropID[l] == 2 || component2.myPropID[l] == 49))
 					{
-						component2.propOnMe[k] = false;
-						component2.SpawnInProps(component2.myPropID[k], component2.rotationDirection[k], 0, k, component2.SpawnDifficulty);
+						component2.propOnMe[l] = false;
+						component2.SpawnInProps(component2.myPropID[l], component2.rotationDirection[l], 0, l, component2.SpawnDifficulty);
 					}
 				}
 			}
@@ -1799,10 +1807,10 @@ public class GameMaster : MonoBehaviour
 		UpdatePlayerToAI();
 		if (!MapEditorMaster.instance)
 		{
-			for (int l = 0; l < BreakableBlocksLocations.Count; l++)
+			for (int m = 0; m < BreakableBlocksLocations.Count; m++)
 			{
 				int num = 0;
-				Collider[] array2 = Physics.OverlapSphere(BreakableBlocksLocations[l], 0.2f);
+				Collider[] array2 = Physics.OverlapSphere(BreakableBlocksLocations[m], 0.2f);
 				foreach (Collider collider in array2)
 				{
 					if (collider.tag == "Solid" && collider.GetComponent<DestroyableWall>() != null)
@@ -1812,13 +1820,13 @@ public class GameMaster : MonoBehaviour
 				}
 				if (num == 0)
 				{
-					Object.Instantiate(CorkBlock, BreakableBlocksLocations[l], Quaternion.Euler(new Vector3(0f, 0f, 0f))).transform.parent = currentLoadedLevel.transform;
+					Object.Instantiate(CorkBlock, BreakableBlocksLocations[m], Quaternion.Euler(new Vector3(0f, 0f, 0f))).transform.parent = currentLoadedLevel.transform;
 				}
 			}
-			for (int m = 0; m < StoneBlocksLocations.Count; m++)
+			for (int n = 0; n < StoneBlocksLocations.Count; n++)
 			{
 				int num2 = 0;
-				Collider[] array2 = Physics.OverlapSphere(StoneBlocksLocations[m], 0.2f);
+				Collider[] array2 = Physics.OverlapSphere(StoneBlocksLocations[n], 0.2f);
 				foreach (Collider collider2 in array2)
 				{
 					if (collider2.tag == "Solid" && collider2.GetComponent<DestroyableWall>() != null)
@@ -1828,39 +1836,39 @@ public class GameMaster : MonoBehaviour
 				}
 				if (num2 == 0)
 				{
-					Object.Instantiate(StoneBlock, StoneBlocksLocations[m], Quaternion.Euler(new Vector3(0f, 0f, 0f))).transform.parent = currentLoadedLevel.transform;
+					Object.Instantiate(StoneBlock, StoneBlocksLocations[n], Quaternion.Euler(new Vector3(0f, 0f, 0f))).transform.parent = currentLoadedLevel.transform;
 				}
 			}
-			for (int n = 0; n < TNTLocations.Count; n++)
+			for (int num3 = 0; num3 < TNTLocations.Count; num3++)
 			{
-				int num3 = 0;
-				Collider[] array2 = Physics.OverlapSphere(TNTLocations[n], 0.2f);
+				int num4 = 0;
+				Collider[] array2 = Physics.OverlapSphere(TNTLocations[num3], 0.2f);
 				foreach (Collider collider3 in array2)
 				{
 					if (collider3.tag == "Solid" && collider3.GetComponent<ExplosiveBlock>() != null)
 					{
-						num3 = 1;
+						num4 = 1;
 					}
 				}
-				if (num3 == 0)
+				if (num4 == 0)
 				{
-					Object.Instantiate(TNTBlock, TNTLocations[n], Quaternion.Euler(new Vector3(0f, 0f, 0f))).transform.parent = currentLoadedLevel.transform;
+					Object.Instantiate(TNTBlock, TNTLocations[num3], Quaternion.Euler(new Vector3(0f, 0f, 0f))).transform.parent = currentLoadedLevel.transform;
 				}
 			}
-			for (int num4 = 0; num4 < BreakableHalfBlocksLocations.Count; num4++)
+			for (int num5 = 0; num5 < BreakableHalfBlocksLocations.Count; num5++)
 			{
-				int num5 = 0;
-				Collider[] array2 = Physics.OverlapSphere(BreakableHalfBlocksLocations[num4], 0.2f);
+				int num6 = 0;
+				Collider[] array2 = Physics.OverlapSphere(BreakableHalfBlocksLocations[num5], 0.2f);
 				foreach (Collider collider4 in array2)
 				{
 					if (collider4.tag == "Solid" && collider4.GetComponent<DestroyableWall>() != null)
 					{
-						num5 = 1;
+						num6 = 1;
 					}
 				}
-				if (num5 == 0)
+				if (num6 == 0)
 				{
-					Object.Instantiate(HalfCorkBlock, BreakableHalfBlocksLocations[num4], Quaternion.Euler(new Vector3(0f, 0f, 0f))).transform.parent = currentLoadedLevel.transform;
+					Object.Instantiate(HalfCorkBlock, BreakableHalfBlocksLocations[num5], Quaternion.Euler(new Vector3(0f, 0f, 0f))).transform.parent = currentLoadedLevel.transform;
 				}
 			}
 		}
@@ -1882,9 +1890,9 @@ public class GameMaster : MonoBehaviour
 			else if (AmountGoodTanks > 0)
 			{
 				array = Enemies;
-				for (int j = 0; j < array.Length; j++)
+				for (int k = 0; k < array.Length; k++)
 				{
-					EnemyAI component3 = array[j].GetComponent<EnemyAI>();
+					EnemyAI component3 = array[k].GetComponent<EnemyAI>();
 					if ((bool)component3)
 					{
 						MoveTankScript component4 = Players[0].GetComponent<MoveTankScript>();
@@ -1902,12 +1910,12 @@ public class GameMaster : MonoBehaviour
 		}
 		EnemyScripts = GameObject.FindGameObjectsWithTag("EnemyScripting");
 		array = Enemies.Concat(Bosses).Concat(EnemyScripts).ToArray();
-		for (int j = 0; j < array.Length; j++)
+		for (int k = 0; k < array.Length; k++)
 		{
-			MonoBehaviour[] components = array[j].GetComponents<MonoBehaviour>();
-			for (int num6 = 0; num6 < components.Length; num6++)
+			MonoBehaviour[] components = array[k].GetComponents<MonoBehaviour>();
+			for (int num7 = 0; num7 < components.Length; num7++)
 			{
-				components[num6].enabled = true;
+				components[num7].enabled = true;
 			}
 		}
 		StartCoroutine(disableTheGame());

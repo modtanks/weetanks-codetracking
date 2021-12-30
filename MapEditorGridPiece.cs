@@ -504,7 +504,7 @@ public class MapEditorGridPiece : MonoBehaviour
 		{
 			for (int j = 0; j < meshRenderer.sharedMaterials.Length; j++)
 			{
-				if (meshRenderer.sharedMaterials[j].name == "CustomTank")
+				if (meshRenderer.sharedMaterials[j].name.Contains("CustomTank"))
 				{
 					Material[] sharedMaterials = meshRenderer.sharedMaterials;
 					sharedMaterials[j] = MapEditorMaster.instance.CustomMaterial[ID];

@@ -134,7 +134,6 @@ public class MapEditorMissionBarUI : MonoBehaviour
 	public void CheckMaster()
 	{
 		mission = base.transform.GetSiblingIndex() - 1;
-		Debug.Log("new mission index = " + mission);
 		myMissionNumber.text = "Mission " + (mission + 1);
 		if (myMissionName.text != GameMaster.instance.MissionNames[mission] && LastKnownName != GameMaster.instance.MissionNames[mission])
 		{

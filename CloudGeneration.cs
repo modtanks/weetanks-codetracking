@@ -268,7 +268,7 @@ public class CloudGeneration : MonoBehaviour
 
 	private IEnumerator DisableClouds()
 	{
-		yield return new WaitForSeconds(12f);
+		yield return new WaitForSeconds(7f);
 		foreach (GameObject spawnedCloud in SpawnedClouds)
 		{
 			spawnedCloud.SetActive(value: false);

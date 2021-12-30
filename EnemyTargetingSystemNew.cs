@@ -1118,6 +1118,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 					}
 					specialMove = false;
 					DeflectingBullet = false;
+					specialMoveBounceCooldown += 1f;
 					yield break;
 				}
 				startingPosition = Vector3.zero;
