@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class PlayerBulletScript : MonoBehaviour
@@ -31,6 +32,8 @@ public class PlayerBulletScript : MonoBehaviour
 	public ParticleSystem SmokeBulletParty;
 
 	public ParticleSystem TowerChargeParticles;
+
+	public Material NeonMaterial;
 
 	public GameObject poofParticles;
 
@@ -110,6 +113,11 @@ public class PlayerBulletScript : MonoBehaviour
 
 	public bool isSilver;
 
+	[Header("Custom Bullets")]
+	public GameObject Dart;
+
+	public AudioClip[] DartShootSound;
+
 	public Vector3 upcomingDirection;
 
 	public Vector3 upcomingPosition;
@@ -134,6 +142,26 @@ public class PlayerBulletScript : MonoBehaviour
 		if (!GameMaster.instance.isZombieMode && !GameMaster.instance.inMenuMode)
 		{
 			base.transform.position = new Vector3(base.transform.position.x, 1f, base.transform.position.z);
+		}
+		if (!(Dart != null))
+		{
+			return;
+		}
+		if (AccountMaster.instance.Inventory.InventoryItems.Contains(26) && OptionsMainMenu.instance.AMselected.Contains(1026))
+		{
+			InstantiateOneParticle component = GetComponent<InstantiateOneParticle>();
+			if ((bool)component)
+			{
+				component.Sound = DartShootSound;
+			}
+			SmokeBullet.gameObject.SetActive(value: false);
+			SmokeBulletParty.gameObject.SetActive(value: false);
+			Dart.SetActive(value: true);
+			GetComponent<MeshRenderer>().enabled = false;
+		}
+		else
+		{
+			Dart.SetActive(value: false);
 		}
 	}
 
@@ -190,7 +218,11 @@ public class PlayerBulletScript : MonoBehaviour
 
 	private void SetColorBullet()
 	{
-		if ((bool)OptionsMainMenu.instance && !IsSackBullet && OptionsMainMenu.instance.AMselected.Contains(6))
+		if (!OptionsMainMenu.instance || IsSackBullet)
+		{
+			return;
+		}
+		if (OptionsMainMenu.instance.AMselected.Contains(6))
 		{
 			int num = Random.Range(0, 5);
 			Color color = Color.red;
@@ -217,6 +249,32 @@ public class PlayerBulletScript : MonoBehaviour
 			SmokeBulletParty.gameObject.SetActive(value: true);
 			SmokeBullet = SmokeBulletParty.GetComponent<ParticleSystem>();
 		}
+		else if (OptionsMainMenu.instance.AMselected.Contains(1025))
+		{
+			int num2 = Random.Range(0, 5);
+			Color color2 = Color.red;
+			switch (num2)
+			{
+			case 0:
+				color2 = Color.red;
+				break;
+			case 1:
+				color2 = Color.blue;
+				break;
+			case 2:
+				color2 = Color.green;
+				break;
+			case 3:
+				color2 = Color.cyan;
+				break;
+			case 4:
+				color2 = Color.yellow;
+				break;
+			}
+			GetComponent<Renderer>().material = NeonMaterial;
+			GetComponent<Renderer>().material.SetColor("_Color", color2);
+			GetComponent<Renderer>().material.SetColor("_EmissionColor", color2 * 3f);
+		}
 	}
 
 	public void ChargeElectric()
@@ -238,7 +296,7 @@ public class PlayerBulletScript : MonoBehaviour
 			{
 				BulletSpeed = Mathf.Round(BulletSpeed * 1.5f);
 			}
-			GameMaster.instance.Play2DClipAtPoint(ElectricCharge, 1f);
+			SFXManager.instance.PlaySFX(ElectricCharge, 1f, null);
 		}
 	}
 
@@ -475,13 +533,13 @@ public class PlayerBulletScript : MonoBehaviour
 		{
 			int maxExclusive = DeadHitElectric.Length;
 			int num = Random.Range(0, maxExclusive);
-			GameMaster.instance.Play2DClipAtPoint(DeadHitElectric[num], 1f);
+			SFXManager.instance.PlaySFX(DeadHitElectric[num], 1f, null);
 		}
 		else
 		{
 			int maxExclusive2 = DeadHit.Length;
 			int num2 = Random.Range(0, maxExclusive2);
-			GameMaster.instance.Play2DClipAtPoint(DeadHit[num2], 1f);
+			SFXManager.instance.PlaySFX(DeadHit[num2], 1f, null);
 		}
 	}
 
@@ -491,13 +549,13 @@ public class PlayerBulletScript : MonoBehaviour
 		{
 			int maxExclusive = WallHitElectro.Length;
 			int num = Random.Range(0, maxExclusive);
-			GameMaster.instance.Play2DClipAtPoint(WallHitElectro[num], 1f);
+			SFXManager.instance.PlaySFX(WallHitElectro[num], 1f, null);
 		}
 		else
 		{
 			int maxExclusive2 = WallHit.Length;
 			int num2 = Random.Range(0, maxExclusive2);
-			GameMaster.instance.Play2DClipAtPoint(WallHit[num2], 1f);
+			SFXManager.instance.PlaySFX(WallHit[num2], 1f, null);
 		}
 	}
 
@@ -557,6 +615,10 @@ public class PlayerBulletScript : MonoBehaviour
 					BulletSpeed -= 3f;
 				}
 				Debug.Log("SLOWED DOWN" + BulletSpeed);
+				return true;
+			}
+			if (component.papaTank == papaTank && TimesBounced == 0 && component.TimesBounced == 0)
+			{
 				return true;
 			}
 			if (component.isElectric)
@@ -834,6 +896,7 @@ public class PlayerBulletScript : MonoBehaviour
 				TimesBounced = 999;
 				yield break;
 			}
+			HealthTanks component6 = collision.gameObject.GetComponent<HealthTanks>();
 			if (!GameMaster.instance.isZombieMode)
 			{
 				if (component5.isTransporting)
@@ -843,28 +906,35 @@ public class PlayerBulletScript : MonoBehaviour
 				}
 				if (component5.isLevel10Boss || component5.isLevel30Boss || component5.isLevel50Boss || component5.isLevel70Boss)
 				{
+					if ((bool)component6)
+					{
+						BossVoiceLines component7 = component6.GetComponent<BossVoiceLines>();
+						if ((bool)component7)
+						{
+							component7.PlayHitSound();
+						}
+					}
 					GameObject gameObject = GameObject.Find("BossHealthBar");
 					if ((bool)gameObject)
 					{
-						BossHealthBar component6 = gameObject.GetComponent<BossHealthBar>();
-						if ((bool)component6)
+						BossHealthBar component8 = gameObject.GetComponent<BossHealthBar>();
+						if ((bool)component8)
 						{
-							component6.StartCoroutine(component6.MakeBarWhite());
+							component8.StartCoroutine(component8.MakeBarWhite());
 						}
 					}
 					AchievementsTracker.instance.HasShotBoss = true;
 				}
 			}
-			HealthTanks component7 = collision.gameObject.GetComponent<HealthTanks>();
-			if ((bool)component7 && !component7.enabled)
+			if ((bool)component6 && !component6.enabled)
 			{
 				TimesBounced = 999;
 				yield break;
 			}
-			if ((bool)component7.ShieldFade && component7.ShieldFade.ShieldHealth > 0)
+			if ((bool)component6.ShieldFade && component6.ShieldFade.ShieldHealth > 0)
 			{
 				TimesBounced = 9999;
-				component7.ShieldFade.StartFade();
+				component6.ShieldFade.StartFade();
 				yield break;
 			}
 			if (isElectric && !IsElectricCharged && (bool)component5)
@@ -873,41 +943,41 @@ public class PlayerBulletScript : MonoBehaviour
 				TimesBounced = 9999;
 				yield break;
 			}
-			GameMaster.instance.Play2DClipAtPoint(enemyKill, 1f);
+			SFXManager.instance.PlaySFX(enemyKill, 1f, null);
 			if (GameMaster.instance.GameHasStarted)
 			{
-				component7.health--;
+				component6.DamageMe(1);
 			}
-			if (component7.health < 1 && !GameMaster.instance.inMapEditor && !GameMaster.instance.isZombieMode && (bool)AccountMaster.instance)
+			if (component6.health < 1 && !GameMaster.instance.inMapEditor && !GameMaster.instance.isZombieMode && (bool)AccountMaster.instance)
 			{
 				if (TimesBounced == 0)
 				{
 					AchievementsTracker.instance.KilledWithoutBounce = true;
-					AccountMaster.instance.SaveCloudData(0, component7.EnemyID, 0, bounceKill: false);
+					AccountMaster.instance.SaveCloudData(0, component6.EnemyID, 0, bounceKill: false);
 				}
 				else
 				{
 					GameMaster.instance.totalKillsBounce++;
-					AccountMaster.instance.SaveCloudData(0, component7.EnemyID, 0, bounceKill: true);
+					AccountMaster.instance.SaveCloudData(0, component6.EnemyID, 0, bounceKill: true);
 				}
 			}
-			else if (component7.health > 0)
+			else if (component6.health > 0)
 			{
-				MakeWhite component8 = component7.GetComponent<MakeWhite>();
-				if ((bool)component8)
+				MakeWhite component9 = component6.GetComponent<MakeWhite>();
+				if ((bool)component9)
 				{
-					component8.GotHit();
+					component9.GotHit();
 				}
-				if (component7.EnemyID == 9 || component7.EnemyID == 17 || component7.EnemyID == -14 || component7.EnemyID == -110 || component7.Armour != null)
+				if (component6.EnemyID == 9 || component6.EnemyID == 17 || component6.EnemyID == -14 || component6.EnemyID == -110 || component6.Armour != null)
 				{
-					int maxExclusive = GlobalAssets.instance.ArmourHits.Length;
+					int maxExclusive = GlobalAssets.instance.AudioDB.ArmourHits.Length;
 					int num4 = Random.Range(0, maxExclusive);
-					GameMaster.instance.Play2DClipAtPoint(GlobalAssets.instance.ArmourHits[num4], 1f);
+					SFXManager.instance.PlaySFX(GlobalAssets.instance.AudioDB.ArmourHits[num4], 1f, null);
 				}
 			}
 			if (ShotByPlayer > -1)
 			{
-				SpawnHitTag(component7);
+				SpawnHitTag(component6);
 			}
 			TimesBounced = 999;
 		}
@@ -922,8 +992,8 @@ public class PlayerBulletScript : MonoBehaviour
 				IgnoreThatCollision(collision);
 				yield break;
 			}
-			EnemyAI component9 = collision.gameObject.GetComponent<EnemyAI>();
-			if ((bool)EnemyTankScript && component9 == EnemyTankScript.AIscript && TimesBounced < 1)
+			EnemyAI component10 = collision.gameObject.GetComponent<EnemyAI>();
+			if ((bool)EnemyTankScript && component10 == EnemyTankScript.AIscript && TimesBounced < 1)
 			{
 				IgnoreThatCollision(collision);
 				yield break;
@@ -933,17 +1003,17 @@ public class PlayerBulletScript : MonoBehaviour
 				HitTank(collision);
 				yield break;
 			}
-			if (component9.MyTeam == MyTeam && MyTeam != 0 && OptionsMainMenu.instance.FriendlyFire)
+			if (component10.MyTeam == MyTeam && MyTeam != 0 && OptionsMainMenu.instance.FriendlyFire)
 			{
 				HitTank(collision);
 				yield break;
 			}
-			if (component9.MyTeam == MyTeam && MyTeam != 0 && !OptionsMainMenu.instance.FriendlyFire && component9.gameObject != papaTank.gameObject)
+			if (component10.MyTeam == MyTeam && MyTeam != 0 && !OptionsMainMenu.instance.FriendlyFire && component10.gameObject != papaTank.gameObject)
 			{
 				TimesBounced = 999;
 				yield break;
 			}
-			_ = component9.MyTeam;
+			_ = component10.MyTeam;
 			_ = MyTeam;
 			HitTank(collision);
 		}
@@ -1000,7 +1070,7 @@ public class PlayerBulletScript : MonoBehaviour
 				HealthTanks component = collision.gameObject.GetComponent<HealthTanks>();
 				if ((bool)component)
 				{
-					component.health--;
+					component.DamageMe(1);
 				}
 			}
 			else
@@ -1025,23 +1095,23 @@ public class PlayerBulletScript : MonoBehaviour
 				return;
 			}
 			HealthTanks component5 = collision.gameObject.GetComponent<HealthTanks>();
-			if (component5.health > 1 && (component5.EnemyID == 9 || component5.EnemyID == 17 || component5.EnemyID == -14 || component5.EnemyID == -110 || component5.isMainTank || component5.Armour != null))
+			if (component5.health_armour > 0 && (component5.EnemyID == 9 || component5.EnemyID == 17 || component5.EnemyID == -14 || component5.EnemyID == -110 || component5.isMainTank || component5.Armour != null))
 			{
-				int maxExclusive = GlobalAssets.instance.ArmourHits.Length;
+				int maxExclusive = GlobalAssets.instance.AudioDB.ArmourHits.Length;
 				int num = Random.Range(0, maxExclusive);
-				GameMaster.instance.Play2DClipAtPoint(GlobalAssets.instance.ArmourHits[num], 1f);
+				SFXManager.instance.PlaySFX(GlobalAssets.instance.AudioDB.ArmourHits[num], 1f, null);
 			}
-			if (GameMaster.instance.isZombieMode && component5.health > 1)
+			if (GameMaster.instance.isZombieMode && component5.health > 0)
 			{
 				component5.Play2DClipAtPoint(component5.Buzz);
 			}
 			else if (component5.health > 1 && (component5.EnemyID == 9 || component5.EnemyID == 17 || component5.EnemyID == -12 || component5.EnemyID == -110))
 			{
-				int maxExclusive2 = GlobalAssets.instance.ArmourHits.Length;
+				int maxExclusive2 = GlobalAssets.instance.AudioDB.ArmourHits.Length;
 				int num2 = Random.Range(0, maxExclusive2);
-				GameMaster.instance.Play2DClipAtPoint(GlobalAssets.instance.ArmourHits[num2], 1f);
+				SFXManager.instance.PlaySFX(GlobalAssets.instance.AudioDB.ArmourHits[num2], 1f, null);
 			}
-			component5.health--;
+			component5.DamageMe(1);
 		}
 		TimesBounced = 999;
 	}
@@ -1109,12 +1179,12 @@ public class PlayerBulletScript : MonoBehaviour
 					}
 					else
 					{
-						component.health--;
+						component.DamageMe(1);
 					}
 				}
 				else
 				{
-					component.health--;
+					component.DamageMe(1);
 				}
 			}
 			if (component2 != null)

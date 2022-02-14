@@ -4,6 +4,10 @@ public class LaserRaycast : MonoBehaviour
 {
 	public LineRenderer myLine;
 
+	public Gradient[] TeamColors;
+
+	public EnemyAI EA;
+
 	private void Start()
 	{
 		myLine = GetComponent<LineRenderer>();
@@ -11,6 +15,7 @@ public class LaserRaycast : MonoBehaviour
 
 	private void Update()
 	{
+		myLine.colorGradient = TeamColors[EA.MyTeam];
 		Vector3 vector = base.transform.forward - base.transform.position;
 		Debug.DrawRay(base.transform.position, vector * 50f, Color.green, 0.1f);
 		LayerMask layerMask = ~((1 << LayerMask.NameToLayer("EnemyDetectionLayer")) | (1 << LayerMask.NameToLayer("BulletDetectField")) | (1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("Other")) | (1 << LayerMask.NameToLayer("OneWayBlock")));

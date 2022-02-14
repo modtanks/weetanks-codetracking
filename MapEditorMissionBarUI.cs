@@ -1,8 +1,9 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class MapEditorMissionBarUI : MonoBehaviour
+public class MapEditorMissionBarUI : MonoBehaviour, ISelectHandler, IEventSystemHandler
 {
 	public int mission;
 
@@ -27,6 +28,16 @@ public class MapEditorMissionBarUI : MonoBehaviour
 	public Button UpBtn;
 
 	public Button DownBtn;
+
+	public Texture NotSelected;
+
+	public Texture Hovering;
+
+	public Texture Selected;
+
+	public bool isSelected;
+
+	private bool MouseOnMe;
 
 	private void Start()
 	{
@@ -53,11 +64,17 @@ public class MapEditorMissionBarUI : MonoBehaviour
 	{
 		if (GameMaster.instance.CurrentMission == mission)
 		{
-			myImage.color = mybtn.colors.selectedColor;
+			myImage.texture = Selected;
+			isSelected = true;
 		}
 		else
 		{
 			myImage.color = mybtn.colors.normalColor;
+			if (!MouseOnMe)
+			{
+				myImage.texture = NotSelected;
+			}
+			isSelected = false;
 		}
 		if (mission == 0)
 		{
@@ -82,6 +99,28 @@ public class MapEditorMissionBarUI : MonoBehaviour
 		else if (!UpBtn.gameObject.activeSelf)
 		{
 			UpBtn.gameObject.SetActive(value: true);
+		}
+	}
+
+	public void OnSelect(BaseEventData eventData)
+	{
+	}
+
+	public void OnMouseOver(BaseEventData eventData)
+	{
+		MouseOnMe = true;
+		if (!isSelected)
+		{
+			myImage.texture = Hovering;
+		}
+	}
+
+	public void OnMouseExit(BaseEventData eventData)
+	{
+		MouseOnMe = false;
+		if (!isSelected)
+		{
+			myImage.texture = NotSelected;
 		}
 	}
 

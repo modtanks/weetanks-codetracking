@@ -60,7 +60,7 @@ public class CreditsMaster : MonoBehaviour
 			GameMaster.instance.DisableGame();
 			targetPos = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, Camera.main.transform.position.z - 40f);
 			movingPaper = true;
-			GameMaster.instance.Play2DClipAtPoint(Completed, 1f);
+			SFXManager.instance.PlaySFX(Completed, 1f, null);
 			Collider[] array = mapSolids;
 			for (int i = 0; i < array.Length; i++)
 			{

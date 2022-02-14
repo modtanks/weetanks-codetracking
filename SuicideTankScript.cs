@@ -41,7 +41,7 @@ public class SuicideTankScript : MonoBehaviour
 
 	private void Update()
 	{
-		LayerMask layerMask = ~((1 << LayerMask.NameToLayer("OneWayBlock")) | (1 << LayerMask.NameToLayer("IgnorePathFinding")));
+		LayerMask layerMask = ~((1 << LayerMask.NameToLayer("Other")) | (1 << LayerMask.NameToLayer("OneWayBlock")) | (1 << LayerMask.NameToLayer("IgnorePathFinding")));
 		if ((bool)aiAgent.TheTarget)
 		{
 			targetPos = aiAgent.TheTarget.transform.position;

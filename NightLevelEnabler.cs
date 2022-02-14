@@ -16,6 +16,10 @@ public class NightLevelEnabler : MonoBehaviour
 
 	public float P2dist;
 
+	private HealthTanks HT;
+
+	private EnemyAI EA;
+
 	private void Awake()
 	{
 		if (RenderSettings.ambientLight == Color.black)
@@ -50,6 +54,9 @@ public class NightLevelEnabler : MonoBehaviour
 	private void Start()
 	{
 		InvokeRepeating("blinking", 2f, 2f);
+		HT = GetComponent<HealthTanks>();
+		EA = GetComponent<EnemyAI>();
+		SetLightColor();
 	}
 
 	private void Update()
@@ -66,6 +73,16 @@ public class NightLevelEnabler : MonoBehaviour
 		}
 	}
 
+	private void SetLightColor()
+	{
+		if (HT.isSpawnedIn && LightObject != null)
+		{
+			LightObject.GetComponent<MeshRenderer>().material.color = MapEditorMaster.instance.TeamColors[EA.MyTeam];
+			LightObject.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", MapEditorMaster.instance.TeamColors[EA.MyTeam]);
+			LightObject.GetComponentInChildren<Light>().color = MapEditorMaster.instance.TeamColors[EA.MyTeam];
+		}
+	}
+
 	private void blinking()
 	{
 		bool flag = false;
@@ -78,41 +95,41 @@ public class NightLevelEnabler : MonoBehaviour
 			if (!isOn)
 			{
 				isOn = true;
-				if (!(theLight != null) || !isEnemy)
+				if (theLight != null && isEnemy)
 				{
-					return;
-				}
-				if ((bool)MapEditorMaster.instance)
-				{
-					theLight.intensity = originalItensity;
-					LightObject.SetActive(value: true);
-					return;
-				}
-				float num = 30f;
-				float num2 = 999999f;
-				for (int i = 0; i < GameMaster.instance.PlayerJoined.Count; i++)
-				{
-					float num3 = Vector3.Distance(base.transform.position, GameMaster.instance.Players[i].transform.position);
-					if (num3 < num2)
+					if ((bool)MapEditorMaster.instance)
 					{
-						num2 = num3;
-						if (num3 < num)
+						theLight.intensity = originalItensity;
+						LightObject.SetActive(value: true);
+						return;
+					}
+					float num = 30f;
+					float num2 = 999999f;
+					for (int i = 0; i < GameMaster.instance.PlayerJoined.Count; i++)
+					{
+						float num3 = Vector3.Distance(base.transform.position, GameMaster.instance.Players[i].transform.position);
+						if (num3 < num2)
 						{
-							theLight.intensity = originalItensity - num3 * originalItensity / num;
-							LightObject.SetActive(value: true);
-						}
-						else
-						{
-							theLight.intensity = 0f;
-							LightObject.SetActive(value: false);
+							num2 = num3;
+							if (num3 < num)
+							{
+								theLight.intensity = originalItensity - num3 * originalItensity / num;
+								LightObject.SetActive(value: true);
+							}
+							else
+							{
+								theLight.intensity = 0f;
+								LightObject.SetActive(value: false);
+							}
 						}
 					}
+					if (num2 >= num)
+					{
+						theLight.intensity = 0f;
+						LightObject.SetActive(value: false);
+					}
 				}
-				if (num2 >= num)
-				{
-					theLight.intensity = 0f;
-					LightObject.SetActive(value: false);
-				}
+				SetLightColor();
 			}
 			else
 			{

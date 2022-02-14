@@ -95,7 +95,7 @@ public class BugReportingMenu : MonoBehaviour
 	{
 		if ((bool)GameMaster.instance)
 		{
-			GameMaster.instance.Play2DClipAtPoint(UseMenuButtonSound, 1f);
+			SFXManager.instance.PlaySFX(UseMenuButtonSound, 1f, null);
 		}
 	}
 
@@ -103,7 +103,7 @@ public class BugReportingMenu : MonoBehaviour
 	{
 		if ((bool)GameMaster.instance)
 		{
-			GameMaster.instance.Play2DClipAtPoint(TypeSound, 0.6f);
+			SFXManager.instance.PlaySFX(TypeSound, 0.6f, null);
 		}
 	}
 
@@ -122,7 +122,7 @@ public class BugReportingMenu : MonoBehaviour
 				myAnimator.SetBool("ShowMenu", value: true);
 				if ((bool)GameMaster.instance)
 				{
-					GameMaster.instance.Play2DClipAtPoint(OpenMenuSound, 1f);
+					SFXManager.instance.PlaySFX(OpenMenuSound, 1f, null);
 				}
 				if ((bool)GameMaster.instance)
 				{
@@ -163,7 +163,7 @@ public class BugReportingMenu : MonoBehaviour
 		myAnimator.SetBool("ShowMenu", value: false);
 		if ((bool)GameMaster.instance)
 		{
-			GameMaster.instance.Play2DClipAtPoint(CloseMenuSound, 1f);
+			SFXManager.instance.PlaySFX(CloseMenuSound, 1f, null);
 		}
 	}
 
@@ -175,7 +175,7 @@ public class BugReportingMenu : MonoBehaviour
 			ErrorField.text = "<font-weight=900>Error:</font-weight> invalid character detected";
 			if ((bool)GameMaster.instance)
 			{
-				GameMaster.instance.Play2DClipAtPoint(ErrorSentSound, 1f);
+				SFXManager.instance.PlaySFX(ErrorSentSound, 1f, null);
 			}
 		}
 		else if (DescriptionField.text.Length < 10)
@@ -183,7 +183,7 @@ public class BugReportingMenu : MonoBehaviour
 			ErrorField.text = "<font-weight=900>Error:</font-weight> please fill in a valid description";
 			if ((bool)GameMaster.instance)
 			{
-				GameMaster.instance.Play2DClipAtPoint(ErrorSentSound, 1f);
+				SFXManager.instance.PlaySFX(ErrorSentSound, 1f, null);
 			}
 		}
 		else
@@ -202,45 +202,51 @@ public class BugReportingMenu : MonoBehaviour
 		{
 			if (GameMaster.instance.inMenuMode)
 			{
-				wWWForm.AddField("Scene", "Main Menu");
+				wWWForm.AddField("entry.1328679479", "Main Menu");
 			}
 			else if (GameMaster.instance.isZombieMode)
 			{
-				wWWForm.AddField("Scene", "Survival Mode");
+				wWWForm.AddField("entry.1328679479", "Survival Mode");
 			}
 			else if (GameMaster.instance.inMapEditor)
 			{
-				wWWForm.AddField("Scene", "Map Editor");
+				wWWForm.AddField("entry.1328679479", "Map Editor");
 			}
 			else if (GameMaster.instance.inTankeyTown)
 			{
-				wWWForm.AddField("Scene", "Tankey Town");
+				wWWForm.AddField("entry.1328679479", "Tankey Town");
 			}
 			else if (GameMaster.instance.isOfficialCampaign)
 			{
-				wWWForm.AddField("Scene", "Classic Campaign");
+				wWWForm.AddField("entry.1328679479", "Classic Campaign");
 			}
 			else if ((bool)MapEditorMaster.instance)
 			{
-				wWWForm.AddField("Scene", "Playing Custom Campaign");
+				wWWForm.AddField("entry.1328679479", "Playing Custom Campaign");
 			}
 		}
 		for (int i = 0; i < HappinessButtons.Length; i++)
 		{
 			if (HappinessButtons[i].IsSelected)
 			{
-				wWWForm.AddField("happiness", i);
+				wWWForm.AddField("entry.2003059816", i switch
+				{
+					1 => "\ud83d\ude10", 
+					0 => "\ud83d\ude04", 
+					_ => "\ud83d\ude1f", 
+				});
 				break;
 			}
 		}
-		wWWForm.AddField("bug", DescriptionField.text);
-		wWWForm.AddField("reproduce", ReproductionField.text);
+		wWWForm.AddField("entry.1180556855", OptionsMainMenu.instance.CurrentVersion);
+		wWWForm.AddField("entry.1714000823", DescriptionField.text);
+		wWWForm.AddField("entry.1622436738", ReproductionField.text);
 		if (AccountMaster.instance.isSignedIn)
 		{
 			string username = AccountMaster.instance.Username;
-			wWWForm.AddField("account_name", username);
+			wWWForm.AddField("entry.1662013560", username);
 		}
-		UnityWebRequest uwr = UnityWebRequest.Post("https://hooks.zapier.com/hooks/catch/11555672/b1fglp9/", wWWForm);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://docs.google.com/forms/u/0/d/e/1FAIpQLScpCY6PZeRcGnK_Z-1eingkVRReszR-tOFU3axgIF9yF0YtFQ/formResponse", wWWForm);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
@@ -249,20 +255,22 @@ public class BugReportingMenu : MonoBehaviour
 			StatusField.text = "<COLOR=#CF7171>Failed!</color>";
 			if ((bool)GameMaster.instance)
 			{
-				GameMaster.instance.Play2DClipAtPoint(ErrorSentSound, 1f);
+				SFXManager.instance.PlaySFX(ErrorSentSound, 1f, null);
 			}
 			yield return new WaitForSeconds(2f);
 			if (IsShowingMenu)
 			{
 				CloseMenu();
 			}
+			yield break;
 		}
-		else if (uwr.downloadHandler.text.Contains("success") || uwr.downloadHandler.text.Contains("Success"))
+		Debug.Log("Received: " + uwr.downloadHandler.text);
+		if (uwr.downloadHandler.text.Contains("Wee Tanks Bug/Suggestion Report") || uwr.downloadHandler.text.Contains("Wee Tanks Bug/Suggestion Report"))
 		{
 			StatusField.text = "<COLOR=#71CF9D>Success!</color>";
 			if ((bool)GameMaster.instance)
 			{
-				GameMaster.instance.Play2DClipAtPoint(SuccesSentSound, 1f);
+				SFXManager.instance.PlaySFX(SuccesSentSound, 1f, null);
 			}
 			yield return new WaitForSeconds(2f);
 			if (IsShowingMenu)
@@ -275,7 +283,7 @@ public class BugReportingMenu : MonoBehaviour
 			StatusField.text = "<COLOR=#CF7171>Failed!</color>";
 			if ((bool)GameMaster.instance)
 			{
-				GameMaster.instance.Play2DClipAtPoint(ErrorSentSound, 1f);
+				SFXManager.instance.PlaySFX(ErrorSentSound, 1f, null);
 			}
 			yield return new WaitForSeconds(2f);
 			if (IsShowingMenu)

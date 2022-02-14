@@ -256,7 +256,6 @@ public class PauseMenuScript : MonoBehaviour
 			}
 			if (myCanvas.enabled && !LoadingScene)
 			{
-				Debug.LogWarning("Menu closing esc!");
 				ResumeGame();
 			}
 			else if ((bool)CDS)

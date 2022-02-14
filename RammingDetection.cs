@@ -81,7 +81,7 @@ public class RammingDetection : MonoBehaviour
 				{
 					component.StartCoroutine(component.Shake(0.25f, 0.25f));
 				}
-				GameMaster.instance.Play2DClipAtPoint(TankImpact, 1f);
+				SFXManager.instance.PlaySFX(TankImpact, 1f, null);
 				Object.Destroy(Object.Instantiate(RamImpactingParticles, base.transform.position + base.transform.forward * 2f, Quaternion.identity), 3f);
 			}
 			BoostTower component2 = collision.transform.gameObject.GetComponent<BoostTower>();
@@ -100,7 +100,7 @@ public class RammingDetection : MonoBehaviour
 			HealthTanks component4 = collision.transform.GetComponent<HealthTanks>();
 			if ((bool)component4)
 			{
-				component4.health = -999;
+				component4.DamageMe(999);
 			}
 		}
 	}

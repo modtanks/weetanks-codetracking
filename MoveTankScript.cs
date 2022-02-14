@@ -727,7 +727,7 @@ public class MoveTankScript : MonoBehaviour
 			{
 				skidMarkCreator.Stop();
 			}
-			if (!skidMarkCreator.isEmitting)
+			if (!skidMarkCreator.isEmitting && !skidMarkCreator.isPlaying)
 			{
 				ParticleSystem.MainModule main = skidMarkCreator.main;
 				main.duration = dur;

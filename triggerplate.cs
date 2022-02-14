@@ -20,7 +20,7 @@ public class triggerplate : MonoBehaviour
 			MHC.FinalBossTrigger();
 			return;
 		}
-		GameMaster.instance.Play2DClipAtPoint(MHC.WallsMovingDown, 2f);
+		SFXManager.instance.PlaySFX(MHC.WallsMovingDown, 2f, null);
 		GameObject[] blocksToMoveUp = MHC.BlocksToMoveUp;
 		foreach (GameObject value in blocksToMoveUp)
 		{

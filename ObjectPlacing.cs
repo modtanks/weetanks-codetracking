@@ -19,15 +19,14 @@ public class ObjectPlacing : MonoBehaviour
 
 	public UpgradeField UF;
 
-	public Renderer GetMaterialHead;
-
-	public Renderer GetMaterialBody;
+	private TankCustoms GetMaterialBody;
 
 	public bool InPlacingMode;
 
 	private void Start()
 	{
 		MTS = GetComponent<MoveTankScript>();
+		GetMaterialBody = GetComponent<TankCustoms>();
 	}
 
 	public void StartPlacing()
@@ -35,12 +34,7 @@ public class ObjectPlacing : MonoBehaviour
 		HoldingPrefab = Object.Instantiate(TurretPrefab, base.transform.position, Quaternion.identity);
 		HoldingPrefab.GetComponent<BoxCollider>().isTrigger = true;
 		SIM = HoldingPrefab.GetComponent<SomethingInMe>();
-		SIM.Head = new Material[2];
-		SIM.Head[0] = GetMaterialHead.materials[0];
-		SIM.Head[1] = GetMaterialHead.materials[0];
-		SIM.Body = new Material[2];
-		SIM.Body[0] = GetMaterialBody.materials[2];
-		SIM.Body[1] = GetMaterialBody.materials[1];
+		SIM.TurretSkinData = GetMaterialBody.MySkinData;
 		InPlacingMode = true;
 	}
 
@@ -61,7 +55,7 @@ public class ObjectPlacing : MonoBehaviour
 	{
 		if (!SIM.EnteredTrigger)
 		{
-			GameMaster.instance.Play2DClipAtPoint(PlaceSound, 1f);
+			SFXManager.instance.PlaySFX(PlaceSound, 1f, null);
 			Object.Instantiate(PlaceParticles, HoldingPrefab.transform.position, Quaternion.identity);
 			SIM.SetMaterial(Color.white, backToNormal: true);
 			HoldingPrefab.GetComponent<BoxCollider>().isTrigger = false;
@@ -72,18 +66,11 @@ public class ObjectPlacing : MonoBehaviour
 			component.PlacedByPlayer = GetComponent<MoveTankScript>().playerId;
 			HoldingPrefab = null;
 			StartCoroutine(disablePlacingMode());
-			if (component.myMTS.isPlayer2)
-			{
-				GameMaster.instance.TurretsPlaced[1]++;
-			}
-			else
-			{
-				GameMaster.instance.TurretsPlaced[0]++;
-			}
+			GameMaster.instance.TurretsPlaced[component.myMTS.playerId]++;
 		}
 		else if (SIM.EnteredTrigger)
 		{
-			GameMaster.instance.Play2DClipAtPoint(ErrorSound, 1f);
+			SFXManager.instance.PlaySFX(ErrorSound, 1f, null);
 		}
 	}
 

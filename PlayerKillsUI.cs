@@ -380,13 +380,6 @@ public class PlayerKillsUI : MonoBehaviour
 		if (GameMaster.instance.PlayerJoined[0])
 		{
 			PlayerBox[0].SetActive(value: true);
-			if ((bool)UIdis && UIdis.current > 0)
-			{
-				foreach (Transform item in StatsTanks[0])
-				{
-					item.gameObject.SetActive(value: false);
-				}
-			}
 		}
 		else if (!GameMaster.instance.PlayerJoined[0])
 		{
@@ -397,9 +390,9 @@ public class PlayerKillsUI : MonoBehaviour
 			PlayerBox[1].SetActive(value: true);
 			if ((bool)UIdis && UIdis.current > 0)
 			{
-				foreach (Transform item2 in StatsTanks[1])
+				foreach (Transform item in StatsTanks[1])
 				{
-					item2.gameObject.SetActive(value: false);
+					item.gameObject.SetActive(value: false);
 				}
 			}
 		}
@@ -408,9 +401,9 @@ public class PlayerKillsUI : MonoBehaviour
 			PlayerBox[1].SetActive(value: true);
 			if ((bool)UIdis && UIdis.current > 0)
 			{
-				foreach (Transform item3 in StatsTanks[1])
+				foreach (Transform item2 in StatsTanks[1])
 				{
-					item3.gameObject.SetActive(value: false);
+					item2.gameObject.SetActive(value: false);
 				}
 			}
 		}
@@ -419,9 +412,9 @@ public class PlayerKillsUI : MonoBehaviour
 			PlayerBox[2].SetActive(value: true);
 			if ((bool)UIdis && UIdis.current > 0)
 			{
-				foreach (Transform item4 in StatsTanks[2])
+				foreach (Transform item3 in StatsTanks[2])
 				{
-					item4.gameObject.SetActive(value: false);
+					item3.gameObject.SetActive(value: false);
 				}
 			}
 		}
@@ -430,9 +423,9 @@ public class PlayerKillsUI : MonoBehaviour
 			PlayerBox[3].SetActive(value: true);
 			if ((bool)UIdis && UIdis.current > 0)
 			{
-				foreach (Transform item5 in StatsTanks[3])
+				foreach (Transform item4 in StatsTanks[3])
 				{
-					item5.gameObject.SetActive(value: false);
+					item4.gameObject.SetActive(value: false);
 				}
 			}
 		}

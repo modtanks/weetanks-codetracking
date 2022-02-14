@@ -12,7 +12,7 @@ public class CutLineShorter : MonoBehaviour
 
 	private void Update()
 	{
-		if (myText.text.Length > 15)
+		if (myText.text.Length > 32)
 		{
 			Debug.Log("Chaning the text, it has length of:" + myText.text.Length);
 			myText.text = myText.text.Substring(0, 13);

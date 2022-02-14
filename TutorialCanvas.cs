@@ -179,7 +179,7 @@ public class TutorialCanvas : MonoBehaviour
 		TutorialTexts[select].SetActive(value: true);
 		TutorialKeyboardTexts[select].SetActive(value: true);
 		moveTut = true;
-		GameMaster.instance.Play2DClipAtPoint(ShowTutorialSound, 1f);
+		SFXManager.instance.PlaySFX(ShowTutorialSound, 1f, null);
 		yield return new WaitForSeconds(7f);
 		moveDown = true;
 		moveTut = false;

@@ -31,7 +31,7 @@ public class DestroyableBox : MonoBehaviour
 		}
 		if ((bool)GameMaster.instance)
 		{
-			GameMaster.instance.Play2DClipAtPoint(BreakSound, 1f);
+			SFXManager.instance.PlaySFX(BreakSound, 1f, null);
 		}
 		if (other.gameObject.tag == "Player")
 		{
@@ -58,20 +58,20 @@ public class DestroyableBox : MonoBehaviour
 			HealthTanks component2 = other.gameObject.GetComponent<PlayerBulletScript>().papaTank.GetComponent<HealthTanks>();
 			if ((bool)component2)
 			{
-				if (component2.health < 4)
+				if (component2.health_armour < 4)
 				{
-					component2.health += AmountArmourPlates;
-					if (component2.maxHealth < 4)
+					component2.health_armour += AmountArmourPlates;
+					if (component2.maxArmour < 4)
 					{
-						component2.maxHealth += AmountArmourPlates;
+						component2.maxArmour += AmountArmourPlates;
 					}
-					if (component2.health > 4)
+					if (component2.health_armour > 4)
 					{
-						component2.health = 4;
+						component2.health_armour = 4;
 					}
-					if (component2.maxHealth > 4)
+					if (component2.health_armour > 4)
 					{
-						component2.maxHealth = 4;
+						component2.health_armour = 4;
 					}
 				}
 				other.gameObject.GetComponent<PlayerBulletScript>().TimesBounced = 9999;

@@ -77,7 +77,6 @@ public class MapEditorData_OLD
 		campaignName = MEM.campaignName;
 		signedName = MEM.signedName;
 		StartingLives = MEM.StartingLives;
-		CustomMusic = MEM.CustomMusic;
 		MapSize = OptionsMainMenu.instance.MapSize;
 		PTS = MEM.PlayerSpeed;
 		PMB = MEM.PlayerMaxBullets;
@@ -86,24 +85,5 @@ public class MapEditorData_OLD
 		PCLM = MEM.PlayerCanLayMines;
 		PAB = MEM.PlayerAmountBounces;
 		TeamColorsShowing = MEM.TeamColorEnabled;
-		for (int i = 0; i < 3; i++)
-		{
-			SerializableColor item = new SerializableColor(MEM.CustomTankColor[i]);
-			CTC.Add(item);
-			CustomTankSpeed.Add(MEM.CustomTankSpeed[i]);
-			CustomFireSpeed.Add(MEM.CustomFireSpeed[i]);
-			CustomBounces.Add(MEM.CustomBounces[i]);
-			CustomBullets.Add(MEM.CustomBullets[i]);
-			CustomMineSpeed.Add(MEM.CustomMineSpeed[i]);
-			CustomTurnHead.Add(MEM.CustomTurnHead[i]);
-			CustomAccuracy.Add(MEM.CustomAccuracy[i]);
-			LayMines.Add(MEM.CustomLayMines[i]);
-			CustomBulletType.Add(MEM.CustomBulletType[i]);
-			CustomInvisibility.Add(MEM.CustomInvisibility[i]);
-			CustomCalculateShots.Add(MEM.CustomCalculateShots[i]);
-			CustomArmoured.Add(MEM.CustomArmoured[i]);
-			CustomArmourPoints.Add(MEM.CustomArmourPoints[i]);
-			CustomScalePoints.Add(MEM.CustomTankScale[i]);
-		}
 	}
 }

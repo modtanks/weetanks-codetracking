@@ -11,6 +11,8 @@ public class BombSackScript : MonoBehaviour
 
 	public AudioClip LandSound;
 
+	public AudioClip BeepSound;
+
 	public AudioClip ExplosionSound;
 
 	public bool isLanded;
@@ -27,18 +29,39 @@ public class BombSackScript : MonoBehaviour
 
 	public GameObject ShootMeTutorial;
 
+	public GameObject LandingParticles;
+
+	private Animator BombAnimator;
+
+	public ParticleSystem FlyingParticles;
+
+	public GameObject LandingTarget;
+
+	public MissionHundredController MHC;
+
+	public Vector3 StartPos;
+
 	private bool HasDoneDamage;
 
 	private float previousYPos;
 
-	private bool isGrounded;
+	private bool IsGrounded;
 
 	private int GroundedCounter;
+
+	private GameObject SpawnedTarget;
+
+	public MeshRenderer BombBase;
+
+	private bool IsWhiteNow = true;
 
 	private void Start()
 	{
 		TimeTillDetonation = TimeTillDetonation + TimeTillDetonation + Random.Range(0f, TimeTillDetonation / 2f);
 		rb = GetComponent<Rigidbody>();
+		BombAnimator = GetComponent<Animator>();
+		StartPos = base.transform.position;
+		FlyingParticles.Stop();
 	}
 
 	private void OnCollisionEnter(Collision collision)
@@ -49,41 +72,34 @@ public class BombSackScript : MonoBehaviour
 			BossPlatform component = collision.gameObject.GetComponent<BossPlatform>();
 			if ((bool)component && !HasDoneDamage)
 			{
-				if (component.PlatformLayer == 2 && component.KTS.MHC.BossPhase < 3)
-				{
-					component.KTS.Platform_2.PlatformHealth--;
-				}
-				else if (component.PlatformLayer == 2 && component.KTS.MHC.BossPhase >= 3)
-				{
-					component.KTS.Platform_1.PlatformHealth--;
-				}
-				else if (component.PlatformLayer == 1 && component.KTS.MHC.BossPhase < 3)
-				{
-					component.KTS.Platform_2.PlatformHealth--;
-				}
-				else if (component.PlatformLayer == 1 && component.KTS.MHC.BossPhase >= 3)
-				{
-					component.KTS.Platform_1.PlatformHealth--;
-				}
+				component.KTS.Throne.PlatformHealth--;
 				HasDoneDamage = true;
 			}
-			GameMaster.instance.Play2DClipAtPoint(ExplosionSound, 0.6f);
+			SFXManager.instance.PlaySFX(ExplosionSound, 0.6f, null);
 			Object.Instantiate(ParticleToSpawn, base.transform.position, Quaternion.identity);
 			Object.Destroy(base.gameObject);
 		}
-		else if (collision.gameObject.tag == "Player")
+		else if (collision.gameObject.tag == "Player" || collision.gameObject.tag == "Enemy")
 		{
-			Vector3 vector = new Vector3(base.transform.position.x, base.transform.position.y + 1f, base.transform.position.z) - collision.gameObject.transform.position;
-			rb.AddForce(vector * 6f, ForceMode.Impulse);
-			ShootMeTutorial.SetActive(value: false);
+			Explode();
+			HealthTanks component2 = collision.gameObject.GetComponent<HealthTanks>();
+			if ((bool)component2)
+			{
+				component2.DamageMe(50);
+			}
 		}
+	}
+
+	public void FlyBack()
+	{
+		BombState = 2;
 	}
 
 	private void Update()
 	{
 		if (Mathf.Abs(previousYPos - base.transform.position.y) < 0.001f)
 		{
-			isGrounded = true;
+			IsGrounded = true;
 			GroundedCounter++;
 			if (GroundedCounter >= 10 && base.transform.position.y > 1.5f && TimeTillDetonation > 1f)
 			{
@@ -92,8 +108,20 @@ public class BombSackScript : MonoBehaviour
 		}
 		else
 		{
-			isGrounded = false;
+			IsGrounded = false;
 			GroundedCounter = 0;
+		}
+		if (!BombAnimator.GetBool("MortarIsLive") && IsGrounded && base.transform.position.y < 3f)
+		{
+			Debug.Log("LANDED");
+			BombAnimator.SetBool("MortarIsLive", value: true);
+			Object.Destroy(Object.Instantiate(LandingParticles, base.transform), 3f);
+			SFXManager.instance.PlaySFX(LandSound, 1f, null);
+			CameraShake component = Camera.main.GetComponent<CameraShake>();
+			if ((bool)component)
+			{
+				component.StartCoroutine(component.Shake(0.1f, 0.15f));
+			}
 		}
 		previousYPos = base.transform.position.y;
 		base.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
@@ -101,20 +129,42 @@ public class BombSackScript : MonoBehaviour
 		{
 			rb.isKinematic = true;
 			base.transform.Translate(Vector3.up * Time.deltaTime * 32f, Space.World);
-			if (base.transform.position.y > 70f)
+			if (base.transform.position.y > 40f)
 			{
 				Debug.Log("reached de sky");
-				droppingPoint = GameMaster.instance.GetValidLocation(CheckForDist: false, 99999f, Vector3.zero);
-				base.transform.position = droppingPoint + new Vector3(0f, 60f, 0f);
+				droppingPoint = GameMaster.instance.GetValidLocation(MHC.DropLocations);
+				if (droppingPoint == Vector3.zero)
+				{
+					Object.Destroy(base.gameObject);
+					return;
+				}
+				base.transform.position = droppingPoint + new Vector3(0f, 50f, 0f);
 				BombState = 1;
+				SpawnedTarget = Object.Instantiate(LandingTarget, new Vector3(droppingPoint.x, 0.1f, droppingPoint.z), Quaternion.identity);
+			}
+			if (!FlyingParticles.isPlaying)
+			{
+				FlyingParticles.Play();
 			}
 		}
 		else if (BombState == 1)
 		{
 			rb.isKinematic = false;
-			if (isGrounded)
+			if (IsGrounded)
 			{
+				if ((bool)SpawnedTarget && base.transform.position.y < 4f)
+				{
+					Object.Destroy(SpawnedTarget);
+				}
+				if (FlyingParticles.isPlaying)
+				{
+					FlyingParticles.Stop();
+				}
 				TimeTillDetonation -= Time.deltaTime;
+			}
+			else if (!FlyingParticles.isPlaying)
+			{
+				FlyingParticles.Play();
 			}
 			if (TimeTillDetonation < 3f && !blinkScriptRunning)
 			{
@@ -123,21 +173,60 @@ public class BombSackScript : MonoBehaviour
 			}
 			if (TimeTillDetonation < 0f && !isDying)
 			{
-				isDying = true;
-				SpawnBullets(0);
-				GameMaster.instance.Play2DClipAtPoint(ExplosionSound, 0.6f);
-				Object.Instantiate(ParticleToSpawn, base.transform.position, Quaternion.identity);
+				Explode();
 			}
 		}
+		else if (BombState == 2)
+		{
+			rb.isKinematic = true;
+			if (!FlyingParticles.isPlaying)
+			{
+				FlyingParticles.Play();
+			}
+			base.transform.Translate(Vector3.up * Time.deltaTime * 50f, Space.World);
+			if (base.transform.position.y > 40f)
+			{
+				Debug.Log("reached de sky");
+				base.transform.position = StartPos + new Vector3(0f, 40f, 0f);
+				BombState = 3;
+			}
+		}
+		else if (BombState == 3)
+		{
+			if (!FlyingParticles.isPlaying)
+			{
+				FlyingParticles.Play();
+			}
+			rb.isKinematic = false;
+			base.transform.Translate(-Vector3.up * Time.deltaTime * 40f, Space.World);
+		}
+	}
+
+	public void Explode()
+	{
+		isDying = true;
+		SpawnBullets(0);
+		SFXManager.instance.PlaySFX(ExplosionSound, 0.6f, null);
+		Object.Instantiate(ParticleToSpawn, base.transform.position, Quaternion.identity);
 	}
 
 	private IEnumerator BlinkWhite()
 	{
-		yield return new WaitForSeconds(0.5f);
-		MakeWhite component = GetComponent<MakeWhite>();
-		if ((bool)component)
+		yield return new WaitForSeconds(0.2f);
+		if (IsWhiteNow)
 		{
-			component.GotHit();
+			SFXManager.instance.PlaySFX(BeepSound, 1f, null);
+			IsWhiteNow = false;
+			Material[] materials = BombBase.materials;
+			materials[0].SetColor("_EmissionColor", Color.red * 1.9f);
+			BombBase.materials = materials;
+		}
+		else
+		{
+			IsWhiteNow = true;
+			Material[] materials2 = BombBase.materials;
+			materials2[0].SetColor("_EmissionColor", Color.white * 1.7f);
+			BombBase.materials = materials2;
 		}
 		StartCoroutine(BlinkWhite());
 	}
@@ -146,6 +235,7 @@ public class BombSackScript : MonoBehaviour
 	{
 		GameObject obj = Object.Instantiate(BulletToSpawn, direction, Quaternion.identity);
 		PlayerBulletScript component = obj.GetComponent<PlayerBulletScript>();
+		component.isTowerCharged = true;
 		component.IsSackBullet = true;
 		InstantiateOneParticle component2 = obj.GetComponent<InstantiateOneParticle>();
 		if ((bool)component2)
@@ -205,7 +295,5 @@ public class BombSackScript : MonoBehaviour
 
 	public void HitByBullet(Vector3 direction, float force)
 	{
-		rb.AddForce(direction * force, ForceMode.Impulse);
-		ShootMeTutorial.SetActive(value: false);
 	}
 }

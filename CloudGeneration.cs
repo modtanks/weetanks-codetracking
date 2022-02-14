@@ -178,11 +178,12 @@ public class CloudGeneration : MonoBehaviour
 	{
 		float seconds = Random.Range(0.25f, 2f);
 		yield return new WaitForSeconds(seconds);
-		GameMaster.instance.Play2DClipAtPoint(Thunders[Random.Range(0, Thunders.Length)], 1f);
+		SFXManager.instance.PlaySFX(Thunders[Random.Range(0, Thunders.Length)], 1f, null);
 	}
 
 	public void ChangeAmbientColorTo(Color clr)
 	{
+		Debug.Log("AMBIENT COLOR SETTING");
 		StartCoroutine(MakeDark(clr));
 	}
 
@@ -269,6 +270,10 @@ public class CloudGeneration : MonoBehaviour
 	private IEnumerator DisableClouds()
 	{
 		yield return new WaitForSeconds(7f);
+		if (CurrentWeatherType != 0)
+		{
+			yield break;
+		}
 		foreach (GameObject spawnedCloud in SpawnedClouds)
 		{
 			spawnedCloud.SetActive(value: false);
@@ -309,19 +314,19 @@ public class CloudGeneration : MonoBehaviour
 			}
 			foreach (GameObject spawnedCloud in SpawnedClouds)
 			{
-				ParticleSystem component4 = spawnedCloud.transform.GetChild(0).GetComponent<ParticleSystem>();
-				if ((bool)component4)
+				ParticleSystem component = spawnedCloud.transform.GetChild(0).GetComponent<ParticleSystem>();
+				if ((bool)component)
 				{
-					component4.Stop();
+					component.Stop();
 				}
 			}
 			foreach (Transform item in base.transform)
 			{
-				CloudController component5 = item.GetComponent<CloudController>();
-				if ((bool)component5)
+				CloudController component2 = item.GetComponent<CloudController>();
+				if ((bool)component2)
 				{
-					component5.myPS.Stop();
-					component5.enabled = false;
+					component2.myPS.Stop();
+					component2.enabled = false;
 				}
 			}
 			break;
@@ -342,11 +347,7 @@ public class CloudGeneration : MonoBehaviour
 			}
 			foreach (GameObject spawnedCloud3 in SpawnedClouds)
 			{
-				ParticleSystem component3 = spawnedCloud3.transform.GetChild(0).GetComponent<ParticleSystem>();
-				if ((bool)component3)
-				{
-					component3.Stop();
-				}
+				_ = (bool)spawnedCloud3.transform.GetChild(0).GetComponent<ParticleSystem>();
 			}
 			DoClouds();
 			break;
@@ -369,11 +370,7 @@ public class CloudGeneration : MonoBehaviour
 			}
 			foreach (GameObject spawnedCloud5 in SpawnedClouds)
 			{
-				ParticleSystem component2 = spawnedCloud5.transform.GetChild(0).GetComponent<ParticleSystem>();
-				if ((bool)component2)
-				{
-					component2.Stop();
-				}
+				_ = (bool)spawnedCloud5.transform.GetChild(0).GetComponent<ParticleSystem>();
 			}
 			DoClouds();
 			break;
@@ -393,11 +390,7 @@ public class CloudGeneration : MonoBehaviour
 			}
 			foreach (GameObject spawnedCloud7 in SpawnedClouds)
 			{
-				ParticleSystem component = spawnedCloud7.transform.GetChild(0).GetComponent<ParticleSystem>();
-				if ((bool)component)
-				{
-					component.Stop();
-				}
+				_ = (bool)spawnedCloud7.transform.GetChild(0).GetComponent<ParticleSystem>();
 			}
 			DoClouds();
 			break;
@@ -418,6 +411,7 @@ public class CloudGeneration : MonoBehaviour
 				continue;
 			}
 			component.enabled = true;
+			component.myPS.Clear();
 			if (!component.myPS.isPlaying)
 			{
 				component.myPS.Play();

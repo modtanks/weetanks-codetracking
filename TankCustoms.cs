@@ -2,19 +2,11 @@ using UnityEngine;
 
 public class TankCustoms : MonoBehaviour
 {
-	public int[] activatedSkin;
-
 	public Renderer[] allRends;
 
-	public FiringTank FT;
+	public CustomSkinData MySkinData;
 
-	public MoveTankScript MTS;
-
-	public Material TankInsideTracks;
-
-	public Material GlobalBodyTanks;
-
-	public Material TankWheels;
+	public bool IsMainPlayer = true;
 
 	[Header("Unlockable Skins")]
 	public int activeIndex = -1;
@@ -23,7 +15,11 @@ public class TankCustoms : MonoBehaviour
 
 	private void Awake()
 	{
-		SetIndex();
+		SetSkin(MySkinData);
+		if (IsMainPlayer)
+		{
+			SetIndex();
+		}
 	}
 
 	private void SetIndex()
@@ -50,21 +46,22 @@ public class TankCustoms : MonoBehaviour
 		}
 		if (myIndex > -1)
 		{
+			MySkinData = OptionsMainMenu.instance.FullBodySkins[myIndex];
 			SetSkin(OptionsMainMenu.instance.FullBodySkins[myIndex]);
 		}
 	}
 
 	private void SetSkin(CustomSkinData CSD)
 	{
-		Material[] materials = allRends[0].materials;
-		materials[0] = CSD.OuterBodyMaterial;
-		materials[1] = CSD.OuterBodyMaterial;
-		materials[2] = CSD.InnerBodyMaterial;
-		allRends[0].materials = materials;
-		allRends[1].material = CSD.WheelsMaterial;
-		allRends[2].material = CSD.InnerBodyMaterial;
-		allRends[3].material = CSD.HeadMaterial;
-		allRends[4].material = CSD.BarrelMaterial;
+		for (int i = 0; i < allRends.Length; i++)
+		{
+			Material[] materials = allRends[i].materials;
+			for (int j = 0; j < materials.Length; j++)
+			{
+				materials[j] = CSD.MainMaterial;
+			}
+			allRends[i].materials = materials;
+		}
 	}
 
 	private void Update()

@@ -20,7 +20,7 @@ public class FireworkSounds : MonoBehaviour
 			int particleCount = PS.particleCount;
 			if (particleCount >= _numberOfParticles && particleCount > _numberOfParticles)
 			{
-				GameMaster.instance.Play2DClipAtPoint(OnBirthSound, 1f);
+				SFXManager.instance.PlaySFX(OnBirthSound, 1f, null);
 			}
 			_numberOfParticles = particleCount;
 		}

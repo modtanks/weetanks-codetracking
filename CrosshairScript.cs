@@ -65,6 +65,17 @@ public class CrosshairScript : MonoBehaviour
 		{
 			showCursor = true;
 		}
+		if (GameMaster.instance != null)
+		{
+			if (GameMaster.instance.GameHasStarted && OptionsMainMenu.instance.IsThirdPerson)
+			{
+				showCursor = false;
+			}
+			if (GameMaster.instance.GameHasPaused)
+			{
+				showCursor = true;
+			}
+		}
 		RI.enabled = showCursor;
 		if (SelectedCrosshair == null)
 		{

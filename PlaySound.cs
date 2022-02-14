@@ -8,7 +8,7 @@ public class PlaySound : MonoBehaviour
 	{
 		if ((bool)GameMaster.instance)
 		{
-			GameMaster.instance.Play2DClipAtPoint(Sound, 1f);
+			SFXManager.instance.PlaySFX(Sound, 1f, null);
 		}
 	}
 }

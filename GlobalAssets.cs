@@ -4,7 +4,9 @@ public class GlobalAssets : MonoBehaviour
 {
 	private static GlobalAssets _instance;
 
-	public AudioClip[] ArmourHits;
+	public AudioDatabase AudioDB;
+
+	public TankeyTownStockItem[] StockDatabase;
 
 	public static GlobalAssets instance => _instance;
 
@@ -26,5 +28,6 @@ public class GlobalAssets : MonoBehaviour
 
 	private void Update()
 	{
+		Object.DontDestroyOnLoad(base.transform.gameObject);
 	}
 }

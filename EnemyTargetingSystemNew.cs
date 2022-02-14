@@ -17,6 +17,8 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	public Transform[] firePoint;
 
+	public List<AudioClip> ShootSound = new List<AudioClip>();
+
 	public AudioClip[] ExtraShotSounds;
 
 	public AudioClip secondShotSound;
@@ -138,6 +140,9 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 	public Animator TankTopAnimator;
 
 	private LayerMask myLayerMasks;
+
+	[Header("Custom Tank SHIT")]
+	public int AmountShotgunShots;
 
 	private bool ScriptDisabled;
 
@@ -1129,10 +1134,46 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 					yield break;
 				}
 				firedBullets++;
-				Transform[] array = firePoint;
-				foreach (Transform firepoint in array)
+				if (AmountShotgunShots > 0)
 				{
-					FireTank(firepoint, bulletPrefab);
+					if (AmountShotgunShots == 1)
+					{
+						FireTank(firePoint[0], bulletPrefab);
+					}
+					else if (AmountShotgunShots == 2)
+					{
+						FireTank(firePoint[1], bulletPrefab);
+						FireTank(firePoint[2], bulletPrefab);
+					}
+					else if (AmountShotgunShots == 3)
+					{
+						FireTank(firePoint[0], bulletPrefab);
+						FireTank(firePoint[1], bulletPrefab);
+						FireTank(firePoint[2], bulletPrefab);
+					}
+					else if (AmountShotgunShots == 4)
+					{
+						FireTank(firePoint[1], bulletPrefab);
+						FireTank(firePoint[2], bulletPrefab);
+						FireTank(firePoint[3], bulletPrefab);
+						FireTank(firePoint[4], bulletPrefab);
+					}
+					else
+					{
+						Transform[] array = firePoint;
+						foreach (Transform firepoint in array)
+						{
+							FireTank(firepoint, bulletPrefab);
+						}
+					}
+				}
+				else
+				{
+					Transform[] array = firePoint;
+					foreach (Transform firepoint2 in array)
+					{
+						FireTank(firepoint2, bulletPrefab);
+					}
 				}
 				specialMove = false;
 				normalLockedIn = false;
@@ -1171,10 +1212,46 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 								yield break;
 							}
 							firedBullets++;
-							Transform[] array = firePoint;
-							foreach (Transform firepoint2 in array)
+							if (AmountShotgunShots > 0)
 							{
-								FireTank(firepoint2, bulletPrefab);
+								if (AmountShotgunShots == 1)
+								{
+									FireTank(firePoint[0], bulletPrefab);
+								}
+								else if (AmountShotgunShots == 2)
+								{
+									FireTank(firePoint[1], bulletPrefab);
+									FireTank(firePoint[2], bulletPrefab);
+								}
+								else if (AmountShotgunShots == 3)
+								{
+									FireTank(firePoint[0], bulletPrefab);
+									FireTank(firePoint[1], bulletPrefab);
+									FireTank(firePoint[2], bulletPrefab);
+								}
+								else if (AmountShotgunShots == 4)
+								{
+									FireTank(firePoint[1], bulletPrefab);
+									FireTank(firePoint[2], bulletPrefab);
+									FireTank(firePoint[3], bulletPrefab);
+									FireTank(firePoint[4], bulletPrefab);
+								}
+								else
+								{
+									Transform[] array = firePoint;
+									foreach (Transform firepoint3 in array)
+									{
+										FireTank(firepoint3, bulletPrefab);
+									}
+								}
+							}
+							else
+							{
+								Transform[] array = firePoint;
+								foreach (Transform firepoint4 in array)
+								{
+									FireTank(firepoint4, bulletPrefab);
+								}
 							}
 						}
 					}
@@ -1187,10 +1264,46 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 							yield break;
 						}
 						firedBullets++;
-						Transform[] array = firePoint;
-						foreach (Transform firepoint3 in array)
+						if (AmountShotgunShots > 0)
 						{
-							FireTank(firepoint3, bulletPrefab);
+							if (AmountShotgunShots == 1)
+							{
+								FireTank(firePoint[0], bulletPrefab);
+							}
+							else if (AmountShotgunShots == 2)
+							{
+								FireTank(firePoint[1], bulletPrefab);
+								FireTank(firePoint[2], bulletPrefab);
+							}
+							else if (AmountShotgunShots == 3)
+							{
+								FireTank(firePoint[0], bulletPrefab);
+								FireTank(firePoint[1], bulletPrefab);
+								FireTank(firePoint[2], bulletPrefab);
+							}
+							else if (AmountShotgunShots == 4)
+							{
+								FireTank(firePoint[1], bulletPrefab);
+								FireTank(firePoint[2], bulletPrefab);
+								FireTank(firePoint[3], bulletPrefab);
+								FireTank(firePoint[4], bulletPrefab);
+							}
+							else
+							{
+								Transform[] array = firePoint;
+								foreach (Transform firepoint5 in array)
+								{
+									FireTank(firepoint5, bulletPrefab);
+								}
+							}
+						}
+						else
+						{
+							Transform[] array = firePoint;
+							foreach (Transform firepoint6 in array)
+							{
+								FireTank(firepoint6, bulletPrefab);
+							}
 						}
 					}
 				}
@@ -1351,8 +1464,9 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				}
 			}
 		}
+		bool flag = false;
 		GameObject gameObject;
-		if (AIscript.isElectric)
+		if (AIscript.isElectric && !AIscript.HTscript.IsCustom)
 		{
 			if (AIscript.isCharged || AIscript.isLevel70Boss)
 			{
@@ -1360,13 +1474,20 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				if (ExtraShotSounds.Length != 0)
 				{
 					int num = Random.Range(0, ExtraShotSounds.Length);
-					Play2DClipAtPoint(ExtraShotSounds[num]);
+					SFXManager.instance.PlaySFX(ExtraShotSounds[num]);
+					flag = true;
+				}
+				else
+				{
+					SFXManager.instance.PlaySFX(ShootSound);
+					flag = true;
 				}
 			}
 			else
 			{
 				gameObject = Object.Instantiate(SecondBulletPrefab, firepoint.position, Quaternion.Euler(firepoint.transform.forward));
-				Play2DClipAtPoint(secondShotSound);
+				SFXManager.instance.PlaySFX(secondShotSound);
+				flag = true;
 			}
 		}
 		else
@@ -1374,13 +1495,22 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 			if (ExtraShotSounds.Length != 0)
 			{
 				int num2 = Random.Range(0, ExtraShotSounds.Length);
-				Play2DClipAtPoint(ExtraShotSounds[num2]);
+				SFXManager.instance.PlaySFX(ExtraShotSounds[num2]);
+				flag = true;
 			}
-			else if (AIscript.HTscript.EnemyID == -1 && bulletprefab.name == "EnemyExplosiveBullet")
+			else if (AIscript.HTscript.EnemyID == -1)
 			{
-				Play2DClipAtPoint(secondShotSound);
+				if (bulletprefab.name == "EnemyExplosiveBullet")
+				{
+					SFXManager.instance.PlaySFX(secondShotSound);
+				}
+				flag = true;
 			}
 			gameObject = Object.Instantiate(bulletprefab, firepoint.position, Quaternion.Euler(firepoint.transform.forward));
+		}
+		if (!flag)
+		{
+			SFXManager.instance.PlaySFX(ShootSound);
 		}
 		PlayerBulletScript component = gameObject.GetComponent<PlayerBulletScript>();
 		component.MyTeam = AIscript.MyTeam;
@@ -1436,16 +1566,5 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 			}
 		}
 		return false;
-	}
-
-	public void Play2DClipAtPoint(AudioClip clip)
-	{
-		GameObject obj = new GameObject("TempAudio");
-		AudioSource audioSource = obj.AddComponent<AudioSource>();
-		audioSource.clip = clip;
-		audioSource.volume = 1f;
-		audioSource.spatialBlend = 0f;
-		audioSource.Play();
-		Object.Destroy(obj, clip.length);
 	}
 }

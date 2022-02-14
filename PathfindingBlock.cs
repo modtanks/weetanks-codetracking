@@ -73,28 +73,12 @@ public class PathfindingBlock : MonoBehaviour
 		{
 			SolidInMe = false;
 		}
-		LayerMask layerMask;
-		if (!GameMaster.instance.GameHasStarted)
-		{
-			layerMask = 1 << LayerMask.NameToLayer("EnemyDetectionLayer");
-			RaycastHit[] array = Physics.RaycastAll(base.transform.position, new Vector3(0f, -1f, 0f), 1.5f, layerMask);
-			bool electricInMe = false;
-			Debug.DrawRay(base.transform.position, new Vector3(0f, -1f, 0f) * 1.5f, Color.red, 0.1f);
-			RaycastHit[] array2 = array;
-			foreach (RaycastHit raycastHit in array2)
-			{
-				if (raycastHit.transform.tag == "TeleportBlock")
-				{
-					ElectricInMe = true;
-				}
-			}
-			ElectricInMe = electricInMe;
-		}
+		_ = GameMaster.instance.GameHasStarted;
 		if (!GameMaster.instance.AssassinTankAlive)
 		{
 			return;
 		}
-		layerMask = (1 << LayerMask.NameToLayer("CorkWall")) | (1 << LayerMask.NameToLayer("Wall")) | (1 << LayerMask.NameToLayer("NoBounceWall"));
+		LayerMask layerMask = (1 << LayerMask.NameToLayer("CorkWall")) | (1 << LayerMask.NameToLayer("Wall")) | (1 << LayerMask.NameToLayer("NoBounceWall"));
 		Debug.DrawRay(base.transform.position, new Vector3(0f, 0f, -1f) * 1.5f, Color.red, 0.1f);
 		if (Physics.Raycast(base.transform.position, new Vector3(0f, 0f, -1f), out var hitInfo, 1.5f, layerMask))
 		{

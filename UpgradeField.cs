@@ -258,12 +258,12 @@ public class UpgradeField : MonoBehaviour
 		}
 		if (upgradeType == 2)
 		{
-			myMTS.HTtanks.health++;
-			myMTS.HTtanks.maxHealth++;
+			myMTS.HTtanks.health_armour++;
+			myMTS.HTtanks.maxArmour++;
 			if (myMTS.Upgrades[upgradeType] == 4)
 			{
-				myMTS.HTtanks.health = 7;
-				myMTS.HTtanks.maxHealth = 7;
+				myMTS.HTtanks.health_armour = 7;
+				myMTS.HTtanks.maxArmour = 7;
 			}
 		}
 		if (upgradeType == 5)

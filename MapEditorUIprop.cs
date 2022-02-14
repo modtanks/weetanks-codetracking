@@ -6,6 +6,10 @@ public class MapEditorUIprop : MonoBehaviour, IPointerEnterHandler, IEventSystem
 {
 	public RawImage myImage;
 
+	public RawImage SecondImage;
+
+	public Texture customTex;
+
 	public int PropID;
 
 	public int minimumMission = -1;
@@ -28,9 +32,14 @@ public class MapEditorUIprop : MonoBehaviour, IPointerEnterHandler, IEventSystem
 
 	public int[] NeedCustomMissions;
 
+	public ButtonMouseEvents myBME;
+
 	private void Start()
 	{
-		myImage = GetComponent<RawImage>();
+		if (myImage == null)
+		{
+			myImage = GetComponent<RawImage>();
+		}
 		normalColor = myImage.color;
 		if (NeedCustomMissions.Length != 0)
 		{
@@ -48,19 +57,25 @@ public class MapEditorUIprop : MonoBehaviour, IPointerEnterHandler, IEventSystem
 				myImage.color = unavailableColor;
 				canSelectMe = false;
 			}
+			return;
 		}
-		else
+		if (minimumMission > GameMaster.instance.maxMissionReached && minimumMission > GameMaster.instance.maxMissionReachedHard && minimumMission > GameMaster.instance.maxMissionReachedKid && !OptionsMainMenu.instance.AMselected.Contains(60))
 		{
-			if (minimumMission > GameMaster.instance.maxMissionReached && minimumMission > GameMaster.instance.maxMissionReachedHard && minimumMission > GameMaster.instance.maxMissionReachedKid && !OptionsMainMenu.instance.AMselected.Contains(60))
+			myImage.color = unavailableColor;
+			canSelectMe = false;
+		}
+		if (minimumMission > GameMaster.instance.maxMissionReached && minimumMission > GameMaster.instance.maxMissionReachedHard && minimumMission > GameMaster.instance.maxMissionReachedKid && BypassBobBuilderAchievement)
+		{
+			if ((PropID == 26 && (OptionsMainMenu.instance.AMselected.Contains(33) || GameMaster.instance.FoundSecretMissions.Count > 9)) || (PropID == 27 && OptionsMainMenu.instance.AMselected.Contains(34)))
 			{
-				myImage.color = unavailableColor;
-				canSelectMe = false;
+				return;
 			}
-			if (minimumMission > GameMaster.instance.maxMissionReached && minimumMission > GameMaster.instance.maxMissionReachedHard && minimumMission > GameMaster.instance.maxMissionReachedKid && BypassBobBuilderAchievement && (PropID != 26 || (!OptionsMainMenu.instance.AMselected.Contains(33) && GameMaster.instance.FoundSecretMissions.Count <= 9)) && (PropID != 27 || !OptionsMainMenu.instance.AMselected.Contains(34)))
-			{
-				myImage.color = unavailableColor;
-				canSelectMe = false;
-			}
+			myImage.color = unavailableColor;
+			canSelectMe = false;
+		}
+		if (customTex != null)
+		{
+			myImage.texture = customTex;
 		}
 	}
 
@@ -76,6 +91,11 @@ public class MapEditorUIprop : MonoBehaviour, IPointerEnterHandler, IEventSystem
 
 	private void Update()
 	{
+		if ((bool)myBME && myBME.mouseOnMe)
+		{
+			myImage.color = normalColor;
+			return;
+		}
 		if (MapEditorMaster.instance.MenuCurrent == 2 && (PropID == 19 || PropID == 20 || PropID == 21))
 		{
 			MapEditorMaster.instance.SelectedPropUITextureMenu = MapEditorMaster.instance.MenuCurrent;

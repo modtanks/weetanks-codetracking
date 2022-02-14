@@ -177,12 +177,17 @@ public class EnemyBulletScript : MonoBehaviour
 		Collider[] array = Physics.OverlapSphere(base.transform.position, 1.5f);
 		foreach (Collider collider in array)
 		{
-			if (collider.tag == "EnemyDetectionField")
+			if (!(collider.tag == "EnemyDetectionField"))
 			{
-				EnemyDetection component = collider.gameObject.GetComponent<EnemyDetection>();
-				if ((bool)component && !component.Bullets.Contains(base.gameObject))
+				continue;
+			}
+			EnemyDetection component = collider.gameObject.GetComponent<EnemyDetection>();
+			if ((bool)component)
+			{
+				Collider component2 = GetComponent<Collider>();
+				if (!component.Bullets.Contains(component2))
 				{
-					component.Bullets.Add(base.gameObject);
+					component.Bullets.Add(component2);
 				}
 			}
 		}
@@ -305,7 +310,7 @@ public class EnemyBulletScript : MonoBehaviour
 			}
 			if (component != null && !component.immuneToExplosion)
 			{
-				component.health--;
+				component.DamageMe(1);
 			}
 			if (component2 != null)
 			{

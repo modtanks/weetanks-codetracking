@@ -25,7 +25,7 @@ public class ExplosiveBlock : MonoBehaviour
 	public void StartFusing()
 	{
 		Animator component = GetComponent<Animator>();
-		GameMaster.instance.Play2DClipAtPoint(FuseSound, 1f);
+		SFXManager.instance.PlaySFX(FuseSound, 1f, null);
 		component.SetBool("InitiateDestroy", value: true);
 		isFusing = true;
 	}
@@ -47,7 +47,7 @@ public class ExplosiveBlock : MonoBehaviour
 		Object.Destroy(obj.gameObject, 4f);
 		if (GameMaster.instance.GameHasStarted || GameMaster.instance.isZombieMode)
 		{
-			GameMaster.instance.Play2DClipAtPoint(Deathsound, 1f);
+			SFXManager.instance.PlaySFX(Deathsound, 1f, null);
 		}
 		Object.Destroy(base.gameObject);
 	}
@@ -85,7 +85,7 @@ public class ExplosiveBlock : MonoBehaviour
 					}
 					else
 					{
-						component.health--;
+						component.DamageMe(1);
 					}
 				}
 			}

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Rewired;
 using UnityEngine;
 
 public class MapEditorProp : MonoBehaviour
@@ -62,6 +63,10 @@ public class MapEditorProp : MonoBehaviour
 
 	public GameObject DarkLight;
 
+	public string CustomUniqueTankID = "";
+
+	private int lastknownMenuNumber = -1;
+
 	private bool LatestKnownColorState = true;
 
 	private void SetMaterials(Color clr, bool reset)
@@ -105,7 +110,10 @@ public class MapEditorProp : MonoBehaviour
 			Material[] materials = myRend.materials;
 			for (int k = 0; k < myRend.materials.Length; k++)
 			{
-				materials[k].color = notSelectedColor[k];
+				if (notSelectedColor.Length >= k)
+				{
+					materials[k].color = notSelectedColor[k];
+				}
 			}
 			myRend.materials = materials;
 			if ((bool)SecondRend)
@@ -140,6 +148,19 @@ public class MapEditorProp : MonoBehaviour
 		FT = GetComponent<FiringTank>();
 	}
 
+	public void SetRendColors()
+	{
+		if ((bool)myRend)
+		{
+			Material[] materials = myRend.materials;
+			notSelectedColor = new Color[materials.Length];
+			for (int i = 0; i < myRend.materials.Length; i++)
+			{
+				notSelectedColor[i] = materials[i].color;
+			}
+		}
+	}
+
 	private void Start()
 	{
 		myEnemyAI = GetComponent<EnemyAI>();
@@ -150,10 +171,7 @@ public class MapEditorProp : MonoBehaviour
 		{
 			OriginalBodyColor = myRend.materials[0].color;
 		}
-		if (!MapEditorMaster.instance.inPlayingMode)
-		{
-			SetCustomTankProperties();
-		}
+		SetCustomTankProperties();
 		if (TeamNumber < 0)
 		{
 			if (isEnemyTank)
@@ -165,15 +183,7 @@ public class MapEditorProp : MonoBehaviour
 				TeamNumber = 1;
 			}
 		}
-		if ((bool)myRend)
-		{
-			Material[] materials = myRend.materials;
-			notSelectedColor = new Color[materials.Length];
-			for (int i = 0; i < myRend.materials.Length; i++)
-			{
-				notSelectedColor[i] = materials[i].color;
-			}
-		}
+		SetRendColors();
 		if ((bool)SecondRend)
 		{
 			notSelectedColor2 = SecondRend.material.color;
@@ -218,10 +228,6 @@ public class MapEditorProp : MonoBehaviour
 	{
 		if (myEnemyAI != null)
 		{
-			if (!MapEditorMaster.instance.inPlayingMode)
-			{
-				SetCustomTankProperties();
-			}
 			if (myEnemyAI.MyTeam != TeamNumber)
 			{
 				myEnemyAI.MyTeam = TeamNumber;
@@ -291,14 +297,20 @@ public class MapEditorProp : MonoBehaviour
 
 	private void OnDisable()
 	{
-		if (!MapEditorMaster.instance.inPlayingMode)
-		{
-			SetCustomTankProperties();
-		}
+		SetCustomTankProperties();
 		SetTankBodyColor();
 		if (base.transform.parent.gameObject.GetComponent<Animator>() != null && !GameMaster.instance.GameHasStarted)
 		{
 			base.transform.parent.gameObject.GetComponent<Animator>().enabled = false;
+		}
+	}
+
+	private void FixedUpdate()
+	{
+		if ((bool)MapEditorMaster.instance && isEnemyTank && MapEditorMaster.instance.MenuCurrent != lastknownMenuNumber && !MapEditorMaster.instance.inPlayingMode)
+		{
+			SetCustomTankProperties();
+			lastknownMenuNumber = MapEditorMaster.instance.MenuCurrent;
 		}
 	}
 
@@ -337,38 +349,15 @@ public class MapEditorProp : MonoBehaviour
 
 	private void OnMouseEnter()
 	{
-		if (MapEditorMaster.instance.isTesting || MapEditorMaster.instance.inPlayingMode || MapEditorMaster.instance.CurrentLayer != LayerNumber || (MapEditorMaster.instance.OnTeamsMenu && (!(MapEditorMaster.instance.OTM != null) || ((!(MapEditorMaster.instance.OTM.SelectedMEP == this) || !MapEditorMaster.instance.OnTeamsMenu) && !MapEditorMaster.instance.RemoveMode && MapEditorMaster.instance.OnTeamsMenu))))
+		if (!MapEditorMaster.instance.isTesting && !MapEditorMaster.instance.inPlayingMode && MapEditorMaster.instance.CurrentLayer == LayerNumber && MapEditorMaster.instance.MenuCurrent != 8)
 		{
-			return;
-		}
-		SetMaterials(hoverColor, reset: false);
-		if ((isEnemyTank || isPlayerOne || isPlayerTwo || isPlayerThree || isPlayerFour) && !MapEditorMaster.instance.OnTeamsMenu && !MapEditorMaster.instance.RemoveMode)
-		{
-			MapEditorMaster.instance.OTM.CurrentDifficulty = MyDifficultySpawn;
-			MapEditorMaster.instance.TeamsCursorMenu.SetActive(value: true);
-			MapEditorMaster.instance.OTM.SelectedMEP = this;
-			MapEditorMaster.instance.OTM.CurrentTeamNumber = TeamNumber;
-			Vector3 vector = Camera.main.GetComponent<Camera>().WorldToScreenPoint(base.transform.position);
-			Debug.Log("target is " + vector.x + " pixels from the left");
-			Debug.Log("target is " + vector.y + " pixels from the bottom");
-			float num = (float)Screen.height / 1080f;
-			float num2 = MapEditorMaster.instance.OTM.GetComponent<RectTransform>().rect.height * num;
-			Debug.Log("height is " + num2);
-			MapEditorMaster.instance.OTM.DisableMenuAtDistance = ((Screen.height < 1080) ? num2 : (num2 / 1.55f));
-			if (base.transform.position.z < 0f)
+			SetMaterials(hoverColor, reset: false);
+			if ((bool)SecondRend)
 			{
-				MapEditorMaster.instance.OTM.transform.position = Camera.main.GetComponent<Camera>().WorldToScreenPoint(base.transform.position) + new Vector3(0f, num2 / 2f, 0f);
+				SecondRend.material.color = hoverColor;
 			}
-			else
-			{
-				MapEditorMaster.instance.OTM.transform.position = Camera.main.GetComponent<Camera>().WorldToScreenPoint(base.transform.position) - new Vector3(0f, num2 / 2f, 0f);
-			}
+			mouseOverMe = true;
 		}
-		if ((bool)SecondRend)
-		{
-			SecondRend.material.color = hoverColor;
-		}
-		mouseOverMe = true;
 	}
 
 	private void OnMouseExit()
@@ -376,10 +365,6 @@ public class MapEditorProp : MonoBehaviour
 		if (!MapEditorMaster.instance.isTesting && !MapEditorMaster.instance.inPlayingMode)
 		{
 			SetMaterials(Color.white, reset: true);
-			if ((isEnemyTank || isPlayerOne || isPlayerTwo || isPlayerThree || isPlayerFour) && !MapEditorMaster.instance.OnTeamsMenu)
-			{
-				MapEditorMaster.instance.TeamsCursorMenu.SetActive(value: false);
-			}
 			if ((bool)SecondRend)
 			{
 				SecondRend.material.color = notSelectedColor2;
@@ -415,141 +400,126 @@ public class MapEditorProp : MonoBehaviour
 		}
 	}
 
+	public void UpdateTankProperties()
+	{
+		float num = ((MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomFireSpeed > 0f) ? (1f / MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomFireSpeed) : 0f);
+		if (myEnemyAI.ShootSpeed != num)
+		{
+			myEnemyAI.ShootSpeed = num;
+		}
+		if (myEnemyAI.ETSN != null)
+		{
+			if (MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomCanTeleport)
+			{
+				myEnemyAI.isElectric = true;
+				if (!myEnemyAI.ElectricTeleportRunning)
+				{
+					myEnemyAI.ActivateElectric();
+				}
+			}
+			else
+			{
+				myEnemyAI.isElectric = false;
+				if (myEnemyAI.ElectricTeleportRunning)
+				{
+					myEnemyAI.DeactiveElectric();
+				}
+			}
+			myEnemyAI.bulletBounces = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomBounces;
+			myEnemyAI.ETSN.myTurnSpeed = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTurnHead;
+			myEnemyAI.ETSN.bulletPrefab = MapEditorMaster.instance.BulletPrefabs[MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomBulletType];
+			myEnemyAI.ETSN.ShootSound.Clear();
+			myEnemyAI.ETSN.ShootSound.Add(MapEditorMaster.instance.PlayerBulletSound[MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomBulletType]);
+			myEnemyAI.BouncyBullets = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomCalculateShots;
+			myEnemyAI.amountOfBounces = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomBounces;
+			myEnemyAI.ETSN.AmountShotgunShots = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomBulletsPerShot;
+		}
+		if (notSelectedColor.Length != 0 && notSelectedColor[1] != MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankColor.Color)
+		{
+			notSelectedColor[1] = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankColor.Color;
+			notSelectedColor[2] = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankColor.Color;
+			notSelectedColor2 = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankColor.Color;
+			SetMaterials(Color.white, reset: true);
+		}
+		if ((bool)HT)
+		{
+			int customMusic = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomMusic;
+			int num2 = ((customMusic < 8) ? customMusic : (customMusic + 1));
+			if (HT.EnemyID != num2)
+			{
+				HT.EnemyID = num2;
+			}
+		}
+		myEnemyAI.HTscript.health = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankHealth;
+		myEnemyAI.HTscript.maxHealth = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankHealth;
+		myEnemyAI.LayMines = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomLayMines;
+		myEnemyAI.armoured = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomArmoured;
+		myEnemyAI.HTscript.IsArmoured = myEnemyAI.armoured;
+		if (myEnemyAI.armoured)
+		{
+			int customArmourPoints = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomArmourPoints;
+			myEnemyAI.HTscript.health_armour = customArmourPoints;
+			myEnemyAI.HTscript.maxArmour = customArmourPoints;
+			if (myEnemyAI.armour != null)
+			{
+				myEnemyAI.armour.SetActive(value: true);
+				myEnemyAI.armoured = true;
+				customArmourPoints = ((customArmourPoints > 3) ? 3 : customArmourPoints);
+				for (int i = 0; i < customArmourPoints; i++)
+				{
+					myEnemyAI.armour.transform.GetChild(i).gameObject.SetActive(value: true);
+				}
+			}
+		}
+		else
+		{
+			MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomArmourPoints = 0;
+			myEnemyAI.HTscript.health_armour = 0;
+			myEnemyAI.HTscript.maxArmour = 0;
+			if (myEnemyAI.armour != null)
+			{
+				myEnemyAI.armour.SetActive(value: false);
+				myEnemyAI.armoured = false;
+			}
+		}
+		Vector3 vector = new Vector3(MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankScale, MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankScale, MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankScale);
+		if (base.transform.parent.parent.localScale != vector)
+		{
+			base.transform.parent.parent.localScale = vector;
+		}
+		myEnemyAI.isInvisible = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomInvisibility;
+		myEnemyAI.ETSN.maxFiredBullets = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomBullets;
+		myEnemyAI.LayMinesSpeed = 10.5f - MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomMineSpeed;
+		float num3 = Mathf.Abs(100 - MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomAccuracy);
+		if (myEnemyAI.Accuracy != num3)
+		{
+			myEnemyAI.Accuracy = num3;
+		}
+		if (myEnemyAI.TankSpeed != (float)MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankSpeed)
+		{
+			myEnemyAI.TankSpeed = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankSpeed;
+			myEnemyAI.OriginalTankSpeed = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankSpeed;
+			if (myEnemyAI.TankSpeed < 1f)
+			{
+				myEnemyAI.CanMove = false;
+			}
+			else
+			{
+				myEnemyAI.CanMove = true;
+			}
+		}
+	}
+
 	private void SetCustomTankProperties()
 	{
 		if (myEnemyAI != null && !isPlayerTwo && !isPlayerThree && !isPlayerFour)
 		{
-			if (!(myMEGP != null) || (GameMaster.instance.GameHasStarted && MapEditorMaster.instance.isTesting) || (MapEditorMaster.instance.inPlayingMode && runonce))
+			if (myMEGP != null && (!GameMaster.instance.GameHasStarted || !MapEditorMaster.instance.isTesting) && (!MapEditorMaster.instance.inPlayingMode || !runonce))
 			{
-				return;
-			}
-			runonce = true;
-			if (myMEGP.myPropID[LayerNumber] != 19 && myMEGP.myPropID[LayerNumber] != 20 && myMEGP.myPropID[LayerNumber] != 21)
-			{
-				return;
-			}
-			float num = ((MapEditorMaster.instance.CustomFireSpeed[CustomAInumber] > 0f) ? (1f / MapEditorMaster.instance.CustomFireSpeed[CustomAInumber]) : 0f);
-			if (myEnemyAI.ShootSpeed != num)
-			{
-				myEnemyAI.ShootSpeed = num;
-			}
-			if (myEnemyAI.ETSN != null)
-			{
-				if (myEnemyAI.bulletBounces != MapEditorMaster.instance.CustomBounces[CustomAInumber])
+				runonce = true;
+				if (myMEGP.myPropID[LayerNumber] >= 100 && myMEGP.myPropID[LayerNumber] < 120)
 				{
-					myEnemyAI.bulletBounces = MapEditorMaster.instance.CustomBounces[CustomAInumber];
-				}
-				if (myEnemyAI.ETSN.myTurnSpeed != (float)MapEditorMaster.instance.CustomTurnHead[CustomAInumber])
-				{
-					myEnemyAI.ETSN.myTurnSpeed = MapEditorMaster.instance.CustomTurnHead[CustomAInumber];
-				}
-				if (myEnemyAI.ETSN.bulletPrefab != MapEditorMaster.instance.BulletPrefabs[MapEditorMaster.instance.CustomBulletType[CustomAInumber]])
-				{
-					myEnemyAI.ETSN.bulletPrefab = MapEditorMaster.instance.BulletPrefabs[MapEditorMaster.instance.CustomBulletType[CustomAInumber]];
-				}
-				if (myEnemyAI.BouncyBullets != MapEditorMaster.instance.CustomCalculateShots[CustomAInumber])
-				{
-					myEnemyAI.BouncyBullets = MapEditorMaster.instance.CustomCalculateShots[CustomAInumber];
-				}
-				if (myEnemyAI.amountOfBounces != MapEditorMaster.instance.CustomBounces[CustomAInumber])
-				{
-					myEnemyAI.amountOfBounces = MapEditorMaster.instance.CustomBounces[CustomAInumber];
-				}
-			}
-			if (notSelectedColor.Length != 0 && notSelectedColor[1] != MapEditorMaster.instance.CustomTankColor[CustomAInumber])
-			{
-				notSelectedColor[1] = MapEditorMaster.instance.CustomTankColor[CustomAInumber];
-				notSelectedColor[2] = MapEditorMaster.instance.CustomTankColor[CustomAInumber];
-				notSelectedColor2 = MapEditorMaster.instance.CustomTankColor[CustomAInumber];
-				SetMaterials(Color.white, reset: true);
-			}
-			if ((bool)HT)
-			{
-				int num2 = MapEditorMaster.instance.CustomMusic[CustomAInumber];
-				int num3 = ((num2 < 8) ? num2 : (num2 + 1));
-				if (HT.EnemyID != num3)
-				{
-					HT.EnemyID = num3;
-				}
-			}
-			if (myEnemyAI.LayMines != MapEditorMaster.instance.CustomLayMines[CustomAInumber])
-			{
-				myEnemyAI.LayMines = MapEditorMaster.instance.CustomLayMines[CustomAInumber];
-			}
-			if (myEnemyAI.armoured != MapEditorMaster.instance.CustomArmoured[CustomAInumber])
-			{
-				myEnemyAI.armoured = MapEditorMaster.instance.CustomArmoured[CustomAInumber];
-				myEnemyAI.HTscript.IsArmoured = myEnemyAI.armoured;
-				myEnemyAI.HTscript.health = -1;
-				myEnemyAI.HTscript.maxHealth = -1;
-			}
-			Vector3 vector = new Vector3(MapEditorMaster.instance.CustomTankScale[CustomAInumber], MapEditorMaster.instance.CustomTankScale[CustomAInumber], MapEditorMaster.instance.CustomTankScale[CustomAInumber]);
-			if (base.transform.parent.parent.localScale != vector)
-			{
-				base.transform.parent.parent.localScale = vector;
-			}
-			if (myEnemyAI.HTscript.health != MapEditorMaster.instance.CustomArmourPoints[CustomAInumber] && myEnemyAI.armoured)
-			{
-				int num4 = MapEditorMaster.instance.CustomArmourPoints[CustomAInumber];
-				myEnemyAI.HTscript.health = num4;
-				myEnemyAI.HTscript.maxHealth = num4;
-				if (MapEditorMaster.instance.inPlayingMode)
-				{
-					myEnemyAI.armour = myEnemyAI.gameObject.transform.Find("Armour").gameObject;
-					if (myEnemyAI.armour != null)
-					{
-						myEnemyAI.armour.SetActive(value: true);
-						myEnemyAI.armoured = true;
-						num4 = ((num4 > 3) ? 3 : num4);
-						for (int i = 0; i < num4; i++)
-						{
-							myEnemyAI.armour.transform.GetChild(i).gameObject.SetActive(value: true);
-						}
-					}
-				}
-			}
-			else if (!myEnemyAI.armoured && myEnemyAI.HTscript.health != MapEditorMaster.instance.CustomArmourPoints[CustomAInumber])
-			{
-				MapEditorMaster.instance.CustomArmourPoints[CustomAInumber] = 1;
-				myEnemyAI.HTscript.health = 1;
-				myEnemyAI.HTscript.maxHealth = 1;
-				myEnemyAI.armour = myEnemyAI.gameObject.transform.Find("Armour").gameObject;
-				if (myEnemyAI.armour != null)
-				{
-					for (int j = 0; j < 3; j++)
-					{
-						myEnemyAI.armour.transform.GetChild(j).gameObject.SetActive(value: false);
-					}
-				}
-			}
-			if (myEnemyAI.isInvisible != MapEditorMaster.instance.CustomInvisibility[CustomAInumber])
-			{
-				myEnemyAI.isInvisible = MapEditorMaster.instance.CustomInvisibility[CustomAInumber];
-			}
-			if (myEnemyAI.ETSN.maxFiredBullets != MapEditorMaster.instance.CustomBullets[CustomAInumber])
-			{
-				myEnemyAI.ETSN.maxFiredBullets = MapEditorMaster.instance.CustomBullets[CustomAInumber];
-			}
-			if (myEnemyAI.LayMinesSpeed != MapEditorMaster.instance.CustomMineSpeed[CustomAInumber])
-			{
-				myEnemyAI.LayMinesSpeed = 10.5f - MapEditorMaster.instance.CustomMineSpeed[CustomAInumber];
-			}
-			float num5 = Mathf.Abs(100 - MapEditorMaster.instance.CustomAccuracy[CustomAInumber]);
-			if (myEnemyAI.Accuracy != num5)
-			{
-				myEnemyAI.Accuracy = num5;
-			}
-			if (myEnemyAI.TankSpeed != (float)MapEditorMaster.instance.CustomTankSpeed[CustomAInumber])
-			{
-				myEnemyAI.TankSpeed = MapEditorMaster.instance.CustomTankSpeed[CustomAInumber];
-				myEnemyAI.OriginalTankSpeed = MapEditorMaster.instance.CustomTankSpeed[CustomAInumber];
-				if (myEnemyAI.TankSpeed < 1f)
-				{
-					myEnemyAI.CanMove = false;
-				}
-				else
-				{
-					myEnemyAI.CanMove = true;
+					UpdateTankProperties();
 				}
 			}
 		}
@@ -581,6 +551,8 @@ public class MapEditorProp : MonoBehaviour
 				if (myEnemyAI.ETSN.bulletPrefab != MapEditorMaster.instance.PlayerBulletPrefabs[MapEditorMaster.instance.PlayerBulletType])
 				{
 					myEnemyAI.ETSN.bulletPrefab = MapEditorMaster.instance.PlayerBulletPrefabs[MapEditorMaster.instance.PlayerBulletType];
+					myEnemyAI.ETSN.ShootSound.Clear();
+					myEnemyAI.ETSN.ShootSound.Add(MapEditorMaster.instance.PlayerBulletSound[MapEditorMaster.instance.PlayerBulletType]);
 				}
 			}
 			else if ((bool)MTS)
@@ -600,6 +572,8 @@ public class MapEditorProp : MonoBehaviour
 				if (FT.bulletPrefab != MapEditorMaster.instance.PlayerBulletPrefabs[MapEditorMaster.instance.PlayerBulletType])
 				{
 					FT.bulletPrefab = MapEditorMaster.instance.PlayerBulletPrefabs[MapEditorMaster.instance.PlayerBulletType];
+					FT.shootSound.Clear();
+					FT.shootSound.Add(MapEditorMaster.instance.PlayerBulletSound[MapEditorMaster.instance.PlayerBulletType]);
 				}
 			}
 			if (HT != null && (!myEnemyAI || !myEnemyAI.HTscript.isGary) && HT.health != MapEditorMaster.instance.PlayerArmourPoints + 1)
@@ -609,6 +583,27 @@ public class MapEditorProp : MonoBehaviour
 				HT.SetArmourPlates();
 			}
 		}
+	}
+
+	private void DeselectThisProp()
+	{
+		MapEditorMaster.instance.OTM.OnCloseMenu();
+		MapEditorMaster.instance.OTM.CurrentDifficulty = MyDifficultySpawn;
+		MapEditorMaster.instance.OTM.CurrentTeamNumber = TeamNumber;
+	}
+
+	private void SelectThisProp()
+	{
+		if ((bool)MapEditorMaster.instance.OTM.SelectedMEP)
+		{
+			MapEditorMaster.instance.OTM.SelectedMEP.myMEGP.FieldSelected = false;
+		}
+		MapEditorMaster.instance.OTM.OnOpenMenu(0);
+		MapEditorMaster.instance.OTM.CurrentDifficulty = MyDifficultySpawn;
+		MapEditorMaster.instance.TeamsCursorMenu.SetActive(value: true);
+		MapEditorMaster.instance.OTM.SelectedMEP = this;
+		MapEditorMaster.instance.OTM.CurrentTeamNumber = TeamNumber;
+		myMEGP.FieldSelected = true;
 	}
 
 	private void Update()
@@ -634,129 +629,66 @@ public class MapEditorProp : MonoBehaviour
 				SetTankBodyColor();
 			}
 		}
-		if (myEnemyAI != null || MTS != null)
+		if (!(myEnemyAI != null))
 		{
-			SetCustomTankProperties();
+			_ = MTS != null;
 		}
-		if (MapEditorMaster.instance.isTesting || GameMaster.instance.GameHasPaused || MapEditorMaster.instance.inPlayingMode || MapEditorMaster.instance.CurrentLayer != LayerNumber)
+		if (MapEditorMaster.instance.isTesting || GameMaster.instance.GameHasPaused || MapEditorMaster.instance.inPlayingMode || MapEditorMaster.instance.CurrentLayer != LayerNumber || MapEditorMaster.instance.MenuCurrent == 8)
 		{
 			return;
 		}
-		if (mouseOverMe && !Selected)
+		if (mouseOverMe && (isEnemyTank || isPlayerOne || isPlayerTwo || isPlayerThree || isPlayerFour) && !MapEditorMaster.instance.RemoveMode && ReInput.players.GetPlayer(0).GetButtonDown("Use"))
 		{
-			SetMaterials(hoverColor, reset: false);
-			if ((bool)SecondRend)
+			if (MapEditorMaster.instance.OTM.SelectedMEP != this)
 			{
-				SecondRend.material.color = hoverColor;
+				SelectThisProp();
 			}
-			if (Input.GetMouseButtonDown(0) && !Selected)
+			else
 			{
-				MapEditorMaster.instance.RemoveMode = true;
-				MapEditorMaster.instance.OnTeamsMenu = false;
-				Selected = true;
-			}
-			else if (Input.GetMouseButton(0) && !Selected && MapEditorMaster.instance.RemoveMode)
-			{
-				Selected = true;
+				DeselectThisProp();
 			}
 		}
-		if (Input.GetMouseButtonDown(1) && mouseOverMe)
+		if (mouseOverMe)
 		{
-			RotateProp();
-			MapEditorMaster.instance.PlayAudio(MapEditorMaster.instance.RotateObject);
-			if (myMEGP != null)
+			if (!Selected)
 			{
-				if (myMEGP.rotationDirection[LayerNumber] < 3)
+				SetMaterials(hoverColor, reset: false);
+				if ((bool)SecondRend)
 				{
-					myMEGP.rotationDirection[LayerNumber]++;
+					SecondRend.material.color = hoverColor;
 				}
-				else
+				if (Input.GetMouseButtonDown(0) && !Selected)
 				{
-					myMEGP.rotationDirection[LayerNumber] = 0;
+					MapEditorMaster.instance.RemoveMode = true;
+					MapEditorMaster.instance.OnTeamsMenu = false;
+					Selected = true;
 				}
-				MapEditorMaster.instance.LastPlacedRotation = myMEGP.rotationDirection[LayerNumber];
+				else if (Input.GetMouseButton(0) && !Selected && MapEditorMaster.instance.RemoveMode)
+				{
+					Selected = true;
+				}
+			}
+			if (Input.GetMouseButtonDown(1))
+			{
+				RotateProp();
+				MapEditorMaster.instance.PlayAudio(MapEditorMaster.instance.RotateObject);
+				if (myMEGP != null)
+				{
+					if (myMEGP.rotationDirection[LayerNumber] < 3)
+					{
+						myMEGP.rotationDirection[LayerNumber]++;
+					}
+					else
+					{
+						myMEGP.rotationDirection[LayerNumber] = 0;
+					}
+					MapEditorMaster.instance.LastPlacedRotation = myMEGP.rotationDirection[LayerNumber];
+				}
 			}
 		}
 		if (Input.GetMouseButtonUp(0) && Selected && MapEditorMaster.instance.canPlaceProp)
 		{
-			MapEditorMaster.instance.RemoveMode = false;
-			MapEditorMaster.instance.OnTeamsMenu = false;
-			MapEditorMaster.instance.TeamsCursorMenu.SetActive(value: false);
-			if (MapEditorMaster.instance.CurrentLayer < MapEditorMaster.instance.MaxLayer)
-			{
-				if (myMEGP.myPropID[myMEGP.IDlayer + 1] > 3 && myMEGP.myPropID[myMEGP.IDlayer + 1] < 40)
-				{
-					SetMaterials(Color.white, reset: false);
-					mouseOverMe = false;
-					Selected = false;
-					MapEditorMaster.instance.ShowErrorMessage("ERROR: Tank on top!");
-					return;
-				}
-				if (myMEGP.myPropID[myMEGP.IDlayer + 1] == 3 || myMEGP.myPropID[myMEGP.IDlayer + 1] == 46 || myMEGP.myPropID[myMEGP.IDlayer + 1] == 47 || myMEGP.myPropID[myMEGP.IDlayer + 1] == 48)
-				{
-					SetMaterials(Color.white, reset: false);
-					mouseOverMe = false;
-					Selected = false;
-					MapEditorMaster.instance.ShowErrorMessage("ERROR: Remove object on top!");
-					return;
-				}
-			}
-			if (base.transform.tag == "Player" || isEnemyTank)
-			{
-				if (isPlayerOne)
-				{
-					MapEditorMaster.instance.playerOnePlaced[GameMaster.instance.CurrentMission] = 0;
-				}
-				else if (isPlayerTwo)
-				{
-					MapEditorMaster.instance.playerTwoPlaced[GameMaster.instance.CurrentMission] = 0;
-				}
-				else if (isPlayerThree)
-				{
-					MapEditorMaster.instance.playerThreePlaced[GameMaster.instance.CurrentMission] = 0;
-				}
-				else if (isPlayerFour)
-				{
-					MapEditorMaster.instance.playerFourPlaced[GameMaster.instance.CurrentMission] = 0;
-				}
-				else if (isEnemyTank)
-				{
-					MapEditorMaster.instance.enemyTanksPlaced[GameMaster.instance.CurrentMission]--;
-				}
-				if ((bool)myMEGP)
-				{
-					isEnemyTank = false;
-					isPlayerOne = false;
-					isPlayerTwo = false;
-					isPlayerThree = false;
-					isPlayerFour = false;
-					myMEGP.SetGridPieceColor();
-				}
-				Object.Destroy(base.transform.parent.transform.parent.gameObject);
-				MapEditorMaster.instance.PlayAudio(MapEditorMaster.instance.RemoveObject);
-				return;
-			}
-			if (base.transform.parent != null)
-			{
-				MapEditorMaster.instance.PlayAudio(MapEditorMaster.instance.RemoveObject);
-				if (removeParentOnDelete)
-				{
-					Object.Destroy(base.transform.parent.gameObject);
-					return;
-				}
-				if (base.transform.parent.name == "Hole" || base.transform.parent.name == "Hole(Clone)")
-				{
-					Object.Destroy(base.transform.parent.gameObject);
-				}
-				else
-				{
-					Object.Destroy(base.gameObject);
-				}
-			}
-			else
-			{
-				Object.Destroy(base.gameObject);
-			}
+			RemoveThisGridObject(force: false);
 		}
 		if (Selected)
 		{
@@ -766,6 +698,93 @@ public class MapEditorProp : MonoBehaviour
 				SecondRend.material.color = selectedColor;
 			}
 			mouseOverMe = true;
+		}
+	}
+
+	public void RemoveThisGridObject(bool force)
+	{
+		if (!force)
+		{
+			MapEditorMaster.instance.RemoveMode = false;
+			MapEditorMaster.instance.OnTeamsMenu = false;
+			MapEditorMaster.instance.TeamsCursorMenu.SetActive(value: false);
+		}
+		if (MapEditorMaster.instance.OTM.SelectedMEP == this)
+		{
+			DeselectThisProp();
+		}
+		if (MapEditorMaster.instance.CurrentLayer < MapEditorMaster.instance.MaxLayer)
+		{
+			if (myMEGP.myPropID[myMEGP.IDlayer + 1] > 3 && myMEGP.myPropID[myMEGP.IDlayer + 1] < 40)
+			{
+				SetMaterials(Color.white, reset: false);
+				mouseOverMe = false;
+				Selected = false;
+				MapEditorMaster.instance.ShowErrorMessage("ERROR: Tank on top!");
+				return;
+			}
+			if (myMEGP.myPropID[myMEGP.IDlayer + 1] == 3 || myMEGP.myPropID[myMEGP.IDlayer + 1] == 46 || myMEGP.myPropID[myMEGP.IDlayer + 1] == 47 || myMEGP.myPropID[myMEGP.IDlayer + 1] == 48)
+			{
+				SetMaterials(Color.white, reset: false);
+				mouseOverMe = false;
+				Selected = false;
+				MapEditorMaster.instance.ShowErrorMessage("ERROR: Remove object on top!");
+				return;
+			}
+		}
+		if (base.transform.tag == "Player" || isEnemyTank)
+		{
+			if (isPlayerOne)
+			{
+				MapEditorMaster.instance.playerOnePlaced[GameMaster.instance.CurrentMission] = 0;
+			}
+			else if (isPlayerTwo)
+			{
+				MapEditorMaster.instance.playerTwoPlaced[GameMaster.instance.CurrentMission] = 0;
+			}
+			else if (isPlayerThree)
+			{
+				MapEditorMaster.instance.playerThreePlaced[GameMaster.instance.CurrentMission] = 0;
+			}
+			else if (isPlayerFour)
+			{
+				MapEditorMaster.instance.playerFourPlaced[GameMaster.instance.CurrentMission] = 0;
+			}
+			else if (isEnemyTank)
+			{
+				MapEditorMaster.instance.enemyTanksPlaced[GameMaster.instance.CurrentMission]--;
+			}
+			if ((bool)myMEGP)
+			{
+				isEnemyTank = false;
+				isPlayerOne = false;
+				isPlayerTwo = false;
+				isPlayerThree = false;
+				isPlayerFour = false;
+				myMEGP.SetGridPieceColor();
+			}
+			Object.Destroy(base.transform.parent.transform.parent.gameObject);
+			MapEditorMaster.instance.PlayAudio(MapEditorMaster.instance.RemoveObject);
+		}
+		else if (base.transform.parent != null)
+		{
+			MapEditorMaster.instance.PlayAudio(MapEditorMaster.instance.RemoveObject);
+			if (removeParentOnDelete)
+			{
+				Object.Destroy(base.transform.parent.gameObject);
+			}
+			else if (base.transform.parent.name == "Hole" || base.transform.parent.name == "Hole(Clone)")
+			{
+				Object.Destroy(base.transform.parent.gameObject);
+			}
+			else
+			{
+				Object.Destroy(base.gameObject);
+			}
+		}
+		else
+		{
+			Object.Destroy(base.gameObject);
 		}
 	}
 }

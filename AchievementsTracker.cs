@@ -213,7 +213,7 @@ public class AchievementsTracker : MonoBehaviour
 		gameObject.transform.parent = AchievementNotificationParent.transform;
 		gameObject.transform.localPosition = new Vector3(0f, -350f, 0f);
 		AchievementItemScript component2 = gameObject.GetComponent<AchievementItemScript>();
-		GameMaster.instance.Play2DClipAtPoint(AchievementCompleted, 1f);
+		SFXManager.instance.PlaySFX(AchievementCompleted, 1f, null);
 		if ((bool)component2)
 		{
 			component2.message = UnlockedMessage[count];
@@ -249,7 +249,7 @@ public class AchievementsTracker : MonoBehaviour
 		gameObject.transform.parent = AchievementNotificationParent.transform;
 		gameObject.transform.localPosition = new Vector3(0f, -350f, 0f);
 		AchievementItemScript component2 = gameObject.GetComponent<AchievementItemScript>();
-		GameMaster.instance.Play2DClipAtPoint(AchievementCompleted, 1f);
+		SFXManager.instance.PlaySFX(AchievementCompleted, 1f, null);
 		if (AccountMaster.instance.isSignedIn)
 		{
 			AccountMaster.instance.IncreaseMarbles(OptionsMainMenu.instance.AM_marbles[ID]);
@@ -285,7 +285,7 @@ public class AchievementsTracker : MonoBehaviour
 		gameObject.transform.parent = AchievementNotificationParent.transform;
 		gameObject.transform.localPosition = new Vector3(0f, -350f, 0f);
 		AchievementItemScript component2 = gameObject.GetComponent<AchievementItemScript>();
-		GameMaster.instance.Play2DClipAtPoint(AchievementCompleted, 1f);
+		SFXManager.instance.PlaySFX(AchievementCompleted, 1f, null);
 		if ((bool)component2)
 		{
 			component2.AMID = ID;
@@ -301,7 +301,7 @@ public class AchievementsTracker : MonoBehaviour
 			GameObject obj = Object.Instantiate(AchievementNotification);
 			obj.transform.parent = AchievementNotificationParent.transform;
 			obj.transform.localPosition = new Vector3(0f, -350f, 0f);
-			GameMaster.instance.Play2DClipAtPoint(AchievementCompleted, 1f);
+			SFXManager.instance.PlaySFX(AchievementCompleted, 1f, null);
 			AchievementItemScript component = obj.GetComponent<AchievementItemScript>();
 			if ((bool)component)
 			{

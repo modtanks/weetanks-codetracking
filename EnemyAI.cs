@@ -234,6 +234,8 @@ public class EnemyAI : MonoBehaviour
 
 	private float coolingDown;
 
+	public bool ElectricTeleportRunning;
+
 	private ElectricPad UnderEP;
 
 	private Vector3 previousPosition;
@@ -330,9 +332,15 @@ public class EnemyAI : MonoBehaviour
 		}
 		if (CanMove)
 		{
+			EnemyDetection[] array;
 			if (difficulty < 2)
 			{
-				EnemyDetection[] array = Ring2Detection.Concat(Ring3Detection).ToArray();
+				array = Ring2Detection.Concat(Ring3Detection).ToArray();
+				for (int j = 0; j < array.Length; j++)
+				{
+					Object.Destroy(array[j].gameObject);
+				}
+				array = Ring3Detection.ToArray();
 				for (int j = 0; j < array.Length; j++)
 				{
 					Object.Destroy(array[j].gameObject);
@@ -340,11 +348,16 @@ public class EnemyAI : MonoBehaviour
 			}
 			else if (difficulty < 3)
 			{
-				EnemyDetection[] array = Ring3Detection.ToArray();
+				array = Ring3Detection.ToArray();
 				for (int j = 0; j < array.Length; j++)
 				{
 					Object.Destroy(array[j].gameObject);
 				}
+			}
+			array = Ring3Detection.ToArray();
+			for (int j = 0; j < array.Length; j++)
+			{
+				Object.Destroy(array[j].gameObject);
 			}
 			THEGRID.SetActive(value: false);
 		}
@@ -357,6 +370,21 @@ public class EnemyAI : MonoBehaviour
 			}
 		}
 		skidMarkCreator.Stop();
+	}
+
+	public void ActivateElectric()
+	{
+		if (!ElectricTeleportRunning)
+		{
+			ElectricTeleportRunning = true;
+			ElectricMeter = Random.Range(-2, 0);
+			StartCoroutine(ElectricTeleport());
+		}
+	}
+
+	public void DeactiveElectric()
+	{
+		ElectricTeleportRunning = false;
 	}
 
 	private void Start()
@@ -429,11 +457,9 @@ public class EnemyAI : MonoBehaviour
 		}
 		if (isElectric)
 		{
-			float repeatRate = Random.Range(3f, 7f);
-			ElectricMeter = Random.Range(-2, 0);
-			InvokeRepeating("ElectricTeleport", 4f, repeatRate);
+			ActivateElectric();
 		}
-		if (isLevel10Boss || isLevel50Boss || isLevel70Boss)
+		if (isLevel10Boss || isLevel30Boss || isLevel50Boss || isLevel70Boss)
 		{
 			InvokeRepeating("DistanceToPlayer", 0.5f, 0.5f);
 		}
@@ -441,14 +467,9 @@ public class EnemyAI : MonoBehaviour
 		{
 			InvokeRepeating("CheckForDownedPlayer", 0.4f, 0.4f);
 		}
-		if ((bool)MapEditorMaster.instance && !isShiny && (bool)GameObject.Find("Cube.003").GetComponent<MeshRenderer>() && Body != null)
+		if ((bool)MapEditorMaster.instance && !isShiny && (bool)GameObject.Find("Cube.003").GetComponent<MeshRenderer>() && Body != null && MyTeam > -1 && MapEditorMaster.instance.TeamColorEnabled[MyTeam])
 		{
-			Debug.Log("TEAM : " + MyTeam);
-			Debug.Log(MapEditorMaster.instance.TeamColorEnabled.Length + " is the length...");
-			if (MapEditorMaster.instance.TeamColorEnabled[MyTeam])
-			{
-				Body.materials[0].SetColor("_Color", MapEditorMaster.instance.TeamColors[MyTeam]);
-			}
+			Body.materials[0].SetColor("_Color", MapEditorMaster.instance.TeamColors[MyTeam]);
 		}
 		if (isLevel50Boss && OptionsMainMenu.instance.currentDifficulty > 1)
 		{
@@ -701,23 +722,6 @@ public class EnemyAI : MonoBehaviour
 		isInvisibleNow = false;
 	}
 
-	private void DistanceToPlayer()
-	{
-		if (ETSN != null && (bool)ETSN.currentTarget)
-		{
-			float sqrMagnitude = (ETSN.currentTarget.transform.position - base.transform.position).sqrMagnitude;
-			float num = 6f;
-			if (sqrMagnitude < num * num)
-			{
-				ShootSpeed = OriginalShootSpeed / 4f;
-			}
-			else
-			{
-				ShootSpeed = OriginalShootSpeed;
-			}
-		}
-	}
-
 	private void OnDisable()
 	{
 		if ((bool)THEGRID)
@@ -774,47 +778,53 @@ public class EnemyAI : MonoBehaviour
 		}
 	}
 
-	private void ElectricTeleport()
+	private IEnumerator ElectricTeleport()
 	{
+		if (!ElectricTeleportRunning)
+		{
+			yield break;
+		}
 		new List<int>();
-		if (!isCharged || (!GameMaster.instance.GameHasStarted && !GameMaster.instance.inMenuMode))
+		yield return new WaitForSeconds(4f);
+		if (isCharged && (GameMaster.instance.GameHasStarted || GameMaster.instance.inMenuMode))
 		{
-			return;
-		}
-		Vector3 validLocation = GameMaster.instance.GetValidLocation(CheckForDist: true, 8f, base.transform.position);
-		if (validLocation == Vector3.zero)
-		{
-			isCharged = false;
-			return;
-		}
-		if (!isInvisibleNow)
-		{
-			MakeMeInvisible();
-			skidMarkCreator.Pause();
-		}
-		Play2DClipAtPoint(StartTeleport);
-		isCharged = false;
-		StartPos = base.transform.position;
-		_timeStartedLerping = Time.time;
-		if (isLevel70Boss)
-		{
-			timeTakenDuringLerp = 2f;
-			CameraShake component = Camera.main.GetComponent<CameraShake>();
-			if ((bool)component)
+			Vector3 validLocation = GameMaster.instance.GetValidLocation(CheckForDist: true, 8f, base.transform.position);
+			if (validLocation == Vector3.zero)
 			{
-				component.StartCoroutine(component.Shake(0.15f, 0.15f));
+				isCharged = false;
+				StartCoroutine(ElectricTeleport());
+				yield break;
 			}
+			if (!isInvisibleNow)
+			{
+				MakeMeInvisible();
+				skidMarkCreator.Pause();
+			}
+			Play2DClipAtPoint(StartTeleport);
+			isCharged = false;
+			StartPos = base.transform.position;
+			_timeStartedLerping = Time.time;
+			if (isLevel70Boss)
+			{
+				timeTakenDuringLerp = 2f;
+				CameraShake component = Camera.main.GetComponent<CameraShake>();
+				if ((bool)component)
+				{
+					component.StartCoroutine(component.Shake(0.15f, 0.15f));
+				}
+			}
+			isTransporting = true;
+			Ring0Detection.SolidPieces.Clear();
+			EnemyDetection[] array = Ring1Detection.Concat(Ring2Detection).Concat(Ring3Detection).ToArray();
+			for (int i = 0; i < array.Length; i++)
+			{
+				array[i].SolidPieces.Clear();
+			}
+			ETSN.normalLockedIn = false;
+			ETSN.ShootCountdown = ShootSpeed;
+			ElectricTargetLocation = new Vector3(validLocation.x, base.transform.parent.transform.position.y, validLocation.z);
 		}
-		isTransporting = true;
-		Ring0Detection.SolidPieces.Clear();
-		EnemyDetection[] array = Ring1Detection.Concat(Ring2Detection).Concat(Ring3Detection).ToArray();
-		for (int i = 0; i < array.Length; i++)
-		{
-			array[i].SolidPieces.Clear();
-		}
-		ETSN.normalLockedIn = false;
-		ETSN.ShootCountdown = ShootSpeed;
-		ElectricTargetLocation = new Vector3(validLocation.x, base.transform.parent.transform.position.y, validLocation.z);
+		StartCoroutine(ElectricTeleport());
 	}
 
 	private void FixedUpdate()
@@ -906,25 +916,25 @@ public class EnemyAI : MonoBehaviour
 				armoured = true;
 			}
 		}
-		if (HTscript.health >= 3 && armoured && !armour.transform.GetChild(2).gameObject.activeSelf)
+		if (HTscript.health_armour >= 3 && armoured && !armour.transform.GetChild(2).gameObject.activeSelf)
 		{
 			armour.transform.GetChild(0).gameObject.SetActive(value: true);
 			armour.transform.GetChild(2).gameObject.SetActive(value: true);
 			armour.transform.GetChild(1).gameObject.SetActive(value: true);
 		}
-		else if (HTscript.health == 2 && armoured && (!armour.transform.GetChild(1).gameObject.activeSelf || armour.transform.GetChild(2).gameObject.activeSelf))
+		else if (HTscript.health_armour == 2 && armoured && (!armour.transform.GetChild(1).gameObject.activeSelf || armour.transform.GetChild(2).gameObject.activeSelf))
 		{
 			armour.transform.GetChild(2).gameObject.SetActive(value: false);
 			armour.transform.GetChild(0).gameObject.SetActive(value: true);
 			armour.transform.GetChild(1).gameObject.SetActive(value: true);
 		}
-		else if (HTscript.health == 1 && armoured && (!armour.transform.GetChild(0).gameObject.activeSelf || armour.transform.GetChild(1).gameObject.activeSelf))
+		else if (HTscript.health_armour == 1 && armoured && (!armour.transform.GetChild(0).gameObject.activeSelf || armour.transform.GetChild(1).gameObject.activeSelf))
 		{
 			armour.transform.GetChild(2).gameObject.SetActive(value: false);
 			armour.transform.GetChild(1).gameObject.SetActive(value: false);
 			armour.transform.GetChild(0).gameObject.SetActive(value: true);
 		}
-		else if (HTscript.health == 0 && armoured && armour.activeSelf)
+		else if (HTscript.health_armour == 0 && armoured && armour.activeSelf)
 		{
 			armour.transform.GetChild(2).gameObject.SetActive(value: false);
 			armour.transform.GetChild(1).gameObject.SetActive(value: false);
@@ -1006,7 +1016,10 @@ public class EnemyAI : MonoBehaviour
 			isTransporting = false;
 			GetComponent<Rigidbody>().isKinematic = false;
 			GetComponent<BoxCollider>().enabled = true;
-			StartCoroutine(MakeMeVisible());
+			if (!isInvisible)
+			{
+				StartCoroutine(MakeMeVisible());
+			}
 			SpawnMagicPoof();
 			ETSN.ShootCountdown += 1f;
 			skidMarkCreator.Play();
@@ -1067,6 +1080,7 @@ public class EnemyAI : MonoBehaviour
 				ParticleSystem[] electricSystems = ElectricSystems;
 				foreach (ParticleSystem particleSystem in electricSystems)
 				{
+					particleSystem.gameObject.SetActive(value: false);
 					if (particleSystem.isPlaying)
 					{
 						particleSystem.Stop();
@@ -1083,6 +1097,7 @@ public class EnemyAI : MonoBehaviour
 				ParticleSystem[] electricSystems = ElectricSystems;
 				foreach (ParticleSystem particleSystem2 in electricSystems)
 				{
+					particleSystem2.gameObject.SetActive(value: true);
 					if (!particleSystem2.isPlaying)
 					{
 						particleSystem2.Play();
@@ -1171,7 +1186,7 @@ public class EnemyAI : MonoBehaviour
 		}
 		else
 		{
-			source.volume = 0.25f * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
+			source.volume = 0.05f * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
 		}
 	}
 
@@ -1249,7 +1264,7 @@ public class EnemyAI : MonoBehaviour
 				}
 				return;
 			}
-			if (difficulty > 2 && CheckRing(Ring3Detection, direction, newdir))
+			if (difficulty > 2 && Ring3Detection.Count > 0 && CheckRing(Ring3Detection, direction, newdir))
 			{
 				noSafeED = false;
 				return;
@@ -1659,7 +1674,7 @@ public class EnemyAI : MonoBehaviour
 			if (Ring0Detection.isTargeted && Ring0Detection.Bullets.Count > 0 && (bool)Rush)
 			{
 				float num4 = 100f;
-				foreach (GameObject bullet in Ring0Detection.Bullets)
+				foreach (Collider bullet in Ring0Detection.Bullets)
 				{
 					float num5 = Vector3.Distance(bullet.transform.position, base.transform.position);
 					if (num5 < num4)

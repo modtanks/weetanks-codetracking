@@ -31,6 +31,8 @@ public class FiringTank : MonoBehaviour
 
 	public GameObject bulletPrefab;
 
+	public List<AudioClip> shootSound = new List<AudioClip>();
+
 	public GameObject bulletPrefabUpgraded;
 
 	public GameObject lvl50BulletPrefab;
@@ -70,6 +72,7 @@ public class FiringTank : MonoBehaviour
 		source = GetComponent<AudioSource>();
 		mousescript = GameObject.Find("MouseDetectorPosition").GetComponent<MousePosition>();
 		OP = GetComponent<ObjectPlacing>();
+		shootSound = GlobalAssets.instance.AudioDB.NormalBulletShootSound;
 	}
 
 	private void Update()
@@ -226,7 +229,7 @@ public class FiringTank : MonoBehaviour
 		component.MyPlacer = tankMovingScript.gameObject;
 		minesPlaced++;
 		canMine = false;
-		mineCountdown = Random.Range(3f, 4f);
+		mineCountdown = 0.4f;
 	}
 
 	private IEnumerator shootAgain()
@@ -294,5 +297,6 @@ public class FiringTank : MonoBehaviour
 		component.MaxBounces = amountBounces;
 		obj.transform.Rotate(Vector3.right * 90f);
 		obj.GetComponent<Rigidbody>().AddForce(firePoint.forward * 6f);
+		SFXManager.instance.PlaySFX(shootSound);
 	}
 }

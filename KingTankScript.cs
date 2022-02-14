@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class KingTankScript : MonoBehaviour
@@ -22,8 +21,6 @@ public class KingTankScript : MonoBehaviour
 	public float RamSpeed = 6f;
 
 	public RammingDetection RD;
-
-	public int CurrentLayer = 2;
 
 	[Header("Boss Enable stuff")]
 	public EnemyAI EA;
@@ -73,9 +70,7 @@ public class KingTankScript : MonoBehaviour
 	public int[] DropIdsGrandpa;
 
 	[Header("Platform Stuff")]
-	public BossPlatform Platform_1;
-
-	public BossPlatform Platform_2;
+	public BossPlatform Throne;
 
 	[Header("Other Stuff")]
 	public Vector3 StartingPosition;
@@ -200,18 +195,25 @@ public class KingTankScript : MonoBehaviour
 
 	public void FallLayerDown()
 	{
+		MHC.PlayMusic(-1);
+		GameObject[] blocksToDisableWhenThroneBroken = MHC.BlocksToDisableWhenThroneBroken;
+		for (int i = 0; i < blocksToDisableWhenThroneBroken.Length; i++)
+		{
+			blocksToDisableWhenThroneBroken[i].SetActive(value: false);
+		}
 		StartCoroutine(FallingDown());
-		CurrentLayer--;
 	}
 
 	public void ActivateBoss()
 	{
+		MHC.PlayMusic(1);
 		EA.GetComponent<Collider>().enabled = true;
 		rb.isKinematic = false;
 		EA.enabled = true;
 		HT.enabled = true;
 		BodyCollider.enabled = true;
 		ETSN.enabled = true;
+		MyAnimator.SetBool("MortarMode", value: false);
 		StartCoroutine(DisableAnimator());
 		LAO.enabled = false;
 		FT.enabled = true;
@@ -267,6 +269,7 @@ public class KingTankScript : MonoBehaviour
 	{
 		IsInMortarMode = false;
 		MyAnimator.SetBool("MortarMode", value: false);
+		IsInFinalBattle = true;
 		float t3 = 0f;
 		Vector3 currentScale2 = Chute.transform.localScale;
 		Vector3 ScaleToGo2 = new Vector3(300f, 300f, 300f);
@@ -279,14 +282,15 @@ public class KingTankScript : MonoBehaviour
 		Chute.transform.localScale = ScaleToGo2;
 		t3 = 0f;
 		Vector3 currentPos = base.transform.position;
-		Vector3 PosToGo = base.transform.position - new Vector3(0f, 2f, 0f);
+		Vector3 PosToGo = new Vector3(base.transform.position.x, 0f, base.transform.position.z);
 		while (t3 < 1f)
 		{
-			t3 += Time.deltaTime / 2f;
+			t3 += Time.deltaTime / 4f;
 			base.transform.position = Vector3.Lerp(currentPos, PosToGo, t3);
 			yield return null;
 		}
 		base.transform.position = PosToGo;
+		MyAnimator.SetBool("MortarMode", value: false);
 		t3 = 0f;
 		currentScale2 = Chute.transform.localScale;
 		ScaleToGo2 = new Vector3(0f, 0f, 0f);
@@ -303,134 +307,54 @@ public class KingTankScript : MonoBehaviour
 			base.transform.rotation = StartingRotation;
 			yield return null;
 		}
-		if (MHC.BossPhase > 3)
+		else
 		{
 			IsInFinalBattle = true;
 			ActivateBoss();
 		}
 	}
 
-	public void GoInMortarMode(int phase)
+	public IEnumerator ShootABomb(bool first, int shotsToGo)
 	{
-		IsInMortarMode = true;
-		LAO.LookStraight = true;
-		LAO.FollowPlayer = false;
-		MyAnimator.SetBool("MortarMode", value: true);
-		switch (phase)
+		if (first && IsInBattle && !IsInFinalBattle)
 		{
-		case 2:
-			Debug.Log("1b");
-			StartCoroutine(ShootingInterval(firstLoad: true, MortarShots_1b, phase));
-			break;
-		case 4:
-			StartCoroutine(ShootingInterval(firstLoad: true, MortarShots_2b, phase));
-			break;
+			IsInMortarMode = true;
+			LAO.LookStraight = true;
+			LAO.FollowPlayer = false;
+			MyAnimator.SetBool("MortarMode", value: true);
+			yield return new WaitForSeconds(3f);
 		}
-	}
-
-	private IEnumerator ExitMortarMode()
-	{
-		ShotMortars = ShotMortars.Where((GameObject item) => item != null).ToList();
-		yield return new WaitForSeconds(2f);
-		if (ShotMortars.Count < 1)
-		{
-			if (IsInBattle)
-			{
-				if (CurrentLayer == 1 && MHC.BossPhase == 2)
-				{
-					LAO.LookStraight = false;
-					LAO.FollowPlayer = true;
-					MHC.StartCoroutine(MHC.StartPhase2a());
-					IsInMortarMode = false;
-					MyAnimator.SetBool("MortarMode", value: false);
-				}
-				else if (CurrentLayer == 0 && MHC.BossPhase == 4)
-				{
-					MHC.BossPhase = 5;
-					IsInMortarMode = false;
-					MyAnimator.SetBool("MortarMode", value: false);
-				}
-				else if (MHC.BossPhase == 4)
-				{
-					LAO.LookStraight = false;
-					LAO.FollowPlayer = true;
-					MHC.BossPhase = 2;
-					MHC.StartCoroutine(MHC.StartPhase2a());
-					IsInMortarMode = false;
-					MyAnimator.SetBool("MortarMode", value: false);
-				}
-				else
-				{
-					LAO.LookStraight = false;
-					LAO.FollowPlayer = true;
-					Debug.Log("BOSS PHASE BACK TO ZERO");
-					MHC.BossPhase = 0;
-					MHC.StartCoroutine(MHC.StartPhase1a());
-					IsInMortarMode = false;
-					MyAnimator.SetBool("MortarMode", value: false);
-				}
-			}
-		}
-		else
-		{
-			LAO.LookStraight = false;
-			LAO.FollowPlayer = true;
-			MyAnimator.SetBool("MortarMode", value: false);
-			StartCoroutine(ExitMortarMode());
-		}
-	}
-
-	private IEnumerator ShootingInterval(bool firstLoad, int shotsToGo, int fase)
-	{
-		if (firstLoad)
-		{
-			yield return new WaitForSeconds(4f);
-		}
-		if (!IsInBattle || !IsInMortarMode)
+		if (!IsInBattle || !IsInMortarMode || IsInFinalBattle)
 		{
 			IsInMortarMode = false;
-			StartCoroutine(ExitMortarMode());
 			MyAnimator.SetBool("MortarMode", value: false);
 			yield break;
 		}
-		if (shotsToGo < 1 || (CurrentLayer == 1 && MHC.BossPhase == 2) || (CurrentLayer == 0 && MHC.BossPhase == 4))
-		{
-			StartCoroutine(ExitMortarMode());
-			yield break;
-		}
-		GameObject gameObject = null;
-		switch (fase)
-		{
-		case 2:
-			gameObject = Object.Instantiate(Mortar, ShootingPoint.position, ShootingPoint.rotation);
-			break;
-		case 4:
-			gameObject = Object.Instantiate(MortarPhase3, ShootingPoint.position, ShootingPoint.rotation);
-			break;
-		}
+		GameObject gameObject = Object.Instantiate(Mortar, ShootingPoint.position, ShootingPoint.rotation);
 		ShotMortars.Add(gameObject);
 		BombSackScript component = gameObject.GetComponent<BombSackScript>();
-		if ((bool)component && shotsToGo != MortarShots_1b)
+		component.MHC = MHC;
+		if ((bool)component)
 		{
 			component.ShootMeTutorial.SetActive(value: false);
 		}
-		GameMaster.instance.Play2DClipAtPoint(MortarSound[Random.Range(0, MortarSound.Length)], 1f);
+		SFXManager.instance.PlaySFX(MortarSound[Random.Range(0, MortarSound.Length)], 1f, null);
 		MortarParticles.Play(withChildren: true);
-		float seconds = ((fase == 2) ? MortarFireSpeed_1b : MortarFireSpeed_2b);
-		yield return new WaitForSeconds(seconds);
-		MortarShoot();
-		KingTankScript kingTankScript = this;
-		KingTankScript kingTankScript2 = this;
-		int num = shotsToGo - 1;
-		shotsToGo = num;
-		kingTankScript.StartCoroutine(kingTankScript2.ShootingInterval(firstLoad: false, num, fase));
-	}
-
-	public void MortarShoot()
-	{
-		if (IsInMortarMode)
+		yield return new WaitForSeconds(1f);
+		if (shotsToGo < 1)
 		{
-			StartCoroutine(Shoot());
+			LAO.LookStraight = false;
+			LAO.FollowPlayer = true;
+			IsInMortarMode = false;
+			MyAnimator.SetBool("MortarMode", value: false);
+		}
+		else
+		{
+			KingTankScript kingTankScript = this;
+			KingTankScript kingTankScript2 = this;
+			int num = shotsToGo - 1;
+			shotsToGo = num;
+			kingTankScript.StartCoroutine(kingTankScript2.ShootABomb(first: false, num));
 		}
 	}
 

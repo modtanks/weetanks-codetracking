@@ -54,6 +54,8 @@ public class MissionHundredController : MonoBehaviour
 
 	public GameObject Plane3;
 
+	public GameObject[] BlocksToDisableWhenThroneBroken;
+
 	public Camera CameraObject;
 
 	public PlaneMaster PM;
@@ -70,7 +72,27 @@ public class MissionHundredController : MonoBehaviour
 
 	public Animator FinalBossDoorAnimator;
 
+	public Transform[] DropLocations;
+
+	private static MissionHundredController _instance;
+
 	private bool MovedCameraToDefeat;
+
+	private bool MessageHasBeenShown;
+
+	public static MissionHundredController instance => _instance;
+
+	private void Awake()
+	{
+		if (_instance != null && _instance != this)
+		{
+			Object.Destroy(base.gameObject);
+		}
+		else
+		{
+			_instance = this;
+		}
+	}
 
 	private void Start()
 	{
@@ -92,6 +114,8 @@ public class MissionHundredController : MonoBehaviour
 
 	private void Update()
 	{
+		float volume = 0.1f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
+		mySource.volume = volume;
 		if (KTS == null || KTS.BossDefeated)
 		{
 			if (!MovedCameraToDefeat)
@@ -109,10 +133,9 @@ public class MissionHundredController : MonoBehaviour
 		}
 		if (!GameMaster.instance.GameHasStarted && DevMode)
 		{
-			BossPhase = 5;
+			BossPhase = 2;
 			KTS.IsInFinalBattle = true;
-			KTS.Platform_1.PlatformHealth = 0;
-			KTS.Platform_2.PlatformHealth = 0;
+			KTS.Throne.PlatformHealth = 0;
 			KTS.enabled = true;
 			KTS.ActivateBoss();
 		}
@@ -132,102 +155,164 @@ public class MissionHundredController : MonoBehaviour
 			GameMaster.instance.playerLocation[3] = Player4Checkpoint.position;
 			FinalArena.SetActive(value: true);
 		}
-		else if (BossPhase == 1 && PM.SpawnInOrder.Count < 1 && !PM.PS.isFlying)
+	}
+
+	public void PlayMusic(int music)
+	{
+		switch (music)
 		{
-			if (!KTS.IsInMortarMode && GameMaster.instance.AmountEnemyTanks <= 1 && GameMaster.instance.Enemies == null)
+		case -1:
+			mySource.Stop();
+			break;
+		case 0:
+			if (!mySource.isPlaying)
 			{
-				Debug.Log("PHASE 2");
-				BossPhase = 2;
-				KTS.GoInMortarMode(BossPhase);
+				mySource.clip = Phase1Music;
+				mySource.loop = true;
+				mySource.volume = mySource.volume / 10f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
+				mySource.Play();
 			}
-		}
-		else if (BossPhase == 3 && PM.SpawnInOrder.Count < 1 && !PM.PS.isFlying && !KTS.IsInMortarMode && GameMaster.instance.AmountEnemyTanks <= 1 && GameMaster.instance.Enemies == null)
-		{
-			Debug.Log("PHASE 4");
-			BossPhase = 4;
-			KTS.GoInMortarMode(BossPhase);
+			break;
+		default:
+			mySource.clip = Phase3Music;
+			mySource.loop = true;
+			mySource.volume = mySource.volume / 10f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
+			mySource.Play();
+			break;
 		}
 	}
 
-	public IEnumerator StartPhase1a()
+	public IEnumerator DoPhasing1()
 	{
 		KTS.IsInBattle = true;
 		Debug.Log("starting phase 1a");
 		Animator component = Plane1.GetComponent<Animator>();
-		component.Play("MovePlaneForward", -1, 0f);
-		if ((bool)component)
+		if (!component.GetBool("FlyAway"))
 		{
-			component.SetBool("FlyAway", value: true);
+			component.Play("MovePlaneForward", -1, 0f);
+			if ((bool)component)
+			{
+				component.SetBool("FlyAway", value: true);
+			}
 		}
 		GameMaster.instance.musicScript.Orchestra.StopPlaying();
 		if (!mySource.isPlaying)
 		{
-			mySource.clip = Phase1Music;
-			mySource.loop = true;
-			mySource.Play();
+			PlayMusic(0);
 		}
-		yield return new WaitForSeconds(2f);
+		yield return new WaitForSeconds(3f);
+		if (!KTS.IsInBattle || KTS.IsInFinalBattle)
+		{
+			yield break;
+		}
+		int num = Random.Range(2, 5);
 		List<int> list = new List<int>();
-		PM.PS.speed = 50f;
-		list.Add(0);
-		list.Add(0);
-		list.Add(1);
-		list.Add(1);
-		list.Add(15);
-		if (Random.Range(0, 4) == 0)
+		for (int i = 0; i < num; i++)
 		{
-			list.Add(15);
-			if (Random.Range(0, 4) == 0)
+			if (KTS.Throne.PlatformHealth <= 3)
 			{
-				list.Add(15);
+				int[] array = null;
+				if (OptionsMainMenu.instance.currentDifficulty == 0)
+				{
+					array = new int[5] { 3, 4, 5, 6, 8 };
+				}
+				else if (OptionsMainMenu.instance.currentDifficulty == 1)
+				{
+					array = new int[4] { 4, 5, 6, 8 };
+				}
+				else if (OptionsMainMenu.instance.currentDifficulty == 2)
+				{
+					array = new int[5] { 6, 7, 8, 9, 11 };
+				}
+				else if (OptionsMainMenu.instance.currentDifficulty == 3)
+				{
+					array = new int[7] { 2, 6, 7, 8, 9, 11, 14 };
+				}
+				int item = array[Random.Range(0, array.Length)];
+				list.Add(item);
+			}
+			else if (KTS.Throne.PlatformHealth <= 6)
+			{
+				int[] array2 = null;
+				if (OptionsMainMenu.instance.currentDifficulty == 0)
+				{
+					array2 = new int[4] { 0, 1, 3, 4 };
+				}
+				else if (OptionsMainMenu.instance.currentDifficulty == 1)
+				{
+					array2 = new int[4] { 1, 3, 4, 5 };
+				}
+				else if (OptionsMainMenu.instance.currentDifficulty == 2)
+				{
+					array2 = new int[5] { 3, 4, 5, 6, 7 };
+				}
+				else if (OptionsMainMenu.instance.currentDifficulty == 3)
+				{
+					array2 = new int[8] { 4, 5, 6, 7, 8, 9, 11, 14 };
+				}
+				int item2 = array2[Random.Range(0, array2.Length)];
+				list.Add(item2);
+			}
+			else
+			{
+				int[] array3 = null;
+				if (OptionsMainMenu.instance.currentDifficulty == 0)
+				{
+					array3 = new int[2] { 0, 1 };
+				}
+				else if (OptionsMainMenu.instance.currentDifficulty == 1)
+				{
+					array3 = new int[4] { 0, 1, 3, 4 };
+				}
+				else if (OptionsMainMenu.instance.currentDifficulty == 2)
+				{
+					array3 = new int[5] { 0, 1, 3, 4, 5 };
+				}
+				else if (OptionsMainMenu.instance.currentDifficulty == 3)
+				{
+					array3 = new int[6] { 0, 1, 3, 4, 5, 6 };
+				}
+				int item3 = array3[Random.Range(0, array3.Length)];
+				list.Add(item3);
 			}
 		}
-		if (Random.Range(0, 6) == 0)
+		for (int j = 0; j < list.Count; j++)
 		{
-			list.Add(16);
-		}
-		if (Random.Range(0, 4) == 0)
-		{
-			list.Add(17);
-			if (Random.Range(0, 4) == 0)
-			{
-				list.Add(17);
-			}
-		}
-		if (OptionsMainMenu.instance.currentDifficulty > 0)
-		{
-			list.Add(1);
-			list.Add(1);
-			list.Add(3);
-			list.Add(3);
-			list.Add(4);
-			list.Add(4);
-		}
-		if (OptionsMainMenu.instance.currentDifficulty > 1)
-		{
-			list.Add(4);
-			list.Add(4);
-			list.Add(5);
-			list.Add(5);
-		}
-		if (OptionsMainMenu.instance.currentDifficulty > 2)
-		{
-			list.Add(6);
-			list.Add(6);
-		}
-		for (int i = 0; i < list.Count; i++)
-		{
-			int value = list[i];
-			int index = Random.Range(i, list.Count);
-			list[i] = list[index];
+			int value = list[j];
+			int index = Random.Range(j, list.Count);
+			list[j] = list[index];
 			list[index] = value;
 		}
-		foreach (int item in list)
+		foreach (int item4 in list)
 		{
-			PM.SpawnInOrder.Add(item);
+			PM.SpawnInOrder.Add(item4);
 		}
 		PM.StartCoroutine(PM.DoOrder());
-		BossPhase = 1;
+		yield return new WaitForSeconds(7f);
+		if (!KTS.IsInBattle)
+		{
+			yield break;
+		}
+		if (GameMaster.instance.Enemies != null && (GameMaster.instance.Enemies.Length > 1 || GameMaster.instance.AmountCalledInTanks > 0))
+		{
+			yield return new WaitForSeconds(7f);
+		}
+		if (!KTS.IsInFinalBattle && KTS.IsInBattle)
+		{
+			num = Random.Range(1, 4);
+			StartCoroutine(KTS.ShootABomb(first: true, num));
+			yield return new WaitForSeconds(4f);
+			if (!MessageHasBeenShown)
+			{
+				MessageHasBeenShown = true;
+				TutorialMaster.instance.ShowTutorial("Use mine on the bombs");
+			}
+			yield return new WaitForSeconds(4f);
+			if (KTS.IsInBattle && !KTS.IsInFinalBattle)
+			{
+				StartCoroutine(DoPhasing1());
+			}
+		}
 	}
 
 	public IEnumerator StartPhase2a()
@@ -244,6 +329,7 @@ public class MissionHundredController : MonoBehaviour
 		if (!mySource.isPlaying)
 		{
 			mySource.clip = Phase1Music;
+			mySource.volume = mySource.volume / 10f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
 			mySource.loop = true;
 			mySource.Play();
 		}
@@ -252,25 +338,9 @@ public class MissionHundredController : MonoBehaviour
 		PM.PS.speed = 60f;
 		list.Add(8);
 		list.Add(8);
-		if (Random.Range(0, 3) == 0)
-		{
-			list.Add(15);
-			if (Random.Range(0, 4) == 0)
-			{
-				list.Add(15);
-			}
-		}
 		if (Random.Range(0, 5) == 0)
 		{
 			list.Add(16);
-		}
-		if (Random.Range(0, 3) == 0)
-		{
-			list.Add(17);
-			if (Random.Range(0, 3) == 0)
-			{
-				list.Add(17);
-			}
 		}
 		if (OptionsMainMenu.instance.currentDifficulty > 0)
 		{
@@ -326,14 +396,12 @@ public class MissionHundredController : MonoBehaviour
 		}
 		KTS.DeactivateBoss();
 		KTS.IsInFinalBattle = false;
-		KTS.CurrentLayer = 2;
 		GameObject[] boostTowers = BoostTowers;
 		for (int i = 0; i < boostTowers.Length; i++)
 		{
 			boostTowers[i].SetActive(value: true);
 		}
-		KTS.Platform_1.PlatformHealth = KTS.Platform_1.PlatformMaxHealth;
-		KTS.Platform_2.PlatformHealth = KTS.Platform_1.PlatformMaxHealth;
+		KTS.Throne.PlatformHealth = KTS.Throne.PlatformMaxHealth;
 		KTS.transform.position = KTS.StartingPosition;
 		KTS.transform.rotation = KTS.StartingRotation;
 		for (int j = 0; j < DestroyableCratesToRespawn.Count; j++)
@@ -346,15 +414,6 @@ public class MissionHundredController : MonoBehaviour
 		}
 	}
 
-	public IEnumerator StartPhase1b()
-	{
-		yield return new WaitForSeconds(2f);
-		if (PM.SpawnInOrder.Count >= 1)
-		{
-			StartCoroutine(StartPhase1a());
-		}
-	}
-
 	public void FinalBossTrigger()
 	{
 		GameObject[] blocksToMoveUp = BlocksToMoveUp;
@@ -363,7 +422,7 @@ public class MissionHundredController : MonoBehaviour
 			StartCoroutine("MoveBlockUp", value);
 		}
 		StartCoroutine(MoveCameraTo());
-		GameMaster.instance.Play2DClipAtPoint(WallsMovingDown, 1f);
+		SFXManager.instance.PlaySFX(WallsMovingDown, 1f, null);
 		CameraObject.transform.parent.gameObject.GetComponent<CameraFollowPlayer>().enabled = false;
 	}
 
@@ -384,9 +443,9 @@ public class MissionHundredController : MonoBehaviour
 			CameraObject.orthographicSize = Mathf.Lerp(currentFOV, ArenaCameraFOV, t);
 			yield return null;
 		}
-		if (BossPhase < 4)
+		if (BossPhase < 2)
 		{
-			StartCoroutine(StartPhase1a());
+			StartCoroutine(DoPhasing1());
 		}
 		else
 		{
@@ -403,7 +462,8 @@ public class MissionHundredController : MonoBehaviour
 		component.enabled = true;
 		FinalBossDoorAnimator.SetBool("BossKilled", value: true);
 		GameMaster.instance.GameHasStarted = true;
-		yield break;
+		yield return new WaitForSeconds(2f);
+		GameMaster.instance.CurrentMission = 100;
 	}
 
 	public IEnumerator MoveBlockDown(GameObject Block)

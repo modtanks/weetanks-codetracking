@@ -180,6 +180,7 @@ public class NewAnimationsScript : MonoBehaviour
 
 	private IEnumerator PlayNextRound()
 	{
+		Debug.LogError("NEXT ROUND");
 		yield return new WaitForSeconds(0.5f + extraWait);
 		extraWait = 0f;
 		if (newTank)
@@ -230,6 +231,7 @@ public class NewAnimationsScript : MonoBehaviour
 
 	public void FinishGame()
 	{
+		Debug.LogError("GAME FINISHED");
 		missionNumber.text = "Congratulations!";
 		missionName.text = "You have finished the game";
 		enemyCount.text = "(for now!)";

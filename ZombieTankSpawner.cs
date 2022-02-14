@@ -208,10 +208,10 @@ public class ZombieTankSpawner : MonoBehaviour
 		timerRunning = true;
 		if ((bool)CloudGeneration.instance && WeatherCooldown < 1)
 		{
-			int[] array = new int[13]
+			int[] array = new int[18]
 			{
-				0, 0, 0, 0, 0, 0, 1, 1, 1, 2,
-				2, 3, 3
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 1, 1, 1, 2, 2, 3, 3
 			};
 			int num = array[Random.Range(0, array.Length)];
 			if (num > 0 && num != CloudGeneration.instance.CurrentWeatherType)

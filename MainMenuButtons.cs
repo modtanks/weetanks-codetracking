@@ -263,7 +263,40 @@ public class MainMenuButtons : MonoBehaviour, IPointerEnterHandler, IEventSystem
 
 	private int CompletedKidMissions;
 
+	private int CompletedGrandpa;
+
 	public bool IsSelected;
+
+	private void CheckCompletedMissions()
+	{
+		if (AccountMaster.instance.isSignedIn)
+		{
+			CompletedMissions = AccountMaster.instance.PDO.maxMission0;
+			CompletedKidMissions = AccountMaster.instance.PDO.maxMission1;
+			CompletedHardMissions = AccountMaster.instance.PDO.maxMission2;
+			CompletedGrandpa = AccountMaster.instance.PDO.maxMission3;
+		}
+		else
+		{
+			CompletedMissions = GameMaster.instance.maxMissionReached;
+			CompletedKidMissions = GameMaster.instance.maxMissionReachedKid;
+			CompletedHardMissions = GameMaster.instance.maxMissionReachedHard;
+			CompletedGrandpa = GameMaster.instance.CurrentData.maxMission3;
+		}
+		if (CompletedMissions <= ContinueLevel && CompletedKidMissions <= ContinueLevel && CompletedHardMissions <= ContinueLevel)
+		{
+			if (!IsSurvivalMode)
+			{
+				_ = SurvivalMapNumber;
+			}
+			_ = IsContinue;
+		}
+		else if (IsSurvivalMap && ShowObjectWhenSelected != null)
+		{
+			ShowObjectWhenSelected.SetActive(value: false);
+			ShowObjectWhenSelected = null;
+		}
+	}
 
 	private void Start()
 	{
@@ -291,27 +324,7 @@ public class MainMenuButtons : MonoBehaviour, IPointerEnterHandler, IEventSystem
 		{
 			if (AccountMaster.instance.isSignedIn)
 			{
-				CompletedMissions = GameMaster.instance.maxMissionReached;
-				CompletedKidMissions = GameMaster.instance.maxMissionReachedKid;
-				CompletedHardMissions = GameMaster.instance.maxMissionReachedHard;
-				if (CompletedMissions <= ContinueLevel && CompletedKidMissions <= ContinueLevel && CompletedHardMissions <= ContinueLevel)
-				{
-					if (IsSurvivalMode || SurvivalMapNumber == 0)
-					{
-						NMC.canDoSurvival = false;
-					}
-					if (IsContinue)
-					{
-						thisText.color = unavailableColor;
-						canBeSelected = false;
-					}
-				}
-				else if (IsSurvivalMap)
-				{
-					NMC.canDoSurvival = true;
-					ShowObjectWhenSelected.SetActive(value: false);
-					ShowObjectWhenSelected = null;
-				}
+				CheckCompletedMissions();
 			}
 			else if (SavingData.ExistData())
 			{
@@ -319,28 +332,26 @@ public class MainMenuButtons : MonoBehaviour, IPointerEnterHandler, IEventSystem
 				CompletedMissions = progressDataNew.cM;
 				CompletedKidMissions = progressDataNew.cK;
 				CompletedHardMissions = progressDataNew.cH;
+				CompletedGrandpa = progressDataNew.cG;
 				if (CompletedMissions <= ContinueLevel && CompletedHardMissions <= ContinueLevel)
 				{
-					if (IsSurvivalMode || SurvivalMapNumber == 0)
+					if (!IsSurvivalMode)
 					{
-						NMC.canDoSurvival = false;
+						_ = SurvivalMapNumber;
 					}
-					if (IsContinue)
+					if (!IsContinue)
 					{
-						thisText.color = unavailableColor;
-						canBeSelected = false;
 					}
 				}
 				else if (IsSurvivalMap)
 				{
-					NMC.canDoSurvival = true;
 					ShowObjectWhenSelected.SetActive(value: false);
 					ShowObjectWhenSelected = null;
 				}
 			}
-			else if (SurvivalMapNumber == 0)
+			else
 			{
-				NMC.canDoSurvival = false;
+				_ = SurvivalMapNumber;
 			}
 		}
 		startTime = Time.time;
@@ -349,6 +360,7 @@ public class MainMenuButtons : MonoBehaviour, IPointerEnterHandler, IEventSystem
 
 	public void OnPointerEnter(PointerEventData pointerEventData)
 	{
+		CheckCompletedMissions();
 		if (!canBeSelected)
 		{
 			return;
@@ -522,6 +534,22 @@ public class MainMenuButtons : MonoBehaviour, IPointerEnterHandler, IEventSystem
 			else if (OptionsMainMenu.instance.currentDifficulty == 1)
 			{
 				if (CompletedKidMissions <= ContinueLevel)
+				{
+					if (IsContinue)
+					{
+						thisText.color = unavailableColor;
+						canBeSelected = false;
+					}
+				}
+				else if (IsContinue)
+				{
+					thisText.color = originalColor;
+					canBeSelected = true;
+				}
+			}
+			else if (OptionsMainMenu.instance.currentDifficulty == 3)
+			{
+				if (CompletedGrandpa <= ContinueLevel)
 				{
 					if (IsContinue)
 					{

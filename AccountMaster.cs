@@ -35,9 +35,15 @@ public class AccountMaster : MonoBehaviour
 
 	private SteamTest ST;
 
+	public PlayerInventory Inventory = new PlayerInventory();
+
+	public bool IsDoingTransaction;
+
 	private bool SetTime;
 
 	private bool isSaving;
+
+	public ShopStand ConnectedStand;
 
 	public static AccountMaster instance => _instance;
 
@@ -58,6 +64,13 @@ public class AccountMaster : MonoBehaviour
 	{
 		LoadCredentials();
 		InvokeRepeating("Count", 10f, 10f);
+		StartCoroutine(GetDelayedInventory());
+	}
+
+	private IEnumerator GetDelayedInventory()
+	{
+		yield return new WaitForSeconds(2f);
+		StartCoroutine(GetCloudInventory());
 	}
 
 	private void Count()
@@ -92,7 +105,7 @@ public class AccountMaster : MonoBehaviour
 				SetTime = true;
 				StartCoroutine(SaveSpeedrunData(50, OptionsMainMenu.instance.currentDifficulty));
 			}
-			else if (GameMaster.instance.CurrentMission == 100 && !GameMaster.instance.GameHasStarted && GameMaster.instance.Enemies.Length < 1)
+			else if (GameMaster.instance.CurrentMission == 100 && !GameMaster.instance.GameHasStarted)
 			{
 				SetTime = true;
 				StartCoroutine(SaveSpeedrunData(100, OptionsMainMenu.instance.currentDifficulty));
@@ -163,6 +176,43 @@ public class AccountMaster : MonoBehaviour
 		Debug.Log("SAVED");
 	}
 
+	public void UpdateServerStatus(int code)
+	{
+		Debug.Log("sending status...");
+		StartCoroutine(IESaveStatus(code));
+	}
+
+	public IEnumerator IESaveStatus(int code)
+	{
+		Debug.Log("sending status...2");
+		if (isSignedIn)
+		{
+			WWWForm wWWForm = new WWWForm();
+			wWWForm.AddField("key", Key);
+			wWWForm.AddField("userid", UserID);
+			wWWForm.AddField("username", Username);
+			wWWForm.AddField("code", code);
+			wWWForm.AddField("difficulty", OptionsMainMenu.instance.currentDifficulty);
+			UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_log.php", wWWForm);
+			uwr.chunkedTransfer = false;
+			yield return uwr.SendWebRequest();
+			Debug.Log("sending status..!.333");
+			if (uwr.isNetworkError)
+			{
+				isSaving = false;
+				Debug.Log("Error While Sending: " + uwr.error);
+			}
+			else if (uwr.downloadHandler.text.Contains("FAILED"))
+			{
+				Debug.Log("UPDATING STATSU FAILED");
+			}
+			else if (uwr.downloadHandler.text.Contains("SUCCESS"))
+			{
+				Debug.Log("UPDATING STATUS SUCCESS!!");
+			}
+		}
+	}
+
 	public void SaveCloudData(int type, int amount, int secondary_amount, bool bounceKill)
 	{
 		Debug.Log("SAVING CALLED " + type + amount);
@@ -224,10 +274,8 @@ public class AccountMaster : MonoBehaviour
 		{
 			isSaving = false;
 			Debug.Log("Error While Sending: " + uwr.error);
-			yield break;
 		}
-		Debug.Log("Received: " + uwr.downloadHandler.text);
-		if (uwr.downloadHandler.text.Contains("FAILED"))
+		else if (uwr.downloadHandler.text.Contains("FAILED"))
 		{
 			isSaving = false;
 		}
@@ -235,7 +283,6 @@ public class AccountMaster : MonoBehaviour
 		{
 			isSaving = false;
 			AssignData(uwr.downloadHandler.text);
-			Debug.Log("SAVED");
 		}
 	}
 
@@ -382,6 +429,7 @@ public class AccountMaster : MonoBehaviour
 				GameMaster.instance.CurrentData.marbles = 0;
 				GameMaster.instance.CurrentData.accountname = null;
 				isSignedIn = false;
+				SignOut(manual: false);
 				yield break;
 			}
 			if (uwr.downloadHandler.text.Contains("EXISTS"))
@@ -570,12 +618,40 @@ public class AccountMaster : MonoBehaviour
 		hasDoneSignInCheck = true;
 	}
 
+	public IEnumerator GetCloudInventory()
+	{
+		WWWForm wWWForm = new WWWForm();
+		wWWForm.AddField("key", Key);
+		Debug.Log("ITS:" + Key);
+		wWWForm.AddField("userid", UserID);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/get_inventory.php", wWWForm);
+		uwr.chunkedTransfer = false;
+		yield return uwr.SendWebRequest();
+		if (uwr.isNetworkError)
+		{
+			Debug.Log("Error While Sending: " + uwr.error);
+			Inventory = null;
+		}
+		else
+		{
+			Debug.Log("Received: " + uwr.downloadHandler.text);
+			if (!uwr.downloadHandler.text.Contains("FAILED"))
+			{
+				Inventory = JsonUtility.FromJson<PlayerInventory>("{\"InventoryItems\":" + uwr.downloadHandler.text + "}");
+				yield break;
+			}
+			Inventory = null;
+		}
+		MapEditorMaster.instance.UpdateInventoryItemsUI();
+	}
+
 	private void AssignData(string post_data)
 	{
 		GameMaster.instance.CurrentData = JsonUtility.FromJson<ProgressDataOnline>(post_data);
 		PDO = JsonUtility.FromJson<ProgressDataOnline>(post_data);
 		OptionsMainMenu.instance.AM = PDO.AM;
 		OptionsMainMenu.instance.AMselected = PDO.ActivatedAM;
+		OptionsMainMenu.instance.CheckCustomHitmarkers();
 		TimePlayed = PDO.TimePlayed;
 		GameMaster.instance.totalKills = PDO.totalKills;
 		GameMaster.instance.totalWins = PDO.totalWins;
@@ -588,6 +664,10 @@ public class AccountMaster : MonoBehaviour
 		GameMaster.instance.maxMissionReachedKid = ((PDO.maxMission1 < PDO.maxMission2) ? PDO.maxMission2 : PDO.maxMission1);
 		GameMaster.instance.totalKillsBounce = PDO.totalKillsBounce;
 		GameMaster.instance.totalRevivesPerformed = PDO.totalRevivesPerformed;
+		if ((bool)TankeyTownMaster.instance)
+		{
+			TankeyTownMaster.instance.MarblesText.text = PDO.marbles.ToString();
+		}
 	}
 
 	public void SaveCredentials()
@@ -597,5 +677,67 @@ public class AccountMaster : MonoBehaviour
 		UserCredentials graph = new UserCredentials(this);
 		binaryFormatter.Serialize(fileStream, graph);
 		fileStream.Close();
+	}
+
+	public IEnumerator BuyTankeyTownItem(TankeyTownStock StandItem)
+	{
+		UnityWebRequest keyRequest = UnityWebRequest.Get("https://weetanks.com/create_ip_key.php");
+		yield return keyRequest.SendWebRequest();
+		if (keyRequest.isNetworkError)
+		{
+			Debug.Log("Error While Sending: " + keyRequest.error);
+			SignOut(manual: false);
+			ConnectedStand.TransactionFailed();
+			yield break;
+		}
+		if (keyRequest.downloadHandler.text == "WAIT")
+		{
+			Debug.Log("TOO FAST ");
+			SignOut(manual: false);
+			ConnectedStand.TransactionFailed();
+			yield break;
+		}
+		string text = keyRequest.downloadHandler.text;
+		WWWForm wWWForm = new WWWForm();
+		wWWForm.AddField("key", Key);
+		Debug.Log("ITS:" + Key);
+		wWWForm.AddField("userid", UserID);
+		wWWForm.AddField("authKey", text);
+		wWWForm.AddField("shopid", StandItem.ItemShopID);
+		wWWForm.AddField("itemid", StandItem.ItemID);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/buy_item.php", wWWForm);
+		uwr.chunkedTransfer = false;
+		yield return uwr.SendWebRequest();
+		if (uwr.isNetworkError)
+		{
+			Debug.Log("Error While Sending: " + uwr.error);
+			yield break;
+		}
+		Debug.Log("Received: " + uwr.downloadHandler.text);
+		if (uwr.downloadHandler.text.Contains("FAILED"))
+		{
+			if (uwr.downloadHandler.text.Contains("stock"))
+			{
+				Debug.LogError("Out of stock!");
+				ConnectedStand.MyStandItem.AmountInStock = 0;
+				ConnectedStand.SetItemOnDisplay(IsUpdate: true);
+			}
+			else if (uwr.downloadHandler.text.Contains("already"))
+			{
+				Debug.LogError("Got item already!");
+			}
+			ConnectedStand.TransactionFailed();
+		}
+		else
+		{
+			ConnectedStand.TransactionSucces();
+			string[] array = uwr.downloadHandler.text.Split(char.Parse("/"));
+			Inventory = JsonUtility.FromJson<PlayerInventory>("{\"InventoryItems\":" + array[0] + "}");
+			PDO.marbles = int.Parse(array[1]);
+			if ((bool)TankeyTownMaster.instance)
+			{
+				TankeyTownMaster.instance.MarblesText.text = PDO.marbles.ToString();
+			}
+		}
 	}
 }

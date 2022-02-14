@@ -5,13 +5,7 @@ public class CustomSkinData : ScriptableObject
 {
 	public int AMselectedID;
 
-	public Material HeadMaterial;
+	public Material MainMaterial;
 
-	public Material BarrelMaterial;
-
-	public Material WheelsMaterial;
-
-	public Material InnerBodyMaterial;
-
-	public Material OuterBodyMaterial;
+	public Material TurretMaterial;
 }

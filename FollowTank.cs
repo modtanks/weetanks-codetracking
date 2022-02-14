@@ -160,7 +160,15 @@ public class FollowTank : MonoBehaviour
 
 	private void UpdatePosition(Vector3 TankPos)
 	{
-		if ((bodyTank.transform.hasChanged && GameMaster.instance.GameHasStarted) || isSpotlight || GameMaster.instance.isZombieMode || GameMaster.instance.inMenuMode || (bool)GameMaster.instance.CM)
+		if (bodyTank == null)
+		{
+			if (!GameMaster.instance.GameHasStarted && !disabling && !GameMaster.instance.CM)
+			{
+				StartCoroutine("slow");
+				disabling = true;
+			}
+		}
+		else if ((bodyTank.transform.hasChanged && GameMaster.instance.GameHasStarted) || isSpotlight || GameMaster.instance.isZombieMode || GameMaster.instance.inMenuMode || (bool)GameMaster.instance.CM)
 		{
 			if (!NotY)
 			{

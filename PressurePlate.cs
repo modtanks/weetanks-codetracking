@@ -19,7 +19,7 @@ public class PressurePlate : MonoBehaviour
 		if (other.tag == "Player" && !Triggered)
 		{
 			Triggered = true;
-			GameMaster.instance.Play2DClipAtPoint(StepOnSound, 1f);
+			SFXManager.instance.PlaySFX(StepOnSound, 1f, null);
 			GameMaster.instance.Levels[GameMaster.instance.CurrentMission + 1] = TheNextLevel;
 			GameMaster.instance.MissionNames[GameMaster.instance.CurrentMission + 1] = missionName;
 			GameMaster.instance.SecretMissionCounter = 2;

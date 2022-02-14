@@ -248,7 +248,6 @@ public class PathfindingAI : MonoBehaviour
 					pathGridPieceClass2.myPAB.MR.material.color = Color.blue;
 				}
 			}
-			Debug.Log("Lets go!");
 			PathfindingBlock myPAB = BlockScripts.Find((PathGridPieceClass x) => x.ID == PathIDS[PathIDS.Count - 1]).myPAB;
 			if ((bool)myPAB)
 			{
@@ -257,7 +256,6 @@ public class PathfindingAI : MonoBehaviour
 				myAI.hasGottenPath = true;
 				myAI.isPathfinding = true;
 				myAI.preferredLocation = myPAB.transform.position + new Vector3(Random.Range(-0.5f, 0.5f), 0f, Random.Range(-0.5f, 0.5f));
-				Debug.Log("MOVEEE");
 				if (myAI.isWallHugger)
 				{
 					myAI.TankSpeed = myAI.OriginalTankSpeed;
@@ -310,17 +308,6 @@ public class PathfindingAI : MonoBehaviour
 
 	private void SetPABcolor(PathfindingBlock PAB, int score)
 	{
-		Color red = Color.red;
-		red.a = (float)score / 10f;
-		if (red.a < 0f)
-		{
-			red.a = 0f;
-		}
-		if (red.a > 1f)
-		{
-			red.a = 1f;
-		}
-		PAB.MR.material.color = red;
 	}
 
 	private int CheckPrevCalls(PathfindingBlock BlockOnSide, PathGridPieceClass thisPGPC)

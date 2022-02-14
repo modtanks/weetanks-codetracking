@@ -38,7 +38,13 @@ public class MapEditorGridPiece : MonoBehaviour
 
 	public int offsetY;
 
+	public int CustomID = -1;
+
+	public string CustomUniqueID;
+
 	public int MyTeamNumber = -1;
+
+	public bool FieldSelected;
 
 	public Color[] TeamColors;
 
@@ -62,11 +68,12 @@ public class MapEditorGridPiece : MonoBehaviour
 		myRend.material.color = notSelectedColor;
 		OriginalNotSelectedColor = notSelectedColor;
 		SetGridPieceColor();
+		InvokeRepeating("CheckCustomTanks", 0.25f, 0.25f);
 	}
 
 	private void OnMouseEnter()
 	{
-		if (!(MapEditorMaster.instance == null) && !(GameMaster.instance == null) && !MapEditorMaster.instance.OnTeamsMenu && !MapEditorMaster.instance.isTesting && !MapEditorMaster.instance.inPlayingMode && !GameMaster.instance.GameHasPaused && MapEditorMaster.instance.SelectedProp >= 0 && selected && !check)
+		if (!(MapEditorMaster.instance == null) && !(GameMaster.instance == null) && !MapEditorMaster.instance.isTesting && !MapEditorMaster.instance.inPlayingMode && !GameMaster.instance.GameHasPaused && MapEditorMaster.instance.SelectedProp >= 0 && selected && !check)
 		{
 			checkSelections();
 		}
@@ -74,7 +81,7 @@ public class MapEditorGridPiece : MonoBehaviour
 
 	private void OnMouseOver()
 	{
-		if (!(MapEditorMaster.instance == null) && !(GameMaster.instance == null) && !MapEditorMaster.instance.OnTeamsMenu && !MapEditorMaster.instance.isTesting && !MapEditorMaster.instance.inPlayingMode && !GameMaster.instance.GameHasPaused && MapEditorMaster.instance.SelectedProp >= 0 && !MapEditorMaster.instance.RemoveMode)
+		if (!(MapEditorMaster.instance == null) && !(GameMaster.instance == null) && !MapEditorMaster.instance.isTesting && !MapEditorMaster.instance.inPlayingMode && !GameMaster.instance.GameHasPaused && MapEditorMaster.instance.SelectedProp >= 0 && !MapEditorMaster.instance.RemoveMode)
 		{
 			if (myRend != null)
 			{
@@ -209,9 +216,34 @@ public class MapEditorGridPiece : MonoBehaviour
 		}
 	}
 
+	private void CheckCustomTanks()
+	{
+		if (myPropID[0] < 100 || myPropID[0] >= 120)
+		{
+			return;
+		}
+		if (!MapEditorMaster.instance.CustomTankDatas.Exists((CustomTankData x) => x.UniqueTankID == CustomUniqueID))
+		{
+			myPropID[0] = -1;
+			myPropPrefab[0] = null;
+			myProp[0] = null;
+			CustomUniqueID = "";
+			MyTeamNumber = -1;
+			myMEP[0].RemoveThisGridObject(force: true);
+			return;
+		}
+		for (int i = 0; i < MapEditorMaster.instance.CustomTankDatas.Count; i++)
+		{
+			if (MapEditorMaster.instance.CustomTankDatas[i].UniqueTankID == CustomUniqueID)
+			{
+				myMEP[0].CustomAInumber = i;
+			}
+		}
+	}
+
 	private void Update()
 	{
-		if (MapEditorMaster.instance.isTesting || MapEditorMaster.instance.inPlayingMode)
+		if (MapEditorMaster.instance.isTesting || MapEditorMaster.instance.inPlayingMode || MapEditorMaster.instance.MenuCurrent == 8)
 		{
 			RunOnceSinceTesting = false;
 			myRend.material.color = Color.clear;
@@ -228,6 +260,10 @@ public class MapEditorGridPiece : MonoBehaviour
 				notSelectedColor = TeamColors[myMEP[IDlayer].TeamNumber];
 				myRend.material.color = notSelectedColor;
 			}
+		}
+		if (MapEditorMaster.instance.SelectedParticles != null && FieldSelected && myMEP[0] != null)
+		{
+			MapEditorMaster.instance.SelectedParticles.transform.position = base.transform.position;
 		}
 		base.transform.position = new Vector3(base.transform.position.x, MapEditorMaster.instance.CurrentLayer * 2, base.transform.position.z);
 		IDlayer = MapEditorMaster.instance.CurrentLayer;
@@ -344,7 +380,7 @@ public class MapEditorGridPiece : MonoBehaviour
 		{
 			return;
 		}
-		if ((MapEditorMaster.instance.SelectedProp > 3 && MapEditorMaster.instance.SelectedProp < 40) || MapEditorMaster.instance.SelectedProp == 46)
+		if ((MapEditorMaster.instance.SelectedProp > 3 && MapEditorMaster.instance.SelectedProp < 40) || MapEditorMaster.instance.SelectedProp == 46 || (MapEditorMaster.instance.SelectedProp >= 100 && MapEditorMaster.instance.SelectedProp < 120))
 		{
 			if (IDlayer > 0)
 			{
@@ -357,7 +393,7 @@ public class MapEditorGridPiece : MonoBehaviour
 			MapEditorMaster.instance.ShowErrorMessage("ERROR: No Block Below!");
 			return;
 		}
-		if (MapEditorMaster.instance.SelectedProp > 5 && MapEditorMaster.instance.SelectedProp < 40 && MapEditorMaster.instance.SelectedProp != 28 && MapEditorMaster.instance.SelectedProp != 29)
+		if ((MapEditorMaster.instance.SelectedProp > 5 && MapEditorMaster.instance.SelectedProp < 40 && MapEditorMaster.instance.SelectedProp != 28 && MapEditorMaster.instance.SelectedProp != 29) || (MapEditorMaster.instance.SelectedProp >= 100 && MapEditorMaster.instance.SelectedProp < 120))
 		{
 			if (MapEditorMaster.instance.enemyTanksPlaced[GameMaster.instance.CurrentMission] >= MapEditorMaster.instance.maxEnemyTanks)
 			{
@@ -407,8 +443,27 @@ public class MapEditorGridPiece : MonoBehaviour
 		{
 			MapEditorMaster.instance.PlayAudio(MapEditorMaster.instance.PlaceLight);
 		}
-		Yheight = MapEditorMaster.instance.PropStartHeight[MapEditorMaster.instance.SelectedProp];
-		myProp[IDlayer] = Object.Instantiate(MapEditorMaster.instance.Props[MapEditorMaster.instance.SelectedProp], base.transform.position + new Vector3(0f, Yheight, 0f), Quaternion.identity);
+		if (MapEditorMaster.instance.SelectedProp >= 1000)
+		{
+			int num = MapEditorMaster.instance.SelectedProp - 1000;
+			Yheight = GlobalAssets.instance.StockDatabase[num].MapEditorYoffset;
+			myProp[IDlayer] = Object.Instantiate(GlobalAssets.instance.StockDatabase[num].MapEditorPrefab, base.transform.position + new Vector3(0f, Yheight, 0f), Quaternion.identity);
+			myPropPrefab[IDlayer] = GlobalAssets.instance.StockDatabase[num].MapEditorPrefab;
+		}
+		else if (MapEditorMaster.instance.SelectedProp >= 100 && MapEditorMaster.instance.SelectedProp < 120)
+		{
+			CustomID = MapEditorMaster.instance.SelectedProp - 100;
+			Yheight = MapEditorMaster.instance.PropStartHeight[19];
+			CustomUniqueID = MapEditorMaster.instance.CustomTankDatas[CustomID].UniqueTankID;
+			myProp[IDlayer] = Object.Instantiate(MapEditorMaster.instance.Props[19], base.transform.position + new Vector3(0f, Yheight, 0f), Quaternion.identity);
+			myPropPrefab[IDlayer] = MapEditorMaster.instance.Props[19];
+		}
+		else
+		{
+			Yheight = MapEditorMaster.instance.PropStartHeight[MapEditorMaster.instance.SelectedProp];
+			myProp[IDlayer] = Object.Instantiate(MapEditorMaster.instance.Props[MapEditorMaster.instance.SelectedProp], base.transform.position + new Vector3(0f, Yheight, 0f), Quaternion.identity);
+			myPropPrefab[IDlayer] = MapEditorMaster.instance.Props[MapEditorMaster.instance.SelectedProp];
+		}
 		MapEditorProp mapEditorProp = myProp[IDlayer].GetComponent<MapEditorProp>();
 		if (mapEditorProp == null)
 		{
@@ -419,6 +474,10 @@ public class MapEditorGridPiece : MonoBehaviour
 		myMEP[IDlayer] = mapEditorProp;
 		if ((bool)mapEditorProp)
 		{
+			if (MapEditorMaster.instance.SelectedProp >= 100 && MapEditorMaster.instance.SelectedProp < 120)
+			{
+				mapEditorProp.CustomUniqueTankID = MapEditorMaster.instance.CustomTankDatas[CustomID].UniqueTankID;
+			}
 			rotationDirection[IDlayer] = MapEditorMaster.instance.LastPlacedRotation;
 			for (int i = 0; i < MapEditorMaster.instance.LastPlacedRotation; i++)
 			{
@@ -437,7 +496,6 @@ public class MapEditorGridPiece : MonoBehaviour
 			mapEditorProp.TeamNumber = 1;
 			MyTeamNumber = 1;
 		}
-		myPropPrefab[IDlayer] = MapEditorMaster.instance.Props[MapEditorMaster.instance.SelectedProp];
 		myProp[IDlayer].transform.parent = GameMaster.instance.Levels[0].transform;
 		propOnMe[IDlayer] = true;
 		myPropID[IDlayer] = MapEditorMaster.instance.SelectedProp;
@@ -478,23 +536,11 @@ public class MapEditorGridPiece : MonoBehaviour
 
 	private void SetCustomMaterial(MapEditorProp MEP)
 	{
-		if (myPropID[IDlayer] == 19)
+		if (myPropID[IDlayer] == 19 || (myPropID[IDlayer] >= 100 && myPropID[IDlayer] < 120))
 		{
-			MEP.CustomAInumber = 0;
-			MEP.myCustomMaterial = MapEditorMaster.instance.CustomMaterial[0];
-			SetCustomTanksMaterials(0, MEP.ColoredObjects);
-		}
-		else if (myPropID[IDlayer] == 20)
-		{
-			MEP.CustomAInumber = 1;
-			MEP.myCustomMaterial = MapEditorMaster.instance.CustomMaterial[1];
-			SetCustomTanksMaterials(1, MEP.ColoredObjects);
-		}
-		else if (myPropID[IDlayer] == 21)
-		{
-			MEP.CustomAInumber = 2;
-			MEP.myCustomMaterial = MapEditorMaster.instance.CustomMaterial[2];
-			SetCustomTanksMaterials(2, MEP.ColoredObjects);
+			MEP.CustomAInumber = CustomID;
+			MEP.myCustomMaterial = MapEditorMaster.instance.CustomMaterial[CustomID];
+			SetCustomTanksMaterials(CustomID, MEP.ColoredObjects);
 		}
 	}
 
@@ -521,8 +567,25 @@ public class MapEditorGridPiece : MonoBehaviour
 			return;
 		}
 		rotationDirection[LayerHeight] = direction;
-		Yheight = MapEditorMaster.instance.PropStartHeight[propID];
-		myProp[LayerHeight] = Object.Instantiate(MapEditorMaster.instance.Props[propID], new Vector3(base.transform.position.x, Yheight + (float)(LayerHeight * 2), base.transform.position.z), Quaternion.identity);
+		if (propID >= 1000)
+		{
+			int num = propID - 1000;
+			Yheight = GlobalAssets.instance.StockDatabase[num].MapEditorYoffset;
+			myProp[LayerHeight] = Object.Instantiate(GlobalAssets.instance.StockDatabase[num].MapEditorPrefab, new Vector3(base.transform.position.x, Yheight + (float)(LayerHeight * 2), base.transform.position.z), Quaternion.identity);
+		}
+		else if (propID >= 100 && propID < 120)
+		{
+			CustomID = propID - 100;
+			Yheight = MapEditorMaster.instance.PropStartHeight[19];
+			CustomUniqueID = MapEditorMaster.instance.CustomTankDatas[CustomID].UniqueTankID;
+			myProp[LayerHeight] = Object.Instantiate(MapEditorMaster.instance.Props[19], new Vector3(base.transform.position.x, Yheight + (float)(LayerHeight * 2), base.transform.position.z), Quaternion.identity);
+			propID = 19;
+		}
+		else
+		{
+			Yheight = MapEditorMaster.instance.PropStartHeight[propID];
+			myProp[LayerHeight] = Object.Instantiate(MapEditorMaster.instance.Props[propID], new Vector3(base.transform.position.x, Yheight + (float)(LayerHeight * 2), base.transform.position.z), Quaternion.identity);
+		}
 		MapEditorProp mapEditorProp = myProp[LayerHeight].GetComponent<MapEditorProp>();
 		if (mapEditorProp == null)
 		{
@@ -542,10 +605,24 @@ public class MapEditorGridPiece : MonoBehaviour
 		}
 		mapEditorProp.myMEGP = this;
 		myMEP[LayerHeight] = mapEditorProp;
-		myPropPrefab[LayerHeight] = MapEditorMaster.instance.Props[propID];
+		myPropID[LayerHeight] = propID;
+		if (propID >= 1000)
+		{
+			int num2 = propID - 1000;
+			myPropPrefab[LayerHeight] = GlobalAssets.instance.StockDatabase[num2].MapEditorPrefab;
+		}
+		else if (propID == 19)
+		{
+			mapEditorProp.CustomUniqueTankID = CustomUniqueID;
+			myPropPrefab[LayerHeight] = MapEditorMaster.instance.Props[propID];
+			myPropID[LayerHeight] = 100 + CustomID;
+		}
+		else
+		{
+			myPropPrefab[LayerHeight] = MapEditorMaster.instance.Props[propID];
+		}
 		myProp[LayerHeight].transform.parent = GameMaster.instance.Levels[0].transform;
 		propOnMe[LayerHeight] = true;
-		myPropID[LayerHeight] = propID;
 		mapEditorProp.LayerNumber = LayerHeight;
 		if (Team > -1)
 		{

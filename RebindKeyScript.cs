@@ -232,27 +232,27 @@ public class RebindKeyScript : MonoBehaviour
 		{
 			if (Input.GetMouseButtonDown(0) && key.Value == KeyCode.Mouse0)
 			{
-				GameMaster.instance.Play2DClipAtPoint(ErrorSound, 1f);
+				SFXManager.instance.PlaySFX(ErrorSound, 1f, null);
 				return;
 			}
 			if (Input.GetMouseButtonDown(1) && key.Value == KeyCode.Mouse1)
 			{
-				GameMaster.instance.Play2DClipAtPoint(ErrorSound, 1f);
+				SFXManager.instance.PlaySFX(ErrorSound, 1f, null);
 				return;
 			}
 			if (Input.GetKey(KeyCode.LeftShift) && key.Value == KeyCode.LeftShift)
 			{
-				GameMaster.instance.Play2DClipAtPoint(ErrorSound, 1f);
+				SFXManager.instance.PlaySFX(ErrorSound, 1f, null);
 				return;
 			}
 			if (Input.GetKey(KeyCode.RightShift) && key.Value == KeyCode.RightShift)
 			{
-				GameMaster.instance.Play2DClipAtPoint(ErrorSound, 1f);
+				SFXManager.instance.PlaySFX(ErrorSound, 1f, null);
 				return;
 			}
 			if (key.Value == newKey)
 			{
-				GameMaster.instance.Play2DClipAtPoint(ErrorSound, 1f);
+				SFXManager.instance.PlaySFX(ErrorSound, 1f, null);
 				return;
 			}
 		}
@@ -319,7 +319,7 @@ public class RebindKeyScript : MonoBehaviour
 				OptionsMainMenu.instance.keys["hudKey"] = newKey;
 				KeyBindKey.text = "(" + newKey.ToString() + ")";
 			}
-			GameMaster.instance.Play2DClipAtPoint(SuccesSound, 1f);
+			SFXManager.instance.PlaySFX(SuccesSound, 1f, null);
 			OptionsMainMenu.instance.SaveNewData();
 		}
 	}

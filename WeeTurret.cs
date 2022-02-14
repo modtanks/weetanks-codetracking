@@ -131,9 +131,12 @@ public class WeeTurret : MonoBehaviour
 				if (Vector3.Distance(target.transform.position, MyHead.transform.position) <= ScannerRange)
 				{
 					Debug.Log("Enemy in range!!!");
-					Vector3 vector = new Vector3(target.transform.position.x, MyHead.transform.position.y, target.transform.position.z) - MyHead.transform.position;
-					Ray ray = new Ray(MyHead.transform.position, vector);
-					Debug.DrawRay(MyHead.transform.position, vector * ScannerRange, Color.red, 0.1f);
+					Vector3 vector = new Vector3(target.transform.position.x, 0.5f, target.transform.position.z);
+					Vector3 position = MyHead.transform.position;
+					position.y = 0.5f;
+					Vector3 vector2 = vector - position;
+					Ray ray = new Ray(position, vector2);
+					Debug.DrawRay(position, vector2 * ScannerRange, Color.red, 0.1f);
 					LayerMask layerMask = ~((1 << LayerMask.NameToLayer("EnemyDetectionLayer")) | (1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("BulletDetectField")) | (1 << LayerMask.NameToLayer("Other")) | (1 << LayerMask.NameToLayer("OneWayBlock")));
 					RaycastHit[] array3 = (from h in Physics.RaycastAll(ray, 50f, layerMask)
 						orderby h.distance
@@ -173,23 +176,23 @@ public class WeeTurret : MonoBehaviour
 		{
 			if (!LastTarget)
 			{
-				GameMaster.instance.Play2DClipAtPoint(TargetFound, 1f);
+				SFXManager.instance.PlaySFX(TargetFound, 1f, null);
 			}
 			else if (LastTarget != closestTarget)
 			{
-				GameMaster.instance.Play2DClipAtPoint(TargetFound, 1f);
+				SFXManager.instance.PlaySFX(TargetFound, 1f, null);
 			}
 			LastTarget = closestTarget;
 			TargetInSight = true;
 			Rigidbody component = closestTarget.GetComponent<Rigidbody>();
 			float num = Vector3.Distance(closestTarget.transform.position, MyHead.transform.position);
-			Vector3 vector2 = ((!(component.velocity.magnitude > 0.8f)) ? closestTarget.position : (closestTarget.position + closestTarget.transform.forward * (num / 3f)));
-			Vector3 forward = vector2 - MyHead.transform.position;
+			Vector3 vector3 = ((!(component.velocity.magnitude > 0.8f)) ? closestTarget.position : (closestTarget.position + closestTarget.transform.forward * (num / 3f)));
+			Vector3 forward = vector3 - MyHead.transform.position;
 			startRot = MyHead.transform.rotation;
 			GotRandomLookTarget = false;
 			CoolingDown = false;
 			forward.y = 0f;
-			rotation = Quaternion.LookRotation(forward) * Quaternion.Euler(-90f, 90f, 0f);
+			rotation = Quaternion.LookRotation(forward) * Quaternion.Euler(-90f, 0f, 0f);
 			float num2 = Quaternion.Angle(MyHead.transform.rotation, rotation);
 			timeTakenDuringLerp = num2 / 180f * 0.5f;
 			if (timeTakenDuringLerp < 0.2f)
@@ -275,7 +278,7 @@ public class WeeTurret : MonoBehaviour
 
 	private void Shoot()
 	{
-		GameMaster.instance.Play2DClipAtPoint(ShootSound, 1f);
+		SFXManager.instance.PlaySFX(ShootSound, 1f, null);
 		GameObject gameObject = ((upgradeLevel <= 0) ? Object.Instantiate(BulletPrefab, ShootPoint.position, ShootPoint.transform.rotation) : Object.Instantiate(UpgradedBulletPrefab, ShootPoint.position, ShootPoint.transform.rotation));
 		gameObject.GetComponent<Rigidbody>().AddForce(ShootPoint.forward * 6f);
 		PlayerBulletScript component = gameObject.GetComponent<PlayerBulletScript>();
@@ -288,7 +291,7 @@ public class WeeTurret : MonoBehaviour
 
 	private void DIE()
 	{
-		GameMaster.instance.Play2DClipAtPoint(ExplosionSound, 1f);
+		SFXManager.instance.PlaySFX(ExplosionSound, 1f, null);
 		GameObject obj = Object.Instantiate(deathExplosion, base.transform.position, Quaternion.identity);
 		obj.GetComponent<ParticleSystem>().Play();
 		if ((bool)myMTS)
@@ -303,7 +306,7 @@ public class WeeTurret : MonoBehaviour
 	public void Repair()
 	{
 		Health = maxHealth;
-		GameMaster.instance.Play2DClipAtPoint(RepairSound, 1f);
+		SFXManager.instance.PlaySFX(RepairSound, 1f, null);
 	}
 
 	public void Upgrade()

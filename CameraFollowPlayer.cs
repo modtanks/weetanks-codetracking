@@ -28,6 +28,8 @@ public class CameraFollowPlayer : MonoBehaviour
 
 	private Vector3 velocity = Vector3.zero;
 
+	public float DesiredScale = 10f;
+
 	private void Start()
 	{
 		startPos = base.transform.position;
@@ -58,40 +60,32 @@ public class CameraFollowPlayer : MonoBehaviour
 
 	private void Update()
 	{
+		if (GameMaster.instance.GameHasStarted)
+		{
+			Camera.main.orthographicSize = Mathf.Lerp(Camera.main.orthographicSize, DesiredScale, Time.deltaTime);
+		}
 		if (GameMaster.instance.Players.Count == 1)
 		{
-			if (GameMaster.instance.GameHasStarted)
-			{
-				Camera.main.orthographicSize = zoomedInScale;
-			}
+			DesiredScale = zoomedInScale;
 			SetPos(GameMaster.instance.Players[0].transform.position);
 		}
 		else if (GameMaster.instance.Players.Count == 2)
 		{
 			BetweenPos = (GameMaster.instance.Players[0].transform.position + GameMaster.instance.Players[1].transform.position) / 2f;
 			SetPos(BetweenPos);
-			if (GameMaster.instance.GameHasStarted)
-			{
-				Camera.main.orthographicSize = zoomedInScale;
-			}
+			DesiredScale = zoomedInScale * 1.2f;
 		}
 		else if (GameMaster.instance.Players.Count == 3)
 		{
 			BetweenPos = (GameMaster.instance.Players[0].transform.position + GameMaster.instance.Players[1].transform.position + GameMaster.instance.Players[2].transform.position) / 3f;
 			SetPos(BetweenPos);
-			if (GameMaster.instance.GameHasStarted)
-			{
-				Camera.main.orthographicSize = zoomedInScale;
-			}
+			DesiredScale = zoomedInScale * 1.3f;
 		}
 		else if (GameMaster.instance.Players.Count == 4)
 		{
 			BetweenPos = (GameMaster.instance.Players[0].transform.position + GameMaster.instance.Players[1].transform.position + GameMaster.instance.Players[2].transform.position + GameMaster.instance.Players[3].transform.position) / 4f;
 			SetPos(BetweenPos);
-			if (GameMaster.instance.GameHasStarted)
-			{
-				Camera.main.orthographicSize = zoomedInScale;
-			}
+			DesiredScale = zoomedInScale * 1.4f;
 		}
 		else if ((bool)ZombieTankSpawner.instance)
 		{

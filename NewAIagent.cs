@@ -235,22 +235,22 @@ public class NewAIagent : MonoBehaviour
 		{
 			agent.SetDestination(transform.position);
 			TheTarget = transform;
+			dist = Vector3.Distance(base.transform.position, transform.transform.position);
+			if (dist < myExplosionDistance && !Suicide)
+			{
+				Quaternion rotation = base.transform.rotation;
+				agent.isStopped = true;
+				agent.speed = 0f;
+				Suicide = true;
+				SuicideTimer = myExplosionTimer;
+				base.transform.rotation = rotation;
+				storedRot = base.transform.rotation;
+			}
 		}
 		else
 		{
 			myHealth.health = 0;
 			agent.isStopped = true;
-		}
-		dist = Vector3.Distance(base.transform.position, transform.transform.position);
-		if (dist < myExplosionDistance && !Suicide)
-		{
-			Quaternion rotation = base.transform.rotation;
-			agent.isStopped = true;
-			agent.speed = 0f;
-			Suicide = true;
-			SuicideTimer = myExplosionTimer;
-			base.transform.rotation = rotation;
-			storedRot = base.transform.rotation;
 		}
 	}
 
@@ -307,7 +307,11 @@ public class NewAIagent : MonoBehaviour
 			DestroyableWall component6 = obj.GetComponent<DestroyableWall>();
 			if (component != null && component.transform.tag == "Player")
 			{
-				component.health--;
+				component.DamageMe(1);
+				if (myHealth.EnemyID <= -100)
+				{
+					component.DamageMe(1);
+				}
 			}
 			if (component2 != null)
 			{
@@ -328,6 +332,18 @@ public class NewAIagent : MonoBehaviour
 			if (component5 != null)
 			{
 				component5.Health--;
+			}
+		}
+		array = Physics.OverlapSphere(location, radius * 2f);
+		foreach (Collider collider in array)
+		{
+			Rigidbody component7 = collider.GetComponent<Rigidbody>();
+			if (component7 != null && (collider.tag == "Player" || collider.tag == "Enemy"))
+			{
+				float num = Vector3.Distance(component7.transform.position, base.transform.position);
+				float num2 = (radius * 2f - num) * 1.5f;
+				Vector3 vector = component7.transform.position - base.transform.position;
+				component7.AddForce(vector * num2, ForceMode.Impulse);
 			}
 		}
 	}

@@ -17,19 +17,20 @@ public class RaycastBullet : MonoBehaviour
 	private void Start()
 	{
 		rb = GetComponent<Rigidbody>();
-		InvokeRepeating("CheckObjects", 0.1f, 0.1f);
+		float num = UnityEngine.Random.Range(0.1f, 0.2f);
+		InvokeRepeating("CheckObjects", num, num);
 		PBS = GetComponent<PlayerBulletScript>();
 	}
 
 	private void CheckObjects()
 	{
-		Vector3 vector = raycastObject.transform.TransformDirection(Vector3.forward);
 		if (!isTrain)
 		{
 			checkDistance = 24;
 			DrawReflectionPattern(base.transform.position, rb.velocity, lastCheck: false);
 			return;
 		}
+		Vector3 vector = raycastObject.transform.TransformDirection(Vector3.forward);
 		Debug.DrawRay(raycastObject.transform.position, vector * checkDistance, Color.cyan, 0.3f);
 		RaycastHit[] array = (from h in Physics.RaycastAll(raycastObject.transform.position, vector, checkDistance)
 			orderby h.distance
@@ -154,24 +155,25 @@ public class RaycastBullet : MonoBehaviour
 		{
 			component2.IncomingBullets.Add(base.gameObject);
 		}
-		if (ED.Bullets.Contains(base.gameObject))
+		Collider component3 = base.gameObject.GetComponent<Collider>();
+		if (ED.Bullets.Contains(component3))
 		{
 			return;
 		}
-		ED.Bullets.Add(base.gameObject);
+		ED.Bullets.Add(component3);
 		if (ED.isRing1)
 		{
 			int lowerID = ((ED.ID == 0) ? 15 : (ED.ID - 1));
 			int higerID = ((ED.ID != 15) ? (ED.ID + 1) : 0);
 			EnemyDetection enemyDetection = ED.AIscript.Ring1Detection.Find((EnemyDetection x) => x.ID == lowerID);
 			EnemyDetection enemyDetection2 = ED.AIscript.Ring1Detection.Find((EnemyDetection x) => x.ID == higerID);
-			if ((bool)enemyDetection && !enemyDetection.Bullets.Contains(base.gameObject))
+			if ((bool)enemyDetection && !enemyDetection.Bullets.Contains(component3))
 			{
-				enemyDetection.Bullets.Add(base.gameObject);
+				enemyDetection.Bullets.Add(component3);
 			}
-			if ((bool)enemyDetection2 && !enemyDetection2.Bullets.Contains(base.gameObject))
+			if ((bool)enemyDetection2 && !enemyDetection2.Bullets.Contains(component3))
 			{
-				enemyDetection2.Bullets.Add(base.gameObject);
+				enemyDetection2.Bullets.Add(component3);
 			}
 		}
 	}

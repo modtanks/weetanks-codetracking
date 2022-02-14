@@ -18,6 +18,10 @@ public class MapEditorMaster : MonoBehaviour
 
 	public int maxMission = 20;
 
+	public GameObject MenuItemPrefab;
+
+	public GameObject TankeyTownListParent;
+
 	public GameObject[] Props;
 
 	public float[] PropStartHeight;
@@ -88,6 +92,8 @@ public class MapEditorMaster : MonoBehaviour
 
 	public int[] MissionFloorTextures;
 
+	public ParticleSystem SelectedParticles;
+
 	[Header("Map Editor Audio")]
 	public AudioClip PlaceHeavy;
 
@@ -128,35 +134,15 @@ public class MapEditorMaster : MonoBehaviour
 
 	public TMP_InputField MissionNameInputField;
 
-	public GameObject ScrollViewBlocks;
+	public GameObject[] Menus;
 
-	public GameObject ScrollViewExtras;
-
-	public GameObject ScrollViewTanks;
-
-	public GameObject SettingsView;
-
-	public GameObject CustomTankView;
-
-	public GameObject CampaignSettingsView;
+	public RawImage[] MenuImages;
 
 	public GameObject ParentObjectList;
 
 	public Color TabNotSelectedColor;
 
 	public Color TabSelectedColor;
-
-	public RawImage TanksImage;
-
-	public RawImage BlocksImage;
-
-	public RawImage ExtrasImage;
-
-	public RawImage SettingsImage;
-
-	public RawImage CustomTankImage;
-
-	public RawImage CampaignSettingsImage;
 
 	[Header("Custom Tank")]
 	public int minTankSpeed;
@@ -207,43 +193,15 @@ public class MapEditorMaster : MonoBehaviour
 
 	public Image CustomTankMaterialSource;
 
-	public List<Color> CustomTankColor = new List<Color>();
-
-	public List<int> CustomTankSpeed = new List<int>();
-
-	public List<float> CustomFireSpeed = new List<float>();
-
-	public List<int> CustomBounces = new List<int>();
-
-	public List<int> CustomBullets = new List<int>();
-
-	public List<float> CustomMineSpeed = new List<float>();
-
-	public List<int> CustomTurnHead = new List<int>();
-
-	public List<int> CustomAccuracy = new List<int>();
-
-	public List<bool> CustomLayMines = new List<bool>();
-
-	public List<int> CustomBulletType = new List<int>();
-
-	public List<int> CustomMusic = new List<int>();
-
-	public List<bool> CustomInvisibility = new List<bool>();
-
-	public List<bool> CustomCalculateShots = new List<bool>();
-
-	public List<bool> CustomArmoured = new List<bool>();
-
-	public List<int> CustomArmourPoints = new List<int>();
-
-	public List<float> CustomTankScale = new List<float>();
+	public List<CustomTankData> CustomTankDatas = new List<CustomTankData>();
 
 	public MapEditorUIprop CustomTankScript;
 
 	public GameObject[] BulletPrefabs;
 
 	public GameObject[] PlayerBulletPrefabs;
+
+	public AudioClip[] PlayerBulletSound;
 
 	public int StartingLives = 3;
 
@@ -269,6 +227,12 @@ public class MapEditorMaster : MonoBehaviour
 	public Slider ArmouredSlider;
 
 	public Slider ScaleSlider;
+
+	public Slider BulletsPerShotSlider;
+
+	public Slider TankHealthSlider;
+
+	public GameObject MenuAddCustomTankButton;
 
 	[Header("Campaign Settings")]
 	public int Difficulty;
@@ -315,13 +279,21 @@ public class MapEditorMaster : MonoBehaviour
 
 	public TMP_Dropdown MusicList;
 
-	public Toggle CanLayMinesToggle;
+	public TMP_InputField CustomTankInputName;
 
-	public Toggle InvisibilityToggle;
+	public ButtonMouseEvents CanLayMinesToggle;
 
-	public Toggle CalculateShotsToggle;
+	public ButtonMouseEvents InvisibilityToggle;
 
-	public Toggle ArmouredToggle;
+	public ButtonMouseEvents CalculateShotsToggle;
+
+	public ButtonMouseEvents ArmouredToggle;
+
+	public ButtonMouseEvents CanBeAirdroppedToggle;
+
+	public ButtonMouseEvents ShowHealthbarToggle;
+
+	public ButtonMouseEvents CanTeleport;
 
 	public TextMeshProUGUI OnCursorText;
 
@@ -347,15 +319,31 @@ public class MapEditorMaster : MonoBehaviour
 
 	public bool canDoButton = true;
 
+	public RawImage[] BarButtons;
+
+	public Texture BarButtonNotSelected;
+
+	public Texture BarButtonSelected;
+
+	public Button TankeyTownItemsButton;
+
 	public int[] ColorsTeamsPlaced;
 
 	public int LastPlacedColor;
 
 	public int LastPlacedRotation;
 
+	public List<TankeyTownStockItem> ItemsPlayerHas = new List<TankeyTownStockItem>();
+
 	private bool canClick = true;
 
 	private bool canChangeValues = true;
+
+	public GameObject CustomTankMenuItem;
+
+	public Transform CustomTankUIParent;
+
+	public List<GameObject> SpawnedCustomTankUI = new List<GameObject>();
 
 	public static MapEditorMaster instance => _instance;
 
@@ -388,6 +376,10 @@ public class MapEditorMaster : MonoBehaviour
 
 	private void Start()
 	{
+		if ((bool)AccountMaster.instance && AccountMaster.instance.isSignedIn)
+		{
+			AccountMaster.instance.StartCoroutine(AccountMaster.instance.GetCloudInventory());
+		}
 		Animator component = Camera.main.GetComponent<Animator>();
 		if (OptionsMainMenu.instance.MapSize == 180)
 		{
@@ -415,13 +407,13 @@ public class MapEditorMaster : MonoBehaviour
 		}
 		if (!inPlayingMode)
 		{
-			SetCustomTankValues();
 			LoadData();
 			LastPlacedColor = 2;
-			TanksImage.color = TabNotSelectedColor;
-			SettingsImage.color = TabNotSelectedColor;
-			BlocksImage.color = TabSelectedColor;
-			CustomTankImage.color = TabNotSelectedColor;
+			RawImage[] menuImages = MenuImages;
+			for (int i = 0; i < menuImages.Length; i++)
+			{
+				menuImages[i].color = TabNotSelectedColor;
+			}
 			TeleportationFields.SetActive(value: false);
 			AudioSource component2 = Camera.main.GetComponent<AudioSource>();
 			if (OptionsMainMenu.instance != null)
@@ -430,7 +422,6 @@ public class MapEditorMaster : MonoBehaviour
 				lastKnownMusicVol = OptionsMainMenu.instance.musicVolumeLvl;
 				component2.volume = 0.1f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
 			}
-			AnimatorStartHeight = ErrorFieldMessage.transform.localPosition;
 			component2.clip = EditingModeBackgroundMusic;
 			component2.loop = true;
 			component2.Play();
@@ -441,59 +432,6 @@ public class MapEditorMaster : MonoBehaviour
 
 	private IEnumerator LateStart()
 	{
-		yield return new WaitForSeconds(0.25f);
-		UpdateMembus();
-	}
-
-	public IEnumerator coolDown()
-	{
-		canDoButton = false;
-		yield return new WaitForSeconds(0.5f);
-		canDoButton = true;
-	}
-
-	public void SetCustomTankValues()
-	{
-		for (int i = 0; i < 3; i++)
-		{
-			CustomTankSpeed[i] = 0;
-			CustomFireSpeed[i] = 0f;
-			CustomBounces[i] = 0;
-			CustomBullets[i] = 0;
-			CustomMineSpeed[i] = 0f;
-			CustomTurnHead[i] = 0;
-			CustomAccuracy[i] = 0;
-			CustomLayMines[i] = false;
-			CustomBulletType[i] = 0;
-			CustomMusic[i] = 0;
-			CustomInvisibility[i] = false;
-			CustomCalculateShots[i] = false;
-			CustomArmoured[i] = false;
-			CustomMaterial[i].color = Color.white;
-			CustomTankColor[i] = Color.white;
-			LoadCustomTankDataUI(0);
-		}
-	}
-
-	public void LoadCustomTankDataUI(int customNumber)
-	{
-		TankSpeedField.value = CustomTankSpeed[customNumber];
-		FireSpeedField.value = CustomFireSpeed[customNumber];
-		AmountBouncesField.value = CustomBounces[customNumber];
-		AmountBulletsField.value = CustomBullets[customNumber];
-		MineLaySpeedField.value = CustomMineSpeed[customNumber];
-		TurnHeadSlider.value = CustomTurnHead[customNumber];
-		AccuracySlider.value = CustomAccuracy[customNumber];
-		if (FCP != null)
-		{
-			FCP.startingColor = CustomTankColor[customNumber];
-		}
-		CanLayMinesToggle.isOn = CustomLayMines[customNumber];
-		InvisibilityToggle.isOn = CustomInvisibility[customNumber];
-		CalculateShotsToggle.isOn = CustomCalculateShots[customNumber];
-		ArmouredToggle.isOn = CustomArmoured[customNumber];
-		BulletTypeList.value = CustomBulletType[customNumber];
-		MusicList.value = CustomMusic[customNumber];
 		TankSpeedField.minValue = minTankSpeed;
 		FireSpeedField.minValue = minFireSpeed;
 		AmountBouncesField.minValue = minBounces;
@@ -513,6 +451,71 @@ public class MapEditorMaster : MonoBehaviour
 		{
 			TeamColorsToggles[i].isOn = TeamColorEnabled[i];
 		}
+		Menus[8].transform.position += new Vector3(0f, -3000f, 0f);
+		TankeyTownItemsButton.gameObject.SetActive(value: false);
+		yield return new WaitForSeconds(0.25f);
+		UpdateMembus();
+		int num = 0;
+		if (AccountMaster.instance.Inventory.InventoryItems != null && AccountMaster.instance.Inventory.InventoryItems.Length != 0)
+		{
+			int[] inventoryItems = AccountMaster.instance.Inventory.InventoryItems;
+			foreach (int num2 in inventoryItems)
+			{
+				for (int k = 0; k < GlobalAssets.instance.StockDatabase.Length; k++)
+				{
+					if (num2 == GlobalAssets.instance.StockDatabase[k].ItemID && GlobalAssets.instance.StockDatabase[k].IsMapEditorObject)
+					{
+						ItemsPlayerHas.Add(GlobalAssets.instance.StockDatabase[k]);
+						num++;
+						MapEditorUIprop component = UnityEngine.Object.Instantiate(MenuItemPrefab, TankeyTownListParent.transform).GetComponent<MapEditorUIprop>();
+						if ((bool)component)
+						{
+							component.PropID = GlobalAssets.instance.StockDatabase[k].MapEditorPropID;
+							component.customTex = GlobalAssets.instance.StockDatabase[k].ItemTexture;
+						}
+					}
+				}
+			}
+		}
+		if (num > 0)
+		{
+			TankeyTownItemsButton.gameObject.SetActive(value: true);
+		}
+	}
+
+	public IEnumerator coolDown()
+	{
+		canDoButton = false;
+		yield return new WaitForSeconds(0.5f);
+		canDoButton = true;
+	}
+
+	public void LoadCustomTankDataUI(int customNumber)
+	{
+		TankSpeedField.value = CustomTankDatas[customNumber].CustomTankSpeed;
+		FireSpeedField.value = CustomTankDatas[customNumber].CustomFireSpeed;
+		AmountBouncesField.value = CustomTankDatas[customNumber].CustomBounces;
+		AmountBulletsField.value = CustomTankDatas[customNumber].CustomBullets;
+		MineLaySpeedField.value = CustomTankDatas[customNumber].CustomMineSpeed;
+		TurnHeadSlider.value = CustomTankDatas[customNumber].CustomTurnHead;
+		AccuracySlider.value = CustomTankDatas[customNumber].CustomAccuracy;
+		if (FCP != null)
+		{
+			FCP.color = CustomMaterial[customNumber].color;
+			FCP.startingColor = CustomTankDatas[customNumber].CustomTankColor.Color;
+		}
+		CanLayMinesToggle.IsEnabled = CustomTankDatas[customNumber].CustomLayMines;
+		InvisibilityToggle.IsEnabled = CustomTankDatas[customNumber].CustomInvisibility;
+		CalculateShotsToggle.IsEnabled = CustomTankDatas[customNumber].CustomCalculateShots;
+		CanTeleport.IsEnabled = CustomTankDatas[customNumber].CustomCanTeleport;
+		ShowHealthbarToggle.IsEnabled = CustomTankDatas[customNumber].CustomShowHealthbar;
+		BulletsPerShotSlider.value = CustomTankDatas[customNumber].CustomBulletsPerShot;
+		CanBeAirdroppedToggle.IsEnabled = CustomTankDatas[customNumber].CustomCanBeAirdropped;
+		TankHealthSlider.value = CustomTankDatas[customNumber].CustomTankHealth;
+		ArmouredToggle.IsEnabled = CustomTankDatas[customNumber].CustomArmoured;
+		BulletTypeList.value = CustomTankDatas[customNumber].CustomBulletType;
+		MusicList.value = CustomTankDatas[customNumber].CustomMusic;
+		CustomTankInputName.text = CustomTankDatas[customNumber].CustomTankName;
 	}
 
 	private IEnumerator ResetClickSound()
@@ -521,11 +524,15 @@ public class MapEditorMaster : MonoBehaviour
 		canClick = true;
 	}
 
+	public void UpdateInventoryItemsUI()
+	{
+	}
+
 	public void PlayChangeSound()
 	{
 		if (canClick)
 		{
-			GameMaster.instance.Play2DClipAtPoint(ChangeSound, 0.5f);
+			SFXManager.instance.PlaySFX(ChangeSound, 0.5f, null);
 			StartCoroutine(ResetClickSound());
 			canClick = false;
 		}
@@ -535,14 +542,18 @@ public class MapEditorMaster : MonoBehaviour
 	{
 		if (inPlayingMode)
 		{
-			for (int i = 0; i < 3; i++)
-			{
-				if (CustomMaterial[i].GetColor("_Color") != CustomTankColor[i])
-				{
-					CustomMaterial[i].SetColor("_Color", CustomTankColor[i]);
-				}
-			}
 			return;
+		}
+		if ((bool)MenuAddCustomTankButton)
+		{
+			if (CustomTankDatas.Count >= 20)
+			{
+				MenuAddCustomTankButton.SetActive(value: false);
+			}
+			else
+			{
+				MenuAddCustomTankButton.SetActive(value: true);
+			}
 		}
 		if (!isTesting)
 		{
@@ -585,7 +596,7 @@ public class MapEditorMaster : MonoBehaviour
 				ShowAllLayers = !ShowAllLayers;
 			}
 		}
-		if (MenuCurrent == 4)
+		if (MenuCurrent == 6)
 		{
 			StartingLives = Mathf.RoundToInt(StartLivesSlider.value);
 			int num = (OptionsMainMenu.instance.AMselected.Contains(63) ? 1000 : 50);
@@ -645,131 +656,134 @@ public class MapEditorMaster : MonoBehaviour
 			PlayerBulletType = PlayerBulletTypeList.value;
 			Difficulty = DifficultyList.value;
 			PlayerCanLayMines = PlayerCanLayMinesToggle.isOn;
-			for (int j = 0; j < TeamColorEnabled.Length; j++)
+			for (int i = 0; i < TeamColorEnabled.Length; i++)
 			{
-				TeamColorEnabled[j] = TeamColorsToggles[j].isOn;
+				TeamColorEnabled[i] = TeamColorsToggles[i].isOn;
 			}
 		}
-		else if (MenuCurrent == 2)
+		else if (MenuCurrent == 8)
 		{
-			if (CanLayMinesToggle.isOn && !MineLaySpeedField.transform.parent.gameObject.activeSelf)
+			if (CanLayMinesToggle.IsEnabled && !MineLaySpeedField.transform.parent.gameObject.activeSelf)
 			{
-				Debug.Log("MINES Toggle changed ON");
 				MineLaySpeedField.transform.parent.gameObject.SetActive(value: true);
-				CustomLayMines[SelectedCustomTank] = true;
+				CustomTankDatas[SelectedCustomTank].CustomLayMines = true;
 			}
-			else if (!CanLayMinesToggle.isOn && MineLaySpeedField.transform.parent.gameObject.activeSelf)
+			else if (!CanLayMinesToggle.IsEnabled && MineLaySpeedField.transform.parent.gameObject.activeSelf)
 			{
-				Debug.Log("MINES Toggle changed OFF");
 				MineLaySpeedField.transform.parent.gameObject.SetActive(value: false);
-				CustomLayMines[SelectedCustomTank] = false;
+				CustomTankDatas[SelectedCustomTank].CustomLayMines = false;
 			}
-			if (ArmouredToggle.isOn && !ArmouredSlider.transform.parent.gameObject.activeSelf)
+			if (ArmouredToggle.IsEnabled && !ArmouredSlider.transform.parent.gameObject.activeSelf)
 			{
-				Debug.Log("Armour Toggle changed ON");
 				ArmouredSlider.transform.parent.gameObject.SetActive(value: true);
-				CustomArmoured[SelectedCustomTank] = true;
+				CustomTankDatas[SelectedCustomTank].CustomArmoured = true;
 			}
-			else if (!ArmouredToggle.isOn && ArmouredSlider.transform.parent.gameObject.activeSelf)
+			else if (!ArmouredToggle.IsEnabled && ArmouredSlider.transform.parent.gameObject.activeSelf)
 			{
-				Debug.Log("Armour Toggle changed OFF");
 				ArmouredSlider.transform.parent.gameObject.SetActive(value: false);
-				CustomArmoured[SelectedCustomTank] = false;
+				CustomTankDatas[SelectedCustomTank].CustomArmoured = false;
 			}
-			CustomInvisibility[SelectedCustomTank] = InvisibilityToggle.isOn;
-			CustomCalculateShots[SelectedCustomTank] = CalculateShotsToggle.isOn;
-			CustomArmourPoints[SelectedCustomTank] = Mathf.RoundToInt(ArmouredSlider.value);
+			CustomTankDatas[SelectedCustomTank].CustomTankName = CustomTankInputName.text;
+			CustomTankDatas[SelectedCustomTank].CustomMusic = MusicList.value;
+			CustomTankDatas[SelectedCustomTank].CustomInvisibility = InvisibilityToggle.IsEnabled;
+			CustomTankDatas[SelectedCustomTank].CustomCalculateShots = CalculateShotsToggle.IsEnabled;
+			CustomTankDatas[SelectedCustomTank].CustomCanTeleport = CanTeleport.IsEnabled;
+			CustomTankDatas[SelectedCustomTank].CustomShowHealthbar = ShowHealthbarToggle.IsEnabled;
+			CustomTankDatas[SelectedCustomTank].CustomBulletsPerShot = Mathf.RoundToInt(BulletsPerShotSlider.value);
+			CustomTankDatas[SelectedCustomTank].CustomCanBeAirdropped = CanBeAirdroppedToggle.IsEnabled;
+			CustomTankDatas[SelectedCustomTank].CustomTankHealth = Mathf.RoundToInt(TankHealthSlider.value);
+			CustomTankDatas[SelectedCustomTank].CustomArmourPoints = Mathf.RoundToInt(ArmouredSlider.value);
 			ArmouredSlider.maxValue = (OptionsMainMenu.instance.AMselected.Contains(63) ? maxArmourPointsBoosted : maxArmourPoints);
-			if (CustomArmourPoints[SelectedCustomTank] < minArmourPoints)
+			if (CustomTankDatas[SelectedCustomTank].CustomArmourPoints < minArmourPoints)
 			{
-				CustomArmourPoints[SelectedCustomTank] = minArmourPoints;
+				CustomTankDatas[SelectedCustomTank].CustomArmourPoints = minArmourPoints;
 			}
-			else if ((float)CustomArmourPoints[SelectedCustomTank] > ArmouredSlider.maxValue)
+			else if ((float)CustomTankDatas[SelectedCustomTank].CustomArmourPoints > ArmouredSlider.maxValue)
 			{
-				CustomArmourPoints[SelectedCustomTank] = Mathf.RoundToInt(ArmouredSlider.maxValue);
+				CustomTankDatas[SelectedCustomTank].CustomArmourPoints = Mathf.RoundToInt(ArmouredSlider.maxValue);
 			}
-			CustomTankScale[SelectedCustomTank] = ScaleSlider.value;
+			CustomTankDatas[SelectedCustomTank].CustomTankScale = ScaleSlider.value;
 			ScaleSlider.maxValue = (OptionsMainMenu.instance.AMselected.Contains(63) ? maxScalePointsBoosted : maxScalePoints);
-			if (CustomTankScale[SelectedCustomTank] < minScalePoints)
+			if (CustomTankDatas[SelectedCustomTank].CustomTankScale < minScalePoints)
 			{
-				CustomTankScale[SelectedCustomTank] = minScalePoints;
+				CustomTankDatas[SelectedCustomTank].CustomTankScale = minScalePoints;
 			}
-			else if (CustomTankScale[SelectedCustomTank] > ScaleSlider.maxValue)
+			else if (CustomTankDatas[SelectedCustomTank].CustomTankScale > ScaleSlider.maxValue)
 			{
-				CustomTankScale[SelectedCustomTank] = ScaleSlider.maxValue;
+				CustomTankDatas[SelectedCustomTank].CustomTankScale = ScaleSlider.maxValue;
 			}
-			CustomBulletType[SelectedCustomTank] = BulletTypeList.value;
-			CustomMusic[SelectedCustomTank] = MusicList.value;
-			CustomTankSpeed[SelectedCustomTank] = Mathf.RoundToInt(TankSpeedField.value);
+			CustomTankDatas[SelectedCustomTank].CustomBulletType = BulletTypeList.value;
+			CustomTankDatas[SelectedCustomTank].CustomMusic = MusicList.value;
+			CustomTankDatas[SelectedCustomTank].CustomTankSpeed = Mathf.RoundToInt(TankSpeedField.value);
 			TankSpeedField.maxValue = (OptionsMainMenu.instance.AMselected.Contains(63) ? maxTankSpeedBoosted : maxTankSpeed);
-			if (CustomTankSpeed[SelectedCustomTank] < minTankSpeed)
+			if (CustomTankDatas[SelectedCustomTank].CustomTankSpeed < minTankSpeed)
 			{
-				CustomTankSpeed[SelectedCustomTank] = minTankSpeed;
+				CustomTankDatas[SelectedCustomTank].CustomTankSpeed = minTankSpeed;
 			}
-			else if ((float)CustomTankSpeed[SelectedCustomTank] > TankSpeedField.maxValue)
+			else if ((float)CustomTankDatas[SelectedCustomTank].CustomTankSpeed > TankSpeedField.maxValue)
 			{
-				CustomTankSpeed[SelectedCustomTank] = Mathf.RoundToInt(TankSpeedField.maxValue);
+				CustomTankDatas[SelectedCustomTank].CustomTankSpeed = Mathf.RoundToInt(TankSpeedField.maxValue);
 			}
-			CustomFireSpeed[SelectedCustomTank] = Mathf.Floor(FireSpeedField.value * 100f) / 100f;
-			if (CustomFireSpeed[SelectedCustomTank] < minFireSpeed)
+			CustomTankDatas[SelectedCustomTank].CustomFireSpeed = Mathf.Floor(FireSpeedField.value * 100f) / 100f;
+			if (CustomTankDatas[SelectedCustomTank].CustomFireSpeed < minFireSpeed)
 			{
-				CustomFireSpeed[SelectedCustomTank] = minFireSpeed;
+				CustomTankDatas[SelectedCustomTank].CustomFireSpeed = minFireSpeed;
 			}
-			else if (CustomFireSpeed[SelectedCustomTank] > maxFireSpeed)
+			else if (CustomTankDatas[SelectedCustomTank].CustomFireSpeed > maxFireSpeed)
 			{
-				CustomFireSpeed[SelectedCustomTank] = maxFireSpeed;
+				CustomTankDatas[SelectedCustomTank].CustomFireSpeed = maxFireSpeed;
 			}
-			CustomBounces[SelectedCustomTank] = Mathf.RoundToInt(AmountBouncesField.value);
+			CustomTankDatas[SelectedCustomTank].CustomBounces = Mathf.RoundToInt(AmountBouncesField.value);
 			AmountBouncesField.maxValue = (OptionsMainMenu.instance.AMselected.Contains(63) ? maxBouncesBoosted : maxBounces);
-			if (CustomBounces[SelectedCustomTank] < minBounces)
+			if (CustomTankDatas[SelectedCustomTank].CustomBounces < minBounces)
 			{
-				CustomBounces[SelectedCustomTank] = minBounces;
+				CustomTankDatas[SelectedCustomTank].CustomBounces = minBounces;
 			}
-			else if ((float)CustomBounces[SelectedCustomTank] > AmountBouncesField.maxValue)
+			else if ((float)CustomTankDatas[SelectedCustomTank].CustomBounces > AmountBouncesField.maxValue)
 			{
-				CustomBounces[SelectedCustomTank] = Mathf.RoundToInt(AmountBouncesField.maxValue);
+				CustomTankDatas[SelectedCustomTank].CustomBounces = Mathf.RoundToInt(AmountBouncesField.maxValue);
 			}
-			CustomBullets[SelectedCustomTank] = Mathf.RoundToInt(AmountBulletsField.value);
-			if (CustomBullets[SelectedCustomTank] < minBullets)
+			CustomTankDatas[SelectedCustomTank].CustomBullets = Mathf.RoundToInt(AmountBulletsField.value);
+			if (CustomTankDatas[SelectedCustomTank].CustomBullets < minBullets)
 			{
-				CustomBullets[SelectedCustomTank] = minBullets;
+				CustomTankDatas[SelectedCustomTank].CustomBullets = minBullets;
 			}
-			else if (CustomBullets[SelectedCustomTank] > maxBullets)
+			else if (CustomTankDatas[SelectedCustomTank].CustomBullets > maxBullets)
 			{
-				CustomBullets[SelectedCustomTank] = maxBullets;
+				CustomTankDatas[SelectedCustomTank].CustomBullets = maxBullets;
 			}
-			CustomMineSpeed[SelectedCustomTank] = Mathf.Floor(MineLaySpeedField.value * 100f) / 100f;
-			if (CustomMineSpeed[SelectedCustomTank] < minMineSpeed)
+			CustomTankDatas[SelectedCustomTank].CustomMineSpeed = Mathf.Floor(MineLaySpeedField.value * 100f) / 100f;
+			if (CustomTankDatas[SelectedCustomTank].CustomMineSpeed < minMineSpeed)
 			{
-				CustomMineSpeed[SelectedCustomTank] = minMineSpeed;
+				CustomTankDatas[SelectedCustomTank].CustomMineSpeed = minMineSpeed;
 			}
-			else if (CustomMineSpeed[SelectedCustomTank] > maxMineSpeed)
+			else if (CustomTankDatas[SelectedCustomTank].CustomMineSpeed > maxMineSpeed)
 			{
-				CustomMineSpeed[SelectedCustomTank] = maxMineSpeed;
+				CustomTankDatas[SelectedCustomTank].CustomMineSpeed = maxMineSpeed;
 			}
-			CustomTurnHead[SelectedCustomTank] = Mathf.RoundToInt(TurnHeadSlider.value);
-			if (CustomTurnHead[SelectedCustomTank] < minTurnHead)
+			CustomTankDatas[SelectedCustomTank].CustomTurnHead = Mathf.RoundToInt(TurnHeadSlider.value);
+			if (CustomTankDatas[SelectedCustomTank].CustomTurnHead < minTurnHead)
 			{
-				CustomTurnHead[SelectedCustomTank] = minTurnHead;
+				CustomTankDatas[SelectedCustomTank].CustomTurnHead = minTurnHead;
 			}
-			else if (CustomTurnHead[SelectedCustomTank] > maxTurnHead)
+			else if (CustomTankDatas[SelectedCustomTank].CustomTurnHead > maxTurnHead)
 			{
-				CustomTurnHead[SelectedCustomTank] = maxTurnHead;
+				CustomTankDatas[SelectedCustomTank].CustomTurnHead = maxTurnHead;
 			}
-			CustomAccuracy[SelectedCustomTank] = Mathf.RoundToInt(AccuracySlider.value);
-			if (CustomAccuracy[SelectedCustomTank] < minAccuracy)
+			CustomTankDatas[SelectedCustomTank].CustomAccuracy = Mathf.RoundToInt(AccuracySlider.value);
+			if (CustomTankDatas[SelectedCustomTank].CustomAccuracy < minAccuracy)
 			{
-				CustomAccuracy[SelectedCustomTank] = minAccuracy;
+				CustomTankDatas[SelectedCustomTank].CustomAccuracy = minAccuracy;
 			}
-			else if (CustomAccuracy[SelectedCustomTank] > maxAccuracy)
+			else if (CustomTankDatas[SelectedCustomTank].CustomAccuracy > maxAccuracy)
 			{
-				CustomAccuracy[SelectedCustomTank] = maxAccuracy;
+				CustomTankDatas[SelectedCustomTank].CustomAccuracy = maxAccuracy;
 			}
 			CustomTankOverlay.color = CustomTankMaterialSource.material.GetColor("_Color1");
-			CustomTankColor[SelectedCustomTank] = CustomTankOverlay.color;
-			if (CustomMaterial[SelectedCustomTank].GetColor("_Color") != CustomTankColor[SelectedCustomTank])
+			CustomTankDatas[SelectedCustomTank].CustomTankColor.Color = CustomTankOverlay.color;
+			if (CustomMaterial[SelectedCustomTank].GetColor("_Color") != CustomTankDatas[SelectedCustomTank].CustomTankColor.Color)
 			{
-				CustomMaterial[SelectedCustomTank].SetColor("_Color", CustomTankColor[SelectedCustomTank]);
+				CustomMaterial[SelectedCustomTank].SetColor("_Color", CustomTankDatas[SelectedCustomTank].CustomTankColor.Color);
 			}
 		}
 		if (SelectedPropUITextureMenu != MenuCurrent)
@@ -809,15 +823,15 @@ public class MapEditorMaster : MonoBehaviour
 		canChangeValues = false;
 		StartCoroutine(ChangeBack());
 		CustomTankScript.PropID = 19 + customtank;
-		TankSpeedField.value = CustomTankSpeed[customtank];
-		FireSpeedField.value = CustomFireSpeed[customtank];
-		AmountBouncesField.value = CustomBounces[customtank];
-		AmountBulletsField.value = CustomBullets[customtank];
-		MineLaySpeedField.value = CustomMineSpeed[customtank];
-		TurnHeadSlider.value = CustomTurnHead[customtank];
-		AccuracySlider.value = CustomAccuracy[customtank];
-		ArmouredSlider.value = CustomArmourPoints[customtank];
-		ScaleSlider.value = CustomTankScale[customtank];
+		TankSpeedField.value = CustomTankDatas[customtank].CustomTankSpeed;
+		FireSpeedField.value = CustomTankDatas[customtank].CustomFireSpeed;
+		AmountBouncesField.value = CustomTankDatas[customtank].CustomBounces;
+		AmountBulletsField.value = CustomTankDatas[customtank].CustomBullets;
+		MineLaySpeedField.value = CustomTankDatas[customtank].CustomMineSpeed;
+		TurnHeadSlider.value = CustomTankDatas[customtank].CustomTurnHead;
+		AccuracySlider.value = CustomTankDatas[customtank].CustomAccuracy;
+		ArmouredSlider.value = CustomTankDatas[customtank].CustomArmourPoints;
+		ScaleSlider.value = CustomTankDatas[customtank].CustomTankScale;
 		if (FCP != null)
 		{
 			_ = CustomMaterial[customtank].color;
@@ -825,18 +839,22 @@ public class MapEditorMaster : MonoBehaviour
 			FCP.color = CustomMaterial[customtank].color;
 		}
 		SelectedCustomTank = customtank;
-		CanLayMinesToggle.isOn = CustomLayMines[customtank];
-		BulletTypeList.value = CustomBulletType[customtank];
-		MusicList.value = CustomMusic[customtank];
-		InvisibilityToggle.isOn = CustomInvisibility[customtank];
-		CalculateShotsToggle.isOn = CustomCalculateShots[customtank];
-		Debug.Log("Armour toggle set to:" + CustomArmoured[customtank] + "custom tank number=" + customtank);
-		ArmouredToggle.isOn = CustomArmoured[customtank];
+		CanLayMinesToggle.IsEnabled = CustomTankDatas[customtank].CustomLayMines;
+		BulletTypeList.value = CustomTankDatas[customtank].CustomBulletType;
+		MusicList.value = CustomTankDatas[customtank].CustomMusic;
+		InvisibilityToggle.IsEnabled = CustomTankDatas[customtank].CustomInvisibility;
+		CalculateShotsToggle.IsEnabled = CustomTankDatas[customtank].CustomCalculateShots;
+		CanTeleport.IsEnabled = CustomTankDatas[customtank].CustomCanTeleport;
+		ShowHealthbarToggle.IsEnabled = CustomTankDatas[customtank].CustomShowHealthbar;
+		BulletsPerShotSlider.value = CustomTankDatas[customtank].CustomBulletsPerShot;
+		CanBeAirdroppedToggle.IsEnabled = CustomTankDatas[customtank].CustomCanBeAirdropped;
+		TankHealthSlider.value = CustomTankDatas[customtank].CustomTankHealth;
+		ArmouredToggle.IsEnabled = CustomTankDatas[customtank].CustomArmoured;
 		ActivateView(2);
 		MenuCurrent = 2;
 		CustomTankMaterialSource.material.SetColor("_Color1", CustomMaterial[customtank].color);
 		CustomTankOverlay.color = CustomTankMaterialSource.material.GetColor("_Color1");
-		CustomTankColor[SelectedCustomTank] = CustomTankOverlay.color;
+		CustomTankDatas[customtank].CustomTankColor.Color = CustomTankOverlay.color;
 	}
 
 	public void ChangeSlider(int ID)
@@ -850,76 +868,85 @@ public class MapEditorMaster : MonoBehaviour
 		{
 			OnCursorText.transform.gameObject.SetActive(value: false);
 			ShowIDSlider = -1;
-			return;
 		}
-		if (ShowIDSlider == 0)
+		else if (ShowIDSlider == 0)
 		{
-			OnCursorText.text = CustomTankSpeed[SelectedCustomTank].ToString();
+			OnCursorText.text = CustomTankDatas[SelectedCustomTank].CustomTankSpeed.ToString();
 			OnCursorText.transform.gameObject.SetActive(value: true);
 		}
-		if (ShowIDSlider == 1)
+		else if (ShowIDSlider == 1)
 		{
-			float num = CustomFireSpeed[SelectedCustomTank];
+			float customFireSpeed = CustomTankDatas[SelectedCustomTank].CustomFireSpeed;
+			OnCursorText.text = customFireSpeed.ToString();
+			OnCursorText.transform.gameObject.SetActive(value: true);
+		}
+		else if (ShowIDSlider == 2)
+		{
+			OnCursorText.text = CustomTankDatas[SelectedCustomTank].CustomBounces.ToString();
+			OnCursorText.transform.gameObject.SetActive(value: true);
+		}
+		else if (ShowIDSlider == 3)
+		{
+			float num = Mathf.Round(1f / (10.5f - CustomTankDatas[SelectedCustomTank].CustomMineSpeed) * 100f) / 100f;
 			OnCursorText.text = num.ToString();
 			OnCursorText.transform.gameObject.SetActive(value: true);
 		}
-		if (ShowIDSlider == 2)
+		else if (ShowIDSlider == 4)
 		{
-			OnCursorText.text = CustomBounces[SelectedCustomTank].ToString();
+			OnCursorText.text = CustomTankDatas[SelectedCustomTank].CustomTurnHead.ToString();
 			OnCursorText.transform.gameObject.SetActive(value: true);
 		}
-		if (ShowIDSlider == 3)
+		else if (ShowIDSlider == 5)
 		{
-			float num2 = Mathf.Round(1f / (10.5f - CustomMineSpeed[SelectedCustomTank]) * 100f) / 100f;
-			OnCursorText.text = num2.ToString();
+			OnCursorText.text = CustomTankDatas[SelectedCustomTank].CustomAccuracy.ToString();
 			OnCursorText.transform.gameObject.SetActive(value: true);
 		}
-		if (ShowIDSlider == 4)
+		else if (ShowIDSlider == 6)
 		{
-			OnCursorText.text = CustomTurnHead[SelectedCustomTank].ToString();
+			OnCursorText.text = CustomTankDatas[SelectedCustomTank].CustomArmourPoints.ToString();
 			OnCursorText.transform.gameObject.SetActive(value: true);
 		}
-		if (ShowIDSlider == 5)
+		else if (ShowIDSlider == 7)
 		{
-			OnCursorText.text = CustomAccuracy[SelectedCustomTank].ToString();
+			OnCursorText.text = (Mathf.Round(CustomTankDatas[SelectedCustomTank].CustomTankScale * 100f) / 100f).ToString();
 			OnCursorText.transform.gameObject.SetActive(value: true);
 		}
-		if (ShowIDSlider == 6)
+		else if (ShowIDSlider == 8)
 		{
-			OnCursorText.text = CustomArmourPoints[SelectedCustomTank].ToString();
+			OnCursorText.text = CustomTankDatas[SelectedCustomTank].CustomBullets.ToString();
 			OnCursorText.transform.gameObject.SetActive(value: true);
 		}
-		if (ShowIDSlider == 7)
+		else if (ShowIDSlider == 9)
 		{
-			OnCursorText.text = (Mathf.Round(CustomTankScale[SelectedCustomTank] * 100f) / 100f).ToString();
+			OnCursorText.text = CustomTankDatas[SelectedCustomTank].CustomBulletsPerShot.ToString();
 			OnCursorText.transform.gameObject.SetActive(value: true);
 		}
-		if (ShowIDSlider == 8)
+		else if (ShowIDSlider == 10)
 		{
-			OnCursorText.text = CustomBullets[SelectedCustomTank].ToString();
+			OnCursorText.text = CustomTankDatas[SelectedCustomTank].CustomTankHealth.ToString();
 			OnCursorText.transform.gameObject.SetActive(value: true);
 		}
-		if (ShowIDSlider == 50)
+		else if (ShowIDSlider == 50)
 		{
 			OnCursorText.text = StartingLives.ToString();
 			OnCursorText.transform.gameObject.SetActive(value: true);
 		}
-		if (ShowIDSlider == 51)
+		else if (ShowIDSlider == 51)
 		{
 			OnCursorText.text = PlayerSpeed.ToString();
 			OnCursorText.transform.gameObject.SetActive(value: true);
 		}
-		if (ShowIDSlider == 52)
+		else if (ShowIDSlider == 52)
 		{
 			OnCursorText.text = PlayerMaxBullets.ToString();
 			OnCursorText.transform.gameObject.SetActive(value: true);
 		}
-		if (ShowIDSlider == 53)
+		else if (ShowIDSlider == 53)
 		{
 			OnCursorText.text = PlayerArmourPoints.ToString();
 			OnCursorText.transform.gameObject.SetActive(value: true);
 		}
-		if (ShowIDSlider == 54)
+		else if (ShowIDSlider == 54)
 		{
 			OnCursorText.text = PlayerAmountBounces.ToString();
 			OnCursorText.transform.gameObject.SetActive(value: true);
@@ -1055,34 +1082,48 @@ public class MapEditorMaster : MonoBehaviour
 
 	public void SetCustomTankData(MapEditorData theData)
 	{
-		for (int i = 0; i < 3; i++)
+		if (theData.CTD != null && theData.CTD.Count > 0)
 		{
-			Debug.LogError(theData.CustomTankSpeed[i]);
-			CustomTankSpeed[i] = theData.CustomTankSpeed[i];
-			CustomFireSpeed[i] = theData.CustomFireSpeed[i];
-			CustomBounces[i] = theData.CustomBounces[i];
-			CustomMineSpeed[i] = theData.CustomMineSpeed[i];
-			CustomTurnHead[i] = theData.CustomTurnHead[i];
-			CustomAccuracy[i] = theData.CustomAccuracy[i];
-			CustomLayMines[i] = theData.LayMines[i];
-			CustomTankColor[i] = theData.CTC[i].Color;
-			CustomMaterial[i].color = theData.CTC[i].Color;
-			CustomBulletType[i] = theData.CustomBulletType[i];
-			CustomArmoured[i] = theData.CustomArmoured[i];
-			CustomArmourPoints[i] = theData.CustomArmourPoints[i];
-			CustomInvisibility[i] = theData.CustomInvisibility[i];
-			CustomCalculateShots[i] = theData.CustomCalculateShots[i];
+			CustomTankDatas = theData.CTD;
+			for (int i = 0; i < theData.CTD.Count; i++)
+			{
+				Material material = new Material(Shader.Find("Standard"));
+				material.color = CustomTankDatas[i].CustomTankColor.Color;
+				CustomMaterial.Add(material);
+			}
+			return;
+		}
+		for (int j = 0; j < 3; j++)
+		{
+			CustomTankDatas.Add(new CustomTankData());
+			CustomTankDatas[j].CustomTankSpeed = theData.CustomTankSpeed[j];
+			CustomTankDatas[j].CustomFireSpeed = theData.CustomFireSpeed[j];
+			CustomTankDatas[j].CustomBounces = theData.CustomBounces[j];
+			CustomTankDatas[j].CustomMineSpeed = theData.CustomMineSpeed[j];
+			CustomTankDatas[j].CustomTurnHead = theData.CustomTurnHead[j];
+			CustomTankDatas[j].CustomAccuracy = theData.CustomAccuracy[j];
+			CustomTankDatas[j].CustomLayMines = theData.LayMines[j];
+			CustomTankDatas[j].CustomTankColor = theData.CTC[j];
+			_ = theData.CTC[j].Color;
+			Material item = new Material(Shader.Find("Standard"));
+			CustomMaterial.Add(item);
+			CustomMaterial[j].color = theData.CTC[j].Color;
+			CustomTankDatas[j].CustomBulletType = theData.CustomBulletType[j];
+			CustomTankDatas[j].CustomArmoured = theData.CustomArmoured[j];
+			CustomTankDatas[j].CustomArmourPoints = theData.CustomArmourPoints[j];
+			CustomTankDatas[j].CustomInvisibility = theData.CustomInvisibility[j];
+			CustomTankDatas[j].CustomCalculateShots = theData.CustomCalculateShots[j];
 			if (theData.CustomBullets != null && theData.CustomBullets.Count > 0)
 			{
-				CustomBullets[i] = theData.CustomBullets[i];
+				CustomTankDatas[j].CustomBullets = theData.CustomBullets[j];
 			}
 			if (theData.CustomMusic != null && theData.CustomMusic.Count > 0)
 			{
-				CustomMusic[i] = theData.CustomMusic[i];
+				CustomTankDatas[j].CustomMusic = theData.CustomMusic[j];
 			}
 			if (theData.CustomScalePoints != null && theData.CustomScalePoints.Count > 1)
 			{
-				CustomTankScale[i] = theData.CustomScalePoints[i];
+				CustomTankDatas[j].CustomTankScale = theData.CustomScalePoints[j];
 			}
 		}
 	}
@@ -1234,23 +1275,66 @@ public class MapEditorMaster : MonoBehaviour
 		}
 	}
 
-	public void ShowMenu(int menu)
+	public void MakeButtonSelected(RawImage btn)
 	{
-		ActivateView(menu);
-		MenuCurrent = menu;
+		for (int i = 0; i < BarButtons.Length; i++)
+		{
+			BarButtons[i].texture = BarButtonNotSelected;
+		}
+		btn.texture = BarButtonSelected;
 	}
 
-	public void SaveCustomTankSettings()
+	public string RandomStringGenerator(int lenght)
 	{
-		if (canChangeValues)
+		string text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+		string text2 = "";
+		for (int i = 0; i < lenght; i++)
 		{
-			CustomLayMines[SelectedCustomTank] = CanLayMinesToggle.isOn;
-			CustomArmoured[SelectedCustomTank] = ArmouredToggle.isOn;
-			CustomBulletType[SelectedCustomTank] = BulletTypeList.value;
-			CustomMusic[SelectedCustomTank] = MusicList.value;
-			CustomInvisibility[SelectedCustomTank] = InvisibilityToggle.isOn;
-			CustomCalculateShots[SelectedCustomTank] = CalculateShotsToggle.isOn;
-			CustomArmoured[SelectedCustomTank] = ArmouredToggle.isOn;
+			text2 += text[UnityEngine.Random.Range(0, text.Length)];
+		}
+		return text2;
+	}
+
+	public void ShowMenu(int menu)
+	{
+		if (menu == 8)
+		{
+			LoadCustomTankDataUI(SelectedCustomTank);
+		}
+		ActivateView(menu);
+		MenuCurrent = menu;
+		if (menu == 4)
+		{
+			foreach (GameObject item in SpawnedCustomTankUI)
+			{
+				UnityEngine.Object.Destroy(item);
+			}
+			for (int i = 0; i < CustomTankDatas.Count; i++)
+			{
+				if (CustomTankDatas[i] != null)
+				{
+					GameObject gameObject = UnityEngine.Object.Instantiate(CustomTankMenuItem, CustomTankUIParent);
+					gameObject.transform.SetSiblingIndex(i);
+					SpawnedCustomTankUI.Add(gameObject);
+					MapEditorUIprop component = gameObject.GetComponent<MapEditorUIprop>();
+					if ((bool)component)
+					{
+						component.SecondImage.color = CustomTankDatas[i].CustomTankColor.Color;
+						component.PropID = 100 + i;
+						ButtonMouseEvents componentInChildren = component.GetComponentInChildren<ButtonMouseEvents>();
+						componentInChildren.CustomTankID = i;
+						component.myBME = componentInChildren;
+					}
+				}
+			}
+		}
+		if (menu == 8)
+		{
+			Menus[8].GetComponent<Animator>().SetBool("ShowMenu", value: true);
+		}
+		else
+		{
+			Menus[8].GetComponent<Animator>().SetBool("ShowMenu", value: false);
 		}
 	}
 
@@ -1293,53 +1377,39 @@ public class MapEditorMaster : MonoBehaviour
 	private void ActivateView(int tab)
 	{
 		Play2DClipAtPoint(MenuSwitch);
-		CustomTankView.SetActive(value: false);
-		ScrollViewExtras.SetActive(value: false);
-		SettingsView.SetActive(value: false);
-		ScrollViewTanks.SetActive(value: false);
-		ScrollViewBlocks.SetActive(value: false);
-		CampaignSettingsView.SetActive(value: false);
-		TanksImage.color = TabNotSelectedColor;
-		BlocksImage.color = TabNotSelectedColor;
-		ExtrasImage.color = TabNotSelectedColor;
-		SettingsImage.color = TabNotSelectedColor;
-		CustomTankImage.color = TabNotSelectedColor;
-		CampaignSettingsImage.color = TabNotSelectedColor;
+		for (int i = 0; i < Menus.Length; i++)
+		{
+			Menus[i].SetActive(value: false);
+		}
+		RawImage[] menuImages = MenuImages;
+		for (int j = 0; j < menuImages.Length; j++)
+		{
+			menuImages[j].color = TabNotSelectedColor;
+		}
 		if (TeamColorsToggles.Length != 0)
 		{
-			for (int i = 0; i < TeamColorsToggles.Length; i++)
+			for (int k = 0; k < TeamColorsToggles.Length; k++)
 			{
-				TeamColorsToggles[i].isOn = TeamColorEnabled[i];
+				TeamColorsToggles[k].isOn = TeamColorEnabled[k];
 			}
 		}
-		switch (tab)
+		Menus[tab].SetActive(value: true);
+		if (tab <= MenuImages.Length)
 		{
-		case 0:
-			ScrollViewBlocks.SetActive(value: true);
-			BlocksImage.color = TabSelectedColor;
-			break;
-		case 1:
-			ScrollViewTanks.SetActive(value: true);
-			TanksImage.color = TabSelectedColor;
-			break;
-		case 2:
-			CustomTankView.SetActive(value: true);
-			CustomTankImage.color = TabSelectedColor;
-			break;
-		case 3:
-			SettingsView.SetActive(value: true);
-			SettingsImage.color = TabSelectedColor;
-			break;
-		case 4:
-			CampaignSettingsView.SetActive(value: true);
-			CampaignSettingsImage.color = TabSelectedColor;
-			StartLivesSlider.value = StartingLives;
-			break;
-		case 5:
-			ScrollViewExtras.SetActive(value: true);
-			ExtrasImage.color = TabSelectedColor;
-			break;
+			MenuImages[tab].color = TabSelectedColor;
 		}
+		StartLivesSlider.value = StartingLives;
+	}
+
+	public void NewCustomTank()
+	{
+		Material item = new Material(Shader.Find("Standard"));
+		CustomMaterial.Add(item);
+		CustomTankData customTankData = new CustomTankData();
+		customTankData.UniqueTankID = RandomStringGenerator(12);
+		CustomTankDatas.Add(customTankData);
+		SelectedCustomTank = CustomTankDatas.Count - 1;
+		ShowMenu(8);
 	}
 
 	public void SaveCurrentProps()
@@ -1474,6 +1544,7 @@ public class MapEditorMaster : MonoBehaviour
 	{
 		Debug.Log("switching level to " + missionNumber);
 		SaveCurrentProps();
+		OTM.OnCloseMenu();
 		RemoveCurrentObjects();
 		Debug.Log("Level was" + GameMaster.instance.CurrentMission);
 		GameMaster.instance.CurrentMission = missionNumber;
@@ -1751,7 +1822,7 @@ public class MapEditorMaster : MonoBehaviour
 
 	public void DuplicateLevel(int MissionToDuplicate)
 	{
-		if (GameMaster.instance.Levels.Count >= 20)
+		if (Levels.Count >= 20)
 		{
 			ShowErrorMessage("ERROR: Max missions reached");
 			return;
@@ -1893,9 +1964,7 @@ public class MapEditorMaster : MonoBehaviour
 	public void ShowErrorMessage(string Message)
 	{
 		ErrorFieldMessage.SetBool("ToTest", value: false);
-		ErrorFieldMessage.transform.localPosition = AnimatorStartHeight;
 		ErrorFieldMessage.Play("ErrorMessage", -1, 0f);
-		ErrorField.color = Color.red;
 		ErrorField.text = Message;
 		ErrorFieldMessage.SetBool("ShowMessage", value: true);
 		ErrorFieldMessage.SetBool("ShowGoodMessage", value: false);
@@ -1906,9 +1975,7 @@ public class MapEditorMaster : MonoBehaviour
 	public void ShowPositiveMessage(string Message)
 	{
 		ErrorFieldMessage.SetBool("ToTest", value: false);
-		ErrorFieldMessage.transform.localPosition = AnimatorStartHeight;
 		ErrorFieldMessage.Play("GoodMessage", -1, 0f);
-		ErrorField.color = Color.green;
 		ErrorField.text = Message;
 		ErrorFieldMessage.SetBool("ShowGoodMessage", value: true);
 		ErrorFieldMessage.SetBool("ShowMessage", value: false);

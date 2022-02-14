@@ -77,7 +77,7 @@ public class FinalBossExitTrigger : MonoBehaviour
 			cRS[i].enabled = false;
 		}
 		StartCoroutine(DoFlyAwayAnimation());
-		GameMaster.instance.Play2DClipAtPoint(PlaneTakeOffSound, 1f);
+		SFXManager.instance.PlaySFX(PlaneTakeOffSound, 1f, null);
 	}
 
 	private void OnTriggerEnter(Collider other)

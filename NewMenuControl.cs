@@ -156,6 +156,8 @@ public class NewMenuControl : MonoBehaviour
 
 	public GameObject UnlockableParent;
 
+	public GameObject InventoryItemsParent;
+
 	public GameObject RebindKeyPrefab;
 
 	public GameObject RebindKeyParent;
@@ -179,8 +181,6 @@ public class NewMenuControl : MonoBehaviour
 	public GameObject ContinueMenu;
 
 	public int[] lastKnownPlaces;
-
-	public bool canDoSurvival;
 
 	public ToolTipLoading TTL;
 
@@ -379,9 +379,8 @@ public class NewMenuControl : MonoBehaviour
 			string text = "Record Mission: " + num;
 			Recordmission.text = text;
 			RecordmissionPage2.text = text;
-			if (num > 9)
+			if (num <= 9)
 			{
-				canDoSurvival = true;
 			}
 		}
 		else
@@ -575,6 +574,46 @@ public class NewMenuControl : MonoBehaviour
 			obj3.GetComponent<TankStatsItem>().NMC = this;
 			obj3.GetComponent<TankStatsItem>().originalParent = TankKillItemParent.transform;
 		}
+		UpdateMenuSignedInText();
+		yield return new WaitForSeconds(2f);
+		bool assignedInventory = false;
+		if (AccountMaster.instance.Inventory.InventoryItems != null)
+		{
+			AssignInventory();
+			assignedInventory = true;
+		}
+		yield return new WaitForSeconds(2f);
+		if (!assignedInventory)
+		{
+			AssignInventory();
+		}
+		UpdateMenuSignedInText();
+	}
+
+	private void AssignInventory()
+	{
+		for (int i = 0; i < AccountMaster.instance.Inventory.InventoryItems.Length; i++)
+		{
+			TankeyTownStockItem[] stockDatabase = GlobalAssets.instance.StockDatabase;
+			foreach (TankeyTownStockItem tankeyTownStockItem in stockDatabase)
+			{
+				if (tankeyTownStockItem.ItemID == AccountMaster.instance.Inventory.InventoryItems[i] && !tankeyTownStockItem.IsMapEditorObject)
+				{
+					GameObject obj = UnityEngine.Object.Instantiate(UnlockablePrefab);
+					obj.transform.SetParent(InventoryItemsParent.transform);
+					obj.GetComponent<UnlockableScript>().isTankeyTownItem = true;
+					obj.GetComponent<UnlockableScript>().ULID = tankeyTownStockItem.ItemID + 1000;
+					obj.GetComponent<UnlockableScript>().UnlockableTitle.text = tankeyTownStockItem.ItemName;
+					obj.GetComponent<UnlockableScript>().UnlockableRequire.text = "";
+					obj.GetComponent<UnlockableScript>().isBoost = tankeyTownStockItem.isBoost;
+					obj.GetComponent<UnlockableScript>().isBullet = tankeyTownStockItem.isBullet;
+					obj.GetComponent<UnlockableScript>().isHitmarker = tankeyTownStockItem.isHitmarker;
+					obj.GetComponent<UnlockableScript>().isMine = tankeyTownStockItem.isMine;
+					obj.GetComponent<UnlockableScript>().isSkin = tankeyTownStockItem.isSkin;
+					obj.GetComponent<UnlockableScript>().isSkidmarks = tankeyTownStockItem.isSkidmarks;
+				}
+			}
+		}
 	}
 
 	private void OnMapStart()
@@ -600,6 +639,20 @@ public class NewMenuControl : MonoBehaviour
 		StartCoroutine("doing");
 		OptionsMainMenu.instance.MapEditorMapName = mapname;
 		OptionsMainMenu.instance.MapSize = mapsize;
+	}
+
+	public void UpdateMenuSignedInText()
+	{
+		if (AccountMaster.instance.isSignedIn)
+		{
+			SignedInText.text = "Currently signed in as: " + AccountMaster.instance.Username;
+			SignedInText.color = Color.black;
+		}
+		else
+		{
+			SignedInText.text = "You are not signed in!";
+			SignedInText.color = Color.red;
+		}
 	}
 
 	private void Update()
@@ -643,16 +696,6 @@ public class NewMenuControl : MonoBehaviour
 				OptionsMainMenu.instance.BloodMode = true;
 				GoreModeObject.SetActive(value: true);
 			}
-		}
-		if (AccountMaster.instance.isSignedIn)
-		{
-			SignedInText.text = "Currently signed in as: " + AccountMaster.instance.Username;
-			SignedInText.color = Color.black;
-		}
-		else
-		{
-			SignedInText.text = "You are not signed in!";
-			SignedInText.color = Color.red;
 		}
 		if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.L) && !HoldingShift)
 		{
@@ -827,6 +870,7 @@ public class NewMenuControl : MonoBehaviour
 		{
 			Debug.Log("Error While Sending: " + uwr.error);
 			AccountMaster.instance.isSignedIn = false;
+			UpdateMenuSignedInText();
 			yield break;
 		}
 		Debug.Log("Received: " + uwr.downloadHandler.text);
@@ -839,6 +883,7 @@ public class NewMenuControl : MonoBehaviour
 		currentMenu = 18;
 		Menus[currentMenu].SetActive(value: true);
 		SignInNotificationText.gameObject.SetActive(value: false);
+		UpdateMenuSignedInText();
 	}
 
 	private IEnumerator CreateAccount(string url, string username, string password)
@@ -908,6 +953,7 @@ public class NewMenuControl : MonoBehaviour
 				Create_PasswordInput.text = null;
 				Create_PasswordInputCheck.text = null;
 				CreateAccountNotificationText.gameObject.SetActive(value: false);
+				UpdateMenuSignedInText();
 			}
 		}
 		CenterText.gameObject.SetActive(value: false);
@@ -970,6 +1016,7 @@ public class NewMenuControl : MonoBehaviour
 				SignInNotificationText.gameObject.SetActive(value: true);
 				SignInNotificationText.text = "Sign in failed";
 				AccountMaster.instance.isSignedIn = false;
+				UpdateMenuSignedInText();
 			}
 			else
 			{
@@ -996,6 +1043,7 @@ public class NewMenuControl : MonoBehaviour
 				currentMenu = 18;
 				Menus[currentMenu].SetActive(value: true);
 				SignInNotificationText.gameObject.SetActive(value: false);
+				UpdateMenuSignedInText();
 			}
 		}
 		CenterText.gameObject.SetActive(value: false);
@@ -1873,7 +1921,8 @@ public class NewMenuControl : MonoBehaviour
 		}
 		else if (MMB.IsToTankeyTown)
 		{
-			StartCoroutine(LoadYourAsyncScene(7));
+			TutorialMaster.instance.ShowTutorial("Tankey town has been disabled for now!");
+			Play2DClipAtPoint(errorSound);
 		}
 		else if (MMB.IsSurvivalMode)
 		{
@@ -1883,6 +1932,11 @@ public class NewMenuControl : MonoBehaviour
 		}
 		else if (MMB.IsSurvivalMap)
 		{
+			if (GameMaster.instance.CurrentData.maxMission0 < MMB.ContinueLevel && AccountMaster.instance.PDO.maxMission0 < MMB.ContinueLevel)
+			{
+				Play2DClipAtPoint(errorSound);
+				return;
+			}
 			Temp_MMB = MMB;
 			Temp_scene = 2;
 			Temp_startingLevel = MMB.SurvivalMapNumber;
@@ -1892,7 +1946,7 @@ public class NewMenuControl : MonoBehaviour
 			enableMenu(25);
 			StartCoroutine("doing");
 		}
-		else if (MMB.IsContinue)
+		else if (MMB.IsContinue && MMB.canBeSelected)
 		{
 			Temp_MMB = MMB;
 			Temp_scene = 1;

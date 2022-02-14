@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -9,7 +10,9 @@ public class PlaneScript : MonoBehaviour
 
 	public GameObject BoxPrefab;
 
-	public GameObject[] Tanks;
+	public List<GameObject> Tanks = new List<GameObject>();
+
+	public List<GameObject> OriginalTanks = new List<GameObject>();
 
 	public Vector3 TargetLocation;
 
@@ -49,6 +52,7 @@ public class PlaneScript : MonoBehaviour
 
 	private void Start()
 	{
+		OriginalTanks = Tanks;
 		myAnimator = GetComponent<Animator>();
 		PlaneParticles.Stop();
 		InvokeRepeating("SearchCommandos", 2f, 2f);
@@ -109,8 +113,7 @@ public class PlaneScript : MonoBehaviour
 		RecentSpawnedInColor = TeamNumber;
 		isFlying = true;
 		int num2 = ((Random.Range(0, 2) == 0) ? (-55) : 55);
-		float z = Random.Range(-20f, 20f);
-		StartLocation = new Vector3(num2, 10f, z);
+		StartLocation = TargetLocation + new Vector3(num2, 10f, 0f);
 		base.transform.position = StartLocation;
 		Vector3 vector = TargetLocation - StartLocation;
 		Vector3 vector2 = vector + vector.normalized * 60f;
@@ -181,12 +184,23 @@ public class PlaneScript : MonoBehaviour
 			{
 				BoxSpawned = true;
 				CarePackageScript component = Object.Instantiate(BoxPrefab, new Vector3(TargetLocation.x, 0f, TargetLocation.z), Quaternion.identity).transform.GetChild(0).GetComponent<CarePackageScript>();
+				if ((bool)MapEditorMaster.instance && MapEditorMaster.instance.CustomTankDatas.Count > 0)
+				{
+					for (int i = 0; i < MapEditorMaster.instance.CustomTankDatas.Count; i++)
+					{
+						if (MapEditorMaster.instance.CustomTankDatas[i].CustomCanBeAirdropped)
+						{
+							Tanks.Add(MapEditorMaster.instance.Props[19]);
+							component.mats.Add(MapEditorMaster.instance.CustomMaterial[i]);
+						}
+					}
+				}
 				GameObject gameObject;
 				if (TankToSpawnID < 0)
 				{
 					do
 					{
-						int num3 = Random.Range(0, Tanks.Length);
+						int num3 = Random.Range(0, Tanks.Count);
 						if (SkipTankIndexKid.Contains(num3) && OptionsMainMenu.instance.currentDifficulty == 1)
 						{
 							gameObject = null;
@@ -199,6 +213,11 @@ public class PlaneScript : MonoBehaviour
 						{
 							gameObject = Tanks[num3];
 							component.index = num3;
+						}
+						else if (num3 > 17)
+						{
+							gameObject = Tanks[num3];
+							component.index = 18 - num3;
 						}
 						else
 						{
@@ -214,6 +233,16 @@ public class PlaneScript : MonoBehaviour
 				}
 				component.TankToSpawn = gameObject;
 				component.MyTeam = CurrentTeamNumber;
+				if ((bool)MapEditorMaster.instance && MapEditorMaster.instance.CustomTankDatas.Count > 0)
+				{
+					for (int j = 0; j < MapEditorMaster.instance.CustomTankDatas.Count; j++)
+					{
+						if (MapEditorMaster.instance.CustomTankDatas[j].CustomCanBeAirdropped)
+						{
+							Tanks.Remove(MapEditorMaster.instance.Props[19]);
+						}
+					}
+				}
 				PlaneModel.SetActive(value: true);
 			}
 			else if (!GameMaster.instance.GameHasStarted)

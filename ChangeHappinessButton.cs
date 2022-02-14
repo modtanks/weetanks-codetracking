@@ -32,9 +32,16 @@ public class ChangeHappinessButton : MonoBehaviour, ISelectHandler, IEventSystem
 
 	public void OnSelect(BaseEventData eventData)
 	{
-		BPM.SelectedButton(ButtonID);
-		IsSelected = true;
-		myImage.texture = Selected;
+		if ((bool)BPM)
+		{
+			BPM.SelectedButton(ButtonID);
+			IsSelected = true;
+			myImage.texture = Selected;
+		}
+		else
+		{
+			myImage.texture = Selected;
+		}
 	}
 
 	public void OnMouseOver(BaseEventData eventData)

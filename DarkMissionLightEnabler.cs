@@ -87,7 +87,10 @@ public class DarkMissionLightEnabler : MonoBehaviour
 			}
 			return;
 		}
-		Lights.SetActive(value: false);
+		if ((bool)Lights)
+		{
+			Lights.SetActive(value: false);
+		}
 		if ((bool)LightsP2)
 		{
 			LightsP2.SetActive(value: false);

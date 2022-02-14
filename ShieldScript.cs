@@ -102,7 +102,7 @@ public class ShieldScript : MonoBehaviour
 			{
 				component.TimesBounced = 99999;
 				StartFade();
-				GameMaster.instance.Play2DClipAtPoint(HittedSound, 1f);
+				SFXManager.instance.PlaySFX(HittedSound, 1f, null);
 				ShieldHealth--;
 			}
 		}

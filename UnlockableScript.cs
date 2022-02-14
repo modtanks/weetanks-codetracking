@@ -49,8 +49,19 @@ public class UnlockableScript : MonoBehaviour
 
 	public string tempEnter;
 
+	public bool isTankeyTownItem;
+
 	private void Start()
 	{
+		if (isTankeyTownItem)
+		{
+			base.transform.localScale = scale;
+			base.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			mybtn = GetComponent<Button>();
+			mybtn.onClick.AddListener(TaskOnClick);
+			StartCoroutine(LateCheck());
+			return;
+		}
 		UnlockableItem[] uIs = OptionsMainMenu.instance.UIs;
 		foreach (UnlockableItem unlockableItem in uIs)
 		{
@@ -120,6 +131,21 @@ public class UnlockableScript : MonoBehaviour
 
 	private void Update()
 	{
+		if (isTankeyTownItem)
+		{
+			if (AccountMaster.instance.PDO.ActivatedAM.Contains(ULID))
+			{
+				checkmark.enabled = true;
+				UnlockableRequire.color = ActivatedColor;
+				UnlockableRequire.text = "Activated.";
+			}
+			else if (!AccountMaster.instance.PDO.ActivatedAM.Contains(ULID))
+			{
+				checkmark.enabled = false;
+				UnlockableRequire.text = "";
+			}
+			return;
+		}
 		if (Input.anyKeyDown)
 		{
 			_ = ULID;
@@ -159,9 +185,9 @@ public class UnlockableScript : MonoBehaviour
 			return;
 		}
 		Debug.Log("You have clicked the button!");
-		if (AccountMaster.instance.PDO.AM[ULID] == 1)
+		if (ULID >= 1000 || AccountMaster.instance.PDO.AM[ULID] == 1)
 		{
-			if (!AccountMaster.instance.PDO.ActivatedAM.Contains(ULID))
+			if (!AccountMaster.instance.PDO.ActivatedAM.Contains(ULID) && ULID < 1000)
 			{
 				bool flag = false;
 				bool flag2 = false;

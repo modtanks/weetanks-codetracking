@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
@@ -13,7 +14,7 @@ public class CarePackageScript : MonoBehaviour
 
 	public MeshRenderer ChuteRenderer;
 
-	public Material[] mats;
+	public List<Material> mats;
 
 	public int MyTeam = 2;
 
@@ -21,25 +22,32 @@ public class CarePackageScript : MonoBehaviour
 
 	private void Start()
 	{
-		GameMaster.instance.Play2DClipAtPoint(ChuteOpen, 1f);
+		SFXManager.instance.PlaySFX(ChuteOpen, 1f, null);
 		if (index == 17 || index == 16 || index == 15)
 		{
 			Material[] materials = ChuteRenderer.materials;
-			int num = Random.Range(0, mats.Length);
+			int num = Random.Range(0, mats.Count);
 			materials[1] = mats[num];
 			ChuteRenderer.materials = materials;
 			return;
 		}
-		Material[] materials2 = ChuteRenderer.materials;
+		if (index > 17)
+		{
+			Material[] materials2 = ChuteRenderer.materials;
+			materials2[1] = mats[index + 1];
+			ChuteRenderer.materials = materials2;
+			return;
+		}
+		Material[] materials3 = ChuteRenderer.materials;
 		if (int.TryParse(Regex.Replace(TankToSpawn.name, "[^0-9]", ""), out var result))
 		{
 			if (TankToSpawn.name == "Enemy_Tank-12")
 			{
-				materials2[0] = mats[13];
+				materials3[0] = mats[13];
 			}
-			materials2[1] = mats[result];
+			materials3[1] = mats[result];
 		}
-		ChuteRenderer.materials = materials2;
+		ChuteRenderer.materials = materials3;
 	}
 
 	private void Update()
@@ -59,6 +67,7 @@ public class CarePackageScript : MonoBehaviour
 		GameObject gameObject = Object.Instantiate(TankToSpawn, TankSpawnPoint.position, Quaternion.identity);
 		HealthTanks healthTanks = null;
 		EnemyAI enemyAI = null;
+		MapEditorProp mapEditorProp = null;
 		DestroyableWall component = gameObject.GetComponent<DestroyableWall>();
 		if ((bool)component)
 		{
@@ -71,6 +80,31 @@ public class CarePackageScript : MonoBehaviour
 		if (gameObject.transform.childCount > 0)
 		{
 			enemyAI = gameObject.transform.GetChild(0).GetComponent<EnemyAI>();
+			if (enemyAI == null && gameObject.transform.GetChild(0).transform.childCount > 0)
+			{
+				enemyAI = gameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<EnemyAI>();
+			}
+		}
+		if (gameObject.transform.childCount > 0)
+		{
+			mapEditorProp = gameObject.transform.GetChild(0).GetComponent<MapEditorProp>();
+			if (mapEditorProp == null && gameObject.transform.GetChild(0).transform.childCount > 0)
+			{
+				mapEditorProp = gameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<MapEditorProp>();
+			}
+		}
+		if ((bool)mapEditorProp && index > 17)
+		{
+			Debug.Log("INDEX IS " + index);
+			mapEditorProp.CustomAInumber = index - 18;
+			mapEditorProp.CustomUniqueTankID = MapEditorMaster.instance.CustomTankDatas[index - 18].UniqueTankID;
+			Debug.Log("CUSTOM ID = " + MapEditorMaster.instance.CustomTankDatas[index - 18].UniqueTankID);
+			mapEditorProp.SetRendColors();
+			mapEditorProp.UpdateTankProperties();
+		}
+		else
+		{
+			Debug.Log("NO MEP");
 		}
 		bool flag = false;
 		if ((bool)healthTanks)
@@ -114,7 +148,7 @@ public class CarePackageScript : MonoBehaviour
 		{
 			GameMaster.instance.AmountCalledInTanks++;
 		}
-		GameMaster.instance.Play2DClipAtPoint(Impact, 1f);
+		SFXManager.instance.PlaySFX(Impact, 1f, null);
 	}
 
 	public void RemoveMe()

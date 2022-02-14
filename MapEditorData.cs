@@ -28,6 +28,8 @@ public class MapEditorData
 
 	public int difficulty;
 
+	public List<CustomTankData> CTD = new List<CustomTankData>();
+
 	public List<SerializableColor> CTC = new List<SerializableColor>();
 
 	public List<int> CustomTankSpeed = new List<int>();
@@ -103,7 +105,6 @@ public class MapEditorData
 		campaignName = MEM.campaignName;
 		signedName = MEM.signedName;
 		StartingLives = MEM.StartingLives;
-		CustomMusic = MEM.CustomMusic;
 		MapSize = OptionsMainMenu.instance.MapSize;
 		PTS = MEM.PlayerSpeed;
 		PMB = MEM.PlayerMaxBullets;
@@ -113,25 +114,7 @@ public class MapEditorData
 		PAB = MEM.PlayerAmountBounces;
 		TeamColorsShowing = MEM.TeamColorEnabled;
 		PID = MEM.PID;
-		for (int k = 0; k < 3; k++)
-		{
-			SerializableColor item = new SerializableColor(MEM.CustomTankColor[k]);
-			CTC.Add(item);
-			CustomTankSpeed.Add(MEM.CustomTankSpeed[k]);
-			CustomFireSpeed.Add(MEM.CustomFireSpeed[k]);
-			CustomBounces.Add(MEM.CustomBounces[k]);
-			CustomBullets.Add(MEM.CustomBullets[k]);
-			CustomMineSpeed.Add(MEM.CustomMineSpeed[k]);
-			CustomTurnHead.Add(MEM.CustomTurnHead[k]);
-			CustomAccuracy.Add(MEM.CustomAccuracy[k]);
-			LayMines.Add(MEM.CustomLayMines[k]);
-			CustomBulletType.Add(MEM.CustomBulletType[k]);
-			CustomInvisibility.Add(MEM.CustomInvisibility[k]);
-			CustomCalculateShots.Add(MEM.CustomCalculateShots[k]);
-			CustomArmoured.Add(MEM.CustomArmoured[k]);
-			CustomArmourPoints.Add(MEM.CustomArmourPoints[k]);
-			CustomScalePoints.Add(MEM.CustomTankScale[k]);
-		}
+		CTD = MEM.CustomTankDatas;
 		difficulty = MEM.Difficulty;
 		isPublished = MEM.IsPublished;
 		WeatherTypes = MEM.WeatherTypes;

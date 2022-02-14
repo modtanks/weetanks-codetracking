@@ -7,21 +7,15 @@ public class SomethingInMe : MonoBehaviour
 
 	public List<Collider> CollidersInMe = new List<Collider>();
 
-	public Material[] Head;
+	public CustomSkinData TurretSkinData;
 
-	public Material[] Body;
-
-	public Renderer Rend1;
-
-	public Renderer Rend2;
+	public Renderer[] TurretRenders;
 
 	public Color Unavailable;
 
 	public Color Available;
 
-	public Color[] OGRend1;
-
-	public Color[] OGRend2;
+	public Color OGRend;
 
 	public Collider CollToPrevent;
 
@@ -30,18 +24,12 @@ public class SomethingInMe : MonoBehaviour
 	private void Start()
 	{
 		InvokeRepeating("ResetColliders", 3f, 3f);
-		Rend1.materials = Head;
-		Rend2.materials = Body;
-		OGRend1 = new Color[Rend1.materials.Length];
-		for (int i = 0; i < Rend1.materials.Length; i++)
+		Renderer[] turretRenders = TurretRenders;
+		for (int i = 0; i < turretRenders.Length; i++)
 		{
-			OGRend1[i] = Rend1.materials[i].color;
+			turretRenders[i].material = TurretSkinData.TurretMaterial;
 		}
-		OGRend2 = new Color[Rend2.materials.Length];
-		for (int j = 0; j < Rend2.materials.Length; j++)
-		{
-			OGRend2[j] = Rend2.materials[j].color;
-		}
+		OGRend = TurretSkinData.TurretMaterial.color;
 		SetMaterial(Available, backToNormal: false);
 	}
 
@@ -96,37 +84,21 @@ public class SomethingInMe : MonoBehaviour
 
 	public void SetMaterial(Color clr, bool backToNormal)
 	{
-		Material[] array = new Material[Rend1.materials.Length];
-		for (int i = 0; i < Rend1.materials.Length; i++)
+		if (backToNormal)
 		{
-			if (backToNormal)
+			Renderer[] turretRenders = TurretRenders;
+			for (int i = 0; i < turretRenders.Length; i++)
 			{
-				placed = true;
-				CollidersInMe.Clear();
-				array[i] = Rend1.materials[i];
-				array[i].SetColor("_Color", OGRend1[i]);
-			}
-			else
-			{
-				array[i] = Rend1.materials[i];
-				array[i].SetColor("_Color", clr);
+				turretRenders[i].material.color = OGRend;
 			}
 		}
-		Rend1.materials = array;
-		Material[] array2 = new Material[Rend2.materials.Length];
-		for (int j = 0; j < Rend2.materials.Length; j++)
+		else
 		{
-			if (backToNormal)
+			Renderer[] turretRenders = TurretRenders;
+			for (int i = 0; i < turretRenders.Length; i++)
 			{
-				array2[j] = Rend2.materials[j];
-				array2[j].SetColor("_Color", OGRend2[j]);
-			}
-			else
-			{
-				array2[j] = Rend2.materials[j];
-				array2[j].SetColor("_Color", clr);
+				turretRenders[i].material.color = clr;
 			}
 		}
-		Rend2.materials = array2;
 	}
 }

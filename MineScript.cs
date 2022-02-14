@@ -65,6 +65,7 @@ public class MineScript : MonoBehaviour
 		{
 			StartCoroutine("setactive");
 		}
+		GameMaster.instance.AmountMinesPlaced++;
 		Play2DClipAtPoint(Placesound);
 		DetinationTime = Random.Range(ExplosionMinInterval, ExplosionMaxInterval);
 		InvokeRepeating("Blinking", 0.2f, 0.1f);
@@ -116,6 +117,7 @@ public class MineScript : MonoBehaviour
 				AreaDamageMission50(base.transform.position, 2.5f, 1f);
 			}
 		}
+		GameMaster.instance.AmountMinesPlaced--;
 		GameObject gameObject = (placedByEnemies ? Object.Instantiate(deathExplosion, base.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity) : ((!OptionsMainMenu.instance.AMselected.Contains(3)) ? Object.Instantiate(deathExplosion, base.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity) : Object.Instantiate(deathExplosionParty, base.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity)));
 		CameraShake component = Camera.main.GetComponent<CameraShake>();
 		if ((bool)component)
@@ -243,20 +245,27 @@ public class MineScript : MonoBehaviour
 			DestroyableWall component5 = collider.GetComponent<DestroyableWall>();
 			WeeTurret component6 = collider.GetComponent<WeeTurret>();
 			ExplosiveBlock component7 = collider.GetComponent<ExplosiveBlock>();
-			if ((bool)component7 && !component7.isExploding)
+			BombSackScript component8 = collider.GetComponent<BombSackScript>();
+			if ((bool)component7)
 			{
-				component7.StartCoroutine(component7.Death());
+				if (!component7.isExploding)
+				{
+					component7.StartCoroutine(component7.Death());
+				}
 			}
-			if (component6 != null && GameMaster.instance.GameHasStarted)
+			else if (component6 != null)
 			{
-				component6.Health--;
+				if (GameMaster.instance.GameHasStarted)
+				{
+					component6.Health--;
+				}
 			}
-			if (component != null)
+			else if (component != null)
 			{
 				if (component.isMainTank)
 				{
-					EnemyAI component8 = component.GetComponent<EnemyAI>();
-					if ((bool)component8 && component8.IsCompanion && MyPlacer == component8.gameObject)
+					EnemyAI component9 = component.GetComponent<EnemyAI>();
+					if ((bool)component9 && component9.IsCompanion && MyPlacer == component9.gameObject)
 					{
 						return;
 					}
@@ -281,113 +290,124 @@ public class MineScript : MonoBehaviour
 						}
 					}
 				}
-				if (!component.immuneToExplosion)
+				if (component.immuneToExplosion)
 				{
-					if (GameMaster.instance.isZombieMode && component.health > 1 && GameMaster.instance.GameHasStarted)
+					continue;
+				}
+				if (GameMaster.instance.isZombieMode && component.health > 0 && GameMaster.instance.GameHasStarted)
+				{
+					component.Play2DClipAtPoint(component.Buzz);
+				}
+				int num = 0;
+				if (component.ShieldFade != null)
+				{
+					num = component.ShieldFade.ShieldHealth;
+				}
+				if (component.health == 1 && num < 1 && isMineByPlayer == 0 && !component.isMainTank)
+				{
+					Object.Instantiate(HitTextP1, collider.transform.position, Quaternion.identity);
+					if (GameMaster.instance != null)
 					{
-						component.Play2DClipAtPoint(component.Buzz);
-					}
-					int num = 0;
-					if (component.ShieldFade != null)
-					{
-						num = component.ShieldFade.ShieldHealth;
-					}
-					if (component.health == 1 && num < 1 && isMineByPlayer == 0 && !component.isMainTank)
-					{
-						Object.Instantiate(HitTextP1, collider.transform.position, Quaternion.identity);
-						if (GameMaster.instance != null)
+						Play2DClipAtPoint(KillExtra);
+						GameMaster.instance.Playerkills[0]++;
+						GameMaster.instance.TotalKillsThisSession++;
+						if (GameMaster.instance.PKU != null)
 						{
-							Play2DClipAtPoint(KillExtra);
-							GameMaster.instance.Playerkills[0]++;
-							GameMaster.instance.TotalKillsThisSession++;
-							if (GameMaster.instance.PKU != null)
-							{
-								GameMaster.instance.PKU.StartCoroutine("StartPlayerKillsAnimation", 1);
-							}
-						}
-					}
-					else if (component.health == 1 && num < 1 && isMineByPlayer == 1 && !component.isMainTank)
-					{
-						Object.Instantiate(HitTextP2, collider.transform.position, Quaternion.identity);
-						if (GameMaster.instance != null)
-						{
-							Play2DClipAtPoint(KillExtra);
-							GameMaster.instance.Playerkills[1]++;
-							GameMaster.instance.TotalKillsThisSession++;
-							if (GameMaster.instance.PKU != null)
-							{
-								GameMaster.instance.PKU.StartCoroutine("StartPlayerKillsAnimation", 2);
-							}
-						}
-					}
-					else if (component.health == 1 && num < 1 && isMineByPlayer == 2 && !component.isMainTank)
-					{
-						Object.Instantiate(HitTextP3, collider.transform.position, Quaternion.identity);
-						if (GameMaster.instance != null)
-						{
-							Play2DClipAtPoint(KillExtra);
-							GameMaster.instance.Playerkills[2]++;
-							GameMaster.instance.TotalKillsThisSession++;
-							if (GameMaster.instance.PKU != null)
-							{
-								GameMaster.instance.PKU.StartCoroutine("StartPlayerKillsAnimation", 3);
-							}
-						}
-					}
-					else if (component.health == 1 && num < 1 && isMineByPlayer == 3 && !component.isMainTank)
-					{
-						Object.Instantiate(HitTextP4, collider.transform.position, Quaternion.identity);
-						if (GameMaster.instance != null)
-						{
-							Play2DClipAtPoint(KillExtra);
-							GameMaster.instance.Playerkills[3]++;
-							GameMaster.instance.TotalKillsThisSession++;
-							if (GameMaster.instance.PKU != null)
-							{
-								GameMaster.instance.PKU.StartCoroutine("StartPlayerKillsAnimation", 4);
-							}
-						}
-					}
-					if (GameMaster.instance.GameHasStarted)
-					{
-						if (num > 0)
-						{
-							component.ShieldFade.ShieldHealth = 0;
-						}
-						else
-						{
-							component.health--;
+							GameMaster.instance.PKU.StartCoroutine("StartPlayerKillsAnimation", 1);
 						}
 					}
 				}
+				else if (component.health == 1 && num < 1 && isMineByPlayer == 1 && !component.isMainTank)
+				{
+					Object.Instantiate(HitTextP2, collider.transform.position, Quaternion.identity);
+					if (GameMaster.instance != null)
+					{
+						Play2DClipAtPoint(KillExtra);
+						GameMaster.instance.Playerkills[1]++;
+						GameMaster.instance.TotalKillsThisSession++;
+						if (GameMaster.instance.PKU != null)
+						{
+							GameMaster.instance.PKU.StartCoroutine("StartPlayerKillsAnimation", 2);
+						}
+					}
+				}
+				else if (component.health == 1 && num < 1 && isMineByPlayer == 2 && !component.isMainTank)
+				{
+					Object.Instantiate(HitTextP3, collider.transform.position, Quaternion.identity);
+					if (GameMaster.instance != null)
+					{
+						Play2DClipAtPoint(KillExtra);
+						GameMaster.instance.Playerkills[2]++;
+						GameMaster.instance.TotalKillsThisSession++;
+						if (GameMaster.instance.PKU != null)
+						{
+							GameMaster.instance.PKU.StartCoroutine("StartPlayerKillsAnimation", 3);
+						}
+					}
+				}
+				else if (component.health == 1 && num < 1 && isMineByPlayer == 3 && !component.isMainTank)
+				{
+					Object.Instantiate(HitTextP4, collider.transform.position, Quaternion.identity);
+					if (GameMaster.instance != null)
+					{
+						Play2DClipAtPoint(KillExtra);
+						GameMaster.instance.Playerkills[3]++;
+						GameMaster.instance.TotalKillsThisSession++;
+						if (GameMaster.instance.PKU != null)
+						{
+							GameMaster.instance.PKU.StartCoroutine("StartPlayerKillsAnimation", 4);
+						}
+					}
+				}
+				if (GameMaster.instance.GameHasStarted)
+				{
+					if (num > 0)
+					{
+						component.ShieldFade.ShieldHealth = 0;
+					}
+					else
+					{
+						component.DamageMe(1);
+					}
+				}
 			}
-			if (component2 != null && !component2.isSilver)
+			else if (component2 != null)
 			{
-				component2.TimesBounced = 999;
+				if (!component2.isSilver)
+				{
+					component2.TimesBounced = 999;
+				}
 			}
-			if (component3 != null && !component3.isElectric)
+			else if (component3 != null)
 			{
-				component3.BounceAmount = 999;
+				if (!component3.isElectric)
+				{
+					component3.BounceAmount = 999;
+				}
 			}
-			if (component4 != null)
+			else if (component4 != null)
 			{
 				component4.DetinationTime = 0f;
 			}
-			if (component5 != null)
+			else if (component5 != null)
 			{
 				component5.StartCoroutine(component5.destroy());
+			}
+			else if (component8 != null)
+			{
+				component8.FlyBack();
 			}
 		}
 		array2 = Physics.OverlapSphere(location, radius * 2.5f);
 		foreach (Collider collider2 in array2)
 		{
-			Rigidbody component9 = collider2.GetComponent<Rigidbody>();
-			if (component9 != null && (collider2.tag == "Player" || collider2.tag == "Enemy"))
+			Rigidbody component10 = collider2.GetComponent<Rigidbody>();
+			if (component10 != null && (collider2.tag == "Player" || collider2.tag == "Enemy"))
 			{
-				float num2 = Vector3.Distance(component9.transform.position, base.transform.position);
+				float num2 = Vector3.Distance(component10.transform.position, base.transform.position);
 				float num3 = (radius * 2.5f - num2) * 2f;
-				Vector3 vector = component9.transform.position - base.transform.position;
-				component9.AddForce(vector * num3, ForceMode.Impulse);
+				Vector3 vector = component10.transform.position - base.transform.position;
+				component10.AddForce(vector * num3, ForceMode.Impulse);
 			}
 		}
 	}

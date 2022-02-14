@@ -10,6 +10,8 @@ public class ProgressDataNew
 
 	public int cH;
 
+	public int cG;
+
 	public int tTK;
 
 	public int tTD;
@@ -37,6 +39,7 @@ public class ProgressDataNew
 			cM = old.completedMissions;
 			cK = old.completedKid;
 			cH = old.completedHard;
+			cG = old.completedGrandpa;
 			tTK = old.totalTankKills;
 			tTD = old.totalTimesDefeated;
 			tTW = old.totalTimesWon;
@@ -52,6 +55,7 @@ public class ProgressDataNew
 			cM = GM.maxMissionReached;
 			cK = GM.maxMissionReachedKid;
 			cH = GM.maxMissionReachedHard;
+			cG = old.completedGrandpa;
 			tTK = GM.totalKills;
 			tTD = GM.totalDefeats;
 			tTW = GM.totalWins;

@@ -12,6 +12,8 @@ public class HealthbarScript : MonoBehaviour
 
 	private bool HealthBarEnabled;
 
+	private MapEditorProp MEP;
+
 	private int LatestKnownHealth;
 
 	private void Start()
@@ -20,10 +22,12 @@ public class HealthbarScript : MonoBehaviour
 		if (MapEditorMaster.instance == null)
 		{
 			Object.Destroy(base.gameObject);
+			return;
 		}
-		else
+		myHT = base.transform.parent.gameObject.GetComponent<HealthTanks>();
+		if ((bool)myHT)
 		{
-			myHT = base.transform.parent.gameObject.GetComponent<HealthTanks>();
+			MEP = myHT.GetComponent<MapEditorProp>();
 		}
 	}
 
@@ -57,17 +61,21 @@ public class HealthbarScript : MonoBehaviour
 			{
 				return;
 			}
-			if (myHT.maxHealth > 9 || HasBeenEnabled)
+			if ((bool)MEP && !MapEditorMaster.instance.CustomTankDatas[MEP.CustomAInumber].CustomShowHealthbar)
 			{
-				if (LatestKnownHealth != myHT.health || HealthBarEnabled)
+				Disable();
+			}
+			else if (myHT.maxHealth > 0 || HasBeenEnabled)
+			{
+				if (LatestKnownHealth != myHT.health + myHT.health_armour || HealthBarEnabled)
 				{
 					HasBeenEnabled = true;
 					Enable();
-					float num = myHT.health;
-					float num2 = myHT.maxHealth;
+					float num = myHT.health + myHT.health_armour;
+					float num2 = myHT.maxHealth + myHT.maxArmour;
 					float x = num / num2 * OriginalX;
 					GreenBar.transform.localScale = new Vector3(x, GreenBar.transform.localScale.y, GreenBar.transform.localScale.x);
-					LatestKnownHealth = myHT.health;
+					LatestKnownHealth = myHT.health + myHT.health_armour;
 				}
 			}
 			else

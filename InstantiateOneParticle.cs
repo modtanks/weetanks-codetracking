@@ -27,7 +27,7 @@ public class InstantiateOneParticle : MonoBehaviour
 					int num = Random.Range(0, ChargedSound.Length);
 					if (ChargedSound[num] != null)
 					{
-						GameMaster.instance.Play2DClipAtPoint(ChargedSound[num], 1f);
+						SFXManager.instance.PlaySFX(ChargedSound[num], 1f, null);
 					}
 				}
 				else
@@ -36,19 +36,12 @@ public class InstantiateOneParticle : MonoBehaviour
 				}
 			}
 		}
-		else if (Sound != null)
+		else if (Sound != null && Sound.Length != 0)
 		{
-			if (Sound.Length != 0)
+			int num2 = Random.Range(0, Sound.Length);
+			if (Sound[num2] != null)
 			{
-				int num2 = Random.Range(0, Sound.Length);
-				if (Sound[num2] != null)
-				{
-					GameMaster.instance.Play2DClipAtPoint(Sound[num2], 1f);
-				}
-			}
-			else
-			{
-				Debug.LogError("sound missing");
+				SFXManager.instance.PlaySFX(Sound[num2], 1f, null);
 			}
 		}
 		yield return new WaitForSeconds(0.04f);

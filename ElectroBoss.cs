@@ -74,7 +74,7 @@ public class ElectroBoss : MonoBehaviour
 				obj2.Play();
 			}
 			isAlmostCharged = true;
-			GameMaster.instance.Play2DClipAtPoint(ElectricChargeSound, 1f);
+			SFXManager.instance.PlaySFX(ElectricChargeSound, 1f, null);
 			int num = GetComponent<HealthTanks>().maxHealth - GetComponent<HealthTanks>().health;
 			int num2 = -5 + OptionsMainMenu.instance.currentDifficulty * 5;
 			int num3 = Random.Range(15, 25 + num + num2);
@@ -93,7 +93,7 @@ public class ElectroBoss : MonoBehaviour
 		}
 		else if (ChargeTimer <= 0.5f && !PlayedSound)
 		{
-			GameMaster.instance.Play2DClipAtPoint(ElectricPulseSound, 1f);
+			SFXManager.instance.PlaySFX(ElectricPulseSound, 1f, null);
 			PlayedSound = true;
 		}
 		else
