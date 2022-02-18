@@ -55,7 +55,7 @@ public class ProgressDataNew
 			cM = GM.maxMissionReached;
 			cK = GM.maxMissionReachedKid;
 			cH = GM.maxMissionReachedHard;
-			cG = old.completedGrandpa;
+			cG = GM.maxMissionReachedGrandpa;
 			tTK = GM.totalKills;
 			tTD = GM.totalDefeats;
 			tTW = GM.totalWins;

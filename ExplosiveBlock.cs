@@ -75,7 +75,7 @@ public class ExplosiveBlock : MonoBehaviour
 			{
 				if (GameMaster.instance.isZombieMode && component.health > 1 && GameMaster.instance.GameHasStarted)
 				{
-					component.Play2DClipAtPoint(component.Buzz);
+					SFXManager.instance.PlaySFX(component.Buzz);
 				}
 				if (GameMaster.instance.GameHasStarted)
 				{

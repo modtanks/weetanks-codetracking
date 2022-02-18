@@ -103,5 +103,13 @@ public class RammingDetection : MonoBehaviour
 				component4.DamageMe(999);
 			}
 		}
+		else if (collision.transform.tag == "Enemy")
+		{
+			HealthTanks component5 = collision.transform.GetComponent<HealthTanks>();
+			if ((bool)component5)
+			{
+				component5.DamageMe(999);
+			}
+		}
 	}
 }

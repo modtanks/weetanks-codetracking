@@ -445,10 +445,10 @@ public class MapEditorGridPiece : MonoBehaviour
 		}
 		if (MapEditorMaster.instance.SelectedProp >= 1000)
 		{
-			int num = MapEditorMaster.instance.SelectedProp - 1000;
-			Yheight = GlobalAssets.instance.StockDatabase[num].MapEditorYoffset;
-			myProp[IDlayer] = Object.Instantiate(GlobalAssets.instance.StockDatabase[num].MapEditorPrefab, base.transform.position + new Vector3(0f, Yheight, 0f), Quaternion.identity);
-			myPropPrefab[IDlayer] = GlobalAssets.instance.StockDatabase[num].MapEditorPrefab;
+			_ = MapEditorMaster.instance.SelectedProp;
+			Yheight = GlobalAssets.instance.StockDatabase.Find((TankeyTownStockItem x) => x.MapEditorPropID == MapEditorMaster.instance.SelectedProp).MapEditorYoffset;
+			myProp[IDlayer] = Object.Instantiate(GlobalAssets.instance.StockDatabase.Find((TankeyTownStockItem x) => x.MapEditorPropID == MapEditorMaster.instance.SelectedProp).MapEditorPrefab, base.transform.position + new Vector3(0f, Yheight, 0f), Quaternion.identity);
+			myPropPrefab[IDlayer] = GlobalAssets.instance.StockDatabase.Find((TankeyTownStockItem x) => x.MapEditorPropID == MapEditorMaster.instance.SelectedProp).MapEditorPrefab;
 		}
 		else if (MapEditorMaster.instance.SelectedProp >= 100 && MapEditorMaster.instance.SelectedProp < 120)
 		{
@@ -569,9 +569,8 @@ public class MapEditorGridPiece : MonoBehaviour
 		rotationDirection[LayerHeight] = direction;
 		if (propID >= 1000)
 		{
-			int num = propID - 1000;
-			Yheight = GlobalAssets.instance.StockDatabase[num].MapEditorYoffset;
-			myProp[LayerHeight] = Object.Instantiate(GlobalAssets.instance.StockDatabase[num].MapEditorPrefab, new Vector3(base.transform.position.x, Yheight + (float)(LayerHeight * 2), base.transform.position.z), Quaternion.identity);
+			Yheight = GlobalAssets.instance.StockDatabase.Find((TankeyTownStockItem x) => x.MapEditorPropID == propID).MapEditorYoffset;
+			myProp[LayerHeight] = Object.Instantiate(GlobalAssets.instance.StockDatabase.Find((TankeyTownStockItem x) => x.MapEditorPropID == propID).MapEditorPrefab, new Vector3(base.transform.position.x, Yheight + (float)(LayerHeight * 2), base.transform.position.z), Quaternion.identity);
 		}
 		else if (propID >= 100 && propID < 120)
 		{
@@ -608,8 +607,7 @@ public class MapEditorGridPiece : MonoBehaviour
 		myPropID[LayerHeight] = propID;
 		if (propID >= 1000)
 		{
-			int num2 = propID - 1000;
-			myPropPrefab[LayerHeight] = GlobalAssets.instance.StockDatabase[num2].MapEditorPrefab;
+			myPropPrefab[LayerHeight] = GlobalAssets.instance.StockDatabase.Find((TankeyTownStockItem x) => x.MapEditorPropID == propID).MapEditorPrefab;
 		}
 		else if (propID == 19)
 		{
@@ -683,7 +681,7 @@ public class MapEditorGridPiece : MonoBehaviour
 		{
 			if (MEP.removeParentOnDelete)
 			{
-				MEP.transform.parent.transform.rotation *= Quaternion.Euler(new Vector3(0f, 90f, 0f));
+				MEP.transform.parent.transform.rotation *= quaternion;
 			}
 			else if (MEP.transform.parent.name == "Hole" || MEP.transform.parent.name == "Hole(Clone)")
 			{

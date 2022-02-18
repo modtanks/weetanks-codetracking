@@ -458,6 +458,7 @@ public class MoveTankScript : MonoBehaviour
 				{
 					source.loop = true;
 					source.Play();
+					source.volume = 1f * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
 				}
 			}
 			if ((bool)AchievementsTracker.instance)
@@ -658,6 +659,7 @@ public class MoveTankScript : MonoBehaviour
 		if (!BoostSource.isPlaying)
 		{
 			BoostSource.Play();
+			BoostSource.volume = (float)OptionsMainMenu.instance.masterVolumeLvl / 10f * (float)OptionsMainMenu.instance.sfxVolumeLvl / 10f;
 		}
 		if (!DrivingBackwards)
 		{

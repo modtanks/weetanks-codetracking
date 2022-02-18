@@ -1045,7 +1045,7 @@ public class EnemyAI : MonoBehaviour
 			return;
 		}
 		Rotate();
-		if (base.transform.position.y < -0.5f && (isLevel50Boss || IsCompanion))
+		if (base.transform.position.y < -0.5f && (isLevel50Boss || IsCompanion || HTscript.EnemyID == 11))
 		{
 			base.transform.position = new Vector3(base.transform.position.x, base.transform.position.y * 1.12f, base.transform.position.z);
 			if (base.transform.position.y < -100.1f && isLevel50Boss)
@@ -1054,16 +1054,16 @@ public class EnemyAI : MonoBehaviour
 				{
 					AchievementsTracker.instance.completeAchievement(12);
 				}
-				GetComponent<HealthTanks>().health = 0;
+				GetComponent<HealthTanks>().DamageMe(99);
 			}
-			else if (base.transform.position.y < -100.1f && IsCompanion)
+			else if (base.transform.position.y < -100.1f)
 			{
-				GetComponent<HealthTanks>().health = 0;
+				GetComponent<HealthTanks>().DamageMe(99);
 			}
 		}
 		else if (base.transform.position.y < -20.1f || base.transform.position.y > 130.1f)
 		{
-			GetComponent<HealthTanks>().health = 0;
+			GetComponent<HealthTanks>().DamageMe(99);
 		}
 		if (isElectric && !isTransporting)
 		{

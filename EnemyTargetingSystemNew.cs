@@ -66,6 +66,8 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	public GameObject[] rockets;
 
+	public float RocketAccuracy;
+
 	[HideInInspector]
 	public int maxReflectionCount = 2;
 
@@ -293,6 +295,19 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		}
 	}
 
+	private Vector3 CalculateEnemyPosition(GameObject TargetObject)
+	{
+		if (currentTarget.GetComponent<Rigidbody>().velocity.magnitude > 0.5f)
+		{
+			float num = Vector3.Distance(currentTarget.transform.position, base.transform.position);
+			EnemyAI component = currentTarget.GetComponent<EnemyAI>();
+			Vector3 vector = (component ? ((!component.DrivingBackwards) ? (currentTarget.transform.position + currentTarget.transform.forward * (num / 6f)) : (currentTarget.transform.position + -currentTarget.transform.forward * (num / 6f))) : ((!currentTarget.GetComponent<MoveTankScript>().DrivingBackwards) ? (currentTarget.transform.position + currentTarget.transform.forward * (num / 6f)) : (currentTarget.transform.position + -currentTarget.transform.forward * (num / 6f))));
+			Debug.DrawLine(vector, base.transform.position, Color.blue);
+			return vector - base.transform.position;
+		}
+		return currentTarget.transform.position - base.transform.position;
+	}
+
 	private void Update()
 	{
 		if (GameMaster.instance.restartGame)
@@ -374,23 +389,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 			{
 				if (!turning)
 				{
-					Vector3 vector;
-					if (!AIscript.CalculateEnemyPosition)
-					{
-						vector = currentTarget.transform.position - base.transform.position;
-					}
-					else if (currentTarget.GetComponent<Rigidbody>().velocity.magnitude > 0.5f)
-					{
-						float num = Vector3.Distance(currentTarget.transform.position, base.transform.position);
-						EnemyAI component = currentTarget.GetComponent<EnemyAI>();
-						vector = (component ? ((!component.DrivingBackwards) ? (currentTarget.transform.position + currentTarget.transform.forward * (num / 8f)) : (currentTarget.transform.position + -currentTarget.transform.forward * (num / 8f))) : ((!currentTarget.GetComponent<MoveTankScript>().DrivingBackwards) ? (currentTarget.transform.position + currentTarget.transform.forward * (num / 8f)) : (currentTarget.transform.position + -currentTarget.transform.forward * (num / 8f))));
-						vector -= base.transform.position;
-						Debug.DrawLine(vector, base.transform.position, Color.blue);
-					}
-					else
-					{
-						vector = currentTarget.transform.position - base.transform.position;
-					}
+					Vector3 vector = (AIscript.CalculateEnemyPosition ? CalculateEnemyPosition(currentTarget) : (currentTarget.transform.position - base.transform.position));
 					vector.y = 0f;
 					if (!(vector != Vector3.zero))
 					{
@@ -531,41 +530,50 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 					Targets.Add(gameObject);
 				}
 			}
-			array = GameObject.FindGameObjectsWithTag("Player");
+			array = GameObject.FindGameObjectsWithTag("Boss");
 			foreach (GameObject gameObject2 in array)
 			{
-				MoveTankScript component2 = gameObject2.GetComponent<MoveTankScript>();
-				if ((bool)component2)
+				EnemyAI component2 = gameObject2.GetComponent<EnemyAI>();
+				if ((bool)component2 && gameObject2.gameObject != AIscript.gameObject && (component2.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0))
 				{
-					if (component2.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0)
+					Targets.Add(gameObject2);
+				}
+			}
+			array = GameObject.FindGameObjectsWithTag("Player");
+			foreach (GameObject gameObject3 in array)
+			{
+				MoveTankScript component3 = gameObject3.GetComponent<MoveTankScript>();
+				if ((bool)component3)
+				{
+					if (component3.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0)
 					{
-						Targets.Add(gameObject2);
+						Targets.Add(gameObject3);
 					}
 					continue;
 				}
-				EnemyAI component3 = gameObject2.GetComponent<EnemyAI>();
-				if ((bool)component3 && gameObject2.gameObject != AIscript.gameObject && (component3.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0))
+				EnemyAI component4 = gameObject3.GetComponent<EnemyAI>();
+				if ((bool)component4 && gameObject3.gameObject != AIscript.gameObject && (component4.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0))
 				{
-					Targets.Add(gameObject2);
+					Targets.Add(gameObject3);
 				}
 			}
 		}
 		else if (isHuntingEnemies || GameMaster.instance.inMenuMode)
 		{
 			GameObject[] array = GameObject.FindGameObjectsWithTag("Enemy");
-			foreach (GameObject gameObject3 in array)
-			{
-				if (gameObject3.gameObject != AIscript.gameObject)
-				{
-					Targets.Add(gameObject3);
-				}
-			}
-			array = GameObject.FindGameObjectsWithTag("Boss");
 			foreach (GameObject gameObject4 in array)
 			{
 				if (gameObject4.gameObject != AIscript.gameObject)
 				{
 					Targets.Add(gameObject4);
+				}
+			}
+			array = GameObject.FindGameObjectsWithTag("Boss");
+			foreach (GameObject gameObject5 in array)
+			{
+				if (gameObject5.gameObject != AIscript.gameObject)
+				{
+					Targets.Add(gameObject5);
 				}
 			}
 		}
@@ -688,7 +696,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 			}
 			if ((bool)MapEditorMaster.instance)
 			{
-				if (hitInfo.collider.tag == "Enemy")
+				if (hitInfo.collider.tag == "Enemy" || hitInfo.collider.tag == "Boss")
 				{
 					EnemyAI component = hitInfo.collider.GetComponent<EnemyAI>();
 					if ((bool)component && (component.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0))
@@ -1368,7 +1376,20 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		{
 			yield break;
 		}
-		yield return new WaitForSeconds(2f);
+		float seconds = Random.Range(2f, 2.5f);
+		if (OptionsMainMenu.instance.currentDifficulty == 1)
+		{
+			seconds = Random.Range(1.5f, 2f);
+		}
+		else if (OptionsMainMenu.instance.currentDifficulty == 2)
+		{
+			seconds = Random.Range(1f, 1.5f);
+		}
+		else if (OptionsMainMenu.instance.currentDifficulty == 3)
+		{
+			seconds = Random.Range(0.75f, 1f);
+		}
+		yield return new WaitForSeconds(seconds);
 		if (!GameMaster.instance.GameHasStarted || GameMaster.instance.GameHasPaused)
 		{
 			yield break;
@@ -1386,12 +1407,28 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				gameObject.transform.parent = rocketSlotLocations[i];
 				if (i + 1 < rocketSlots.Length)
 				{
-					float seconds = Random.Range(0.4f, 0.9f);
+					seconds = Random.Range(0.4f, 0.9f);
+					if (OptionsMainMenu.instance.currentDifficulty == 1)
+					{
+						seconds = Random.Range(0.3f, 0.8f);
+					}
+					else if (OptionsMainMenu.instance.currentDifficulty == 2)
+					{
+						seconds = Random.Range(0.2f, 0.7f);
+					}
+					else if (OptionsMainMenu.instance.currentDifficulty == 3)
+					{
+						seconds = Random.Range(0.1f, 0.6f);
+					}
 					yield return new WaitForSeconds(seconds);
 				}
 			}
-			else if (rocketSlots[i] == 1)
+			else
 			{
+				if (rocketSlots[i] != 1)
+				{
+					continue;
+				}
 				rockets[i].GetComponent<RocketScript>().isHuntingEnemies = isHuntingEnemies;
 				rockets[i].GetComponent<RocketScript>().papaTank = AIscript.gameObject;
 				rockets[i].GetComponent<RocketScript>().MyTeam = AIscript.MyTeam;
@@ -1400,8 +1437,20 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				rockets[i] = null;
 				if (i + 1 < rocketSlots.Length)
 				{
-					float seconds2 = Random.Range(0.4f, 0.9f);
-					yield return new WaitForSeconds(seconds2);
+					seconds = Random.Range(0.4f, 0.9f);
+					if (OptionsMainMenu.instance.currentDifficulty == 1)
+					{
+						seconds = Random.Range(0.3f, 0.8f);
+					}
+					else if (OptionsMainMenu.instance.currentDifficulty == 2)
+					{
+						seconds = Random.Range(0.2f, 0.7f);
+					}
+					else if (OptionsMainMenu.instance.currentDifficulty == 3)
+					{
+						seconds = Random.Range(0.1f, 0.6f);
+					}
+					yield return new WaitForSeconds(seconds);
 				}
 				else
 				{
@@ -1415,7 +1464,20 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	private IEnumerator reloadRocketsTimer()
 	{
-		yield return new WaitForSeconds(5f);
+		float seconds = Random.Range(4f, 5f);
+		if (OptionsMainMenu.instance.currentDifficulty == 1)
+		{
+			seconds = Random.Range(3.5f, 4f);
+		}
+		else if (OptionsMainMenu.instance.currentDifficulty == 2)
+		{
+			seconds = Random.Range(3f, 3.5f);
+		}
+		else if (OptionsMainMenu.instance.currentDifficulty == 3)
+		{
+			seconds = Random.Range(2.5f, 3f);
+		}
+		yield return new WaitForSeconds(seconds);
 		canReloadRockets = true;
 	}
 

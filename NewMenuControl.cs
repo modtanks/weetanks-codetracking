@@ -594,23 +594,22 @@ public class NewMenuControl : MonoBehaviour
 	{
 		for (int i = 0; i < AccountMaster.instance.Inventory.InventoryItems.Length; i++)
 		{
-			TankeyTownStockItem[] stockDatabase = GlobalAssets.instance.StockDatabase;
-			foreach (TankeyTownStockItem tankeyTownStockItem in stockDatabase)
+			foreach (TankeyTownStockItem item in GlobalAssets.instance.StockDatabase)
 			{
-				if (tankeyTownStockItem.ItemID == AccountMaster.instance.Inventory.InventoryItems[i] && !tankeyTownStockItem.IsMapEditorObject)
+				if (item.ItemID == AccountMaster.instance.Inventory.InventoryItems[i] && !item.IsMapEditorObject)
 				{
 					GameObject obj = UnityEngine.Object.Instantiate(UnlockablePrefab);
 					obj.transform.SetParent(InventoryItemsParent.transform);
 					obj.GetComponent<UnlockableScript>().isTankeyTownItem = true;
-					obj.GetComponent<UnlockableScript>().ULID = tankeyTownStockItem.ItemID + 1000;
-					obj.GetComponent<UnlockableScript>().UnlockableTitle.text = tankeyTownStockItem.ItemName;
+					obj.GetComponent<UnlockableScript>().ULID = item.ItemID + 1000;
+					obj.GetComponent<UnlockableScript>().UnlockableTitle.text = item.ItemName;
 					obj.GetComponent<UnlockableScript>().UnlockableRequire.text = "";
-					obj.GetComponent<UnlockableScript>().isBoost = tankeyTownStockItem.isBoost;
-					obj.GetComponent<UnlockableScript>().isBullet = tankeyTownStockItem.isBullet;
-					obj.GetComponent<UnlockableScript>().isHitmarker = tankeyTownStockItem.isHitmarker;
-					obj.GetComponent<UnlockableScript>().isMine = tankeyTownStockItem.isMine;
-					obj.GetComponent<UnlockableScript>().isSkin = tankeyTownStockItem.isSkin;
-					obj.GetComponent<UnlockableScript>().isSkidmarks = tankeyTownStockItem.isSkidmarks;
+					obj.GetComponent<UnlockableScript>().isBoost = item.isBoost;
+					obj.GetComponent<UnlockableScript>().isBullet = item.isBullet;
+					obj.GetComponent<UnlockableScript>().isHitmarker = item.isHitmarker;
+					obj.GetComponent<UnlockableScript>().isMine = item.isMine;
+					obj.GetComponent<UnlockableScript>().isSkin = item.isSkin;
+					obj.GetComponent<UnlockableScript>().isSkidmarks = item.isSkidmarks;
 				}
 			}
 		}

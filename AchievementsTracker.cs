@@ -223,7 +223,7 @@ public class AchievementsTracker : MonoBehaviour
 
 	public void completeAchievement(int ID)
 	{
-		if (GameMaster.instance.PlayerModeWithAI[1] == 1 || GameMaster.instance.inMapEditor || GameMaster.instance.isZombieMode || OptionsMainMenu.instance.AM[ID] == 1)
+		if (GameMaster.instance.PlayerModeWithAI[1] == 1 || GameMaster.instance.PlayerModeWithAI[2] == 1 || GameMaster.instance.PlayerModeWithAI[3] == 1 || GameMaster.instance.inMapEditor || GameMaster.instance.isZombieMode || OptionsMainMenu.instance.AM[ID] == 1)
 		{
 			return;
 		}

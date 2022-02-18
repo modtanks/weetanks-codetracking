@@ -461,7 +461,7 @@ public class MapEditorMaster : MonoBehaviour
 			int[] inventoryItems = AccountMaster.instance.Inventory.InventoryItems;
 			foreach (int num2 in inventoryItems)
 			{
-				for (int k = 0; k < GlobalAssets.instance.StockDatabase.Length; k++)
+				for (int k = 0; k < GlobalAssets.instance.StockDatabase.Count; k++)
 				{
 					if (num2 == GlobalAssets.instance.StockDatabase[k].ItemID && GlobalAssets.instance.StockDatabase[k].IsMapEditorObject)
 					{
@@ -958,10 +958,7 @@ public class MapEditorMaster : MonoBehaviour
 		if (playingAmount < 2)
 		{
 			playingAmount++;
-			if (AC != null)
-			{
-				GetComponent<AudioSource>().PlayOneShot(AC);
-			}
+			SFXManager.instance.PlaySFX(AC);
 			StartCoroutine(resetPlayingAmount());
 		}
 	}
@@ -1091,39 +1088,45 @@ public class MapEditorMaster : MonoBehaviour
 				material.color = CustomTankDatas[i].CustomTankColor.Color;
 				CustomMaterial.Add(material);
 			}
-			return;
 		}
-		for (int j = 0; j < 3; j++)
+		else
 		{
-			CustomTankDatas.Add(new CustomTankData());
-			CustomTankDatas[j].CustomTankSpeed = theData.CustomTankSpeed[j];
-			CustomTankDatas[j].CustomFireSpeed = theData.CustomFireSpeed[j];
-			CustomTankDatas[j].CustomBounces = theData.CustomBounces[j];
-			CustomTankDatas[j].CustomMineSpeed = theData.CustomMineSpeed[j];
-			CustomTankDatas[j].CustomTurnHead = theData.CustomTurnHead[j];
-			CustomTankDatas[j].CustomAccuracy = theData.CustomAccuracy[j];
-			CustomTankDatas[j].CustomLayMines = theData.LayMines[j];
-			CustomTankDatas[j].CustomTankColor = theData.CTC[j];
-			_ = theData.CTC[j].Color;
-			Material item = new Material(Shader.Find("Standard"));
-			CustomMaterial.Add(item);
-			CustomMaterial[j].color = theData.CTC[j].Color;
-			CustomTankDatas[j].CustomBulletType = theData.CustomBulletType[j];
-			CustomTankDatas[j].CustomArmoured = theData.CustomArmoured[j];
-			CustomTankDatas[j].CustomArmourPoints = theData.CustomArmourPoints[j];
-			CustomTankDatas[j].CustomInvisibility = theData.CustomInvisibility[j];
-			CustomTankDatas[j].CustomCalculateShots = theData.CustomCalculateShots[j];
-			if (theData.CustomBullets != null && theData.CustomBullets.Count > 0)
+			if (!(theData.VersionCreated == "0.8.6n") && !(theData.VersionCreated == "0.8.6"))
 			{
-				CustomTankDatas[j].CustomBullets = theData.CustomBullets[j];
+				return;
 			}
-			if (theData.CustomMusic != null && theData.CustomMusic.Count > 0)
+			for (int j = 0; j < 3; j++)
 			{
-				CustomTankDatas[j].CustomMusic = theData.CustomMusic[j];
-			}
-			if (theData.CustomScalePoints != null && theData.CustomScalePoints.Count > 1)
-			{
-				CustomTankDatas[j].CustomTankScale = theData.CustomScalePoints[j];
+				CustomTankDatas.Add(new CustomTankData());
+				CustomTankDatas[j].CustomTankSpeed = theData.CustomTankSpeed[j];
+				CustomTankDatas[j].CustomFireSpeed = theData.CustomFireSpeed[j];
+				CustomTankDatas[j].CustomBounces = theData.CustomBounces[j];
+				CustomTankDatas[j].CustomMineSpeed = theData.CustomMineSpeed[j];
+				CustomTankDatas[j].CustomTurnHead = theData.CustomTurnHead[j];
+				CustomTankDatas[j].CustomAccuracy = theData.CustomAccuracy[j];
+				CustomTankDatas[j].CustomLayMines = theData.LayMines[j];
+				CustomTankDatas[j].CustomTankColor = theData.CTC[j];
+				_ = theData.CTC[j].Color;
+				Material item = new Material(Shader.Find("Standard"));
+				CustomMaterial.Add(item);
+				CustomMaterial[j].color = theData.CTC[j].Color;
+				CustomTankDatas[j].CustomBulletType = theData.CustomBulletType[j];
+				CustomTankDatas[j].CustomArmoured = theData.CustomArmoured[j];
+				CustomTankDatas[j].CustomArmourPoints = theData.CustomArmourPoints[j];
+				CustomTankDatas[j].CustomInvisibility = theData.CustomInvisibility[j];
+				CustomTankDatas[j].CustomCalculateShots = theData.CustomCalculateShots[j];
+				if (theData.CustomBullets != null && theData.CustomBullets.Count > 0)
+				{
+					CustomTankDatas[j].CustomBullets = theData.CustomBullets[j];
+				}
+				if (theData.CustomMusic != null && theData.CustomMusic.Count > 0)
+				{
+					CustomTankDatas[j].CustomMusic = theData.CustomMusic[j];
+				}
+				if (theData.CustomScalePoints != null && theData.CustomScalePoints.Count > 1)
+				{
+					CustomTankDatas[j].CustomTankScale = theData.CustomScalePoints[j];
+				}
 			}
 		}
 	}

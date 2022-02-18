@@ -536,7 +536,7 @@ public class EnemyBulletScript : MonoBehaviour
 					HealthTanks component7 = collision.gameObject.GetComponent<HealthTanks>();
 					if (GameMaster.instance.isZombieMode && component7.health > 1)
 					{
-						component7.Play2DClipAtPoint(component7.Buzz);
+						SFXManager.instance.PlaySFX(component7.Buzz);
 					}
 					component7.health--;
 				}

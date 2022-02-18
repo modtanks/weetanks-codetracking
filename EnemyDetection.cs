@@ -54,7 +54,7 @@ public class EnemyDetection : MonoBehaviour
 		AIscript = papaTank.GetComponent<EnemyAI>();
 		float num = Random.Range(0.3f, 0.5f);
 		InvokeRepeating("DisableTarget", num, num);
-		num = ((!(AIscript.TankSpeed > 70f)) ? Random.Range(0.4f, 0.6f) : Random.Range(0.2f, 0.3f));
+		num = ((!(AIscript.TankSpeed > 70f) && !AIscript.isLevel50Boss) ? Random.Range(0.4f, 0.6f) : Random.Range(0.2f, 0.3f));
 		InvokeRepeating("CheckTarget", num, num);
 		if (isRing1 || isCenter)
 		{

@@ -261,6 +261,8 @@ public class KingTankScript : MonoBehaviour
 		MyAnimator.enabled = true;
 		LAO.enabled = true;
 		FT.enabled = false;
+		isRamming = false;
+		isRammingMoving = false;
 		EA.transform.localPosition = new Vector3(0f, 1.72f, 0f);
 		ETSN.transform.localPosition = Vector3.zero;
 	}

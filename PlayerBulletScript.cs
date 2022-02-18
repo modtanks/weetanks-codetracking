@@ -968,12 +968,6 @@ public class PlayerBulletScript : MonoBehaviour
 				{
 					component9.GotHit();
 				}
-				if (component6.EnemyID == 9 || component6.EnemyID == 17 || component6.EnemyID == -14 || component6.EnemyID == -110 || component6.Armour != null)
-				{
-					int maxExclusive = GlobalAssets.instance.AudioDB.ArmourHits.Length;
-					int num4 = Random.Range(0, maxExclusive);
-					SFXManager.instance.PlaySFX(GlobalAssets.instance.AudioDB.ArmourHits[num4], 1f, null);
-				}
 			}
 			if (ShotByPlayer > -1)
 			{
@@ -1095,21 +1089,9 @@ public class PlayerBulletScript : MonoBehaviour
 				return;
 			}
 			HealthTanks component5 = collision.gameObject.GetComponent<HealthTanks>();
-			if (component5.health_armour > 0 && (component5.EnemyID == 9 || component5.EnemyID == 17 || component5.EnemyID == -14 || component5.EnemyID == -110 || component5.isMainTank || component5.Armour != null))
-			{
-				int maxExclusive = GlobalAssets.instance.AudioDB.ArmourHits.Length;
-				int num = Random.Range(0, maxExclusive);
-				SFXManager.instance.PlaySFX(GlobalAssets.instance.AudioDB.ArmourHits[num], 1f, null);
-			}
 			if (GameMaster.instance.isZombieMode && component5.health > 0)
 			{
-				component5.Play2DClipAtPoint(component5.Buzz);
-			}
-			else if (component5.health > 1 && (component5.EnemyID == 9 || component5.EnemyID == 17 || component5.EnemyID == -12 || component5.EnemyID == -110))
-			{
-				int maxExclusive2 = GlobalAssets.instance.AudioDB.ArmourHits.Length;
-				int num2 = Random.Range(0, maxExclusive2);
-				SFXManager.instance.PlaySFX(GlobalAssets.instance.AudioDB.ArmourHits[num2], 1f, null);
+				SFXManager.instance.PlaySFX(component5.Buzz);
 			}
 			component5.DamageMe(1);
 		}

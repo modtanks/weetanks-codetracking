@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GlobalAssets : MonoBehaviour
@@ -6,7 +7,7 @@ public class GlobalAssets : MonoBehaviour
 
 	public AudioDatabase AudioDB;
 
-	public TankeyTownStockItem[] StockDatabase;
+	public List<TankeyTownStockItem> StockDatabase = new List<TankeyTownStockItem>();
 
 	public static GlobalAssets instance => _instance;
 

@@ -26,7 +26,6 @@ public class DrawGizmos : MonoBehaviour
 
 	private IEnumerator GetMyPB()
 	{
-		Debug.Log("GEtimg COLLIDERS !!!!");
 		float seconds = Random.Range(3f, 7f);
 		yield return new WaitForSeconds(seconds);
 		PathfindingBlock pathfindingBlock = null;

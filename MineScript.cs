@@ -296,7 +296,7 @@ public class MineScript : MonoBehaviour
 				}
 				if (GameMaster.instance.isZombieMode && component.health > 0 && GameMaster.instance.GameHasStarted)
 				{
-					component.Play2DClipAtPoint(component.Buzz);
+					SFXManager.instance.PlaySFX(component.Buzz);
 				}
 				int num = 0;
 				if (component.ShieldFade != null)

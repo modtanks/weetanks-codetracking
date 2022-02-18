@@ -1004,63 +1004,12 @@ public class GameMaster : MonoBehaviour
 			{
 				NAS.checkPoint = true;
 				NAS.newTank = true;
-				if (OptionsMainMenu.instance.StartLevel < CurrentMission - 9)
-				{
-					switch (CurrentMission)
-					{
-					case 10:
-						IncreaseMarbles(CalcMarbles(5));
-						break;
-					case 20:
-						IncreaseMarbles(CalcMarbles(7));
-						break;
-					case 30:
-						IncreaseMarbles(CalcMarbles(10));
-						break;
-					case 40:
-						IncreaseMarbles(CalcMarbles(7));
-						break;
-					case 50:
-						IncreaseMarbles(CalcMarbles(15));
-						break;
-					case 60:
-						IncreaseMarbles(CalcMarbles(9));
-						break;
-					case 70:
-						IncreaseMarbles(CalcMarbles(12));
-						break;
-					case 80:
-						IncreaseMarbles(CalcMarbles(10));
-						break;
-					case 90:
-						IncreaseMarbles(CalcMarbles(20));
-						break;
-					case 100:
-						IncreaseMarbles(CalcMarbles(25));
-						break;
-					}
-				}
 			}
 			NAS.NextRound();
 		}
 		else
 		{
 			NAS.FinishGame();
-		}
-	}
-
-	private int CalcMarbles(int amount)
-	{
-		return amount + amount * OptionsMainMenu.instance.currentDifficulty;
-	}
-
-	public void IncreaseMarbles(int amount)
-	{
-		if (AccountMaster.instance.isSignedIn)
-		{
-			AccountMaster.instance.PDO.marbles += amount;
-			AccountMaster.instance.SaveCloudData(5, amount, 0, bounceKill: false);
-			AccountMaster.instance.ShowMarbleNotification(amount);
 		}
 	}
 
@@ -1155,7 +1104,7 @@ public class GameMaster : MonoBehaviour
 			Object.Destroy(currentLoadedLevel);
 		}
 		levelIsLoaded = false;
-		if (CurrentMission == 49)
+		if (CurrentMission == 49 && MapEditorMaster.instance == null)
 		{
 			if (!MapEditorMaster.instance)
 			{
@@ -1219,7 +1168,7 @@ public class GameMaster : MonoBehaviour
 				break;
 			}
 		}
-		if (CurrentMission == 49)
+		if (CurrentMission == 49 && MapEditorMaster.instance == null)
 		{
 			RenderSettings.ambientLight = ambientCLRlvl50;
 		}
@@ -1289,7 +1238,10 @@ public class GameMaster : MonoBehaviour
 			UpdatePlayerToAI();
 		}
 		FindPlayers();
-		AccountMaster.instance.UpdateServerStatus(CurrentMission);
+		if (MapEditorMaster.instance == null)
+		{
+			AccountMaster.instance.UpdateServerStatus(CurrentMission);
+		}
 		AmountEnemyTanks = GameObject.FindGameObjectsWithTag("Enemy").Length + GameObject.FindGameObjectsWithTag("Boss").Length;
 		levelIsLoaded = true;
 		BreakableBlocksLocations.Clear();
@@ -1298,7 +1250,7 @@ public class GameMaster : MonoBehaviour
 		BreakableHalfBlocksLocations.Clear();
 		GetBreakableBlocksLocations(currentLoadedLevel);
 		Debug.Log("ja lets go enxt LEVEL");
-		if (CurrentMission == 99)
+		if (CurrentMission == 99 && MapEditorMaster.instance == null)
 		{
 			mapBorders.SetActive(value: false);
 			CameraFollowPlayer component = Camera.main.transform.parent.GetComponent<CameraFollowPlayer>();
@@ -1777,7 +1729,7 @@ public class GameMaster : MonoBehaviour
 			Debug.LogWarning("Reset players" + PlayerJoined.Count);
 			for (int j = 0; j < PlayerJoined.Count; j++)
 			{
-				if (!PlayerJoined[j] || (CurrentMission == 99 && PlayerModeWithAI[j] == 1))
+				if (!PlayerJoined[j] || (CurrentMission == 99 && PlayerModeWithAI[j] == 1 && MapEditorMaster.instance == null))
 				{
 					continue;
 				}

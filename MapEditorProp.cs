@@ -85,6 +85,17 @@ public class MapEditorProp : MonoBehaviour
 				{
 					list.Add(item.GetComponent<MeshRenderer>());
 				}
+				if (item.childCount <= 0)
+				{
+					continue;
+				}
+				foreach (Transform item2 in item)
+				{
+					if (item2.GetComponent<MeshRenderer>() != null)
+					{
+						list.Add(item2.GetComponent<MeshRenderer>());
+					}
+				}
 			}
 			if (reset)
 			{
@@ -92,30 +103,40 @@ public class MapEditorProp : MonoBehaviour
 				{
 					if (list[i] != null && list[i].materials.Length != 0)
 					{
-						list[i].material.color = notSelectedColor[0];
+						Material[] materials = list[i].materials;
+						for (int j = 0; j < materials.Length; j++)
+						{
+							materials[j].color = notSelectedColor[0];
+						}
+						list[i].materials = materials;
 					}
 				}
 				return;
 			}
-			for (int j = 0; j < list.Count; j++)
+			for (int k = 0; k < list.Count; k++)
 			{
-				if (list[j] != null && list[j].materials.Length != 0)
+				if (list[k] != null && list[k].materials.Length != 0)
 				{
-					list[j].material.color = clr;
+					Material[] materials2 = list[k].materials;
+					for (int l = 0; l < materials2.Length; l++)
+					{
+						materials2[l].color = clr;
+					}
+					list[k].materials = materials2;
 				}
 			}
 		}
 		else if (reset)
 		{
-			Material[] materials = myRend.materials;
-			for (int k = 0; k < myRend.materials.Length; k++)
+			Material[] materials3 = myRend.materials;
+			for (int m = 0; m < myRend.materials.Length; m++)
 			{
-				if (notSelectedColor.Length >= k)
+				if (notSelectedColor.Length >= m)
 				{
-					materials[k].color = notSelectedColor[k];
+					materials3[m].color = notSelectedColor[m];
 				}
 			}
-			myRend.materials = materials;
+			myRend.materials = materials3;
 			if ((bool)SecondRend)
 			{
 				SecondRend.material.color = notSelectedColor2;
@@ -123,12 +144,12 @@ public class MapEditorProp : MonoBehaviour
 		}
 		else
 		{
-			Material[] materials2 = myRend.materials;
-			for (int l = 0; l < myRend.materials.Length; l++)
+			Material[] materials4 = myRend.materials;
+			for (int n = 0; n < myRend.materials.Length; n++)
 			{
-				materials2[l].color = clr;
+				materials4[n].color = clr;
 			}
-			myRend.materials = materials2;
+			myRend.materials = materials4;
 		}
 	}
 
@@ -709,6 +730,8 @@ public class MapEditorProp : MonoBehaviour
 			MapEditorMaster.instance.OnTeamsMenu = false;
 			MapEditorMaster.instance.TeamsCursorMenu.SetActive(value: false);
 		}
+		myMEGP.myPropID[myMEGP.IDlayer] = -1;
+		myMEGP.myPropPrefab[myMEGP.IDlayer] = null;
 		if (MapEditorMaster.instance.OTM.SelectedMEP == this)
 		{
 			DeselectThisProp();

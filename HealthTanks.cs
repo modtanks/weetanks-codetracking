@@ -101,6 +101,9 @@ public class HealthTanks : MonoBehaviour
 			if (health_armour > 0)
 			{
 				health_armour--;
+				int maxExclusive = GlobalAssets.instance.AudioDB.ArmourHits.Length;
+				int num = Random.Range(0, maxExclusive);
+				SFXManager.instance.PlaySFX(GlobalAssets.instance.AudioDB.ArmourHits[num], 1f, null);
 			}
 			else
 			{
@@ -505,7 +508,7 @@ public class HealthTanks : MonoBehaviour
 		{
 			if ((bool)component2 && component2.isShiny && (bool)AchievementsTracker.instance && OptionsMainMenu.instance.AM[34] != 1)
 			{
-				AchievementsTracker.instance.completeAchievement(34);
+				AchievementsTracker.instance.completeAchievementWithAI(34);
 			}
 			if ((bool)AchievementsTracker.instance && OptionsMainMenu.instance.AM[15] != 1)
 			{
@@ -573,7 +576,7 @@ public class HealthTanks : MonoBehaviour
 		}
 		SkidMarkCreator.transform.parent = null;
 		SkidMarkCreator.Stop();
-		Play2DClipAtPoint(Deathsound);
+		SFXManager.instance.PlaySFX(Deathsound);
 		Collider[] array = Physics.OverlapSphere(base.transform.position, 4f);
 		foreach (Collider collider in array)
 		{
@@ -669,7 +672,7 @@ public class HealthTanks : MonoBehaviour
 		GameMaster.instance.AmountPlayersThatNeedRevive--;
 		brokenParticles.gameObject.SetActive(value: false);
 		health = 1;
-		Play2DClipAtPoint(reviveSound);
+		SFXManager.instance.PlaySFX(reviveSound);
 		Object.Destroy(Object.Instantiate(revivePrefab, base.transform.position, Quaternion.identity), 2f);
 		reviveText.SetActive(value: false);
 	}
@@ -682,7 +685,7 @@ public class HealthTanks : MonoBehaviour
 		Explosion();
 		SkidMarkCreator.transform.parent = null;
 		SkidMarkCreator.Stop();
-		Play2DClipAtPoint(Deathsound);
+		SFXManager.instance.PlaySFX(Deathsound);
 		CameraShake component = Camera.main.GetComponent<CameraShake>();
 		if ((bool)component)
 		{
@@ -840,7 +843,7 @@ public class HealthTanks : MonoBehaviour
 		}
 		if (!instadie && amountRevivesLeft > 0)
 		{
-			Play2DClipAtPoint(Buzz);
+			SFXManager.instance.PlaySFX(Buzz);
 			reviveText.SetActive(value: true);
 			dying = true;
 			GameMaster.instance.AmountPlayersThatNeedRevive++;
@@ -890,11 +893,11 @@ public class HealthTanks : MonoBehaviour
 			{
 				if (GameMaster.instance.Lives > 1)
 				{
-					Play2DClipAtPoint(DeathsoundLastAlive);
+					SFXManager.instance.PlaySFX(DeathsoundLastAlive);
 				}
 				else
 				{
-					Play2DClipAtPoint(GameOverSound);
+					SFXManager.instance.PlaySFX(GameOverSound);
 				}
 				GameMaster.instance.AmountGoodTanks--;
 				GameMaster.instance.OnlyCompanionLeft = false;
@@ -907,7 +910,7 @@ public class HealthTanks : MonoBehaviour
 				}
 				if (GameMaster.instance.CM == null)
 				{
-					Play2DClipAtPoint(Deathsound);
+					SFXManager.instance.PlaySFX(Deathsound);
 				}
 				GameMaster.instance.AmountGoodTanks--;
 			}
@@ -1021,16 +1024,5 @@ public class HealthTanks : MonoBehaviour
 			GameMaster.instance.StartCoroutine(GameMaster.instance.GetTankTeamData(fast: false));
 		}
 		Object.Destroy(base.transform.parent.gameObject);
-	}
-
-	public void Play2DClipAtPoint(AudioClip clip)
-	{
-		GameObject obj = new GameObject("TempAudio");
-		AudioSource audioSource = obj.AddComponent<AudioSource>();
-		audioSource.clip = clip;
-		audioSource.volume = 2f;
-		audioSource.spatialBlend = 0f;
-		audioSource.Play();
-		Object.Destroy(obj, clip.length);
 	}
 }

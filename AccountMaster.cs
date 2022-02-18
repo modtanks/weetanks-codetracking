@@ -39,6 +39,8 @@ public class AccountMaster : MonoBehaviour
 
 	public bool IsDoingTransaction;
 
+	public string PreviousCode;
+
 	private bool SetTime;
 
 	private bool isSaving;
@@ -193,6 +195,10 @@ public class AccountMaster : MonoBehaviour
 			wWWForm.AddField("username", Username);
 			wWWForm.AddField("code", code);
 			wWWForm.AddField("difficulty", OptionsMainMenu.instance.currentDifficulty);
+			if (PreviousCode != null)
+			{
+				wWWForm.AddField("prev", PreviousCode);
+			}
 			UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_log.php", wWWForm);
 			uwr.chunkedTransfer = false;
 			yield return uwr.SendWebRequest();
@@ -206,9 +212,9 @@ public class AccountMaster : MonoBehaviour
 			{
 				Debug.Log("UPDATING STATSU FAILED");
 			}
-			else if (uwr.downloadHandler.text.Contains("SUCCESS"))
+			else
 			{
-				Debug.Log("UPDATING STATUS SUCCESS!!");
+				PreviousCode = uwr.downloadHandler.text;
 			}
 		}
 	}
@@ -221,7 +227,7 @@ public class AccountMaster : MonoBehaviour
 
 	public IEnumerator IESaveCloudData(int type, int amount, int secondary_amount, bool bounceKill)
 	{
-		if (!isSignedIn)
+		if (!isSignedIn || type == 5)
 		{
 			yield break;
 		}

@@ -71,6 +71,7 @@ public class BossPlatform : MonoBehaviour
 		obj.GetComponent<RocketScript>().MyTeam = 2;
 		obj.GetComponent<RocketScript>().isHuntingEnemies = true;
 		obj.GetComponent<RocketScript>().Launch();
+		obj.GetComponent<RocketScript>().landingOffset = 1f;
 		obj.transform.localScale = new Vector3(1f, 1f, 1f);
 	}
 

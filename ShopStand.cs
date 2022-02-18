@@ -245,7 +245,7 @@ public class ShopStand : MonoBehaviour
 		BodyCaret.color = color;
 		GameObject gameObject = null;
 		float y = 0f;
-		for (int i = 0; i < GlobalAssets.instance.StockDatabase.Length; i++)
+		for (int i = 0; i < GlobalAssets.instance.StockDatabase.Count; i++)
 		{
 			if (GlobalAssets.instance.StockDatabase[i].ItemID == MyStandItem.ItemID)
 			{

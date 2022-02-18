@@ -139,7 +139,7 @@ public class RocketScript : MonoBehaviour
 
 	public void Launch()
 	{
-		Play2DClipAtPoint(launchSound);
+		SFXManager.instance.PlaySFX(launchSound);
 		ParticleSystem[] componentsInChildren = root.GetComponentsInChildren<ParticleSystem>();
 		for (int i = 0; i < componentsInChildren.Length; i++)
 		{
@@ -152,7 +152,7 @@ public class RocketScript : MonoBehaviour
 	private IEnumerator Impact()
 	{
 		yield return new WaitForSeconds(1.5f);
-		Play2DClipAtPoint(incomingSound);
+		SFXManager.instance.PlaySFX(incomingSound);
 		boxC.enabled = true;
 		yield return new WaitForSeconds(2.5f);
 		base.transform.RotateAround(base.transform.position, base.transform.right, 180f);
@@ -224,15 +224,15 @@ public class RocketScript : MonoBehaviour
 		if (list.Count > 0)
 		{
 			int index = Random.Range(0, list.Count);
-			Vector3 vector = new Vector3(0f, 3f, 0f);
-			vector = list[index].transform.position;
+			new Vector3(0f, 3f, 0f);
+			_ = list[index].transform.position;
 			state = 2;
-			TargetPosition = vector + new Vector3(Random.Range(0f - landingOffset, landingOffset), 50f, Random.Range(0f - landingOffset, landingOffset));
+			TargetPosition = CalculateEnemyPosition(list[index]);
 			SpawnTarget(new Vector3(TargetPosition.x, 0.1f, TargetPosition.z));
-			Vector3 vector2 = TargetPosition - base.transform.position;
-			vector2.y = 0f;
-			float magnitude = vector2.magnitude;
-			FlyDirection = vector2 / magnitude;
+			Vector3 vector = TargetPosition - base.transform.position;
+			vector.y = 0f;
+			float magnitude = vector.magnitude;
+			FlyDirection = vector / magnitude;
 			Debug.Log(FlyDirection);
 			state = 2;
 		}
@@ -308,6 +308,18 @@ public class RocketScript : MonoBehaviour
 		}
 	}
 
+	private Vector3 CalculateEnemyPosition(GameObject TargetObject)
+	{
+		if (TargetObject.GetComponent<Rigidbody>().velocity.magnitude > 0.5f)
+		{
+			EnemyAI component = TargetObject.GetComponent<EnemyAI>();
+			Vector3 vector = (component ? ((!component.DrivingBackwards) ? (TargetObject.transform.position + TargetObject.transform.forward * 2f) : (TargetObject.transform.position + -TargetObject.transform.forward * 2f)) : ((!TargetObject.GetComponent<MoveTankScript>().DrivingBackwards) ? (TargetObject.transform.position + TargetObject.transform.forward * 2f) : (TargetObject.transform.position + -TargetObject.transform.forward * 2f)));
+			Debug.DrawLine(vector, base.transform.position, Color.blue);
+			return vector + new Vector3(Random.Range(0f - landingOffset, landingOffset), 50f, Random.Range(0f - landingOffset, landingOffset));
+		}
+		return TargetObject.transform.position + new Vector3(Random.Range(0f - landingOffset, landingOffset), 50f, Random.Range(0f - landingOffset, landingOffset));
+	}
+
 	private void AreaDamageEnemies(Vector3 location, float radius, float damage)
 	{
 		Collider[] array = Physics.OverlapSphere(location, radius);
@@ -374,17 +386,5 @@ public class RocketScript : MonoBehaviour
 		int maxExclusive = DeadHit.Length;
 		int num = Random.Range(0, maxExclusive);
 		SFXManager.instance.PlaySFX(DeadHit[num], 0.6f, null);
-	}
-
-	public void Play2DClipAtPoint(AudioClip clip)
-	{
-		GameObject obj = new GameObject("TempAudio");
-		obj.transform.tag = "Temp";
-		AudioSource audioSource = obj.AddComponent<AudioSource>();
-		audioSource.clip = clip;
-		audioSource.volume = 2f;
-		audioSource.spatialBlend = 0f;
-		audioSource.Play();
-		Object.Destroy(obj, clip.length);
 	}
 }
