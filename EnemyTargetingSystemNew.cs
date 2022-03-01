@@ -146,6 +146,8 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 	[Header("Custom Tank SHIT")]
 	public int AmountShotgunShots;
 
+	public int CustomShootSpeed = -1;
+
 	private bool ScriptDisabled;
 
 	private float SecretTimer;
@@ -174,14 +176,18 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		}
 		else
 		{
-			myLayerMasks = ~((1 << LayerMask.NameToLayer("EnemyDetectionLayer")) | (1 << LayerMask.NameToLayer("BulletDetectField")) | (1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("Other")) | (1 << LayerMask.NameToLayer("OneWayBlock")));
+			myLayerMasks = ~((1 << LayerMask.NameToLayer("EnemyDetectionLayer")) | (1 << LayerMask.NameToLayer("BulletDetectField")) | (1 << LayerMask.NameToLayer("EnemyBorder")) | (1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("Other")) | (1 << LayerMask.NameToLayer("OneWayBlock")));
 		}
-		if (AIscript.HTscript.isSpawnedIn)
+		if (AIscript.HTscript.IsAirdropped)
 		{
 			StartCoroutine(LatePlayerCheck());
 		}
 		originalLvl30TurnSpeed = AIscript.lvl30BossTurnSpeed;
 		originalRotation = base.transform.rotation;
+		if (OptionsMainMenu.instance.currentDifficulty == 3)
+		{
+			AIscript.isSmart = true;
+		}
 	}
 
 	private IEnumerator LatePlayerCheck()
@@ -323,6 +329,10 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				DisableThis();
 			}
 			return;
+		}
+		if (GameMaster.instance.isOfficialCampaign && AIscript.MyTeam == 1)
+		{
+			isHuntingEnemies = true;
 		}
 		if (firedBullets >= maxFiredBullets)
 		{
@@ -519,9 +529,10 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 	private void SearchPlayers()
 	{
 		Targets.Clear();
+		GameObject[] array;
 		if ((bool)MapEditorMaster.instance)
 		{
-			GameObject[] array = GameObject.FindGameObjectsWithTag("Enemy");
+			array = GameObject.FindGameObjectsWithTag("Enemy");
 			foreach (GameObject gameObject in array)
 			{
 				EnemyAI component = gameObject.GetComponent<EnemyAI>();
@@ -557,13 +568,15 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 					Targets.Add(gameObject3);
 				}
 			}
+			return;
 		}
-		else if (isHuntingEnemies || GameMaster.instance.inMenuMode)
+		if (isHuntingEnemies || GameMaster.instance.inMenuMode || AIscript.MyTeam == 1)
 		{
-			GameObject[] array = GameObject.FindGameObjectsWithTag("Enemy");
+			array = GameObject.FindGameObjectsWithTag("Enemy");
 			foreach (GameObject gameObject4 in array)
 			{
-				if (gameObject4.gameObject != AIscript.gameObject)
+				EnemyAI component5 = gameObject4.GetComponent<EnemyAI>();
+				if ((bool)component5 && gameObject4.gameObject != AIscript.gameObject && (component5.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0))
 				{
 					Targets.Add(gameObject4);
 				}
@@ -576,13 +589,20 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 					Targets.Add(gameObject5);
 				}
 			}
+			return;
 		}
-		else
+		array = GameObject.FindGameObjectsWithTag("Player");
+		foreach (GameObject item in array)
 		{
-			GameObject[] array = GameObject.FindGameObjectsWithTag("Player");
-			foreach (GameObject item in array)
+			Targets.Add(item);
+		}
+		array = GameObject.FindGameObjectsWithTag("Enemy");
+		foreach (GameObject gameObject6 in array)
+		{
+			EnemyAI component6 = gameObject6.GetComponent<EnemyAI>();
+			if ((bool)component6 && gameObject6.gameObject != AIscript.gameObject && component6.MyTeam != AIscript.MyTeam)
 			{
-				Targets.Add(item);
+				Targets.Add(gameObject6);
 			}
 		}
 	}
@@ -726,7 +746,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 					}
 				}
 			}
-			else if (isHuntingEnemies)
+			else if (isHuntingEnemies || AIscript.MyTeam == 1)
 			{
 				if (hitInfo.collider.tag == "Enemy" || hitInfo.collider.tag == "Boss")
 				{
@@ -877,7 +897,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 					DeflectingBullet = true;
 					if (!CR_running)
 					{
-						StartCoroutine("ShootAtPlayer", true);
+						StartCoroutine(ShootAtPlayer());
 					}
 					return;
 				}
@@ -890,7 +910,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		startingPosition = Vector3.zero;
 		if (!DrawReflectionPattern(base.transform.position, rot * Vector3.forward, maxReflectionCount, CheckingForFriendlies: false))
 		{
-			rot *= Quaternion.Euler(0f, 3f, 0f);
+			rot *= Quaternion.Euler(0f, 2.8f, 0f);
 		}
 		else
 		{
@@ -900,13 +920,11 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 			}
 			if (CheckForEverything(rot, 0.2f, FriendliesCheck: false, AIscript.amountOfBounces))
 			{
-				Debug.Log("Enemy shot is not precisely enough to hit");
 				rot *= Quaternion.Euler(0f, 3f, 0f);
 				return;
 			}
 			if (CheckForEverything(rot, 0.9f, FriendliesCheck: true, AIscript.amountOfBounces))
 			{
-				Debug.Log("There is a friendly in the way!");
 				rot *= Quaternion.Euler(0f, 3f, 0f);
 				return;
 			}
@@ -967,11 +985,19 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				{
 					continue;
 				}
-				if (raycastHit.collider.tag == "Player" && !isHuntingEnemies && raycastHit.collider.transform.parent.gameObject != AIscript.gameObject && raycastHit.collider.gameObject != AIscript.gameObject)
+				if ((raycastHit.collider.tag == "Player" || raycastHit.collider.tag == "HitZone") && !isHuntingEnemies && raycastHit.collider.transform.parent.gameObject != AIscript.gameObject && raycastHit.collider.gameObject != AIscript.gameObject)
 				{
 					MoveTankScript component = raycastHit.transform.GetComponent<MoveTankScript>();
+					if (component == null && raycastHit.collider.tag == "HitZone")
+					{
+						component = raycastHit.transform.parent.GetChild(0).transform.GetComponent<MoveTankScript>();
+					}
 					if ((bool)component)
 					{
+						if (!(raycastHit.collider.tag == "HitZone"))
+						{
+							return false;
+						}
 						if (component.MyTeam == AIscript.MyTeam && AIscript.MyTeam != 0 && !CheckingForFriendlies)
 						{
 							return false;
@@ -1113,7 +1139,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		{
 			if (specialMove && canShoot && specialMoveLockedIn)
 			{
-				if (CheckForEverything(base.transform.rotation, 0.6f, FriendliesCheck: true, AIscript.amountOfBounces) && !isHuntingEnemies)
+				if (CheckForEverything(base.transform.rotation, 0.6f, FriendliesCheck: true, AIscript.amountOfBounces) && !isHuntingEnemies && !DeflectingBullet)
 				{
 					if (AIscript.isAggro)
 					{
@@ -1138,7 +1164,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				if (firedBullets >= maxFiredBullets)
 				{
 					yield return new WaitForSeconds(0.05f);
-					StartCoroutine("ShootAtPlayer", false);
+					StartCoroutine(ShootAtPlayer());
 					yield break;
 				}
 				firedBullets++;
@@ -1183,6 +1209,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 						FireTank(firepoint2, bulletPrefab);
 					}
 				}
+				DeflectingBullet = false;
 				specialMove = false;
 				normalLockedIn = false;
 				specialMoveLockedIn = false;
@@ -1206,7 +1233,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				}
 				normalLockedIn = false;
 				Debug.DrawRay(base.transform.position, base.transform.TransformDirection(Vector3.forward) * 100f, Color.green, 2f);
-				LayerMask layerMask = ~((1 << LayerMask.NameToLayer("EnemyDetectionLayer")) | (1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("OneWayBlock")));
+				LayerMask layerMask = ~((1 << LayerMask.NameToLayer("EnemyDetectionLayer")) | (1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("OneWayBlock")) | (1 << LayerMask.NameToLayer("EnemyBorder")));
 				if (Physics.Raycast(base.transform.position, base.transform.TransformDirection(Vector3.forward) * 100f, out var hitInfo, float.PositiveInfinity, layerMask))
 				{
 					if (hitInfo.collider.tag == "Solid" || hitInfo.collider.tag == "MapBorder" || hitInfo.collider.tag == "Mine")
@@ -1346,8 +1373,8 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				}
 			}
 		}
-		yield return new WaitForSeconds(0.05f);
-		StartCoroutine("ShootAtPlayer", false);
+		yield return new WaitForSeconds(0.02f);
+		StartCoroutine(ShootAtPlayer());
 	}
 
 	private bool CheckForEverything(Quaternion checkAngle, float checkOffset, bool FriendliesCheck, int reflections)
@@ -1580,10 +1607,23 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		{
 			component.isShiny = true;
 		}
+		if (AIscript.isSuperShiny)
+		{
+			component.isSuperShiny = true;
+		}
 		Rigidbody component2 = gameObject.GetComponent<Rigidbody>();
 		if ((bool)component2)
 		{
 			component2.AddForce(firepoint.forward * 6f);
+			component.StartingVelocity = firepoint.forward * 6f;
+			_ = firepoint.position;
+			Ray ray = new Ray(firepoint.position, firepoint.forward);
+			LayerMask layerMask = (1 << LayerMask.NameToLayer("CorkWall")) | (1 << LayerMask.NameToLayer("Wall")) | (1 << LayerMask.NameToLayer("NoBounceWall")) | (1 << LayerMask.NameToLayer("DestroyableWall"));
+			Debug.DrawRay(firepoint.position, firepoint.forward * 15f, Color.cyan, 3f);
+			if (Physics.Raycast(ray, out var hitInfo, 1000f, layerMask))
+			{
+				component.WallGonnaBounceInTo = hitInfo.transform.gameObject;
+			}
 		}
 		if (!AIscript.IsCompanion)
 		{
@@ -1599,6 +1639,14 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 			component.ShotByPlayer = AIscript.CompanionID;
 			component.TankScriptAI = this;
 			component.EnemyTankScript = this;
+		}
+		if (CustomShootSpeed > -1)
+		{
+			component.BulletSpeed = CustomShootSpeed;
+		}
+		if (bulletprefab == SecondBulletPrefab && AIscript.isLevel30Boss)
+		{
+			component.MaxBounces = 1;
 		}
 		Physics.IgnoreCollision(component.GetComponent<Collider>(), AIscript.GetComponent<Collider>());
 		component.CollidersIgnoring.Add(AIscript.GetComponent<Collider>());

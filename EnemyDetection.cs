@@ -236,29 +236,48 @@ public class EnemyDetection : MonoBehaviour
 
 	private void Update()
 	{
+		if (!GameMaster.instance.GameHasStarted && !GameMaster.instance.inMenuMode)
+		{
+			SolidPieces.Clear();
+		}
 	}
 
 	private void OnTriggerEnter(Collider other)
 	{
 		if ((other.transform.tag == "Solid" || other.transform.tag == "MapBorder") && !isCenter && GameMaster.instance.CurrentMission != 49)
 		{
-			SolidPieces.Add(other);
+			if (!SolidPieces.Contains(other))
+			{
+				SolidPieces.Add(other);
+			}
 		}
 		else if (other.transform.tag == "ElectricWall")
 		{
-			SolidPieces.Add(other);
+			if (!SolidPieces.Contains(other))
+			{
+				SolidPieces.Add(other);
+			}
 		}
 		else if (GameMaster.instance.CurrentMission != 69 && other.transform.tag == "ElectricPad" && !AIscript.isElectric)
 		{
-			SolidPieces.Add(other);
+			if (!SolidPieces.Contains(other))
+			{
+				SolidPieces.Add(other);
+			}
 		}
 		else if (other.transform.tag == "Enemy" && other.gameObject != papaTank)
 		{
-			Enemies.Add(other);
+			if (!Enemies.Contains(other))
+			{
+				Enemies.Add(other);
+			}
 		}
 		else if (other.transform.tag == "Player" && other.gameObject != papaTank)
 		{
-			Enemies.Add(other);
+			if (!Enemies.Contains(other))
+			{
+				Enemies.Add(other);
+			}
 		}
 		else
 		{
@@ -291,6 +310,14 @@ public class EnemyDetection : MonoBehaviour
 				}
 			}
 		}
+	}
+
+	private void OnDisable()
+	{
+		SolidPieces.Clear();
+		Enemies.Clear();
+		FloorPieces.Clear();
+		Bullets.Clear();
 	}
 
 	private void OnTriggerExit(Collider other)

@@ -47,6 +47,8 @@ public class SettingsData
 
 	public Dictionary<string, KeyCode> keys = new Dictionary<string, KeyCode>();
 
+	public bool[] AIactived;
+
 	public SettingsData(OptionsMainMenu OMM)
 	{
 		musicVolLevel = OMM.musicVolumeLvl;
@@ -70,5 +72,6 @@ public class SettingsData
 		MapEditorTankMessagesReceived = OMM.MapEditorTankMessagesReceived;
 		UIsettings = OMM.UIsetting;
 		xraybullets = OMM.showxraybullets;
+		AIactived = OMM.MenuCompanion;
 	}
 }

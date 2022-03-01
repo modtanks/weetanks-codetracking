@@ -41,7 +41,7 @@ public class OnTeamsMenu : MonoBehaviour
 		_ = GameMaster.instance.GameHasPaused;
 	}
 
-	public void OnOpenMenu(int MenuType)
+	public void OnOpenMenu(int MenuType, MapEditorProp Selected)
 	{
 		Debug.Log("Opening animatino Teams menu!");
 		myAnimator.SetBool("ShowMenu", value: true);
@@ -51,6 +51,8 @@ public class OnTeamsMenu : MonoBehaviour
 			menus[i].SetActive(value: false);
 		}
 		Menus[MenuType].SetActive(value: true);
+		DifficultyPick.value = CurrentDifficulty;
+		SelectedMEP = Selected;
 	}
 
 	private void UpdateMenu()
@@ -97,6 +99,10 @@ public class OnTeamsMenu : MonoBehaviour
 
 	private void Update()
 	{
+		if (SelectedMEP != null && (bool)SelectedMEP.myMEGP)
+		{
+			SelectedMEP.myMEGP.FieldSelected = true;
+		}
 		if (GameMaster.instance.GameHasPaused)
 		{
 			_ = PointOnMe;

@@ -659,7 +659,7 @@ public class MapEditorGridPiece : MonoBehaviour
 			myPropPrefab[j] = null;
 			myMEP[j] = null;
 			rotationDirection[j] = 0;
-			MyTeamNumber = -1;
+			MyTeamNumber = 0;
 		}
 		SpawnDifficulty = 0;
 		lastKnownMission = -1;

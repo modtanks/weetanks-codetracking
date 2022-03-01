@@ -53,12 +53,19 @@ public class TankCustoms : MonoBehaviour
 
 	private void SetSkin(CustomSkinData CSD)
 	{
+		if (CSD == null)
+		{
+			return;
+		}
 		for (int i = 0; i < allRends.Length; i++)
 		{
 			Material[] materials = allRends[i].materials;
 			for (int j = 0; j < materials.Length; j++)
 			{
-				materials[j] = CSD.MainMaterial;
+				if (CSD.MainMaterial != null)
+				{
+					materials[j] = CSD.MainMaterial;
+				}
 			}
 			allRends[i].materials = materials;
 		}

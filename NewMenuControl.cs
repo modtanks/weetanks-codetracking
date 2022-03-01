@@ -6,9 +6,9 @@ using Rewired;
 using Rewired.UI.ControlMapper;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class NewMenuControl : MonoBehaviour
 {
@@ -94,29 +94,29 @@ public class NewMenuControl : MonoBehaviour
 	public GameObject StartLobbyGameButtonSlider;
 
 	[Header("Settings Texts")]
-	public TextMeshProUGUI Graphicstext;
+	public TMP_Dropdown Graphics_list;
 
-	public TextMeshProUGUI Resolutiontext;
+	public TMP_Dropdown Resolution_list;
 
-	public TextMeshProUGUI Fullscreentext;
+	public ButtonMouseEvents Fullscreen_toggle;
 
-	public TextMeshProUGUI FPStext;
+	public TMP_Dropdown FPS_list;
 
-	public TextMeshProUGUI MasterVolumetext;
+	public TMP_Dropdown MasterVolume_list;
 
-	public TextMeshProUGUI MusicVolumetext;
+	public TMP_Dropdown MusicVolume_list;
 
-	public TextMeshProUGUI SFXVolumetext;
+	public TMP_Dropdown SFXVolume_list;
 
-	public TextMeshProUGUI FriendlyFiretext;
+	public ButtonMouseEvents FriendlyFire_toggle;
 
 	public TextMeshProUGUI AICompaniontext;
 
-	public TextMeshProUGUI SnowModeText;
+	public ButtonMouseEvents SnowMode_toggle;
 
-	public TextMeshProUGUI MarkedTanksText;
+	public ButtonMouseEvents MarkedTanks_toggle;
 
-	public TextMeshProUGUI XRAYBULLETSText;
+	public ButtonMouseEvents XRAYBULLETS_toggle;
 
 	public TextMeshProUGUI GoreModeText;
 
@@ -126,11 +126,13 @@ public class NewMenuControl : MonoBehaviour
 
 	public TextMeshProUGUI NoKillsText;
 
-	public TextMeshProUGUI DifficultyText;
+	public TMP_Dropdown Difficulty_list;
+
+	public TMP_Dropdown Difficulty_list_campaign;
 
 	public TextMeshProUGUI DifficultyExplainText;
 
-	public TextMeshProUGUI vsynctext;
+	public ButtonMouseEvents vsync_toggle;
 
 	public TextMeshProUGUI SurvivalGamesText_shadow;
 
@@ -186,6 +188,8 @@ public class NewMenuControl : MonoBehaviour
 
 	public LoadingIconScript LIS;
 
+	public GameObject LIS_parent;
+
 	public KeyCode[] AssignedCodes;
 
 	public MainMenuButtons[] MMBlevels;
@@ -199,6 +203,10 @@ public class NewMenuControl : MonoBehaviour
 	private List<GameObject> MapObjects = new List<GameObject>();
 
 	public Player player;
+
+	public int AmountMaps;
+
+	public TextAsset EditClassicMapID;
 
 	public bool HoldingShift;
 
@@ -218,6 +226,10 @@ public class NewMenuControl : MonoBehaviour
 		KeyCode.Alpha9
 	};
 
+	public bool CanMove = true;
+
+	public bool IsUsingMouse = true;
+
 	private int SelectedCheckpoint;
 
 	private bool prevRequestIsHere = true;
@@ -230,7 +242,7 @@ public class NewMenuControl : MonoBehaviour
 	{
 		yield return new WaitForSeconds(0.4f);
 		int num = UnityEngine.Random.Range(0, Jingles.Length);
-		Play2DClipAtPoint(Jingles[num]);
+		SFXManager.instance.PlaySFX(Jingles[num]);
 	}
 
 	private void Awake()
@@ -238,7 +250,7 @@ public class NewMenuControl : MonoBehaviour
 		Time.timeScale = 1f;
 	}
 
-	private void GetMapFiles()
+	public void GetMapFiles()
 	{
 		foreach (GameObject mapObject in MapObjects)
 		{
@@ -278,49 +290,58 @@ public class NewMenuControl : MonoBehaviour
 				MapObjects.Add(gameObject);
 				gameObject.transform.SetParent(MapFileView.transform, worldPositionStays: false);
 				gameObject.GetComponentInChildren<TextMeshProUGUI>().text = mapname;
+				CampaignItemScript campaignItemScript = null;
 				if (mapEditorData.VersionCreated != "v0.7.12" && mapEditorData.VersionCreated != "v0.7.11" && mapEditorData.VersionCreated != "v0.7.10" && mapEditorData.VersionCreated != "v0.8.0e" && mapEditorData.VersionCreated != "v0.8.0d" && mapEditorData.VersionCreated != "v0.8.0c" && mapEditorData.VersionCreated != "v0.8.0b")
 				{
 					GameObject obj = UnityEngine.Object.Instantiate(OnlineMyMapPrefab);
 					obj.transform.SetParent(OnlineMyMapParent.transform, worldPositionStays: false);
-					CampaignItemScript component = obj.GetComponent<CampaignItemScript>();
-					component.campaignName = mapname;
-					component.campaignVersion = mapEditorData.VersionCreated;
-					component.NMC = this;
-					component.map_size = mapEditorData.MapSize;
-					component.amount_missions = mapEditorData.missionAmount;
-					component.campaign_difficulty = mapEditorData.difficulty;
+					campaignItemScript = obj.GetComponent<CampaignItemScript>();
+					campaignItemScript.campaignName = mapname;
+					campaignItemScript.campaignVersion = mapEditorData.VersionCreated;
+					campaignItemScript.NMC = this;
+					campaignItemScript.map_size = mapEditorData.MapSize;
+					campaignItemScript.amount_missions = mapEditorData.missionAmount;
+					campaignItemScript.campaign_difficulty = mapEditorData.difficulty;
+					AmountMaps++;
 					if (mapEditorData.PID > 0)
 					{
-						component.isPublished = mapEditorData.isPublished;
-						component.campaignID = mapEditorData.PID;
+						campaignItemScript.isPublished = mapEditorData.isPublished;
+						campaignItemScript.campaignID = mapEditorData.PID;
 					}
 				}
-				TextMeshProUGUI component2 = gameObject.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
-				string text2 = ((mapEditorData.signedName != "") ? mapEditorData.signedName : "unknown");
-				if (component2 != null)
+				campaignItemScript = gameObject.GetComponent<CampaignItemScript>();
+				_ = (bool)campaignItemScript;
+				_ = campaignItemScript.isMainMenuCampaign;
+				if ((bool)campaignItemScript && campaignItemScript.isMainMenuCampaign)
 				{
+					if (mapEditorData.missionAmount > 0)
+					{
+						campaignItemScript.text_amountmissions.text = mapEditorData.missionAmount.ToString();
+					}
+					string text2 = ((mapEditorData.signedName != "") ? mapEditorData.signedName : "unknown");
 					if (OptionsMainMenu.instance.CurrentVersion != mapEditorData.VersionCreated)
 					{
+						campaignItemScript.text_subtitle.color = Color.red;
 						if (mapEditorData.VersionCreated != null)
 						{
-							component2.text = "WARNING! Created in " + mapEditorData.VersionCreated;
+							campaignItemScript.text_subtitle.text = "WARNING! Created in " + mapEditorData.VersionCreated;
 						}
 						else
 						{
-							component2.text = "WARNING! Unknown version";
+							campaignItemScript.text_subtitle.text = "WARNING! Unknown version";
 						}
 					}
 					else
 					{
-						component2.text = "";
-						component2.color = Color.grey;
+						campaignItemScript.text_subtitle.text = "";
+						campaignItemScript.text_subtitle.color = Color.grey;
 						if (text2 != "")
 						{
-							component2.text = "Created by " + text2;
+							campaignItemScript.text_subtitle.text = "Created by " + text2;
 						}
 					}
 				}
-				Button component3 = gameObject.GetComponent<Button>();
+				gameObject.GetComponent<EventTrigger>();
 				try
 				{
 					MapSize = mapEditorData.MapSize;
@@ -333,10 +354,14 @@ public class NewMenuControl : MonoBehaviour
 				{
 					Debug.Log("no map size found");
 				}
-				component3.onClick.AddListener(delegate
+				EventTrigger component = gameObject.gameObject.GetComponent<EventTrigger>();
+				EventTrigger.Entry entry = new EventTrigger.Entry();
+				entry.eventID = EventTriggerType.PointerDown;
+				entry.callback.AddListener(delegate
 				{
 					OnMapClick(mapname, MapSize);
 				});
+				component.triggers.Add(entry);
 			}
 		}
 		else if (NoMapsText != null)
@@ -404,6 +429,10 @@ public class NewMenuControl : MonoBehaviour
 		GameObject[] menus = Menus;
 		foreach (GameObject gameObject in menus)
 		{
+			if (!(gameObject != null))
+			{
+				continue;
+			}
 			int num = 0;
 			int childCount = gameObject.transform.childCount;
 			for (int j = 0; j < childCount; j++)
@@ -415,47 +444,12 @@ public class NewMenuControl : MonoBehaviour
 			}
 			menuAmountOptions.Add(num - 1);
 		}
-		if (!OptionsMainMenu.instance.isFullscreen)
-		{
-			Fullscreentext.text = "( )";
-		}
-		else
-		{
-			Fullscreentext.text = "(x)";
-		}
-		if (!OptionsMainMenu.instance.FriendlyFire)
-		{
-			FriendlyFiretext.text = "( )";
-		}
-		else
-		{
-			FriendlyFiretext.text = "(x)";
-		}
+		Fullscreen_toggle.IsEnabled = OptionsMainMenu.instance.isFullscreen;
+		FriendlyFire_toggle.IsEnabled = OptionsMainMenu.instance.FriendlyFire;
+		SnowMode_toggle.IsEnabled = OptionsMainMenu.instance.SnowMode;
+		XRAYBULLETS_toggle.IsEnabled = OptionsMainMenu.instance.showxraybullets;
+		MarkedTanks_toggle.IsEnabled = OptionsMainMenu.instance.MarkedTanks;
 		AICompaniontext.text = OptionsMainMenu.instance.AIcompanion.ToString();
-		if (!OptionsMainMenu.instance.SnowMode)
-		{
-			SnowModeText.text = "(x)";
-		}
-		else
-		{
-			SnowModeText.text = "( )";
-		}
-		if (OptionsMainMenu.instance.MarkedTanks)
-		{
-			MarkedTanksText.text = "(x)";
-		}
-		else
-		{
-			MarkedTanksText.text = "( )";
-		}
-		if (OptionsMainMenu.instance.showxraybullets)
-		{
-			XRAYBULLETSText.text = "(x)";
-		}
-		else
-		{
-			XRAYBULLETSText.text = "( )";
-		}
 		if (OptionsMainMenu.instance.BloodMode)
 		{
 			GoreModeText.text = "(x)";
@@ -464,14 +458,7 @@ public class NewMenuControl : MonoBehaviour
 		{
 			GoreModeText.text = "( )";
 		}
-		if (OptionsMainMenu.instance.vsync)
-		{
-			vsynctext.text = "(x)";
-		}
-		else
-		{
-			vsynctext.text = "( )";
-		}
+		vsync_toggle.IsEnabled = OptionsMainMenu.instance.vsync;
 		for (int k = 0; k < 50; k++)
 		{
 			if (OptionsMainMenu.instance.AMnames[k] != "")
@@ -487,19 +474,29 @@ public class NewMenuControl : MonoBehaviour
 			obj2.transform.SetParent(UnlockableParent.transform);
 			obj2.GetComponent<UnlockableScript>().ULID = l;
 		}
-		MusicVolumetext.text = OptionsMainMenu.instance.musicVolumeLvl.ToString();
-		MasterVolumetext.text = OptionsMainMenu.instance.masterVolumeLvl.ToString();
-		SFXVolumetext.text = OptionsMainMenu.instance.sfxVolumeLvl.ToString();
+		MusicVolume_list.SetValueWithoutNotify(OptionsMainMenu.instance.musicVolumeLvl);
+		MasterVolume_list.SetValueWithoutNotify(OptionsMainMenu.instance.masterVolumeLvl);
+		SFXVolume_list.SetValueWithoutNotify(OptionsMainMenu.instance.sfxVolumeLvl);
 		if (OptionsMainMenu.instance.inAndroid)
 		{
 			VideoOptionstext.color = Color.gray;
 		}
+		SetAudioText();
+		SetDifficultyText();
 		SetGraphicsText();
 		SetResolutionText();
 		SetFPSText();
 		enableMenu(0);
 		UpdateDifficultyText();
 		StartCoroutine(LateStart());
+	}
+
+	private void SetGameplayToggles()
+	{
+		FriendlyFire_toggle.IsEnabled = OptionsMainMenu.instance.FriendlyFire;
+		SnowMode_toggle.IsEnabled = OptionsMainMenu.instance.SnowMode;
+		XRAYBULLETS_toggle.IsEnabled = OptionsMainMenu.instance.showxraybullets;
+		MarkedTanks_toggle.IsEnabled = OptionsMainMenu.instance.MarkedTanks;
 	}
 
 	private IEnumerator LateStart()
@@ -635,16 +632,26 @@ public class NewMenuControl : MonoBehaviour
 		PIM.CanPlayWithAI = true;
 		PIM.SetControllers();
 		enableMenu(25);
+		PIM.SetDifficultyController.SetActive(value: true);
 		StartCoroutine("doing");
-		OptionsMainMenu.instance.MapEditorMapName = mapname;
-		OptionsMainMenu.instance.MapSize = mapsize;
+		if (mapname == "CLASSICMAP")
+		{
+			OptionsMainMenu.instance.ClassicMap = EditClassicMapID;
+			OptionsMainMenu.instance.MapSize = 285;
+		}
+		else
+		{
+			OptionsMainMenu.instance.ClassicMap = null;
+			OptionsMainMenu.instance.MapEditorMapName = mapname;
+			OptionsMainMenu.instance.MapSize = mapsize;
+		}
 	}
 
 	public void UpdateMenuSignedInText()
 	{
 		if (AccountMaster.instance.isSignedIn)
 		{
-			SignedInText.text = "Currently signed in as: " + AccountMaster.instance.Username;
+			SignedInText.text = "Currently signed in as:<br>" + AccountMaster.instance.Username;
 			SignedInText.color = Color.black;
 		}
 		else
@@ -671,6 +678,10 @@ public class NewMenuControl : MonoBehaviour
 					break;
 				}
 			}
+		}
+		if (Input.GetAxisRaw("Mouse X") < 0f || Input.GetAxisRaw("Mouse Y") > 0f)
+		{
+			IsUsingMouse = true;
 		}
 		if (NoKillsText != null)
 		{
@@ -728,24 +739,6 @@ public class NewMenuControl : MonoBehaviour
 				}
 			}
 		}
-		MainMenuButtons[] array = UnityEngine.Object.FindObjectsOfType(typeof(MainMenuButtons)) as MainMenuButtons[];
-		foreach (MainMenuButtons mainMenuButtons in array)
-		{
-			if (mainMenuButtons.Place == Selection && mainMenuButtons.inMenu == currentMenu)
-			{
-				if (!mainMenuButtons.Selected)
-				{
-					currentScript = mainMenuButtons;
-					mainMenuButtons.Selected = true;
-					mainMenuButtons.startTime = Time.time;
-				}
-			}
-			else if (mainMenuButtons.Selected)
-			{
-				mainMenuButtons.Selected = false;
-				mainMenuButtons.startTime = Time.time;
-			}
-		}
 		if (!doSomething)
 		{
 			return;
@@ -777,34 +770,30 @@ public class NewMenuControl : MonoBehaviour
 
 	public void UpdateDifficultyText()
 	{
-		PlayMenuChangeSound();
-		switch (OptionsMainMenu.instance.currentDifficulty)
-		{
-		case 0:
-			DifficultyText.text = "Toddler";
-			DifficultyExplainText.text = "(Less tonks, easier)";
-			break;
-		case 1:
-			DifficultyText.text = "Kid";
-			DifficultyExplainText.text = "(HoW iT is maent to be played)";
-			break;
-		case 2:
-			DifficultyText.text = "Adult";
-			DifficultyExplainText.text = "(MorE tAnks, hardr bosses)";
-			break;
-		case 3:
-			DifficultyText.text = "Grandpa";
-			DifficultyExplainText.text = "(iNsAnitY)";
-			break;
-		}
 	}
 
 	public IEnumerator doing()
 	{
 		doSomething = false;
-		Play2DClipAtPoint(MarkerSound);
+		SFXManager.instance.PlaySFX(MarkerSound, 0.8f);
 		yield return new WaitForSeconds(0.2f);
 		doSomething = true;
+	}
+
+	public IEnumerator MoveSelection(bool up)
+	{
+		IsUsingMouse = false;
+		CanMove = false;
+		if (up)
+		{
+			Selection--;
+		}
+		else
+		{
+			Selection++;
+		}
+		yield return new WaitForSeconds(0.2f);
+		CanMove = true;
 	}
 
 	private void deselectButton(MainMenuButtons MMB)
@@ -815,6 +804,7 @@ public class NewMenuControl : MonoBehaviour
 
 	public void doRightButton(MainMenuButtons MMB)
 	{
+		Debug.LogError("RIGHT CLICKED");
 		if (!MMB.IsContinue || !MMB.canBeSelected)
 		{
 			return;
@@ -823,15 +813,16 @@ public class NewMenuControl : MonoBehaviour
 		for (int i = 0; i < MMBlevels.Length; i++)
 		{
 			MMBlevels[i].ContinueLevel = MMB.ContinueLevel - 10 + i;
-			if ((bool)MMBlevels[i].thisText)
+			if ((bool)MMBlevels[i].ButtonTitle)
 			{
-				MMBlevels[i].thisText.text = "Mission " + (MMB.ContinueLevel - 9 + i);
+				MMBlevels[i].ButtonTitle.text = "Mission " + (MMB.ContinueLevel - 9 + i);
 				continue;
 			}
 			MMBlevels[i].thisText = MMBlevels[i].GetComponent<TextMeshProUGUI>();
 			MMBlevels[i].thisText.text = "Mission " + (MMB.ContinueLevel - 9 + i);
 		}
 		SelectedCheckpoint = MMB.ContinueLevel;
+		Debug.LogError("now CLICKED");
 		deselectButton(MMB);
 		enableMenu(17);
 		StartCoroutine("doing");
@@ -945,9 +936,7 @@ public class NewMenuControl : MonoBehaviour
 				CenterText.gameObject.SetActive(value: true);
 				yield return new WaitForSeconds(2f);
 				CenterText.gameObject.SetActive(value: false);
-				Menus[currentMenu].SetActive(value: false);
-				currentMenu = 20;
-				Menus[currentMenu].SetActive(value: true);
+				enableMenu(18);
 				Create_AccountNameInput.text = null;
 				Create_PasswordInput.text = null;
 				Create_PasswordInputCheck.text = null;
@@ -1039,8 +1028,7 @@ public class NewMenuControl : MonoBehaviour
 				yield return new WaitForSeconds(1f);
 				AccountMaster.instance.StartCoroutine(AccountMaster.instance.LoadCloudData());
 				CenterText.gameObject.SetActive(value: false);
-				currentMenu = 18;
-				Menus[currentMenu].SetActive(value: true);
+				enableMenu(18);
 				SignInNotificationText.gameObject.SetActive(value: false);
 				UpdateMenuSignedInText();
 			}
@@ -1427,12 +1415,12 @@ public class NewMenuControl : MonoBehaviour
 			if (Login_AccountNameInput.text.Length < 3)
 			{
 				SignInNotificationText.gameObject.SetActive(value: true);
-				SignInNotificationText.text = "Name has to be at least 3 long";
+				SignInNotificationText.text = "Error: Name has to be at least 3 long";
 			}
 			else if (Login_PasswordInput.text.Length < 5)
 			{
 				SignInNotificationText.gameObject.SetActive(value: true);
-				SignInNotificationText.text = "Password has to be at least 6 long";
+				SignInNotificationText.text = "Error: Password has to be at least 6 long";
 			}
 			else
 			{
@@ -1488,8 +1476,10 @@ public class NewMenuControl : MonoBehaviour
 			Temp_startingLevel = 0;
 			PIM.CanPlayWithAI = true;
 			PIM.SetControllers();
+			PIM.LoadData();
 			deselectButton(MMB);
 			enableMenu(25);
+			PIM.SetDifficultyController.SetActive(value: false);
 			StartCoroutine("doing");
 			MMB.Selected = false;
 		}
@@ -1671,70 +1661,6 @@ public class NewMenuControl : MonoBehaviour
 			enableMenu(1);
 			StartCoroutine("doing");
 		}
-		else if (MMB.IsFriendlyFire)
-		{
-			PlayMenuChangeSound();
-			if (!OptionsMainMenu.instance.FriendlyFire)
-			{
-				OptionsMainMenu.instance.FriendlyFire = true;
-				FriendlyFiretext.text = "(x)";
-				OptionsMainMenu.instance.SaveNewData();
-			}
-			else
-			{
-				OptionsMainMenu.instance.FriendlyFire = false;
-				FriendlyFiretext.text = "( )";
-				OptionsMainMenu.instance.SaveNewData();
-			}
-		}
-		else if (MMB.IsDisableSnow)
-		{
-			PlayMenuChangeSound();
-			if (!OptionsMainMenu.instance.SnowMode)
-			{
-				OptionsMainMenu.instance.SnowMode = true;
-				SnowModeText.text = "( )";
-				OptionsMainMenu.instance.SaveNewData();
-			}
-			else
-			{
-				OptionsMainMenu.instance.SnowMode = false;
-				SnowModeText.text = "(x)";
-				OptionsMainMenu.instance.SaveNewData();
-			}
-		}
-		else if (MMB.IsMarkedTanks)
-		{
-			PlayMenuChangeSound();
-			if (!OptionsMainMenu.instance.MarkedTanks)
-			{
-				OptionsMainMenu.instance.MarkedTanks = true;
-				MarkedTanksText.text = "(x)";
-				OptionsMainMenu.instance.SaveNewData();
-			}
-			else
-			{
-				OptionsMainMenu.instance.MarkedTanks = false;
-				MarkedTanksText.text = "( )";
-				OptionsMainMenu.instance.SaveNewData();
-			}
-		}
-		else if (MMB.IsXrayBullets)
-		{
-			PlayMenuChangeSound();
-			if (!OptionsMainMenu.instance.showxraybullets)
-			{
-				OptionsMainMenu.instance.showxraybullets = true;
-				XRAYBULLETSText.text = "(x)";
-				OptionsMainMenu.instance.SaveNewData();
-			}
-			else
-			{
-				OptionsMainMenu.instance.showxraybullets = false;
-				XRAYBULLETSText.text = "( )";
-				OptionsMainMenu.instance.SaveNewData();
-			}
-		}
 		else if (MMB.IsGoreMode)
 		{
 			PlayMenuChangeSound();
@@ -1811,64 +1737,12 @@ public class NewMenuControl : MonoBehaviour
 		{
 			PlayMenuChangeSound();
 			OptionsMainMenu.instance.ChangeFullscreen();
-			if (!OptionsMainMenu.instance.isFullscreen)
-			{
-				Fullscreentext.text = "( )";
-			}
-			else
-			{
-				Fullscreentext.text = "(x)";
-			}
 			SetResolutionText();
 		}
 		else if (MMB.IsVsync)
 		{
 			PlayMenuChangeSound();
 			OptionsMainMenu.instance.Vsync();
-			if (!OptionsMainMenu.instance.vsync)
-			{
-				vsynctext.text = "( )";
-			}
-			else
-			{
-				vsynctext.text = "(x)";
-			}
-		}
-		else if (MMB.IsMasterVolumeDown)
-		{
-			PlayMenuChangeSound();
-			OptionsMainMenu.instance.ChangeMasterVolume(-1);
-			MasterVolumetext.text = OptionsMainMenu.instance.masterVolumeLvl.ToString();
-		}
-		else if (MMB.IsMasterVolumeUp)
-		{
-			PlayMenuChangeSound();
-			OptionsMainMenu.instance.ChangeMasterVolume(1);
-			MasterVolumetext.text = OptionsMainMenu.instance.masterVolumeLvl.ToString();
-		}
-		else if (MMB.IsMusicVolumeDown)
-		{
-			PlayMenuChangeSound();
-			OptionsMainMenu.instance.ChangeMusicVolume(-1);
-			MusicVolumetext.text = OptionsMainMenu.instance.musicVolumeLvl.ToString();
-		}
-		else if (MMB.IsMusicVolumeUp)
-		{
-			PlayMenuChangeSound();
-			OptionsMainMenu.instance.ChangeMusicVolume(1);
-			MusicVolumetext.text = OptionsMainMenu.instance.musicVolumeLvl.ToString();
-		}
-		else if (MMB.IsSFXVolumeDown)
-		{
-			PlayMenuChangeSound();
-			OptionsMainMenu.instance.ChangeSFXVolume(-1);
-			SFXVolumetext.text = OptionsMainMenu.instance.sfxVolumeLvl.ToString();
-		}
-		else if (MMB.IsSFXVolumeUp)
-		{
-			PlayMenuChangeSound();
-			OptionsMainMenu.instance.ChangeSFXVolume(1);
-			SFXVolumetext.text = OptionsMainMenu.instance.sfxVolumeLvl.ToString();
 		}
 		else if (MMB.IsPlayMap)
 		{
@@ -1921,7 +1795,7 @@ public class NewMenuControl : MonoBehaviour
 		else if (MMB.IsToTankeyTown)
 		{
 			TutorialMaster.instance.ShowTutorial("Tankey town has been disabled for now!");
-			Play2DClipAtPoint(errorSound);
+			SFXManager.instance.PlaySFX(errorSound);
 		}
 		else if (MMB.IsSurvivalMode)
 		{
@@ -1931,9 +1805,9 @@ public class NewMenuControl : MonoBehaviour
 		}
 		else if (MMB.IsSurvivalMap)
 		{
-			if (GameMaster.instance.CurrentData.maxMission0 < MMB.ContinueLevel && AccountMaster.instance.PDO.maxMission0 < MMB.ContinueLevel)
+			if (!MMB.canBeSelected)
 			{
-				Play2DClipAtPoint(errorSound);
+				SFXManager.instance.PlaySFX(errorSound);
 				return;
 			}
 			Temp_MMB = MMB;
@@ -1943,6 +1817,7 @@ public class NewMenuControl : MonoBehaviour
 			PIM.SetControllers();
 			deselectButton(MMB);
 			enableMenu(25);
+			PIM.SetDifficultyController.SetActive(value: false);
 			StartCoroutine("doing");
 		}
 		else if (MMB.IsContinue && MMB.canBeSelected)
@@ -1952,6 +1827,8 @@ public class NewMenuControl : MonoBehaviour
 			Temp_startingLevel = MMB.ContinueLevel;
 			PIM.CanPlayWithAI = true;
 			PIM.SetControllers();
+			PIM.LoadData();
+			PIM.SetDifficultyController.SetActive(value: false);
 			deselectButton(MMB);
 			enableMenu(25);
 			StartCoroutine("doing");
@@ -2024,70 +1901,29 @@ public class NewMenuControl : MonoBehaviour
 
 	private void PlayMenuChangeSound()
 	{
-		Play2DClipAtPoint(MenuChange);
+		SFXManager.instance.PlaySFX(MenuChange);
 	}
 
 	private void LoadLevel(int scene, MainMenuButtons MMB, int startingLevel)
 	{
-		int maxMissionReached = GameMaster.instance.maxMissionReached;
-		int maxMissionReachedHard = GameMaster.instance.maxMissionReachedHard;
-		int maxMissionReachedKid = GameMaster.instance.maxMissionReachedKid;
-		if (OptionsMainMenu.instance.currentDifficulty == 2 && scene == 1)
-		{
-			if (maxMissionReachedHard > MMB.ContinueLevel)
-			{
-				OptionsMainMenu.instance.StartLevel = startingLevel;
-				StartCoroutine(LoadYourAsyncScene(scene));
-			}
-			else
-			{
-				Play2DClipAtPoint(errorSound);
-			}
-		}
-		else if (OptionsMainMenu.instance.currentDifficulty == 1 && scene == 1)
-		{
-			if (maxMissionReachedKid > MMB.ContinueLevel)
-			{
-				OptionsMainMenu.instance.StartLevel = startingLevel;
-				StartCoroutine(LoadYourAsyncScene(scene));
-			}
-			else
-			{
-				Play2DClipAtPoint(errorSound);
-			}
-		}
-		else if (maxMissionReached > MMB.ContinueLevel)
-		{
-			OptionsMainMenu.instance.StartLevel = startingLevel;
-			switch (scene)
-			{
-			case 1:
-				TTL.ContinueCheckpoint = startingLevel;
-				TTL.ClassicCampaign = true;
-				break;
-			case 2:
-				TTL.Survival = true;
-				break;
-			}
-			StartCoroutine(LoadYourAsyncScene(scene));
-		}
-		else
-		{
-			Play2DClipAtPoint(errorSound);
-		}
+		OptionsMainMenu.instance.StartLevel = startingLevel;
+		StartCoroutine(LoadYourAsyncScene(scene));
 	}
 
 	public IEnumerator LoadYourAsyncScene(int lvlNumber)
 	{
 		GameObject[] menus = Menus;
-		for (int i = 0; i < menus.Length; i++)
+		foreach (GameObject gameObject in menus)
 		{
-			menus[i].SetActive(value: false);
+			if (gameObject != null)
+			{
+				gameObject.SetActive(value: false);
+			}
 		}
+		LIS_parent.gameObject.SetActive(value: true);
 		LIS.gameObject.SetActive(value: true);
 		LIS.Play = true;
 		AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(lvlNumber);
-		OnlineButton.SetActive(value: false);
 		while (!asyncLoad.isDone)
 		{
 			yield return null;
@@ -2105,94 +1941,176 @@ public class NewMenuControl : MonoBehaviour
 
 	public void SetGraphicsText()
 	{
-		switch (OptionsMainMenu.instance.currentGraphicSettings)
-		{
-		case 1:
-			Graphicstext.text = "Garbage";
-			break;
-		case 2:
-			Graphicstext.text = "Low";
-			break;
-		case 3:
-			Graphicstext.text = "Meduim";
-			break;
-		case 4:
-			Graphicstext.text = "High";
-			break;
-		case 5:
-			Graphicstext.text = "Ultra";
-			break;
-		}
+		Graphics_list.SetValueWithoutNotify(OptionsMainMenu.instance.currentGraphicSettings);
+	}
+
+	public void SetDifficultyText()
+	{
+		Difficulty_list.SetValueWithoutNotify(OptionsMainMenu.instance.currentDifficulty);
+		Difficulty_list_campaign.SetValueWithoutNotify(OptionsMainMenu.instance.currentDifficulty);
+	}
+
+	public void SetGraphics()
+	{
+		Debug.LogError(Graphics_list.value);
+		OptionsMainMenu.instance.ChangeGraphics(Graphics_list.value);
+	}
+
+	public void SetDifficulty()
+	{
+		OptionsMainMenu.instance.ChangeDifficulty(Difficulty_list.value);
+		Difficulty_list_campaign.SetValueWithoutNotify(OptionsMainMenu.instance.currentDifficulty);
+	}
+
+	public void SetDifficultyFromCampaign()
+	{
+		OptionsMainMenu.instance.ChangeDifficulty(Difficulty_list_campaign.value);
+		Difficulty_list.SetValueWithoutNotify(OptionsMainMenu.instance.currentDifficulty);
+	}
+
+	public void SetVSYNC()
+	{
+		OptionsMainMenu.instance.Vsync();
+	}
+
+	public void SetDisableSnow()
+	{
+		OptionsMainMenu.instance.SnowMode = !OptionsMainMenu.instance.SnowMode;
+		OptionsMainMenu.instance.SaveNewData();
+	}
+
+	public void SetFriendlyFire()
+	{
+		OptionsMainMenu.instance.FriendlyFire = !OptionsMainMenu.instance.FriendlyFire;
+		OptionsMainMenu.instance.SaveNewData();
+	}
+
+	public void SetMarkedTanks()
+	{
+		OptionsMainMenu.instance.MarkedTanks = !OptionsMainMenu.instance.MarkedTanks;
+		OptionsMainMenu.instance.SaveNewData();
+	}
+
+	public void SetXray()
+	{
+		OptionsMainMenu.instance.showxraybullets = !OptionsMainMenu.instance.showxraybullets;
+		OptionsMainMenu.instance.SaveNewData();
+	}
+
+	public void SetFullscreen()
+	{
+		OptionsMainMenu.instance.ChangeFullscreen();
 	}
 
 	public void SetResolutionText()
 	{
-		Resolutiontext.text = OptionsMainMenu.instance.ResolutionX[OptionsMainMenu.instance.currentResolutionSettings] + "x" + OptionsMainMenu.instance.ResolutionY[OptionsMainMenu.instance.currentResolutionSettings];
+		Debug.Log("SETTED RESOLUTION");
+		Resolution_list.SetValueWithoutNotify(OptionsMainMenu.instance.currentResolutionSettings);
+	}
+
+	public void SetAudio(TMP_Dropdown List)
+	{
+		if (List.name == "0")
+		{
+			OptionsMainMenu.instance.masterVolumeLvl = List.value;
+		}
+		else if (List.name == "2")
+		{
+			OptionsMainMenu.instance.musicVolumeLvl = List.value;
+		}
+		else if (List.name == "1")
+		{
+			OptionsMainMenu.instance.sfxVolumeLvl = List.value;
+		}
+		OptionsMainMenu.instance.SaveNewData();
+	}
+
+	public void SetAudioText()
+	{
+		MasterVolume_list.SetValueWithoutNotify(OptionsMainMenu.instance.masterVolumeLvl);
+		MusicVolume_list.SetValueWithoutNotify(OptionsMainMenu.instance.musicVolumeLvl);
+		SFXVolume_list.SetValueWithoutNotify(OptionsMainMenu.instance.sfxVolumeLvl);
+	}
+
+	public void SetFPS()
+	{
+		OptionsMainMenu.instance.ChangeFPS(FPS_list.value);
+	}
+
+	public void SetResolution()
+	{
+		OptionsMainMenu.instance.ChangeResolution(Resolution_list.value, OptionsMainMenu.instance.isFullscreen);
 	}
 
 	public void SetFPSText()
 	{
-		switch (OptionsMainMenu.instance.currentFPSSettings)
-		{
-		case 1:
-			FPStext.text = "10";
-			break;
-		case 2:
-			FPStext.text = "25";
-			break;
-		case 3:
-			FPStext.text = "30";
-			break;
-		case 4:
-			FPStext.text = "40";
-			break;
-		case 5:
-			FPStext.text = "50";
-			break;
-		case 6:
-			FPStext.text = "59";
-			break;
-		case 7:
-			FPStext.text = "60";
-			break;
-		case 8:
-			FPStext.text = "100";
-			break;
-		case 9:
-			FPStext.text = "120";
-			break;
-		}
+		FPS_list.SetValueWithoutNotify(OptionsMainMenu.instance.currentFPSSettings);
 	}
 
 	public void enableMenu(int menunumber)
 	{
-		lastKnownPlaces[currentMenu] = Selection;
-		PreviousMenu = currentMenu;
-		currentMenu = menunumber;
-		Selection = lastKnownPlaces[menunumber];
+		CreateAccountNotificationText.gameObject.SetActive(value: false);
+		SignInNotificationText.gameObject.SetActive(value: false);
+		string text = ((OptionsMainMenu.instance.currentDifficulty == 0) ? "Toddler" : ((OptionsMainMenu.instance.currentDifficulty == 1) ? "Kid" : ((OptionsMainMenu.instance.currentDifficulty == 2) ? "Adult" : "Grandpa")));
+		DifficultyExplainText.text = "You are playing on the " + text + " difficulty";
+		StartCoroutine(MenuTransition(menunumber));
+	}
+
+	private IEnumerator MenuTransition(int menunumber)
+	{
+		Selection = 0;
+		SFXManager.instance.PlaySFX(MenuSwitch);
+		float t2 = 0f;
+		CanvasGroup CG2 = Menus[currentMenu].GetComponent<CanvasGroup>();
+		if (menunumber == 2)
+		{
+			SetDifficultyText();
+		}
+		MainMenuButtons[] componentsInChildren = Menus[currentMenu].GetComponentsInChildren<MainMenuButtons>();
+		for (int i = 0; i < componentsInChildren.Length; i++)
+		{
+			componentsInChildren[i].SwitchedMenu();
+		}
+		if ((bool)CG2)
+		{
+			while (t2 < 1f)
+			{
+				t2 += Time.deltaTime * 5f;
+				CG2.alpha = 1f - t2;
+				yield return null;
+			}
+		}
 		GameObject[] menus = Menus;
 		foreach (GameObject gameObject in menus)
 		{
-			MainMenuButtons[] componentsInChildren = gameObject.GetComponentsInChildren<MainMenuButtons>();
-			for (int j = 0; j < componentsInChildren.Length; j++)
+			if (gameObject != null)
 			{
-				componentsInChildren[j].resetScale();
+				gameObject.SetActive(value: false);
 			}
-			gameObject.SetActive(value: false);
 		}
+		lastKnownPlaces[currentMenu] = Selection;
+		if (currentMenu != menunumber)
+		{
+			PreviousMenu = currentMenu;
+		}
+		currentMenu = menunumber;
+		Selection = lastKnownPlaces[menunumber];
 		Menus[menunumber].SetActive(value: true);
-		Play2DClipAtPoint(MenuSwitch);
-	}
-
-	public void Play2DClipAtPoint(AudioClip clip)
-	{
-		GameObject obj = new GameObject("TempAudio");
-		AudioSource audioSource = obj.AddComponent<AudioSource>();
-		audioSource.clip = clip;
-		audioSource.volume = 2f * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
-		audioSource.ignoreListenerVolume = true;
-		audioSource.spatialBlend = 0f;
-		audioSource.Play();
-		UnityEngine.Object.Destroy(obj, clip.length);
+		componentsInChildren = Menus[currentMenu].GetComponentsInChildren<MainMenuButtons>();
+		for (int i = 0; i < componentsInChildren.Length; i++)
+		{
+			componentsInChildren[i].LoadButton();
+		}
+		t2 = 0f;
+		CG2 = Menus[currentMenu].GetComponent<CanvasGroup>();
+		if ((bool)CG2)
+		{
+			while (t2 < 1f)
+			{
+				t2 = (CG2.alpha = t2 + Time.deltaTime * 5f);
+				yield return null;
+			}
+			CG2.alpha = 1f;
+		}
 	}
 }

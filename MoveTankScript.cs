@@ -111,6 +111,8 @@ public class MoveTankScript : MonoBehaviour
 
 	private float slidingV;
 
+	public Transform DetectionZone;
+
 	public float sensi = 8f;
 
 	private bool canHonkIt = true;
@@ -137,7 +139,6 @@ public class MoveTankScript : MonoBehaviour
 	private void Awake()
 	{
 		player = ReInput.players.GetPlayer(playerId);
-		Debug.unityLogger.logEnabled = false;
 		TankNormalSpeed = TankSpeed;
 		BoostSource = Rush.GetComponent<AudioSource>();
 		InvokeRepeating("CheckTypeInput", 0.1f, 0.1f);
@@ -329,9 +330,17 @@ public class MoveTankScript : MonoBehaviour
 			skidMarkCreator.Stop();
 			return;
 		}
+		if ((bool)DetectionZone)
+		{
+			DetectionZone.gameObject.SetActive(value: true);
+		}
 		if (!GameMaster.instance.GameHasStarted && !GameMaster.instance.isZombieMode)
 		{
 			rigi.isKinematic = true;
+			if ((bool)DetectionZone)
+			{
+				DetectionZone.gameObject.SetActive(value: false);
+			}
 		}
 		else if (!GameMaster.instance.isZombieMode)
 		{
@@ -526,11 +535,22 @@ public class MoveTankScript : MonoBehaviour
 		Vector2 vector2 = SmoothInput(vector.x, vector.y);
 		input.x = vector2.x;
 		input.y = vector2.y;
+		if ((bool)DetectionZone)
+		{
+			if (rigi.velocity.magnitude > 1f)
+			{
+				DetectionZone.position = base.transform.position + rigi.velocity / 2f;
+			}
+			else
+			{
+				DetectionZone.position = base.transform.position;
+			}
+		}
 	}
 
 	public void HonkIt()
 	{
-		if (canHonkIt)
+		if (canHonkIt && GameMaster.instance.isOfficialCampaign)
 		{
 			canHonkIt = false;
 			Play2DClipAtPoint(Honk, 0.5f);

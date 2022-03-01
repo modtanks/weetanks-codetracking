@@ -295,6 +295,7 @@ public class FiringTank : MonoBehaviour
 		component.TankScript = this;
 		component.papaTank = base.gameObject;
 		component.MaxBounces = amountBounces;
+		component.StartingVelocity = firePoint.forward * 6f;
 		obj.transform.Rotate(Vector3.right * 90f);
 		obj.GetComponent<Rigidbody>().AddForce(firePoint.forward * 6f);
 		SFXManager.instance.PlaySFX(shootSound);

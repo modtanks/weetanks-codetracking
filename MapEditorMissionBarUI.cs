@@ -35,6 +35,8 @@ public class MapEditorMissionBarUI : MonoBehaviour, ISelectHandler, IEventSystem
 
 	public Texture Selected;
 
+	public ScrollRect SR;
+
 	public bool isSelected;
 
 	private bool MouseOnMe;
@@ -47,6 +49,7 @@ public class MapEditorMissionBarUI : MonoBehaviour, ISelectHandler, IEventSystem
 		{
 			myLevelObject = GameMaster.instance.Levels[0];
 		}
+		SR = base.transform.parent.transform.parent.transform.parent.gameObject.GetComponent<ScrollRect>();
 	}
 
 	public void InitializeButton()
@@ -58,6 +61,11 @@ public class MapEditorMissionBarUI : MonoBehaviour, ISelectHandler, IEventSystem
 		UpBtn.onClick.AddListener(OnUpBtn);
 		DownBtn.onClick.AddListener(OnDownBtn);
 		myImage = GetComponent<RawImage>();
+	}
+
+	public void OnScroll()
+	{
+		SR.verticalNormalizedPosition += Input.mouseScrollDelta.y / 16f;
 	}
 
 	private void Update()

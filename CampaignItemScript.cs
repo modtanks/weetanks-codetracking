@@ -11,6 +11,8 @@ public class CampaignItemScript : MonoBehaviour
 {
 	public bool isMyCampaign;
 
+	public bool isMainMenuCampaign;
+
 	public int campaignID;
 
 	public int isPublished;
@@ -58,6 +60,10 @@ public class CampaignItemScript : MonoBehaviour
 	public TextMeshProUGUI text_difficulty;
 
 	public TextMeshProUGUI text_version;
+
+	public TextMeshProUGUI text_amountmissions;
+
+	public TextMeshProUGUI text_subtitle;
 
 	public GameObject[] NormalButtons;
 
@@ -211,12 +217,12 @@ public class CampaignItemScript : MonoBehaviour
 
 	private void Start()
 	{
-		if (isPublished > 0 && campaignName.Length > 2 && isMyCampaign)
+		if (isPublished > 0 && campaignName.Length > 2 && isMyCampaign && !isMainMenuCampaign)
 		{
 			btn_online.isOn = true;
 			StartCoroutine(GetMapData());
 		}
-		else if (isPublished == 0 && isMyCampaign)
+		else if (isPublished == 0 && isMyCampaign && !isMainMenuCampaign)
 		{
 			text_favorited.text = times_favorited.ToString();
 			text_downloaded.text = times_downloaded.ToString();

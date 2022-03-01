@@ -98,7 +98,7 @@ public class PauseMenuScript : MonoBehaviour
 
 	private bool pausedMusicScript;
 
-	public int musicLvlBefore;
+	public float musicLvlBefore;
 
 	private void Start()
 	{
@@ -285,13 +285,13 @@ public class PauseMenuScript : MonoBehaviour
 		{
 			Debug.Log("Error While Sending: " + keyRequest.error);
 			StartCoroutine(ShowCampaignInputError("File saved! (but upload failed)", Color.green));
-			Play2DClipAtPoint(SuccesSound);
+			SFXManager.instance.PlaySFX(SuccesSound);
 			yield break;
 		}
 		if (keyRequest.downloadHandler.text == "WAIT")
 		{
 			StartCoroutine(ShowCampaignInputError("File saved! (but upload failed)", Color.green));
-			Play2DClipAtPoint(SuccesSound);
+			SFXManager.instance.PlaySFX(SuccesSound);
 			yield break;
 		}
 		string text = keyRequest.downloadHandler.text;
@@ -316,7 +316,7 @@ public class PauseMenuScript : MonoBehaviour
 		if (uwr.isNetworkError)
 		{
 			StartCoroutine(ShowCampaignInputError("File saved! (but upload failed)", Color.green));
-			Play2DClipAtPoint(SuccesSound);
+			SFXManager.instance.PlaySFX(SuccesSound);
 			Debug.Log("Error While Sending: " + uwr.error);
 			yield break;
 		}
@@ -324,12 +324,12 @@ public class PauseMenuScript : MonoBehaviour
 		if (uwr.downloadHandler.text.Contains("FAILED"))
 		{
 			StartCoroutine(ShowCampaignInputError("File saved! (but upload failed)", Color.green));
-			Play2DClipAtPoint(SuccesSound);
+			SFXManager.instance.PlaySFX(SuccesSound);
 		}
 		else
 		{
 			StartCoroutine(ShowCampaignInputError("File saved!", Color.green));
-			Play2DClipAtPoint(SuccesSound);
+			SFXManager.instance.PlaySFX(SuccesSound);
 		}
 	}
 
@@ -367,10 +367,9 @@ public class PauseMenuScript : MonoBehaviour
 		{
 			if (GameMaster.instance.Levels.Count < 2)
 			{
-				if (musicLvlBefore > 0 && OptionsMainMenu.instance.musicVolumeLvl == 3)
+				if (musicLvlBefore > 0f)
 				{
-					OptionsMainMenu.instance.musicVolumeLvl = musicLvlBefore;
-					musicLvlBefore = 0;
+					AudioListener.volume = musicLvlBefore;
 				}
 				Time.timeScale = 1f;
 				OptionsMainMenu.instance.StartLevel = 0;
@@ -390,10 +389,9 @@ public class PauseMenuScript : MonoBehaviour
 		}
 		if (MMB.IsExit)
 		{
-			if (musicLvlBefore > 0 && OptionsMainMenu.instance.musicVolumeLvl == 3)
+			if (musicLvlBefore > 0f)
 			{
-				OptionsMainMenu.instance.musicVolumeLvl = musicLvlBefore;
-				musicLvlBefore = 0;
+				AudioListener.volume = musicLvlBefore;
 			}
 			Time.timeScale = 0.1f;
 			OptionsMainMenu.instance.StartLevel = 0;
@@ -402,10 +400,9 @@ public class PauseMenuScript : MonoBehaviour
 		}
 		if (MMB.IsExitTesting)
 		{
-			if (musicLvlBefore > 0 && OptionsMainMenu.instance.musicVolumeLvl == 3)
+			if (musicLvlBefore > 0f)
 			{
-				OptionsMainMenu.instance.musicVolumeLvl = musicLvlBefore;
-				musicLvlBefore = 0;
+				AudioListener.volume = musicLvlBefore;
 			}
 			Debug.LogError("EXIT TESTING!!!");
 			ResumeGame();
@@ -452,19 +449,19 @@ public class PauseMenuScript : MonoBehaviour
 			deselectButton(MMB);
 			if (campaignNameInput.text == "")
 			{
-				Play2DClipAtPoint(ErrorSound);
+				SFXManager.instance.PlaySFX(ErrorSound);
 				StartCoroutine(ShowCampaignInputError("Plaese entre name", Color.red));
 				return;
 			}
 			if (campaignNameInput.text.Contains("?"))
 			{
-				Play2DClipAtPoint(ErrorSound);
+				SFXManager.instance.PlaySFX(ErrorSound);
 				StartCoroutine(ShowCampaignInputError("Cant save with ?", Color.red));
 				return;
 			}
 			if (SignMapInput.text == "" && SignMapToggle.isOn)
 			{
-				Play2DClipAtPoint(ErrorSound);
+				SFXManager.instance.PlaySFX(ErrorSound);
 				StartCoroutine(ShowCampaignInputError("Plaese entre name", Color.red));
 				return;
 			}
@@ -490,6 +487,11 @@ public class PauseMenuScript : MonoBehaviour
 			Debug.Log("saving with map size" + OptionsMainMenu.instance.MapSize);
 			MapEditorMaster.instance.SaveCurrentProps();
 			bool flag2 = false;
+			if ((bool)OptionsMainMenu.instance.ClassicMap)
+			{
+				flag2 = SavingMapEditorData.SaveClassicCampaignMap(GameMaster.instance, MapEditorMaster.instance, campaignNameInput.text, OptionsMainMenu.instance.ClassicMap);
+				return;
+			}
 			if (!((!flag) ? SavingMapEditorData.SaveMap(GameMaster.instance, MapEditorMaster.instance, campaignNameInput.text, overwrite: false) : SavingMapEditorData.SaveCampaignMap(GameMaster.instance, MapEditorMaster.instance, campaignNameInput.text, overwrite: false)))
 			{
 				errorCampaignInputText.text = "File alraedy exisists REPLACE?";
@@ -516,13 +518,13 @@ public class PauseMenuScript : MonoBehaviour
 					else
 					{
 						StartCoroutine(ShowCampaignInputError("File saved!", Color.green));
-						Play2DClipAtPoint(SuccesSound);
+						SFXManager.instance.PlaySFX(SuccesSound, 0.8f);
 					}
 				}
 				else
 				{
 					StartCoroutine(ShowCampaignInputError("File saved!", Color.green));
-					Play2DClipAtPoint(SuccesSound);
+					SFXManager.instance.PlaySFX(SuccesSound, 0.8f);
 				}
 			}
 			foreach (GameObject level2 in GameMaster.instance.Levels)
@@ -655,7 +657,7 @@ public class PauseMenuScript : MonoBehaviour
 	{
 		if (campaignNameInput.text == "")
 		{
-			Play2DClipAtPoint(ErrorSound);
+			SFXManager.instance.PlaySFX(ErrorSound, 0.8f);
 			StartCoroutine(ShowCampaignInputError("Plaese entre name", Color.red));
 			NormalButtonsSavingMap.SetActive(value: true);
 			ReplaceButtonsSavingMap.SetActive(value: false);
@@ -681,13 +683,13 @@ public class PauseMenuScript : MonoBehaviour
 				else
 				{
 					StartCoroutine(ShowCampaignInputError("File saved!", Color.green));
-					Play2DClipAtPoint(SuccesSound);
+					SFXManager.instance.PlaySFX(SuccesSound, 0.8f);
 				}
 			}
 			else
 			{
 				StartCoroutine(ShowCampaignInputError("File saved!", Color.green));
-				Play2DClipAtPoint(SuccesSound);
+				SFXManager.instance.PlaySFX(SuccesSound, 0.8f);
 			}
 		}
 	}
@@ -701,7 +703,7 @@ public class PauseMenuScript : MonoBehaviour
 
 	private void PlayMenuChangeSound()
 	{
-		Play2DClipAtPoint(MenuChange);
+		SFXManager.instance.PlaySFX(MenuChange, 0.8f);
 	}
 
 	public void enableMenu(int menunumber)
@@ -712,7 +714,7 @@ public class PauseMenuScript : MonoBehaviour
 			menus[i].SetActive(value: false);
 		}
 		Menus[menunumber].SetActive(value: true);
-		Play2DClipAtPoint(MenuSwitch);
+		SFXManager.instance.PlaySFX(MenuSwitch);
 	}
 
 	public IEnumerator LoadYourAsyncScene(int lvlNumber)
@@ -738,7 +740,7 @@ public class PauseMenuScript : MonoBehaviour
 	public IEnumerator doing()
 	{
 		doSomething = false;
-		Play2DClipAtPoint(MarkerSound);
+		SFXManager.instance.PlaySFX(MarkerSound, 0.8f);
 		yield return new WaitForSecondsRealtime(0.2f);
 		doSomething = true;
 	}
@@ -750,10 +752,10 @@ public class PauseMenuScript : MonoBehaviour
 			MapEditorMaster.instance.canPlaceProp = false;
 			MapEditorMaster.instance.StartCoroutine(MapEditorMaster.instance.PlacePropTimer(0.2f));
 		}
-		if (musicLvlBefore > 0 && OptionsMainMenu.instance.musicVolumeLvl == 3)
+		if (musicLvlBefore > 0f)
 		{
-			OptionsMainMenu.instance.musicVolumeLvl = musicLvlBefore;
-			musicLvlBefore = 0;
+			AudioListener.volume = musicLvlBefore;
+			musicLvlBefore = 0f;
 		}
 		if ((bool)GameMaster.instance.musicScript && pausedMusicScript)
 		{
@@ -771,11 +773,8 @@ public class PauseMenuScript : MonoBehaviour
 	{
 		currentMenu = 0;
 		Selection = 0;
-		if (OptionsMainMenu.instance.musicVolumeLvl > 3)
-		{
-			musicLvlBefore = OptionsMainMenu.instance.musicVolumeLvl;
-			OptionsMainMenu.instance.musicVolumeLvl = 3;
-		}
+		musicLvlBefore = AudioListener.volume;
+		AudioListener.volume = 0.3f;
 		enableMenu(0);
 		myCanvas.enabled = true;
 		pausedMusicScript = false;
@@ -831,17 +830,5 @@ public class PauseMenuScript : MonoBehaviour
 		errorCampaignInputText.text = text;
 		yield return new WaitForSecondsRealtime(2f);
 		errorCampaignInputText.color = Color.clear;
-	}
-
-	public void Play2DClipAtPoint(AudioClip clip)
-	{
-		GameObject obj = new GameObject("TempAudio");
-		AudioSource audioSource = obj.AddComponent<AudioSource>();
-		audioSource.clip = clip;
-		audioSource.volume = 2f * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
-		audioSource.ignoreListenerVolume = true;
-		audioSource.spatialBlend = 0f;
-		audioSource.Play();
-		UnityEngine.Object.Destroy(obj, clip.length);
 	}
 }

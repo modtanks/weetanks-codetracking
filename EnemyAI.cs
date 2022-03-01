@@ -214,7 +214,11 @@ public class EnemyAI : MonoBehaviour
 	[Header("SHINY stuff")]
 	public bool isShiny;
 
+	public bool isSuperShiny;
+
 	public ParticleSystem ShinySystem;
+
+	public ParticleSystem SuperShinySystem;
 
 	public MeshRenderer Body;
 
@@ -278,6 +282,21 @@ public class EnemyAI : MonoBehaviour
 			ShinySystem.Play();
 			Barrel.materials[0].color = Color.white;
 			Body.materials[0].color = Color.white;
+			if (isLevel100Boss)
+			{
+				Body.materials[0].mainTexture = null;
+			}
+		}
+		else if (Random.Range(0, 114688) == 1 && !IsCompanion && MapEditorMaster.instance == null)
+		{
+			isSuperShiny = true;
+			SuperShinySystem.Play();
+			Barrel.materials[0].color = Color.yellow;
+			Body.materials[0].color = Color.yellow;
+			if (isLevel100Boss)
+			{
+				Body.materials[0].mainTexture = null;
+			}
 		}
 		if (base.transform.position.y < 0.1f)
 		{
@@ -359,6 +378,7 @@ public class EnemyAI : MonoBehaviour
 			{
 				Object.Destroy(array[j].gameObject);
 			}
+			Ring3Detection.Clear();
 			THEGRID.SetActive(value: false);
 		}
 		else if ((bool)THEGRID)
@@ -467,7 +487,7 @@ public class EnemyAI : MonoBehaviour
 		{
 			InvokeRepeating("CheckForDownedPlayer", 0.4f, 0.4f);
 		}
-		if ((bool)MapEditorMaster.instance && !isShiny && (bool)GameObject.Find("Cube.003").GetComponent<MeshRenderer>() && Body != null && MyTeam > -1 && MapEditorMaster.instance.TeamColorEnabled[MyTeam])
+		if ((bool)MapEditorMaster.instance && !isShiny && !isSuperShiny && (bool)GameObject.Find("Cube.003").GetComponent<MeshRenderer>() && Body != null && MyTeam > -1 && MapEditorMaster.instance.TeamColorEnabled[MyTeam])
 		{
 			Body.materials[0].SetColor("_Color", MapEditorMaster.instance.TeamColors[MyTeam]);
 		}
@@ -541,6 +561,10 @@ public class EnemyAI : MonoBehaviour
 		if (isInvisible)
 		{
 			MakeMeInvisible();
+		}
+		if (MyTeam == 1 && !MapEditorMaster.instance && !IsCompanion)
+		{
+			GameMaster.instance.AmountEnemyTanks--;
 		}
 		SetTankBodyTracks();
 	}

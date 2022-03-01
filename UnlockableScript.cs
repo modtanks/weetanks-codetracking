@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class UnlockableScript : MonoBehaviour
@@ -16,6 +17,8 @@ public class UnlockableScript : MonoBehaviour
 	public TextMeshProUGUI UnlockableRequire;
 
 	public Color ActivatedColor;
+
+	public Color NotActivatedColor;
 
 	public AudioClip SuccesSound;
 
@@ -57,8 +60,14 @@ public class UnlockableScript : MonoBehaviour
 		{
 			base.transform.localScale = scale;
 			base.transform.localRotation = Quaternion.Euler(Vector3.zero);
-			mybtn = GetComponent<Button>();
-			mybtn.onClick.AddListener(TaskOnClick);
+			EventTrigger component = GetComponent<EventTrigger>();
+			EventTrigger.Entry entry = new EventTrigger.Entry();
+			entry.eventID = EventTriggerType.PointerDown;
+			entry.callback.AddListener(delegate
+			{
+				TaskOnClick();
+			});
+			component.triggers.Add(entry);
 			StartCoroutine(LateCheck());
 			return;
 		}
@@ -75,13 +84,21 @@ public class UnlockableScript : MonoBehaviour
 			Object.Destroy(base.gameObject);
 			return;
 		}
+		if (!myUI.UnlockableEnabled)
+		{
+			Object.Destroy(base.gameObject);
+			return;
+		}
 		isSkin = myUI.isSkin;
 		isMine = myUI.isMine;
 		isSkidmarks = myUI.isSkidmarks;
 		isBullet = myUI.isBullet;
 		isBoost = myUI.isBoost;
 		isHitmarker = myUI.isHitmarker;
-		checkmark.enabled = false;
+		if ((bool)checkmark)
+		{
+			checkmark.enabled = false;
+		}
 		origiParent = base.transform.parent;
 		if (AccountMaster.instance.PDO.ActivatedAM.Contains(ULID) && !OptionsMainMenu.instance.AMUS.Contains(this))
 		{
@@ -89,17 +106,43 @@ public class UnlockableScript : MonoBehaviour
 		}
 		base.transform.localScale = scale;
 		base.transform.localRotation = Quaternion.Euler(Vector3.zero);
-		mybtn = GetComponent<Button>();
-		mybtn.onClick.AddListener(TaskOnClick);
+		EventTrigger component2 = GetComponent<EventTrigger>();
+		EventTrigger.Entry entry2 = new EventTrigger.Entry();
+		entry2.eventID = EventTriggerType.PointerDown;
+		entry2.callback.AddListener(delegate
+		{
+			TaskOnClick();
+		});
+		component2.triggers.Add(entry2);
 		if ((bool)AccountMaster.instance)
 		{
-			if (AccountMaster.instance.PDO.AM[ULID] == 1)
+			if (AccountMaster.instance.PDO.AM.Length > ULID)
 			{
-				UnlockableTitle.text = myUI.UnlockableName;
-				UnlockableRequire.text = "";
-				if (myUI.code != "")
+				if (AccountMaster.instance.PDO.AM[ULID] == 1)
 				{
+					UnlockableTitle.text = myUI.UnlockableName;
+					UnlockableRequire.text = "";
+					GetComponent<MainMenuButtons>().MakeAvailable();
+					if (myUI.code != "")
+					{
+						code = myUI.code;
+					}
+				}
+				else if (!myUI.codeNeededToUnlock)
+				{
+					UnlockableTitle.text = myUI.UnlockableName;
+					GetComponent<MainMenuButtons>().MakeUnavailable();
+					if (myUI.code != "")
+					{
+						code = myUI.code;
+					}
+					UnlockableRequire.text = "( Achievement: '" + OptionsMainMenu.instance.AMnames[ULID] + "' required!)";
+				}
+				else
+				{
+					UnlockableTitle.text = myUI.UnlockableName;
 					code = myUI.code;
+					GetComponent<MainMenuButtons>().MakeUnavailable();
 				}
 			}
 			else if (!myUI.codeNeededToUnlock)
@@ -163,6 +206,7 @@ public class UnlockableScript : MonoBehaviour
 			if (AccountMaster.instance.PDO.ActivatedAM.Contains(ULID))
 			{
 				checkmark.enabled = true;
+				UnlockableTitle.color = ActivatedColor;
 				UnlockableRequire.color = ActivatedColor;
 				UnlockableRequire.text = "Activated.";
 			}
@@ -170,6 +214,7 @@ public class UnlockableScript : MonoBehaviour
 			{
 				checkmark.enabled = false;
 				UnlockableRequire.text = "";
+				UnlockableTitle.color = NotActivatedColor;
 			}
 		}
 		else if (myUI.codeNeededToUnlock && myUI.codeNeededToUnlock)

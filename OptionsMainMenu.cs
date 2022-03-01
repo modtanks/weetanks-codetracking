@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class OptionsMainMenu : MonoBehaviour
 {
+	public TextAsset ClassicMap;
+
 	private static OptionsMainMenu _instance;
 
 	public Dictionary<string, KeyCode> keys = new Dictionary<string, KeyCode>();
@@ -22,6 +24,8 @@ public class OptionsMainMenu : MonoBehaviour
 	public bool[] AIcompanion;
 
 	public bool[] PlayerJoined;
+
+	public bool[] MenuCompanion = new bool[5];
 
 	public bool SnowMode;
 
@@ -77,6 +81,8 @@ public class OptionsMainMenu : MonoBehaviour
 	public string MapEditorMapName = "";
 
 	public string CurrentVersion = "v0.7.6a";
+
+	public bool IsDemo;
 
 	public bool inAndroid;
 
@@ -140,6 +146,7 @@ public class OptionsMainMenu : MonoBehaviour
 			masterVolumeLvl = settingsData.masterVolLevel;
 			currentGraphicSettings = settingsData.graphicsSettings;
 			currentResolutionSettings = settingsData.resolution;
+			Debug.Log("LOADED RESOLTUION: " + settingsData.resolution);
 			currentFPSSettings = settingsData.fps;
 			FriendlyFire = settingsData.friendlyFire;
 			isFullscreen = settingsData.Fullscreen;
@@ -153,7 +160,7 @@ public class OptionsMainMenu : MonoBehaviour
 			}
 			if (settingsData.SnowyMode)
 			{
-				if (DateTime.Now.Month == 12 || DateTime.Now.Month == 1 || DateTime.Now.Month == 2)
+				if (DateTime.Now.Month == 12)
 				{
 					SnowMode = settingsData.SnowyMode;
 				}
@@ -176,11 +183,15 @@ public class OptionsMainMenu : MonoBehaviour
 			{
 				showxraybullets = settingsData.xraybullets;
 			}
+			if (settingsData.AIactived != null && settingsData.AIactived.Length > 1)
+			{
+				MenuCompanion = settingsData.AIactived;
+			}
 			Debug.LogWarning("Settings-Data loaded from save file");
 		}
 		else
 		{
-			if (DateTime.Now.Month == 12 || DateTime.Now.Month == 1 || DateTime.Now.Month == 2)
+			if (DateTime.Now.Month == 12)
 			{
 				SnowMode = true;
 			}
@@ -197,9 +208,9 @@ public class OptionsMainMenu : MonoBehaviour
 			Cursor.visible = false;
 			inAndroid = true;
 		}
-		ChangeGraphics(0);
-		ChangeResolution(0, isFullscreen);
-		ChangeFPS(0);
+		ChangeGraphics(currentGraphicSettings);
+		ChangeResolution(currentResolutionSettings, isFullscreen);
+		ChangeFPS(currentFPSSettings);
 		CheckCustomHitmarkers();
 	}
 
@@ -229,6 +240,7 @@ public class OptionsMainMenu : MonoBehaviour
 
 	public void SaveNewData()
 	{
+		Debug.Log("saving");
 		SavingData.SaveSettingsData(this);
 	}
 
@@ -260,20 +272,13 @@ public class OptionsMainMenu : MonoBehaviour
 		{
 			QualitySettings.vSyncCount = 0;
 		}
+		SaveNewData();
 	}
 
 	public void ChangeDifficulty(int change)
 	{
-		if (currentDifficulty > 0 && change == -1)
-		{
-			currentDifficulty--;
-			SaveNewData();
-		}
-		else if (currentDifficulty < 3 && change == 1)
-		{
-			currentDifficulty++;
-			SaveNewData();
-		}
+		currentDifficulty = change;
+		SaveNewData();
 	}
 
 	public void ChangeMusicVolume(int change)
@@ -324,21 +329,14 @@ public class OptionsMainMenu : MonoBehaviour
 	public void ChangeFullscreen()
 	{
 		isFullscreen = ((!isFullscreen) ? true : false);
-		ChangeResolution(0, isFullscreen);
+		ChangeResolution(currentResolutionSettings, isFullscreen);
 		SaveNewData();
 	}
 
 	public void ChangeGraphics(int change)
 	{
-		if (currentGraphicSettings > 1 && change == -1)
-		{
-			currentGraphicSettings--;
-		}
-		if (currentGraphicSettings < 5 && change == 1)
-		{
-			currentGraphicSettings++;
-		}
-		QualitySettings.SetQualityLevel(currentGraphicSettings - 1, applyExpensiveChanges: true);
+		currentGraphicSettings = change;
+		QualitySettings.SetQualityLevel(change, applyExpensiveChanges: true);
 		SaveNewData();
 	}
 
@@ -346,25 +344,15 @@ public class OptionsMainMenu : MonoBehaviour
 	{
 		if (!inAndroid)
 		{
-			if (currentResolutionSettings > 1 && change == -1)
-			{
-				currentResolutionSettings--;
-			}
-			if (currentResolutionSettings < ResolutionX.Length && change == 1)
-			{
-				currentResolutionSettings++;
-			}
-			if (currentResolutionSettings < 0)
-			{
-				currentResolutionSettings = 0;
-			}
-			else if (currentResolutionSettings >= ResolutionX.Length)
-			{
-				currentResolutionSettings = ResolutionX.Length - 1;
-			}
-			Screen.SetResolution(ResolutionX[currentResolutionSettings], ResolutionY[currentResolutionSettings], fullscreen);
+			Debug.Log("WHAT");
+			currentResolutionSettings = change;
+			Screen.SetResolution(ResolutionX[change], ResolutionY[change], fullscreen);
+			SaveNewData();
 		}
-		SaveNewData();
+		else
+		{
+			SaveNewData();
+		}
 	}
 
 	public void ChangeFPS(int change)
@@ -372,14 +360,7 @@ public class OptionsMainMenu : MonoBehaviour
 		if (!inAndroid)
 		{
 			QualitySettings.vSyncCount = 0;
-			if (currentFPSSettings > 1 && change == -1)
-			{
-				currentFPSSettings--;
-			}
-			if (currentFPSSettings < 9 && change == 1)
-			{
-				currentFPSSettings++;
-			}
+			currentFPSSettings = change;
 			switch (currentFPSSettings)
 			{
 			case 1:
@@ -408,6 +389,12 @@ public class OptionsMainMenu : MonoBehaviour
 				break;
 			case 9:
 				Application.targetFrameRate = 120;
+				break;
+			case 10:
+				Application.targetFrameRate = 144;
+				break;
+			case 11:
+				Application.targetFrameRate = 240;
 				break;
 			}
 		}

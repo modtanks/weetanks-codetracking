@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class OrchestraHandler : MonoBehaviour
 {
+	private static OrchestraHandler _instance;
+
 	public AudioSource BaseLoop;
 
 	public AudioSource Trumpets;
@@ -52,6 +54,20 @@ public class OrchestraHandler : MonoBehaviour
 	public int lastKnownMusicVol;
 
 	public int lastKnownMasterVol;
+
+	public static OrchestraHandler instance => _instance;
+
+	private void Awake()
+	{
+		if (_instance != null && _instance != this)
+		{
+			Object.Destroy(base.gameObject);
+		}
+		else
+		{
+			_instance = this;
+		}
+	}
 
 	private void Start()
 	{

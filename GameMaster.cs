@@ -40,7 +40,6 @@ public class GameMaster : MonoBehaviour
 
 	public ProgressDataOnline CurrentData;
 
-	[HideInInspector]
 	public int AmountCalledInTanks;
 
 	public List<int> Playerkills = new List<int>();
@@ -100,11 +99,13 @@ public class GameMaster : MonoBehaviour
 
 	public GameObject[] EnemyScripts;
 
-	public GameObject[] Enemies;
+	public List<GameObject> Enemies;
 
 	public GameObject[] Bosses;
 
 	public List<string> MissionNames = new List<string>();
+
+	public List<string> MissionTutorials = new List<string>();
 
 	public Object[] SMED;
 
@@ -392,12 +393,17 @@ public class GameMaster : MonoBehaviour
 	{
 		if (Players.Count > 0)
 		{
+			List<GameObject> list = new List<GameObject>();
 			foreach (GameObject player in Players)
 			{
 				if (player == null)
 				{
-					Players.Remove(player);
+					list.Add(player);
 				}
+			}
+			foreach (GameObject item in list)
+			{
+				Players.Remove(item);
 			}
 		}
 		GameObject.FindGameObjectsWithTag("Enemy");
@@ -892,7 +898,7 @@ public class GameMaster : MonoBehaviour
 			{
 				continue;
 			}
-			Collider[] array = Physics.OverlapSphere(myPB.transform.position, 3f);
+			Collider[] array = Physics.OverlapSphere(myPB.transform.position, 2f);
 			foreach (Collider collider in array)
 			{
 				if (collider.tag == "Player" || collider.tag == "Boss" || collider.tag == "Mine" || collider.tag == "Bullet")
@@ -1104,7 +1110,9 @@ public class GameMaster : MonoBehaviour
 			Object.Destroy(currentLoadedLevel);
 		}
 		levelIsLoaded = false;
-		if (CurrentMission == 49 && MapEditorMaster.instance == null)
+		RenderSettings.skybox = CloudGeneration.instance.SkyBoxClear;
+		CloudGeneration.instance.GlobalVolume.profile = CloudGeneration.instance.PPPs[0];
+		if ((CurrentMission == 49 || CurrentMission == 29) && MapEditorMaster.instance == null)
 		{
 			if (!MapEditorMaster.instance)
 			{
@@ -1113,6 +1121,11 @@ public class GameMaster : MonoBehaviour
 			if (floor != null)
 			{
 				floor.SetActive(value: false);
+			}
+			if (CurrentMission == 29)
+			{
+				RenderSettings.skybox = CloudGeneration.instance.SkyBoxDark;
+				CloudGeneration.instance.GlobalVolume.profile = CloudGeneration.instance.PPPs[5];
 			}
 		}
 		else
@@ -1167,6 +1180,10 @@ public class GameMaster : MonoBehaviour
 				}
 				break;
 			}
+		}
+		if (isOfficialCampaign && MissionTutorials.Count > CurrentMission && MissionTutorials[CurrentMission] != null && MissionTutorials[CurrentMission] != "")
+		{
+			TutorialMaster.instance.ShowTutorial(MissionTutorials[CurrentMission]);
 		}
 		if (CurrentMission == 49 && MapEditorMaster.instance == null)
 		{
@@ -1414,10 +1431,14 @@ public class GameMaster : MonoBehaviour
 		Debug.Log("Reset test level");
 		CloudGeneration.instance.MakeItDay();
 		CloudGeneration.instance.StartCoroutine(CloudGeneration.instance.SetWeatherType(0, force: true));
-		GameObject[] array = GameObject.FindGameObjectsWithTag("Mine");
-		for (int i = 0; i < array.Length; i++)
+		for (int i = 0; i < PlayerDown.Count; i++)
 		{
-			Object.Destroy(array[i]);
+			PlayerDown[i] = false;
+		}
+		GameObject[] array = GameObject.FindGameObjectsWithTag("Mine");
+		for (int j = 0; j < array.Length; j++)
+		{
+			Object.Destroy(array[j]);
 		}
 		Camera.main.GetComponent<AudioSource>().volume = 0.1f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
 		MapEditorMaster.instance.isTesting = false;
@@ -1431,9 +1452,9 @@ public class GameMaster : MonoBehaviour
 		GameHasStarted = false;
 		AmountPlayersThatNeedRevive = 0;
 		MapEditorMaster.instance.ErrorField.transform.localPosition = MapEditorMaster.instance.AnimatorStartHeight;
-		for (int j = 0; j < MapEditorMaster.instance.ColorsTeamsPlaced.Length; j++)
+		for (int k = 0; k < MapEditorMaster.instance.ColorsTeamsPlaced.Length; k++)
 		{
-			MapEditorMaster.instance.ColorsTeamsPlaced[j] = 0;
+			MapEditorMaster.instance.ColorsTeamsPlaced[k] = 0;
 		}
 		MapEditorMaster.instance.enemyTanksPlaced[CurrentMission] = 0;
 		MapEditorMaster.instance.playerOnePlaced[CurrentMission] = 0;
@@ -1441,22 +1462,22 @@ public class GameMaster : MonoBehaviour
 		MapEditorMaster.instance.canPlaceProp = false;
 		MapEditorMaster.instance.StartCoroutine(MapEditorMaster.instance.PlacePropTimer(2f));
 		array = GameObject.FindGameObjectsWithTag("MapeditorField");
-		for (int i = 0; i < array.Length; i++)
+		for (int j = 0; j < array.Length; j++)
 		{
-			MapEditorGridPiece component2 = array[i].GetComponent<MapEditorGridPiece>();
-			for (int k = 0; k < 5; k++)
+			MapEditorGridPiece component2 = array[j].GetComponent<MapEditorGridPiece>();
+			for (int l = 0; l < 5; l++)
 			{
-				if (component2.propOnMe[k])
+				if (component2.propOnMe[l])
 				{
 					int team = -1;
 					if (component2.MyTeamNumber > -1)
 					{
 						team = component2.MyTeamNumber;
 					}
-					Object.Destroy(component2.myProp[k]);
-					component2.propOnMe[k] = false;
-					component2.SpawnInProps(component2.myPropID[k], component2.rotationDirection[k], team, k, component2.SpawnDifficulty);
-					if (component2.myPropID[k] > 5 && component2.myPropID[k] < 40)
+					Object.Destroy(component2.myProp[l]);
+					component2.propOnMe[l] = false;
+					component2.SpawnInProps(component2.myPropID[l], component2.rotationDirection[l], team, l, component2.SpawnDifficulty);
+					if (component2.myPropID[l] > 5 && component2.myPropID[l] < 40)
 					{
 						MapEditorMaster.instance.enemyTanksPlaced[CurrentMission]++;
 					}
@@ -1525,22 +1546,40 @@ public class GameMaster : MonoBehaviour
 		GameHasStarted = false;
 		restartGame = false;
 		FindPlayers();
-		Enemies = GameObject.FindGameObjectsWithTag("Enemy");
+		if (Enemies != null)
+		{
+			Enemies.Clear();
+		}
+		Enemies = new List<GameObject>(GameObject.FindGameObjectsWithTag("Enemy"));
 		Bosses = GameObject.FindGameObjectsWithTag("Boss");
 		EnemyScripts = GameObject.FindGameObjectsWithTag("EnemyScripting");
 		GameObject[] array = Enemies.Concat(Bosses).Concat(EnemyScripts).Concat(Players)
 			.ToArray();
-		GameObject[] enemies = Enemies;
-		for (int i = 0; i < enemies.Length; i++)
+		List<GameObject> list = new List<GameObject>();
+		foreach (GameObject enemy in Enemies)
 		{
-			EnemyAI component = enemies[i].GetComponent<EnemyAI>();
-			if ((bool)component && (bool)component.ETSN)
+			if ((bool)enemy)
 			{
-				component.ETSN.enabled = false;
+				EnemyAI component = enemy.GetComponent<EnemyAI>();
+				if (component.MyTeam != 2 && Enemies.Contains(component.gameObject) && MapEditorMaster.instance == null)
+				{
+					list.Add(component.gameObject);
+				}
 			}
 		}
-		enemies = array;
-		foreach (GameObject gameObject in enemies)
+		foreach (GameObject item in list)
+		{
+			Enemies.Remove(item);
+		}
+		for (int num = Enemies.Count - 1; num >= 0; num--)
+		{
+			if (Enemies[num] == null)
+			{
+				Enemies.RemoveAt(num);
+			}
+		}
+		GameObject[] array2 = array;
+		foreach (GameObject gameObject in array2)
 		{
 			MonoBehaviour[] components = gameObject.GetComponents<MonoBehaviour>();
 			for (int j = 0; j < components.Length; j++)
@@ -1718,6 +1757,7 @@ public class GameMaster : MonoBehaviour
 		AmountCalledInTanks = 0;
 		HandlePlayerQueue();
 		DestroyTemps();
+		OnlyCompanionLeft = false;
 		AmountPlayersThatNeedRevive = 0;
 		for (int i = 0; i < PlayerDown.Count; i++)
 		{
@@ -1729,7 +1769,7 @@ public class GameMaster : MonoBehaviour
 			Debug.LogWarning("Reset players" + PlayerJoined.Count);
 			for (int j = 0; j < PlayerJoined.Count; j++)
 			{
-				if (!PlayerJoined[j] || (CurrentMission == 99 && PlayerModeWithAI[j] == 1 && MapEditorMaster.instance == null))
+				if ((!PlayerJoined[j] && PlayerModeWithAI[j] == 0) || (CurrentMission == 99 && PlayerModeWithAI[j] == 1 && MapEditorMaster.instance == null))
 				{
 					continue;
 				}
@@ -1900,7 +1940,11 @@ public class GameMaster : MonoBehaviour
 		FindPlayers();
 		StartCoroutine(GetTankTeamData(fast: false));
 		FindPlayers();
-		Enemies = GameObject.FindGameObjectsWithTag("Enemy");
+		if (Enemies != null)
+		{
+			Enemies.Clear();
+		}
+		Enemies = new List<GameObject>(GameObject.FindGameObjectsWithTag("Enemy"));
 		Bosses = GameObject.FindGameObjectsWithTag("Boss");
 		AmountGoodTanks = Players.Count;
 		AmountEnemyTanks = 0;
@@ -1912,17 +1956,36 @@ public class GameMaster : MonoBehaviour
 			}
 			else if (AmountGoodTanks > 0)
 			{
-				array = Enemies;
-				for (int k = 0; k < array.Length; k++)
+				List<GameObject> list = new List<GameObject>();
+				foreach (GameObject enemy in Enemies)
 				{
-					EnemyAI component2 = array[k].GetComponent<EnemyAI>();
+					if (!enemy)
+					{
+						continue;
+					}
+					EnemyAI component2 = enemy.GetComponent<EnemyAI>();
 					if ((bool)component2)
 					{
+						if (component2.MyTeam != 2 && Enemies.Contains(component2.gameObject) && MapEditorMaster.instance == null)
+						{
+							list.Add(component2.gameObject);
+						}
 						MoveTankScript component3 = Players[0].GetComponent<MoveTankScript>();
 						if ((bool)component3 && (component2.MyTeam != component3.MyTeam || component3.MyTeam == 0))
 						{
 							AmountEnemyTanks++;
 						}
+					}
+				}
+				foreach (GameObject item in list)
+				{
+					Enemies.Remove(item);
+				}
+				for (int num7 = Enemies.Count - 1; num7 >= 0; num7--)
+				{
+					if (Enemies[num7] == null)
+					{
+						Enemies.RemoveAt(num7);
 					}
 				}
 			}
@@ -1936,9 +1999,9 @@ public class GameMaster : MonoBehaviour
 		for (int k = 0; k < array.Length; k++)
 		{
 			MonoBehaviour[] components = array[k].GetComponents<MonoBehaviour>();
-			for (int num7 = 0; num7 < components.Length; num7++)
+			for (int num8 = 0; num8 < components.Length; num8++)
 			{
-				components[num7].enabled = true;
+				components[num8].enabled = true;
 			}
 		}
 		StartCoroutine(disableTheGame());
@@ -1962,8 +2025,35 @@ public class GameMaster : MonoBehaviour
 
 	public void FindEnemies()
 	{
-		Enemies = GameObject.FindGameObjectsWithTag("Enemy");
+		if (Enemies != null)
+		{
+			Enemies.Clear();
+		}
+		Enemies = new List<GameObject>(GameObject.FindGameObjectsWithTag("Enemy"));
 		Bosses = GameObject.FindGameObjectsWithTag("Boss");
+		List<GameObject> list = new List<GameObject>();
+		foreach (GameObject enemy in Enemies)
+		{
+			if ((bool)enemy)
+			{
+				EnemyAI component = enemy.GetComponent<EnemyAI>();
+				if (component.MyTeam != 2 && Enemies.Contains(component.gameObject) && MapEditorMaster.instance == null)
+				{
+					list.Add(component.gameObject);
+				}
+			}
+		}
+		foreach (GameObject item in list)
+		{
+			Enemies.Remove(item);
+		}
+		for (int num = Enemies.Count - 1; num >= 0; num--)
+		{
+			if (Enemies[num] == null)
+			{
+				Enemies.RemoveAt(num);
+			}
+		}
 		AmountEnemyTanks = Enemies.Concat(Bosses).ToArray().Length;
 	}
 
@@ -1982,12 +2072,20 @@ public class GameMaster : MonoBehaviour
 		{
 			Players.Add(item);
 		}
-		Enemies = GameObject.FindGameObjectsWithTag("Enemy");
+		if (Enemies != null)
+		{
+			Enemies.Clear();
+		}
+		Enemies = new List<GameObject>(GameObject.FindGameObjectsWithTag("Enemy"));
 		Bosses = GameObject.FindGameObjectsWithTag("Boss");
 		EnemyScripts = GameObject.FindGameObjectsWithTag("EnemyScripting");
 		GameObject[] array2 = Enemies.Concat(Bosses).Concat(EnemyScripts).Concat(Players)
 			.ToArray();
 		EnemyTankTracksAudio = 0;
+		if ((bool)MapEditorMaster.instance && MapEditorMaster.instance.Levels[CurrentMission].MissionMessage != null)
+		{
+			TutorialMaster.instance.ShowTutorial(MapEditorMaster.instance.Levels[CurrentMission].MissionMessage);
+		}
 		if (CurrentMission == 0)
 		{
 			counter = 0f;
@@ -2013,6 +2111,31 @@ public class GameMaster : MonoBehaviour
 				_ = array4[j];
 			}
 		}
+		List<GameObject> list = new List<GameObject>();
+		foreach (GameObject enemy in Enemies)
+		{
+			if ((bool)enemy)
+			{
+				EnemyAI component = enemy.GetComponent<EnemyAI>();
+				if (component.MyTeam != 2 && Enemies.Contains(component.gameObject) && MapEditorMaster.instance == null)
+				{
+					list.Add(component.gameObject);
+				}
+			}
+		}
+		foreach (GameObject item2 in list)
+		{
+			Enemies.Remove(item2);
+		}
+		for (int num = Enemies.Count - 1; num >= 0; num--)
+		{
+			if (Enemies[num] == null)
+			{
+				Enemies.RemoveAt(num);
+			}
+		}
+		array2 = Enemies.Concat(Bosses).ToArray();
+		AmountEnemyTanks = array2.Length;
 	}
 
 	public void ControllerCheck()
@@ -2029,48 +2152,32 @@ public class GameMaster : MonoBehaviour
 
 	public void NewRound()
 	{
-		if (!isZombieMode)
+		if (isZombieMode)
 		{
-			return;
-		}
-		Debug.LogError("NEW ROUND!");
-		ZombieTankSpawner component = GetComponent<ZombieTankSpawner>();
-		component.Wave++;
-		AccountMaster.instance.UpdateServerStatus(component.Wave + 100);
-		GameObject[] sun = Sun;
-		for (int i = 0; i < sun.Length; i++)
-		{
-			sun[i].SetActive(value: true);
-		}
-		component.amountEnemies = 0;
-		component.spawned = 0;
-		component.spawnAmount = Mathf.RoundToInt((float)(component.Wave * 2 + Mathf.RoundToInt(Random.Range(-(component.Wave / 2), component.Wave / 2))) * component.multiplier);
-		if (component.spawnAmount < 1)
-		{
-			component.spawnAmount = 2;
-		}
-		if (component.Wave > 1)
-		{
-			if (component.Wave < 10)
+			Debug.LogError("NEW ROUND!");
+			ZombieTankSpawner component = GetComponent<ZombieTankSpawner>();
+			component.Wave++;
+			AccountMaster.instance.UpdateServerStatus(component.Wave + 100);
+			GameObject[] sun = Sun;
+			for (int i = 0; i < sun.Length; i++)
 			{
-				AccountMaster.instance.IncreaseMarbles(1);
+				sun[i].SetActive(value: true);
 			}
-			else if (component.Wave < 20)
+			component.amountEnemies = 0;
+			component.spawned = 0;
+			component.spawnAmount = Mathf.RoundToInt((float)(component.Wave * 2 + Mathf.RoundToInt(Random.Range(-(component.Wave / 2), component.Wave / 2))) * component.multiplier);
+			if (component.spawnAmount < 1)
 			{
-				AccountMaster.instance.IncreaseMarbles(2);
+				component.spawnAmount = 2;
 			}
-			else
+			GameHasStarted = true;
+			Players.Clear();
+			AccountMaster.instance.SaveCloudData(6, component.Wave, 0, bounceKill: false);
+			sun = GameObject.FindGameObjectsWithTag("Player");
+			foreach (GameObject item in sun)
 			{
-				AccountMaster.instance.IncreaseMarbles(3);
+				Players.Add(item);
 			}
-		}
-		GameHasStarted = true;
-		Players.Clear();
-		AccountMaster.instance.SaveCloudData(6, component.Wave, 0, bounceKill: false);
-		sun = GameObject.FindGameObjectsWithTag("Player");
-		foreach (GameObject item in sun)
-		{
-			Players.Add(item);
 		}
 	}
 }

@@ -118,7 +118,7 @@ public class GetPublicMaps : MonoBehaviour
 			string text2 = ((int.Parse(jSONNode[i]["map_size"]) == 180) ? "small" : ((int.Parse(jSONNode[i]["map_size"]) == 285) ? "normal" : ((int.Parse(jSONNode[i]["map_size"]) == 374) ? "big" : ((int.Parse(jSONNode[i]["map_size"]) == 475) ? "large" : "size"))));
 			component.text_mapname.text = string.Concat(jSONNode[i]["mapname"], " (", jSONNode[i]["amount_missions"], text, ", ", text2, ")");
 			component.campaignName = string.Concat(jSONNode[i]["mapname"], " (", jSONNode[i]["amount_missions"], text, ", ", text2, ")");
-			component.text_version.text = jSONNode[i]["version"];
+			component.text_version.text = ((jSONNode[i]["version"] == (object)OptionsMainMenu.instance.CurrentVersion) ? ((string)jSONNode[i]["version"]) : string.Concat("<color=red>(!) ", jSONNode[i]["version"], "</color>"));
 			component.campaignVersion = jSONNode[i]["version"];
 			component.text_authorname.text = jSONNode[i]["username"];
 			component.campaignAuthor = jSONNode[i]["username"];

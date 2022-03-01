@@ -6,12 +6,17 @@ public class MapBorders : MonoBehaviour
 	{
 		foreach (Transform item in base.transform)
 		{
+			Collider component = item.GetComponent<Collider>();
+			if ((bool)component)
+			{
+				component.enabled = false;
+			}
 			foreach (Transform item2 in item)
 			{
-				MeshRenderer component = item2.GetComponent<MeshRenderer>();
-				if ((bool)component)
+				MeshRenderer component2 = item2.GetComponent<MeshRenderer>();
+				if ((bool)component2)
 				{
-					component.enabled = false;
+					component2.enabled = false;
 				}
 			}
 		}
@@ -21,12 +26,17 @@ public class MapBorders : MonoBehaviour
 	{
 		foreach (Transform item in base.transform)
 		{
+			Collider component = item.GetComponent<Collider>();
+			if ((bool)component)
+			{
+				component.enabled = true;
+			}
 			foreach (Transform item2 in item)
 			{
-				MeshRenderer component = item2.GetComponent<MeshRenderer>();
-				if ((bool)component)
+				MeshRenderer component2 = item2.GetComponent<MeshRenderer>();
+				if ((bool)component2)
 				{
-					component.enabled = true;
+					component2.enabled = true;
 				}
 			}
 		}

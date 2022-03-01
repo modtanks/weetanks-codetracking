@@ -91,6 +91,7 @@ public class SuicideTankScript : MonoBehaviour
 			}
 			obj.transform.Rotate(Vector3.right * 90f);
 			obj.GetComponent<Rigidbody>().AddForce(BaseRay.forward * 6f);
+			component.StartingVelocity = BaseRay.forward * 6f;
 		}
 		StartCoroutine("ShootRandom");
 	}

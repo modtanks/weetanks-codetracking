@@ -58,10 +58,6 @@ public class MapEditorMaster : MonoBehaviour
 
 	public GameObject EditingCanvas;
 
-	public Toggle NightToggler;
-
-	public Toggle NoBordersToggler;
-
 	public int IsPublished;
 
 	public Material[] FloorMaterials;
@@ -134,6 +130,8 @@ public class MapEditorMaster : MonoBehaviour
 
 	public TMP_InputField MissionNameInputField;
 
+	public TMP_InputField MissionMessageInputField;
+
 	public GameObject[] Menus;
 
 	public RawImage[] MenuImages;
@@ -154,6 +152,10 @@ public class MapEditorMaster : MonoBehaviour
 	public float minFireSpeed = 0.15f;
 
 	public float maxFireSpeed = 100f;
+
+	public int minBulletSpeed = 1;
+
+	public int maxBulletSpeed = 100;
 
 	public int minBounces;
 
@@ -230,6 +232,8 @@ public class MapEditorMaster : MonoBehaviour
 
 	public Slider BulletsPerShotSlider;
 
+	public Slider BulletSpeedSlider;
+
 	public Slider TankHealthSlider;
 
 	public GameObject MenuAddCustomTankButton;
@@ -255,9 +259,13 @@ public class MapEditorMaster : MonoBehaviour
 
 	public TMP_Dropdown FloorDropdown;
 
-	public Toggle PlayerCanLayMinesToggle;
+	public ButtonMouseEvents PlayerCanLayMinesToggle;
 
-	public Toggle[] TeamColorsToggles;
+	public ButtonMouseEvents[] TeamColorsToggles;
+
+	public ButtonMouseEvents NightToggler;
+
+	public ButtonMouseEvents NoBordersToggler;
 
 	public int PlayerSpeed = 65;
 
@@ -449,7 +457,7 @@ public class MapEditorMaster : MonoBehaviour
 		StartLivesSlider.value = StartingLives;
 		for (int i = 0; i < TeamColorsToggles.Length; i++)
 		{
-			TeamColorsToggles[i].isOn = TeamColorEnabled[i];
+			TeamColorsToggles[i].IsEnabled = TeamColorEnabled[i];
 		}
 		Menus[8].transform.position += new Vector3(0f, -3000f, 0f);
 		TankeyTownItemsButton.gameObject.SetActive(value: false);
@@ -490,6 +498,14 @@ public class MapEditorMaster : MonoBehaviour
 		canDoButton = true;
 	}
 
+	public void SetMissionMessage(TMP_InputField InputField)
+	{
+		if (Levels.Count >= GameMaster.instance.CurrentMission)
+		{
+			Levels[GameMaster.instance.CurrentMission].MissionMessage = InputField.text;
+		}
+	}
+
 	public void LoadCustomTankDataUI(int customNumber)
 	{
 		TankSpeedField.value = CustomTankDatas[customNumber].CustomTankSpeed;
@@ -499,6 +515,7 @@ public class MapEditorMaster : MonoBehaviour
 		MineLaySpeedField.value = CustomTankDatas[customNumber].CustomMineSpeed;
 		TurnHeadSlider.value = CustomTankDatas[customNumber].CustomTurnHead;
 		AccuracySlider.value = CustomTankDatas[customNumber].CustomAccuracy;
+		ScaleSlider.value = CustomTankDatas[customNumber].CustomTankScale;
 		if (FCP != null)
 		{
 			FCP.color = CustomMaterial[customNumber].color;
@@ -510,12 +527,14 @@ public class MapEditorMaster : MonoBehaviour
 		CanTeleport.IsEnabled = CustomTankDatas[customNumber].CustomCanTeleport;
 		ShowHealthbarToggle.IsEnabled = CustomTankDatas[customNumber].CustomShowHealthbar;
 		BulletsPerShotSlider.value = CustomTankDatas[customNumber].CustomBulletsPerShot;
+		BulletSpeedSlider.value = CustomTankDatas[customNumber].CustomBulletSpeed;
 		CanBeAirdroppedToggle.IsEnabled = CustomTankDatas[customNumber].CustomCanBeAirdropped;
 		TankHealthSlider.value = CustomTankDatas[customNumber].CustomTankHealth;
 		ArmouredToggle.IsEnabled = CustomTankDatas[customNumber].CustomArmoured;
 		BulletTypeList.value = CustomTankDatas[customNumber].CustomBulletType;
 		MusicList.value = CustomTankDatas[customNumber].CustomMusic;
 		CustomTankInputName.text = CustomTankDatas[customNumber].CustomTankName;
+		BulletSpeedSlider.value = CustomTankDatas[customNumber].CustomBulletSpeed;
 	}
 
 	private IEnumerator ResetClickSound()
@@ -655,10 +674,10 @@ public class MapEditorMaster : MonoBehaviour
 			}
 			PlayerBulletType = PlayerBulletTypeList.value;
 			Difficulty = DifficultyList.value;
-			PlayerCanLayMines = PlayerCanLayMinesToggle.isOn;
+			PlayerCanLayMines = PlayerCanLayMinesToggle.IsEnabled;
 			for (int i = 0; i < TeamColorEnabled.Length; i++)
 			{
-				TeamColorEnabled[i] = TeamColorsToggles[i].isOn;
+				TeamColorEnabled[i] = TeamColorsToggles[i].IsEnabled;
 			}
 		}
 		else if (MenuCurrent == 8)
@@ -690,6 +709,7 @@ public class MapEditorMaster : MonoBehaviour
 			CustomTankDatas[SelectedCustomTank].CustomCanTeleport = CanTeleport.IsEnabled;
 			CustomTankDatas[SelectedCustomTank].CustomShowHealthbar = ShowHealthbarToggle.IsEnabled;
 			CustomTankDatas[SelectedCustomTank].CustomBulletsPerShot = Mathf.RoundToInt(BulletsPerShotSlider.value);
+			CustomTankDatas[SelectedCustomTank].CustomBulletSpeed = Mathf.RoundToInt(BulletSpeedSlider.value);
 			CustomTankDatas[SelectedCustomTank].CustomCanBeAirdropped = CanBeAirdroppedToggle.IsEnabled;
 			CustomTankDatas[SelectedCustomTank].CustomTankHealth = Mathf.RoundToInt(TankHealthSlider.value);
 			CustomTankDatas[SelectedCustomTank].CustomArmourPoints = Mathf.RoundToInt(ArmouredSlider.value);
@@ -847,6 +867,7 @@ public class MapEditorMaster : MonoBehaviour
 		CanTeleport.IsEnabled = CustomTankDatas[customtank].CustomCanTeleport;
 		ShowHealthbarToggle.IsEnabled = CustomTankDatas[customtank].CustomShowHealthbar;
 		BulletsPerShotSlider.value = CustomTankDatas[customtank].CustomBulletsPerShot;
+		BulletSpeedSlider.value = CustomTankDatas[customtank].CustomBulletSpeed;
 		CanBeAirdroppedToggle.IsEnabled = CustomTankDatas[customtank].CustomCanBeAirdropped;
 		TankHealthSlider.value = CustomTankDatas[customtank].CustomTankHealth;
 		ArmouredToggle.IsEnabled = CustomTankDatas[customtank].CustomArmoured;
@@ -926,6 +947,11 @@ public class MapEditorMaster : MonoBehaviour
 			OnCursorText.text = CustomTankDatas[SelectedCustomTank].CustomTankHealth.ToString();
 			OnCursorText.transform.gameObject.SetActive(value: true);
 		}
+		else if (ShowIDSlider == 11)
+		{
+			OnCursorText.text = CustomTankDatas[SelectedCustomTank].CustomBulletSpeed.ToString();
+			OnCursorText.transform.gameObject.SetActive(value: true);
+		}
 		else if (ShowIDSlider == 50)
 		{
 			OnCursorText.text = StartingLives.ToString();
@@ -953,6 +979,25 @@ public class MapEditorMaster : MonoBehaviour
 		}
 	}
 
+	public void OnChangeCustomBulletType()
+	{
+		switch (BulletTypeList.value)
+		{
+		case 0:
+			BulletSpeedSlider.value = 8f;
+			break;
+		case 1:
+			BulletSpeedSlider.value = 14f;
+			break;
+		case 2:
+			BulletSpeedSlider.value = 5f;
+			break;
+		case 3:
+			BulletSpeedSlider.value = 8f;
+			break;
+		}
+	}
+
 	public void PlayAudio(AudioClip AC)
 	{
 		if (playingAmount < 2)
@@ -971,12 +1016,27 @@ public class MapEditorMaster : MonoBehaviour
 
 	public void LoadData()
 	{
-		MapEditorData mapEditorData = SavingMapEditorData.LoadData(OptionsMainMenu.instance.MapEditorMapName);
-		if (mapEditorData == null)
+		MapEditorData mapEditorData = null;
+		if ((bool)OptionsMainMenu.instance.ClassicMap)
+		{
+			SingleMapEditorData item = SavingMapEditorData.LoadDataFromTXT(OptionsMainMenu.instance.ClassicMap);
+			GameObject item2 = UnityEngine.Object.Instantiate(LevelPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
+			GameMaster.instance.Levels.Add(item2);
+			Levels.Add(item);
+			playerOnePlaced.Add(0);
+			playerTwoPlaced.Add(0);
+			playerThreePlaced.Add(0);
+			playerFourPlaced.Add(0);
+			enemyTanksPlaced.Add(0);
+			StartCoroutine(PlaceAllProps(Levels[0].MissionDataProps, oldVersion: false, 0));
+			return;
+		}
+		mapEditorData = SavingMapEditorData.LoadData(OptionsMainMenu.instance.MapEditorMapName);
+		if (mapEditorData == null && !OptionsMainMenu.instance.ClassicMap)
 		{
 			Debug.Log("no data found");
-			GameObject item = UnityEngine.Object.Instantiate(LevelPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
-			GameMaster.instance.Levels.Add(item);
+			GameObject item3 = UnityEngine.Object.Instantiate(LevelPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
+			GameMaster.instance.Levels.Add(item3);
 			CreateNewLevel(isBrandNew: true);
 			return;
 		}
@@ -1017,19 +1077,31 @@ public class MapEditorMaster : MonoBehaviour
 			PlayerBulletTypeList.value = PlayerBulletType;
 			DifficultyList.value = mapEditorData.difficulty;
 			PlayerArmourPointsSlider.value = PlayerArmourPoints;
-			PlayerCanLayMinesToggle.isOn = PlayerCanLayMines;
+			PlayerCanLayMinesToggle.IsEnabled = PlayerCanLayMines;
 		}
 		SetCustomTankData(mapEditorData);
-		GameObject item2 = UnityEngine.Object.Instantiate(LevelPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
-		GameMaster.instance.Levels.Add(item2);
+		GameObject item4 = UnityEngine.Object.Instantiate(LevelPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
+		GameMaster.instance.Levels.Add(item4);
+		for (int j = 0; j < mapEditorData.MissionMessages.Count; j++)
+		{
+			Debug.Log(mapEditorData.MissionMessages[j]);
+		}
 		int i;
 		for (i = 0; i < missionAmount; i++)
 		{
 			SingleMapEditorData singleMapEditorData = new SingleMapEditorData(null, null);
 			singleMapEditorData.MissionDataProps = mapEditorData.MissionDataProps.FindAll((MapPiecesClass x) => x.missionNumber == i);
-			for (int j = 0; j < OptionsMainMenu.instance.MapSize; j++)
+			if (mapEditorData.MissionMessages != null && mapEditorData.MissionMessages.Count > 0 && mapEditorData.MissionMessages[i] != null)
 			{
-				singleMapEditorData.MissionDataProps[j].ID = j;
+				singleMapEditorData.MissionMessage = mapEditorData.MissionMessages[i];
+				if (i == 0)
+				{
+					MissionMessageInputField.SetTextWithoutNotify(mapEditorData.MissionMessages[i]);
+				}
+			}
+			for (int k = 0; k < OptionsMainMenu.instance.MapSize; k++)
+			{
+				singleMapEditorData.MissionDataProps[k].ID = k;
 			}
 			GameMaster.instance.MissionNames.Add("Level " + Levels.Count);
 			Levels.Add(singleMapEditorData);
@@ -1049,8 +1121,8 @@ public class MapEditorMaster : MonoBehaviour
 			oldVersion = true;
 		}
 		StartCoroutine(PlaceAllProps(Levels[0].MissionDataProps, oldVersion, 0));
-		NightToggler.isOn = (GameMaster.instance.NightLevels.Contains(0) ? true : false);
-		NoBordersToggler.isOn = (NoBordersMissions.Contains(0) ? true : false);
+		NightToggler.IsEnabled = (GameMaster.instance.NightLevels.Contains(0) ? true : false);
+		NoBordersToggler.IsEnabled = (NoBordersMissions.Contains(0) ? true : false);
 		PID = mapEditorData.PID;
 		IsPublished = mapEditorData.isPublished;
 		if (mapEditorData.WeatherTypes != null && mapEditorData.WeatherTypes.Length != 0)
@@ -1068,11 +1140,11 @@ public class MapEditorMaster : MonoBehaviour
 			NoBordersMissions = mapEditorData.NoBordersMissions;
 			if (NoBordersMissions.Count < 1)
 			{
-				NoBordersToggler.isOn = true;
+				NoBordersToggler.IsEnabled = true;
 			}
 			else
 			{
-				NoBordersToggler.isOn = (NoBordersMissions.Contains(0) ? true : false);
+				NoBordersToggler.IsEnabled = (NoBordersMissions.Contains(0) ? true : false);
 			}
 		}
 	}
@@ -1393,7 +1465,7 @@ public class MapEditorMaster : MonoBehaviour
 		{
 			for (int k = 0; k < TeamColorsToggles.Length; k++)
 			{
-				TeamColorsToggles[k].isOn = TeamColorEnabled[k];
+				TeamColorsToggles[k].IsEnabled = TeamColorEnabled[k];
 			}
 		}
 		Menus[tab].SetActive(value: true);
@@ -1454,7 +1526,7 @@ public class MapEditorMaster : MonoBehaviour
 
 	public void CreateNewLevelButton()
 	{
-		NightToggler.isOn = false;
+		NightToggler.IsEnabled = false;
 		Debug.Log("new map button clicked!");
 		Play2DClipAtPoint(NewMapSound);
 		CreateNewLevel(isBrandNew: true);
@@ -1505,7 +1577,7 @@ public class MapEditorMaster : MonoBehaviour
 				gameObject.transform.localScale = new Vector3(1f, 1f, 1f);
 				gameObject.GetComponent<MapEditorMissionBarUI>().mission = Levels.Count - 1;
 				UpdateMembus();
-				NoBordersToggler.isOn = true;
+				NoBordersToggler.IsEnabled = true;
 				MissionNameInputField.text = GameMaster.instance.MissionNames[GameMaster.instance.CurrentMission];
 			}
 		}
@@ -1554,10 +1626,11 @@ public class MapEditorMaster : MonoBehaviour
 		Debug.Log("Level is now" + GameMaster.instance.CurrentMission);
 		StartCoroutine(PlaceAllProps(Levels[missionNumber].MissionDataProps, oldVersion: false, missionNumber));
 		UpdateMembus();
-		NightToggler.isOn = (GameMaster.instance.NightLevels.Contains(missionNumber) ? true : false);
-		NoBordersToggler.isOn = ((!NoBordersMissions.Contains(missionNumber)) ? true : false);
+		NightToggler.IsEnabled = (GameMaster.instance.NightLevels.Contains(missionNumber) ? true : false);
+		NoBordersToggler.IsEnabled = ((!NoBordersMissions.Contains(missionNumber)) ? true : false);
 		UpdateMapBorder(missionNumber);
 		MissionNameInputField.text = GameMaster.instance.MissionNames[missionNumber];
+		MissionMessageInputField.text = Levels[missionNumber].MissionMessage;
 		WeatherList.value = WeatherTypes[missionNumber];
 		FloorDropdown.value = MissionFloorTextures[missionNumber];
 	}
@@ -1591,8 +1664,8 @@ public class MapEditorMaster : MonoBehaviour
 		UpdateMembus();
 		GameMaster.instance.CurrentMission = 0;
 		StartCoroutine(PlaceAllProps(Levels[0].MissionDataProps, oldVersion: false, 0));
-		NightToggler.isOn = (GameMaster.instance.NightLevels.Contains(0) ? true : false);
-		NoBordersToggler.isOn = ((!NoBordersMissions.Contains(0)) ? true : false);
+		NightToggler.IsEnabled = (GameMaster.instance.NightLevels.Contains(0) ? true : false);
+		NoBordersToggler.IsEnabled = ((!NoBordersMissions.Contains(0)) ? true : false);
 		UpdateMapBorder(0);
 		MissionNameInputField.text = GameMaster.instance.MissionNames[0];
 		WeatherList.value = WeatherTypes[0];
@@ -1701,8 +1774,8 @@ public class MapEditorMaster : MonoBehaviour
 				int num3 = mission - 1;
 				GameMaster.instance.CurrentMission = num3;
 				StartCoroutine(PlaceAllProps(Levels[num3].MissionDataProps, oldVersion: false, 0));
-				NightToggler.isOn = (GameMaster.instance.NightLevels.Contains(num3) ? true : false);
-				NoBordersToggler.isOn = ((!NoBordersMissions.Contains(num3)) ? true : false);
+				NightToggler.IsEnabled = (GameMaster.instance.NightLevels.Contains(num3) ? true : false);
+				NoBordersToggler.IsEnabled = ((!NoBordersMissions.Contains(num3)) ? true : false);
 				UpdateMapBorder(num3);
 				MissionNameInputField.text = GameMaster.instance.MissionNames[num3];
 				WeatherList.value = WeatherTypes[num3];
@@ -1776,8 +1849,8 @@ public class MapEditorMaster : MonoBehaviour
 			int num6 = mission + 1;
 			GameMaster.instance.CurrentMission = num6;
 			StartCoroutine(PlaceAllProps(Levels[num6].MissionDataProps, oldVersion: false, 0));
-			NightToggler.isOn = (GameMaster.instance.NightLevels.Contains(num6) ? true : false);
-			NoBordersToggler.isOn = ((!NoBordersMissions.Contains(num6)) ? true : false);
+			NightToggler.IsEnabled = (GameMaster.instance.NightLevels.Contains(num6) ? true : false);
+			NoBordersToggler.IsEnabled = ((!NoBordersMissions.Contains(num6)) ? true : false);
 			UpdateMapBorder(num6);
 			MissionNameInputField.text = GameMaster.instance.MissionNames[num6];
 			WeatherList.value = WeatherTypes[num6];
@@ -1825,7 +1898,7 @@ public class MapEditorMaster : MonoBehaviour
 
 	public void DuplicateLevel(int MissionToDuplicate)
 	{
-		if (Levels.Count >= 20)
+		if (Levels.Count >= MaxLayer)
 		{
 			ShowErrorMessage("ERROR: Max missions reached");
 			return;
@@ -1878,8 +1951,8 @@ public class MapEditorMaster : MonoBehaviour
 		int num = MissionToDuplicate + 1;
 		GameMaster.instance.CurrentMission = num;
 		StartCoroutine(PlaceAllProps(Levels[num].MissionDataProps, oldVersion: false, 0));
-		NightToggler.isOn = (GameMaster.instance.NightLevels.Contains(num) ? true : false);
-		NoBordersToggler.isOn = ((!NoBordersMissions.Contains(num)) ? true : false);
+		NightToggler.IsEnabled = (GameMaster.instance.NightLevels.Contains(num) ? true : false);
+		NoBordersToggler.IsEnabled = ((!NoBordersMissions.Contains(num)) ? true : false);
 		UpdateMapBorder(num);
 		MissionNameInputField.text = GameMaster.instance.MissionNames[num];
 		WeatherList.value = WeatherTypes[num];
@@ -1901,9 +1974,9 @@ public class MapEditorMaster : MonoBehaviour
 		UpdateMembus();
 	}
 
-	public void SaveLevelSettings2(Toggle toggl)
+	public void SaveLevelSettings2(ButtonMouseEvents BME)
 	{
-		if (toggl.isOn)
+		if (BME.IsEnabled)
 		{
 			if (!GameMaster.instance.NightLevels.Contains(GameMaster.instance.CurrentMission))
 			{
@@ -1916,9 +1989,9 @@ public class MapEditorMaster : MonoBehaviour
 		}
 	}
 
-	public void SaveLevelSettings3(Toggle toggl)
+	public void SaveLevelSettings3(ButtonMouseEvents BME)
 	{
-		if (toggl.isOn)
+		if (BME.IsEnabled)
 		{
 			if (NoBordersMissions.Contains(GameMaster.instance.CurrentMission))
 			{

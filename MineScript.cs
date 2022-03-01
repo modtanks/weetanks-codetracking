@@ -398,14 +398,14 @@ public class MineScript : MonoBehaviour
 				component8.FlyBack();
 			}
 		}
-		array2 = Physics.OverlapSphere(location, radius * 2.5f);
+		array2 = Physics.OverlapSphere(location, radius * 2.75f);
 		foreach (Collider collider2 in array2)
 		{
 			Rigidbody component10 = collider2.GetComponent<Rigidbody>();
 			if (component10 != null && (collider2.tag == "Player" || collider2.tag == "Enemy"))
 			{
 				float num2 = Vector3.Distance(component10.transform.position, base.transform.position);
-				float num3 = (radius * 2.5f - num2) * 2f;
+				float num3 = (radius * 2.75f - num2) * 2.2f;
 				Vector3 vector = component10.transform.position - base.transform.position;
 				component10.AddForce(vector * num3, ForceMode.Impulse);
 			}

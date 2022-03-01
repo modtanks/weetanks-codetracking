@@ -511,6 +511,7 @@ public class MapEditorProp : MonoBehaviour
 		myEnemyAI.isInvisible = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomInvisibility;
 		myEnemyAI.ETSN.maxFiredBullets = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomBullets;
 		myEnemyAI.LayMinesSpeed = 10.5f - MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomMineSpeed;
+		myEnemyAI.ETSN.CustomShootSpeed = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomBulletSpeed;
 		float num3 = Mathf.Abs(100 - MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomAccuracy);
 		if (myEnemyAI.Accuracy != num3)
 		{
@@ -597,10 +598,10 @@ public class MapEditorProp : MonoBehaviour
 					FT.shootSound.Add(MapEditorMaster.instance.PlayerBulletSound[MapEditorMaster.instance.PlayerBulletType]);
 				}
 			}
-			if (HT != null && (!myEnemyAI || !myEnemyAI.HTscript.isGary) && HT.health != MapEditorMaster.instance.PlayerArmourPoints + 1)
+			if (HT != null && (!myEnemyAI || !myEnemyAI.HTscript.isGary) && HT.health_armour != MapEditorMaster.instance.PlayerArmourPoints)
 			{
-				HT.health = 1 + MapEditorMaster.instance.PlayerArmourPoints;
-				HT.maxHealth = HT.health;
+				HT.health_armour = MapEditorMaster.instance.PlayerArmourPoints;
+				HT.maxArmour = HT.health_armour;
 				HT.SetArmourPlates();
 			}
 		}
@@ -619,8 +620,9 @@ public class MapEditorProp : MonoBehaviour
 		{
 			MapEditorMaster.instance.OTM.SelectedMEP.myMEGP.FieldSelected = false;
 		}
-		MapEditorMaster.instance.OTM.OnOpenMenu(0);
+		MapEditorMaster.instance.OTM.OnOpenMenu(0, this);
 		MapEditorMaster.instance.OTM.CurrentDifficulty = MyDifficultySpawn;
+		MapEditorMaster.instance.OTM.DifficultyPick.value = MyDifficultySpawn;
 		MapEditorMaster.instance.TeamsCursorMenu.SetActive(value: true);
 		MapEditorMaster.instance.OTM.SelectedMEP = this;
 		MapEditorMaster.instance.OTM.CurrentTeamNumber = TeamNumber;
@@ -728,7 +730,7 @@ public class MapEditorProp : MonoBehaviour
 		{
 			MapEditorMaster.instance.RemoveMode = false;
 			MapEditorMaster.instance.OnTeamsMenu = false;
-			MapEditorMaster.instance.TeamsCursorMenu.SetActive(value: false);
+			MapEditorMaster.instance.OTM.OnCloseMenu();
 		}
 		myMEGP.myPropID[myMEGP.IDlayer] = -1;
 		myMEGP.myPropPrefab[myMEGP.IDlayer] = null;

@@ -31,7 +31,7 @@ public class DarkMissionLightEnabler : MonoBehaviour
 
 	private void SetLights()
 	{
-		if (RenderSettings.ambientLight == Color.black)
+		if (RenderSettings.ambientLight == Color.black && Lights != null)
 		{
 			Lights.SetActive(value: true);
 			if ((bool)LightsP2)

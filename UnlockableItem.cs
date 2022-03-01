@@ -3,6 +3,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Unlockable", menuName = "Unlockable")]
 public class UnlockableItem : ScriptableObject
 {
+	public bool UnlockableEnabled = true;
+
 	public string UnlockableName = "";
 
 	public string UnlockableRequirement = "";

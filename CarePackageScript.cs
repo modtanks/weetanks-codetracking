@@ -109,7 +109,7 @@ public class CarePackageScript : MonoBehaviour
 		bool flag = false;
 		if ((bool)healthTanks)
 		{
-			healthTanks.isSpawnedIn = true;
+			healthTanks.IsAirdropped = true;
 		}
 		if ((bool)enemyAI)
 		{
@@ -142,7 +142,11 @@ public class CarePackageScript : MonoBehaviour
 			GameMaster.instance.AmountEnemyTanks++;
 			GameMaster.instance.AmountTeamTanks[MyTeam]++;
 			GameMaster.instance.StartCoroutine(GameMaster.instance.GetTankTeamData(fast: true));
-			GameMaster.instance.Enemies = GameObject.FindGameObjectsWithTag("Enemy");
+			if (GameMaster.instance.Enemies != null)
+			{
+				GameMaster.instance.Enemies.Clear();
+			}
+			GameMaster.instance.Enemies = new List<GameObject>(GameObject.FindGameObjectsWithTag("Enemy"));
 		}
 		else if (flag)
 		{

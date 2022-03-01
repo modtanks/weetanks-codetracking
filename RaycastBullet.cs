@@ -53,7 +53,8 @@ public class RaycastBullet : MonoBehaviour
 		{
 			checkDistance = 12;
 		}
-		RaycastHit[] array = (from h in Physics.RaycastAll(vector, direction, checkDistance)
+		LayerMask layerMask = ~((1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("OneWayBlock")) | (1 << LayerMask.NameToLayer("EnemyBorder")));
+		RaycastHit[] array = (from h in Physics.RaycastAll(vector, direction, checkDistance, layerMask)
 			orderby h.distance
 			select h).ToArray();
 		for (int i = 0; i < array.Length; i++)
@@ -86,36 +87,39 @@ public class RaycastBullet : MonoBehaviour
 
 	public void DoHit(RaycastHit col, int smart, Vector3 reflectionPoint)
 	{
-		if (!(col.collider.tag == "EnemyDetectionField"))
+		if (col.collider.tag == "EnemyDetectionField")
 		{
-			return;
-		}
-		EnemyDetection component = col.transform.GetComponent<EnemyDetection>();
-		if (!(component != null))
-		{
-			return;
-		}
-		PlayerBulletScript component2 = GetComponent<PlayerBulletScript>();
-		if (component2 != null)
-		{
-			if (component2.isEnemyBullet)
+			EnemyDetection component = col.transform.GetComponent<EnemyDetection>();
+			if (!(component != null))
 			{
-				if (component2.papaTank == component.papaTank && component2.TimesBounced > 0)
-				{
-					TargetED(component);
-				}
-				else if (component2.papaTank != component.papaTank)
-				{
-					TargetED(component);
-				}
+				return;
 			}
-			else if (component2.TankScriptAI != null)
+			PlayerBulletScript component2 = GetComponent<PlayerBulletScript>();
+			if (component2 != null)
 			{
-				if (component2.TankScriptAI.AIscript.gameObject == component.papaTank && component2.TimesBounced > 0)
+				if (component2.isEnemyBullet)
 				{
-					TargetED(component);
+					if (component2.papaTank == component.papaTank && component2.TimesBounced > 0)
+					{
+						TargetED(component);
+					}
+					else if (component2.papaTank != component.papaTank)
+					{
+						TargetED(component);
+					}
 				}
-				else if (component2.TankScriptAI.AIscript.gameObject != component.papaTank)
+				else if (component2.TankScriptAI != null)
+				{
+					if (component2.TankScriptAI.AIscript.gameObject == component.papaTank && component2.TimesBounced > 0)
+					{
+						TargetED(component);
+					}
+					else if (component2.TankScriptAI.AIscript.gameObject != component.papaTank)
+					{
+						TargetED(component);
+					}
+				}
+				else
 				{
 					TargetED(component);
 				}
@@ -125,9 +129,13 @@ public class RaycastBullet : MonoBehaviour
 				TargetED(component);
 			}
 		}
-		else
+		else if (col.collider.tag == "Enemy")
 		{
-			TargetED(component);
+			EnemyAI component3 = col.collider.GetComponent<EnemyAI>();
+			if (component3 != null && (bool)component3.Ring0Detection)
+			{
+				TargetED(component3.Ring0Detection);
+			}
 		}
 	}
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 [Serializable]
 public class MapEditorData
@@ -82,6 +83,8 @@ public class MapEditorData
 
 	public int[] MissionFloorTextures;
 
+	public List<string> MissionMessages = new List<string>();
+
 	public MapEditorData(GameMaster GM, MapEditorMaster MEM)
 	{
 		if (GM == null && MEM == null)
@@ -93,6 +96,7 @@ public class MapEditorData
 		nightMissions = GM.NightLevels;
 		missionNames = GM.MissionNames;
 		List<MapPiecesClass> list = new List<MapPiecesClass>();
+		MissionMessages.Clear();
 		for (int i = 0; i < MEM.Levels.Count; i++)
 		{
 			for (int j = 0; j < OptionsMainMenu.instance.MapSize; j++)
@@ -100,6 +104,8 @@ public class MapEditorData
 				MEM.Levels[i].MissionDataProps[j].missionNumber = i;
 				list.Add(MEM.Levels[i].MissionDataProps[j]);
 			}
+			MissionMessages.Add(MEM.Levels[i].MissionMessage);
+			Debug.Log(MEM.Levels[i].MissionMessage);
 		}
 		MissionDataProps = list;
 		campaignName = MEM.campaignName;

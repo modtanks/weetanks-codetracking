@@ -25,6 +25,22 @@ public static class SavingMapEditorData
 		return true;
 	}
 
+	public static bool SaveClassicCampaignMap(GameMaster GM, MapEditorMaster MEM, string filename, TextAsset CampaignMap)
+	{
+		BinaryFormatter binaryFormatter = new BinaryFormatter();
+		string text = null;
+		text = text.Replace("Assets", "");
+		Debug.Log("save path now is: " + text);
+		Debug.Log("dataPath : " + Application.dataPath);
+		text = Application.dataPath + text;
+		FileStream fileStream = new FileStream(text, FileMode.Create);
+		SingleMapEditorData graph = new SingleMapEditorData(GM, MEM);
+		binaryFormatter.Serialize(fileStream, graph);
+		Debug.LogError("File saved at " + text);
+		fileStream.Close();
+		return true;
+	}
+
 	public static bool SaveCampaignMap(GameMaster GM, MapEditorMaster MEM, string filename, bool overwrite)
 	{
 		BinaryFormatter binaryFormatter = new BinaryFormatter();
@@ -60,6 +76,14 @@ public static class SavingMapEditorData
 			return result;
 		}
 		return null;
+	}
+
+	public static SingleMapEditorData LoadDataFromTXT(TextAsset mapObject)
+	{
+		Stream stream = new MemoryStream(mapObject.bytes);
+		SingleMapEditorData result = new BinaryFormatter().Deserialize(stream) as SingleMapEditorData;
+		stream.Close();
+		return result;
 	}
 
 	public static bool ReSaveMap(MapEditorData data, string path)

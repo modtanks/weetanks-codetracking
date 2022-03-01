@@ -77,7 +77,7 @@ public class AccountMaster : MonoBehaviour
 
 	private void Count()
 	{
-		if (isSignedIn)
+		if (isSignedIn && PDO != null)
 		{
 			TimePlayed += 10;
 			PDO.TimePlayed += 10;
@@ -97,12 +97,12 @@ public class AccountMaster : MonoBehaviour
 		}
 		if ((bool)AchievementsTracker.instance && isSignedIn && AchievementsTracker.instance.StartedFromBegin && !SetTime)
 		{
-			if (GameMaster.instance.CurrentMission == 20 && !GameMaster.instance.GameHasStarted && GameMaster.instance.Enemies.Length < 1)
+			if (GameMaster.instance.CurrentMission == 20 && !GameMaster.instance.GameHasStarted && GameMaster.instance.Enemies.Count < 1)
 			{
 				SetTime = true;
 				StartCoroutine(SaveSpeedrunData(20, OptionsMainMenu.instance.currentDifficulty));
 			}
-			else if (GameMaster.instance.CurrentMission == 50 && !GameMaster.instance.GameHasStarted && GameMaster.instance.Enemies.Length < 1)
+			else if (GameMaster.instance.CurrentMission == 50 && !GameMaster.instance.GameHasStarted && GameMaster.instance.Enemies.Count < 1)
 			{
 				SetTime = true;
 				StartCoroutine(SaveSpeedrunData(50, OptionsMainMenu.instance.currentDifficulty));
@@ -187,35 +187,41 @@ public class AccountMaster : MonoBehaviour
 	public IEnumerator IESaveStatus(int code)
 	{
 		Debug.Log("sending status...2");
-		if (isSignedIn)
+		if (!isSignedIn)
 		{
-			WWWForm wWWForm = new WWWForm();
-			wWWForm.AddField("key", Key);
-			wWWForm.AddField("userid", UserID);
-			wWWForm.AddField("username", Username);
-			wWWForm.AddField("code", code);
-			wWWForm.AddField("difficulty", OptionsMainMenu.instance.currentDifficulty);
-			if (PreviousCode != null)
-			{
-				wWWForm.AddField("prev", PreviousCode);
-			}
-			UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_log.php", wWWForm);
-			uwr.chunkedTransfer = false;
-			yield return uwr.SendWebRequest();
-			Debug.Log("sending status..!.333");
-			if (uwr.isNetworkError)
-			{
-				isSaving = false;
-				Debug.Log("Error While Sending: " + uwr.error);
-			}
-			else if (uwr.downloadHandler.text.Contains("FAILED"))
-			{
-				Debug.Log("UPDATING STATSU FAILED");
-			}
-			else
-			{
-				PreviousCode = uwr.downloadHandler.text;
-			}
+			yield break;
+		}
+		WWWForm wWWForm = new WWWForm();
+		wWWForm.AddField("key", Key);
+		wWWForm.AddField("userid", UserID);
+		wWWForm.AddField("username", Username);
+		wWWForm.AddField("code", code);
+		wWWForm.AddField("difficulty", OptionsMainMenu.instance.currentDifficulty);
+		if (PreviousCode != null)
+		{
+			wWWForm.AddField("prev", PreviousCode);
+		}
+		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_log.php", wWWForm);
+		uwr.chunkedTransfer = false;
+		yield return uwr.SendWebRequest();
+		Debug.Log("sending status..!.333");
+		if (uwr.isNetworkError)
+		{
+			isSaving = false;
+			Debug.Log("Error While Sending: " + uwr.error);
+			yield break;
+		}
+		Debug.Log("Received: " + uwr.downloadHandler.text);
+		if (uwr.downloadHandler.text.Contains("FAILED"))
+		{
+			Debug.Log("UPDATING STATSU FAILED");
+			yield break;
+		}
+		PreviousCode = uwr.downloadHandler.text;
+		int num = int.Parse(uwr.downloadHandler.text.Split(char.Parse("/"))[1]);
+		if (num > 0)
+		{
+			ShowMarbleNotification(num);
 		}
 	}
 
@@ -273,15 +279,17 @@ public class AccountMaster : MonoBehaviour
 		{
 			wWWForm.AddField("kB", 1);
 		}
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_stats.php", wWWForm);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_stats_b.php", wWWForm);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
 		{
 			isSaving = false;
 			Debug.Log("Error While Sending: " + uwr.error);
+			yield break;
 		}
-		else if (uwr.downloadHandler.text.Contains("FAILED"))
+		Debug.Log("Received: " + uwr.downloadHandler.text);
+		if (uwr.downloadHandler.text.Contains("FAILED"))
 		{
 			isSaving = false;
 		}
@@ -648,31 +656,40 @@ public class AccountMaster : MonoBehaviour
 			}
 			Inventory = null;
 		}
-		MapEditorMaster.instance.UpdateInventoryItemsUI();
+		if ((bool)MapEditorMaster.instance)
+		{
+			MapEditorMaster.instance.UpdateInventoryItemsUI();
+		}
 	}
 
 	private void AssignData(string post_data)
 	{
 		GameMaster.instance.CurrentData = JsonUtility.FromJson<ProgressDataOnline>(post_data);
 		PDO = JsonUtility.FromJson<ProgressDataOnline>(post_data);
-		OptionsMainMenu.instance.AM = PDO.AM;
-		OptionsMainMenu.instance.AMselected = PDO.ActivatedAM;
-		OptionsMainMenu.instance.CheckCustomHitmarkers();
-		TimePlayed = PDO.TimePlayed;
-		GameMaster.instance.totalKills = PDO.totalKills;
-		GameMaster.instance.totalWins = PDO.totalWins;
-		GameMaster.instance.totalDefeats = PDO.totalDefeats;
-		GameMaster.instance.highestWaves = PDO.hW;
-		GameMaster.instance.TankColorKilled = PDO.killed;
-		GameMaster.instance.survivalTanksKilled = PDO.survivalTanksKilled;
-		GameMaster.instance.maxMissionReached = ((PDO.maxMission0 < PDO.maxMission1) ? PDO.maxMission1 : PDO.maxMission0);
-		GameMaster.instance.maxMissionReachedHard = PDO.maxMission2;
-		GameMaster.instance.maxMissionReachedKid = ((PDO.maxMission1 < PDO.maxMission2) ? PDO.maxMission2 : PDO.maxMission1);
-		GameMaster.instance.totalKillsBounce = PDO.totalKillsBounce;
-		GameMaster.instance.totalRevivesPerformed = PDO.totalRevivesPerformed;
-		if ((bool)TankeyTownMaster.instance)
+		if (PDO != null && PDO.killed.Length >= 10)
 		{
-			TankeyTownMaster.instance.MarblesText.text = PDO.marbles.ToString();
+			OptionsMainMenu.instance.AM = PDO.AM;
+			OptionsMainMenu.instance.AMselected = PDO.ActivatedAM;
+			OptionsMainMenu.instance.CheckCustomHitmarkers();
+			TimePlayed = PDO.TimePlayed;
+			GameMaster.instance.totalKills = PDO.totalKills;
+			GameMaster.instance.totalWins = PDO.totalWins;
+			GameMaster.instance.totalDefeats = PDO.totalDefeats;
+			if (PDO.hW.Length > 6)
+			{
+				GameMaster.instance.highestWaves = PDO.hW;
+			}
+			GameMaster.instance.TankColorKilled = PDO.killed;
+			GameMaster.instance.survivalTanksKilled = PDO.survivalTanksKilled;
+			GameMaster.instance.maxMissionReached = ((PDO.maxMission0 < PDO.maxMission1) ? PDO.maxMission1 : PDO.maxMission0);
+			GameMaster.instance.maxMissionReachedHard = PDO.maxMission2;
+			GameMaster.instance.maxMissionReachedKid = ((PDO.maxMission1 < PDO.maxMission2) ? PDO.maxMission2 : PDO.maxMission1);
+			GameMaster.instance.totalKillsBounce = PDO.totalKillsBounce;
+			GameMaster.instance.totalRevivesPerformed = PDO.totalRevivesPerformed;
+			if ((bool)TankeyTownMaster.instance)
+			{
+				TankeyTownMaster.instance.MarblesText.text = PDO.marbles.ToString();
+			}
 		}
 	}
 

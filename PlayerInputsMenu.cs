@@ -21,11 +21,14 @@ public class PlayerInputsMenu : MonoBehaviour
 
 	public bool CallFromController;
 
+	public GameObject SetDifficultyController;
+
 	public GameObject CompanionNote;
 
 	private void Start()
 	{
 		SetControllers();
+		LoadData();
 	}
 
 	public void IncreaseDropdown(int playerID)
@@ -53,11 +56,16 @@ public class PlayerInputsMenu : MonoBehaviour
 		}
 		for (int j = 0; j < Dropdowns.Length; j++)
 		{
-			if (j != playerID && Dropdowns[j].captionText.text.Contains("AI"))
+			if (Dropdowns[j].captionText.text.Contains("AI"))
 			{
-				num++;
+				OptionsMainMenu.instance.MenuCompanion[j] = true;
+			}
+			else
+			{
+				OptionsMainMenu.instance.MenuCompanion[j] = false;
 			}
 		}
+		OptionsMainMenu.instance.SaveNewData();
 		if (num > 1)
 		{
 			CompanionNote.SetActive(value: true);
@@ -67,6 +75,31 @@ public class PlayerInputsMenu : MonoBehaviour
 			CompanionNote.SetActive(value: false);
 		}
 		CallFromController = false;
+	}
+
+	public void LoadData()
+	{
+		if (OptionsMainMenu.instance.MenuCompanion == null)
+		{
+			return;
+		}
+		for (int i = 0; i < 4; i++)
+		{
+			int num = 0;
+			if (OptionsMainMenu.instance.MenuCompanion[i])
+			{
+				num++;
+				Dropdowns[i].SetValueWithoutNotify(1);
+			}
+			if (num > 1)
+			{
+				CompanionNote.SetActive(value: true);
+			}
+			else
+			{
+				CompanionNote.SetActive(value: false);
+			}
+		}
 	}
 
 	public void SetControllers()

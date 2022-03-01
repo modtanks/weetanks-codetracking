@@ -130,7 +130,6 @@ public class WeeTurret : MonoBehaviour
 			{
 				if (Vector3.Distance(target.transform.position, MyHead.transform.position) <= ScannerRange)
 				{
-					Debug.Log("Enemy in range!!!");
 					Vector3 vector = new Vector3(target.transform.position.x, 0.5f, target.transform.position.z);
 					Vector3 position = MyHead.transform.position;
 					position.y = 0.5f;
@@ -155,12 +154,10 @@ public class WeeTurret : MonoBehaviour
 						}
 						if (raycastHit.collider.tag == "Solid" || raycastHit.collider.tag == "Player" || raycastHit.collider.tag == "Mine")
 						{
-							Debug.Log("SOMETHING IN THE WAY:" + raycastHit.collider.tag, raycastHit.collider.gameObject);
 							break;
 						}
 						if (raycastHit.collider.tag == "Enemy")
 						{
-							Debug.Log("SEEING NEMEY:" + raycastHit.collider.tag);
 							closestTarget = target;
 							break;
 						}
@@ -282,6 +279,7 @@ public class WeeTurret : MonoBehaviour
 		GameObject gameObject = ((upgradeLevel <= 0) ? Object.Instantiate(BulletPrefab, ShootPoint.position, ShootPoint.transform.rotation) : Object.Instantiate(UpgradedBulletPrefab, ShootPoint.position, ShootPoint.transform.rotation));
 		gameObject.GetComponent<Rigidbody>().AddForce(ShootPoint.forward * 6f);
 		PlayerBulletScript component = gameObject.GetComponent<PlayerBulletScript>();
+		component.StartingVelocity = ShootPoint.forward * 6f;
 		if ((bool)component)
 		{
 			component.TurretBullet = true;

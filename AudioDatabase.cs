@@ -6,7 +6,13 @@ public class AudioDatabase : ScriptableObject
 {
 	public AudioClip[] ArmourHits;
 
-	public AudioClip MenuClick;
+	public AudioClip[] MenuHover;
+
+	public AudioClip[] MenuAway;
+
+	public AudioClip[] MenuClick;
+
+	public AudioClip[] MenuBack;
 
 	public AudioClip success;
 
@@ -35,4 +41,6 @@ public class AudioDatabase : ScriptableObject
 	public List<AudioClip> ExplosiveBulletShootSound;
 
 	public List<AudioClip> ElectricBulletShootSound;
+
+	public List<AudioClip> WallBoingSounds;
 }

@@ -48,4 +48,6 @@ public class CustomTankData
 	public int CustomTankHealth;
 
 	public string UniqueTankID;
+
+	public int CustomBulletSpeed;
 }

@@ -63,6 +63,7 @@ public class LoadCustomMap : MonoBehaviour
 		{
 			SingleMapEditorData singleMapEditorData = new SingleMapEditorData(null, null);
 			singleMapEditorData.MissionDataProps = mapEditorData.MissionDataProps.FindAll((MapPiecesClass x) => x.missionNumber == i);
+			singleMapEditorData.MissionMessage = mapEditorData.MissionMessages[i];
 			for (int k = 0; k < OptionsMainMenu.instance.MapSize; k++)
 			{
 				singleMapEditorData.MissionDataProps[k].ID = k;

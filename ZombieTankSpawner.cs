@@ -179,7 +179,7 @@ public class ZombieTankSpawner : MonoBehaviour
 		}
 		if (!timerRunning && GameMaster.instance.GameHasStarted && GameMaster.instance.AmountEnemyTanks < 1 && spawned == spawnAmount)
 		{
-			if (Wave > GameMaster.instance.highestWaves[GameMaster.instance.CurrentMission])
+			if (GameMaster.instance.highestWaves != null && GameMaster.instance.highestWaves.Length > 8 && Wave > GameMaster.instance.highestWaves[GameMaster.instance.CurrentMission])
 			{
 				GameMaster.instance.highestWaves[GameMaster.instance.CurrentMission] = Wave;
 			}
@@ -208,8 +208,9 @@ public class ZombieTankSpawner : MonoBehaviour
 		timerRunning = true;
 		if ((bool)CloudGeneration.instance && WeatherCooldown < 1)
 		{
-			int[] array = new int[18]
+			int[] array = new int[28]
 			{
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				0, 1, 1, 1, 2, 2, 3, 3
 			};

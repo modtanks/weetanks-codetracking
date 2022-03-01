@@ -9,6 +9,9 @@ public class GlobalAssets : MonoBehaviour
 
 	public List<TankeyTownStockItem> StockDatabase = new List<TankeyTownStockItem>();
 
+	[Header("Objects")]
+	public GameObject TankFlag;
+
 	public static GlobalAssets instance => _instance;
 
 	private void Awake()

@@ -68,12 +68,15 @@ public class NewAnimationsScript : MonoBehaviour
 	[Header("Zombie")]
 	public TextMeshProUGUI EnemiesHeader;
 
+	private GameObject root;
+
 	public bool newTank;
 
 	public bool checkPoint;
 
 	private void Start()
 	{
+		root = base.transform.GetChild(0).gameObject;
 		startTime = 0f;
 		myAnimator = GetComponent<Animator>();
 		CamAnimator = Camera.main.GetComponent<Animator>();
@@ -114,6 +117,16 @@ public class NewAnimationsScript : MonoBehaviour
 		StartCoroutine("WaitZero");
 	}
 
+	public void HideBoard()
+	{
+		root.SetActive(value: false);
+	}
+
+	public void ShowBoard()
+	{
+		root.SetActive(value: true);
+	}
+
 	private IEnumerator WaitZero()
 	{
 		yield return new WaitForSeconds(2f);
@@ -123,7 +136,7 @@ public class NewAnimationsScript : MonoBehaviour
 	private void FixedUpdate()
 	{
 		float num = 1f;
-		if (Input.GetKey(KeyCode.LeftShift) && !GameMaster.instance.GameHasStarted)
+		if (Input.GetKey(KeyCode.LeftShift) && GameMaster.instance.Lives > 0 && !GameMaster.instance.GameHasStarted)
 		{
 			num = 3f;
 			if (CamAnimator != null)
@@ -142,7 +155,7 @@ public class NewAnimationsScript : MonoBehaviour
 			{
 				CamAnimator.speed = 1f;
 			}
-			if (myAnimator != null)
+			if (myAnimator != null && GameMaster.instance.Lives > 0)
 			{
 				myAnimator.speed = 1f;
 			}
@@ -381,6 +394,7 @@ public class NewAnimationsScript : MonoBehaviour
 		else
 		{
 			StartCoroutine("PauseAnimationFor", 5f);
+			livesLeft.text = "Dead!";
 			StartCoroutine(GoToMainMenu());
 		}
 	}
@@ -429,6 +443,7 @@ public class NewAnimationsScript : MonoBehaviour
 
 	private IEnumerator PauseAnimationFor(int sec)
 	{
+		Debug.Log("Stopping animationr");
 		myAnimator.speed = 0f;
 		yield return new WaitForSeconds(sec);
 		myAnimator.speed = 1f;

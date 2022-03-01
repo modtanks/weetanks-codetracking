@@ -53,10 +53,6 @@ public class AchievementItemScript : MonoBehaviour
 		if (message != "")
 		{
 			MyTitle.text = "Map Editor Unlock!";
-			if (MyTitle.text.Length > 20)
-			{
-				MyTitle.fontSize = 9f;
-			}
 			CheckMark.SetActive(value: true);
 			MyDescription.text = message;
 			AchievementPicture.texture = TankTextures[AMID];
@@ -69,15 +65,13 @@ public class AchievementItemScript : MonoBehaviour
 			{
 				return;
 			}
+			Debug.Log("CHECKING : " + AMID);
 			MyTitle.text = OptionsMainMenu.instance.AMnames[AMID];
-			if (MyTitle.text.Length > 20)
-			{
-				MyTitle.fontSize = 9f;
-			}
 			MyDescription.text = OptionsMainMenu.instance.AMdesc[AMID];
 			myDifficulty = OptionsMainMenu.instance.AMdifficulty[AMID];
 			if (OptionsMainMenu.instance.AM[AMID] == 1)
 			{
+				Debug.Log("UNLOCKED : " + AMID);
 				CheckMark.SetActive(value: true);
 				AchievementBorder.texture = Borders[myDifficulty];
 				if (OptionsMainMenu.instance.AMimages[AMID] != null)

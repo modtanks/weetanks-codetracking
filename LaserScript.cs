@@ -21,9 +21,6 @@ public class LaserScript : MonoBehaviour
 	[SerializeField]
 	public Vector3 initialVelocity;
 
-	[SerializeField]
-	private float minVelocity = 10f;
-
 	public Vector3 lastFrameVelocity;
 
 	private Rigidbody rb;

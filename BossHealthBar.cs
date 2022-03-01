@@ -128,6 +128,14 @@ public class BossHealthBar : MonoBehaviour
 			_ = GameMaster.instance.AmountEnemyTanks;
 			_ = 1;
 		}
+		if (GameMaster.instance.Bosses.Length < 1)
+		{
+			GameObject[] bossOverlays = BossOverlays;
+			for (int i = 0; i < bossOverlays.Length; i++)
+			{
+				bossOverlays[i].SetActive(value: false);
+			}
+		}
 	}
 
 	private IEnumerator disableBar(int bar)

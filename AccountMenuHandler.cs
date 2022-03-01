@@ -39,7 +39,7 @@ public class AccountMenuHandler : MonoBehaviour
 			}
 			BackButton.Place = 4;
 			CurrentlySignedInAs.gameObject.SetActive(value: true);
-			CurrentlySignedInAs.text = "Currently signed in as: " + AccountMaster.instance.Username + " (" + AccountMaster.instance.PDO.marbles + " marbles)";
+			CurrentlySignedInAs.text = "Currently signed in as:<br>" + AccountMaster.instance.Username + " (" + AccountMaster.instance.PDO.marbles + " marbles)";
 		}
 		else
 		{

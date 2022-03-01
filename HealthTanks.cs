@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class HealthTanks : MonoBehaviour
@@ -67,9 +68,11 @@ public class HealthTanks : MonoBehaviour
 
 	public int maxArmour;
 
-	public bool isSpawnedIn;
+	public bool IsAirdropped;
 
 	public bool canGetHurt = true;
+
+	public bool IsHitByBullet;
 
 	private bool ChargeDying;
 
@@ -170,7 +173,7 @@ public class HealthTanks : MonoBehaviour
 
 	private void OnDisable()
 	{
-		if (isSpawnedIn)
+		if (IsAirdropped)
 		{
 			health = -999;
 			EnemyTankDeath();
@@ -300,13 +303,13 @@ public class HealthTanks : MonoBehaviour
 			}
 			return;
 		}
-		if (!GameMaster.instance.GameHasStarted && isSpawnedIn)
+		if (!GameMaster.instance.GameHasStarted && IsAirdropped)
 		{
 			DamageMe(999);
 			EnemyTankDeath();
 			return;
 		}
-		if (GameMaster.instance.CurrentMission >= 99 && isSpawnedIn)
+		if (GameMaster.instance.CurrentMission >= 99 && IsAirdropped)
 		{
 			if (GameMaster.instance.Bosses.Length < 1)
 			{
@@ -475,7 +478,7 @@ public class HealthTanks : MonoBehaviour
 			component.PlayDeathSound();
 		}
 		isDestroying = true;
-		if (isSpawnedIn && GameMaster.instance.AmountCalledInTanks > 0)
+		if (IsAirdropped && GameMaster.instance.AmountCalledInTanks > 0)
 		{
 			GameMaster.instance.AmountCalledInTanks--;
 		}
@@ -488,9 +491,13 @@ public class HealthTanks : MonoBehaviour
 		}
 		if (GameMaster.instance != null)
 		{
-			if (GameMaster.instance.AmountEnemyTanks > 0 && !isSpawnedIn)
+			if (GameMaster.instance.AmountEnemyTanks > 0 && !IsAirdropped)
 			{
 				GameMaster.instance.AmountEnemyTanks--;
+			}
+			if ((bool)component2 && component2.MyTeam == 1 && !MapEditorMaster.instance && !component2.IsCompanion)
+			{
+				GameMaster.instance.AmountEnemyTanks++;
 			}
 			if (isGary && (bool)AchievementsTracker.instance)
 			{
@@ -543,7 +550,7 @@ public class HealthTanks : MonoBehaviour
 				{
 					AchievementsTracker.instance.completeAchievement(11);
 				}
-				if ((component2.isLevel10Boss || component2.isLevel30Boss || component2.isLevel50Boss || component2.isLevel70Boss || component2.isLevel100Boss) && !AchievementsTracker.instance.HasShootedThisRound && OptionsMainMenu.instance.AM[16] != 1)
+				if ((component2.isLevel10Boss || component2.isLevel30Boss || component2.isLevel50Boss || component2.isLevel70Boss || component2.isLevel100Boss) && !IsHitByBullet && OptionsMainMenu.instance.AM[16] != 1)
 				{
 					AchievementsTracker.instance.completeAchievement(16);
 				}
@@ -609,15 +616,19 @@ public class HealthTanks : MonoBehaviour
 		}
 		if (GameMaster.instance.CurrentMission == 99)
 		{
-			GameMaster.instance.Enemies = GameObject.FindGameObjectsWithTag("Enemy");
-			if (GameMaster.instance.Enemies.Length == 1)
+			if (GameMaster.instance.Enemies != null)
+			{
+				GameMaster.instance.Enemies.Clear();
+			}
+			GameMaster.instance.Enemies = new List<GameObject>(GameObject.FindGameObjectsWithTag("Enemy"));
+			if (GameMaster.instance.Enemies.Count == 1)
 			{
 				GameMaster.instance.Enemies = null;
 				GameMaster.instance.AmountEnemyTanks = 1;
 			}
 			else
 			{
-				GameMaster.instance.AmountEnemyTanks = GameMaster.instance.Enemies.Length;
+				GameMaster.instance.AmountEnemyTanks = GameMaster.instance.Enemies.Count;
 			}
 		}
 		if ((bool)component7)

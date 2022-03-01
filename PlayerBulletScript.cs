@@ -77,6 +77,8 @@ public class PlayerBulletScript : MonoBehaviour
 
 	private Vector3 lastPosition;
 
+	public Vector3 StartingVelocity;
+
 	public bool IsElectricCharged;
 
 	public bool isExplosive;
@@ -111,12 +113,16 @@ public class PlayerBulletScript : MonoBehaviour
 
 	public bool isShiny;
 
+	public bool isSuperShiny;
+
 	public bool isSilver;
 
 	[Header("Custom Bullets")]
 	public GameObject Dart;
 
 	public AudioClip[] DartShootSound;
+
+	private float TimeFlying;
 
 	public Vector3 upcomingDirection;
 
@@ -147,7 +153,8 @@ public class PlayerBulletScript : MonoBehaviour
 		{
 			return;
 		}
-		if (AccountMaster.instance.Inventory.InventoryItems.Contains(26) && OptionsMainMenu.instance.AMselected.Contains(1026))
+		Dart.SetActive(value: false);
+		if (AccountMaster.instance.Inventory != null && AccountMaster.instance.Inventory.InventoryItems.Length != 0 && AccountMaster.instance.Inventory.InventoryItems.Contains(26) && OptionsMainMenu.instance.AMselected.Contains(1026))
 		{
 			InstantiateOneParticle component = GetComponent<InstantiateOneParticle>();
 			if ((bool)component)
@@ -158,10 +165,6 @@ public class PlayerBulletScript : MonoBehaviour
 			SmokeBulletParty.gameObject.SetActive(value: false);
 			Dart.SetActive(value: true);
 			GetComponent<MeshRenderer>().enabled = false;
-		}
-		else
-		{
-			Dart.SetActive(value: false);
 		}
 	}
 
@@ -205,6 +208,19 @@ public class PlayerBulletScript : MonoBehaviour
 			if ((bool)component2)
 			{
 				component2.Play();
+			}
+		}
+		else if (isSuperShiny)
+		{
+			ParticleSystem component3 = base.transform.Find("SuperShinyParticlesBullet").GetComponent<ParticleSystem>();
+			if ((bool)component3)
+			{
+				component3.Play();
+			}
+			MeshRenderer component4 = GetComponent<MeshRenderer>();
+			if ((bool)component4)
+			{
+				component4.material.color = Color.yellow;
 			}
 		}
 		if (isTowerCharged)
@@ -302,15 +318,15 @@ public class PlayerBulletScript : MonoBehaviour
 
 	private IEnumerator LateStart()
 	{
+		DrawReflectionPattern(base.transform.position, StartingVelocity, isDistanceTest: false);
 		yield return new WaitForSeconds(0.01f);
-		initialVelocity = rb.velocity;
-		CastLaser(initialVelocity);
 		yield return new WaitForSeconds(15f);
 		TimesBounced = 9999;
 	}
 
 	private IEnumerator CastLaserDelay()
 	{
+		Debug.Log("VELOCITY IS ZERO!!");
 		yield return new WaitForSeconds(0.01f);
 		CastLaser(rb.velocity);
 	}
@@ -333,6 +349,7 @@ public class PlayerBulletScript : MonoBehaviour
 		Vector3 start = position;
 		Ray ray = new Ray(position, direction);
 		LayerMask layerMask = (1 << LayerMask.NameToLayer("CorkWall")) | (1 << LayerMask.NameToLayer("Wall")) | (1 << LayerMask.NameToLayer("NoBounceWall")) | (1 << LayerMask.NameToLayer("DestroyableWall"));
+		Debug.DrawRay(position, direction * 15f, Color.cyan, 3f);
 		if (Physics.Raycast(ray, out var hitInfo, 1000f, layerMask))
 		{
 			if (isDistanceTest)
@@ -361,7 +378,6 @@ public class PlayerBulletScript : MonoBehaviour
 		}
 		else
 		{
-			Debug.DrawRay(position, direction * 15f, Color.red, 5f);
 			Physics.Raycast(ray, out hitInfo, 1000f);
 			TimesBounced = 999;
 		}
@@ -369,6 +385,7 @@ public class PlayerBulletScript : MonoBehaviour
 
 	private void Update()
 	{
+		TimeFlying += Time.deltaTime;
 		CurrentSpeed = rb.velocity.magnitude;
 		if (GameMaster.instance.inMapEditor && !GameMaster.instance.GameHasStarted)
 		{
@@ -450,7 +467,7 @@ public class PlayerBulletScript : MonoBehaviour
 			if ((bool)transform)
 			{
 				transform.GetComponent<ParticleSystem>().Stop();
-				transform.parent = null;
+				transform.SetParent(null);
 				AudioSource component2 = transform.gameObject.GetComponent<AudioSource>();
 				if ((bool)component2)
 				{
@@ -590,6 +607,7 @@ public class PlayerBulletScript : MonoBehaviour
 		}
 		if (WallGonnaBounceInTo == null)
 		{
+			Debug.LogWarning("Wall bounce is null! , target tag = " + collision.gameObject.tag + collision.gameObject.name);
 			if ((TimesBounced == 0 && collision.gameObject.tag == "Player" && !isEnemyBullet) || (TimesBounced == 0 && collision.gameObject.tag == "Enemy" && isEnemyBullet))
 			{
 				return;
@@ -660,7 +678,6 @@ public class PlayerBulletScript : MonoBehaviour
 		BombSackScript component = collision.gameObject.GetComponent<BombSackScript>();
 		if (component != null && !IsSackBullet)
 		{
-			Debug.Log("HIT SACK");
 			Vector3 direction = new Vector3(component.transform.position.x, base.transform.position.y + 1f, component.transform.position.z) - base.transform.position;
 			float force = (isTowerCharged ? 15f : 11f);
 			component.HitByBullet(direction, force);
@@ -683,6 +700,11 @@ public class PlayerBulletScript : MonoBehaviour
 		MyPreviousCollidersInteractions.Add(collision.gameObject);
 		if (collision.gameObject != WallGonnaBounceInTo && (collision.gameObject.tag == "Solid" || collision.gameObject.tag == "MapBorder"))
 		{
+			if (TimeFlying < 0.05f)
+			{
+				TimesBounced = 9999;
+				yield break;
+			}
 			float num = Vector3.Distance(base.transform.position, upcomingPosition);
 			if (num < 0.5f)
 			{
@@ -944,6 +966,7 @@ public class PlayerBulletScript : MonoBehaviour
 				yield break;
 			}
 			SFXManager.instance.PlaySFX(enemyKill, 1f, null);
+			component6.IsHitByBullet = true;
 			if (GameMaster.instance.GameHasStarted)
 			{
 				component6.DamageMe(1);

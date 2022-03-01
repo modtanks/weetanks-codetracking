@@ -62,6 +62,8 @@ public class MissionHundredController : MonoBehaviour
 
 	public AudioClip WallsMovingDown;
 
+	public AudioClip Phase0Music;
+
 	public AudioClip Phase1Music;
 
 	public AudioClip Phase3Music;
@@ -75,6 +77,8 @@ public class MissionHundredController : MonoBehaviour
 	public Transform[] DropLocations;
 
 	private static MissionHundredController _instance;
+
+	private NewOrchestra orchestra;
 
 	private bool MovedCameraToDefeat;
 
@@ -98,6 +102,7 @@ public class MissionHundredController : MonoBehaviour
 	{
 		PM = GameMaster.instance.GetComponent<PlaneMaster>();
 		CameraObject = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+		orchestra = GameObject.FindGameObjectWithTag("Orchestra").GetComponent<NewOrchestra>();
 		mySource = GetComponent<AudioSource>();
 		foreach (GameObject item in DestroyableCratesToRespawn)
 		{
@@ -114,6 +119,20 @@ public class MissionHundredController : MonoBehaviour
 
 	private void Update()
 	{
+		if (!GameMaster.instance.HasGotten100Checkpoint)
+		{
+			if (orchestra.isPlaying)
+			{
+				orchestra.StopPlaying();
+			}
+			if (mySource.clip != Phase0Music || !mySource.isPlaying)
+			{
+				mySource.clip = Phase0Music;
+				mySource.loop = true;
+				mySource.volume = mySource.volume / 10f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
+				mySource.Play();
+			}
+		}
 		float volume = 0.1f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
 		mySource.volume = volume;
 		if (KTS == null || KTS.BossDefeated)
@@ -165,13 +184,10 @@ public class MissionHundredController : MonoBehaviour
 			mySource.Stop();
 			break;
 		case 0:
-			if (!mySource.isPlaying)
-			{
-				mySource.clip = Phase1Music;
-				mySource.loop = true;
-				mySource.volume = mySource.volume / 10f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
-				mySource.Play();
-			}
+			mySource.clip = Phase1Music;
+			mySource.loop = true;
+			mySource.volume = mySource.volume / 10f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
+			mySource.Play();
 			break;
 		default:
 			mySource.clip = Phase3Music;
@@ -196,7 +212,7 @@ public class MissionHundredController : MonoBehaviour
 			}
 		}
 		GameMaster.instance.musicScript.Orchestra.StopPlaying();
-		if (!mySource.isPlaying)
+		if (!mySource.isPlaying || mySource.clip == Phase0Music)
 		{
 			PlayMusic(0);
 		}
@@ -293,7 +309,7 @@ public class MissionHundredController : MonoBehaviour
 		{
 			yield break;
 		}
-		if (GameMaster.instance.Enemies != null && (GameMaster.instance.Enemies.Length > 1 || GameMaster.instance.AmountCalledInTanks > 0))
+		if (GameMaster.instance.Enemies != null && (GameMaster.instance.Enemies.Count > 1 || GameMaster.instance.AmountCalledInTanks > 0))
 		{
 			yield return new WaitForSeconds(7f);
 		}
@@ -305,7 +321,7 @@ public class MissionHundredController : MonoBehaviour
 			if (!MessageHasBeenShown)
 			{
 				MessageHasBeenShown = true;
-				TutorialMaster.instance.ShowTutorial("Use mine on the bombs");
+				TutorialMaster.instance.ShowTutorial("Use mines on the bombs!");
 			}
 			yield return new WaitForSeconds(4f);
 			if (KTS.IsInBattle && !KTS.IsInFinalBattle)
