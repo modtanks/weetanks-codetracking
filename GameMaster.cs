@@ -72,6 +72,8 @@ public class GameMaster : MonoBehaviour
 	[Header("UI")]
 	public TextMeshProUGUI Mission_Text;
 
+	public TextMeshProUGUI MissionName_Text;
+
 	public TextMeshProUGUI Tanks_Text;
 
 	public TextMeshProUGUI TanksLeft_Text;
@@ -355,7 +357,15 @@ public class GameMaster : MonoBehaviour
 			CurrentMission = OptionsMainMenu.instance.StartLevel;
 			if (!isZombieMode && !inMapEditor)
 			{
-				Mission_Text.text = "Mission " + (CurrentMission + 1);
+				Mission_Text.text = LocalizationMaster.instance.GetText("HUD_mission") + " " + (CurrentMission + 1);
+				if (isOfficialCampaign)
+				{
+					MissionName_Text.text = "'" + LocalizationMaster.instance.GetText("Mission_" + (CurrentMission + 1)) + "'";
+				}
+				else
+				{
+					MissionName_Text.text = "'" + MissionNames[CurrentMission] + "'";
+				}
 				Tanks_Text.text = "x " + AmountEnemyTanks;
 				if (TanksLeft_Text != null)
 				{
@@ -588,7 +598,6 @@ public class GameMaster : MonoBehaviour
 				{
 					counter += Time.deltaTime;
 				}
-				Mission_Text.text = "Mission " + (CurrentMission + 1);
 				Tanks_Text.text = "x " + AmountEnemyTanks;
 				if (TanksLeft_Text != null)
 				{
@@ -598,6 +607,7 @@ public class GameMaster : MonoBehaviour
 			else if (isZombieMode)
 			{
 				Mission_Text.text = "Wave " + ZombieTankSpawner.instance.Wave;
+				MissionName_Text.text = "";
 				Tanks_Text.text = "x " + AmountEnemyTanks;
 				NewOrchestra component4 = GameObject.FindGameObjectWithTag("Orchestra").GetComponent<NewOrchestra>();
 				if (component4 != null)
@@ -765,7 +775,7 @@ public class GameMaster : MonoBehaviour
 		canvasAnimator.SetBool("NextMission", value: false);
 	}
 
-	public Vector3 GetValidLocation(bool CheckForDist, float minimalDist, Vector3 CallerPos)
+	public Vector3 GetValidLocation(bool CheckForDist, float minimalDist, Vector3 CallerPos, bool TargetPlayer)
 	{
 		Vector3 vector = Vector3.zero;
 		int num = 0;
@@ -795,7 +805,7 @@ public class GameMaster : MonoBehaviour
 		{
 			MapCornerObject = GameObject.Find("ALL_FIELDS");
 		}
-		for (int i = 0; i < 100; i++)
+		for (int i = 0; i < 140; i++)
 		{
 			int num2 = Random.Range(0, num);
 			int num3 = Random.Range(0, maxExclusive);
@@ -808,7 +818,7 @@ public class GameMaster : MonoBehaviour
 			}
 			vector = MapCornerObject.transform.GetChild(0).position + new Vector3(num2 * 2, 0f, -num3 * 2);
 			Collider[] array;
-			if (minimalDist > 9999f)
+			if (minimalDist > 9999f && !TargetPlayer)
 			{
 				array = Physics.OverlapSphere(vector, 0.5f);
 				for (int j = 0; j < array.Length; j++)
@@ -820,7 +830,7 @@ public class GameMaster : MonoBehaviour
 					}
 				}
 			}
-			else
+			else if (!TargetPlayer)
 			{
 				array = Physics.OverlapSphere(vector, 1f);
 				foreach (Collider collider in array)
@@ -845,13 +855,23 @@ public class GameMaster : MonoBehaviour
 			array = Physics.OverlapSphere(vector, 3f);
 			foreach (Collider collider2 in array)
 			{
+				if (collider2.tag == "Player" && TargetPlayer)
+				{
+					flag2 = false;
+					flag = true;
+					break;
+				}
 				if (collider2.tag == "Player" || collider2.tag == "Boss" || collider2.tag == "Mine" || collider2.tag == "Bullet")
 				{
 					flag2 = true;
 					break;
 				}
 			}
-			if (!flag2)
+			if (flag2)
+			{
+				continue;
+			}
+			if (!TargetPlayer)
 			{
 				if (!CheckForDist)
 				{
@@ -864,6 +884,10 @@ public class GameMaster : MonoBehaviour
 					break;
 				}
 				flag = false;
+			}
+			else if (flag)
+			{
+				break;
 			}
 		}
 		if (flag)
@@ -894,23 +918,11 @@ public class GameMaster : MonoBehaviour
 			{
 				flag = true;
 			}
-			if (flag)
-			{
-				continue;
-			}
-			Collider[] array = Physics.OverlapSphere(myPB.transform.position, 2f);
-			foreach (Collider collider in array)
-			{
-				if (collider.tag == "Player" || collider.tag == "Boss" || collider.tag == "Mine" || collider.tag == "Bullet")
-				{
-					flag = true;
-					break;
-				}
-			}
-			if (!flag)
+			if (!flag && !flag)
 			{
 				vector = transform.position;
 				transform.GetComponent<DrawGizmos>().GotPicked();
+				break;
 			}
 		}
 		if (vector == Vector3.zero)
@@ -1291,6 +1303,15 @@ public class GameMaster : MonoBehaviour
 		else
 		{
 			DisableGame();
+		}
+		Mission_Text.text = LocalizationMaster.instance.GetText("HUD_mission") + " " + (CurrentMission + 1);
+		if (isOfficialCampaign)
+		{
+			MissionName_Text.text = "'" + LocalizationMaster.instance.GetText("Mission_" + (CurrentMission + 1)) + "'";
+		}
+		else
+		{
+			MissionName_Text.text = "'" + MissionNames[CurrentMission] + "'";
 		}
 	}
 

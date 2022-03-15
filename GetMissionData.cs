@@ -5,6 +5,8 @@ public class GetMissionData : MonoBehaviour
 {
 	public TextMeshProUGUI Mission_Text;
 
+	public TextMeshProUGUI Mission_Name_Text;
+
 	public TextMeshProUGUI Mission_ShadowText;
 
 	public TextMeshProUGUI TanksLeft_Text;
@@ -21,15 +23,16 @@ public class GetMissionData : MonoBehaviour
 
 	private void Start()
 	{
-		Mission_Text.text = "Mission " + (GameMaster.instance.CurrentMission + 1);
+		Mission_Text.text = LocalizationMaster.instance.GetText("HUD_mission") + " " + (GameMaster.instance.CurrentMission + 1);
 	}
 
 	private void Update()
 	{
+		Mission_Name_Text.text = "'" + GameMaster.instance.MissionNames[GameMaster.instance.CurrentMission] + "'";
 		if ((bool)MapEditorMaster.instance)
 		{
-			Mission_Text.text = "Mission " + (GameMaster.instance.CurrentMission + 1);
-			TanksLeft_Text.text = "x " + GameMaster.instance.AmountEnemyTanks;
+			Mission_Text.text = LocalizationMaster.instance.GetText("HUD_mission") + " " + (GameMaster.instance.CurrentMission + 1);
+			TanksLeft_Text.text = "x" + GameMaster.instance.AmountEnemyTanks;
 		}
 		else if (GameMaster.instance != null)
 		{
@@ -40,9 +43,9 @@ public class GetMissionData : MonoBehaviour
 			}
 			if (GameMaster.instance.PlayerAlive && GameMaster.instance.AmountGoodTanks > 0 && GameMaster.instance.AmountEnemyTanks > 0)
 			{
-				Mission_Text.text = "Mission " + num;
+				Mission_Text.text = LocalizationMaster.instance.GetText("HUD_mission") + " " + num;
 			}
-			TanksLeft_Text.text = "x " + GameMaster.instance.AmountEnemyTanks;
+			TanksLeft_Text.text = "x" + GameMaster.instance.AmountEnemyTanks;
 		}
 	}
 }

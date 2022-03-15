@@ -34,6 +34,8 @@ public class MissionHundredController : MonoBehaviour
 
 	public GameObject FinalArena;
 
+	public PlaneScript BomberPlane;
+
 	[Header("Camera To Arena")]
 	public Vector3 ArenaCameraPosition;
 
@@ -68,6 +70,12 @@ public class MissionHundredController : MonoBehaviour
 
 	public AudioClip Phase3Music;
 
+	public AudioClip AirRaid;
+
+	public MeshRenderer[] LightBlocks;
+
+	public Light[] Lights;
+
 	private AudioSource mySource;
 
 	public KingTankScript KTS;
@@ -75,6 +83,8 @@ public class MissionHundredController : MonoBehaviour
 	public Animator FinalBossDoorAnimator;
 
 	public Transform[] DropLocations;
+
+	public float TimeInBattle;
 
 	private static MissionHundredController _instance;
 
@@ -100,6 +110,7 @@ public class MissionHundredController : MonoBehaviour
 
 	private void Start()
 	{
+		StartCoroutine(InitiateAirRaid());
 		PM = GameMaster.instance.GetComponent<PlaneMaster>();
 		CameraObject = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
 		orchestra = GameObject.FindGameObjectWithTag("Orchestra").GetComponent<NewOrchestra>();
@@ -132,6 +143,14 @@ public class MissionHundredController : MonoBehaviour
 				mySource.volume = mySource.volume / 10f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
 				mySource.Play();
 			}
+		}
+		if (KTS.IsInBattle || KTS.IsInFinalBattle)
+		{
+			TimeInBattle += Time.deltaTime;
+		}
+		else
+		{
+			TimeInBattle = 0f;
 		}
 		float volume = 0.1f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
 		mySource.volume = volume;
@@ -196,6 +215,76 @@ public class MissionHundredController : MonoBehaviour
 			mySource.Play();
 			break;
 		}
+	}
+
+	private IEnumerator AirRaidLight(Light L)
+	{
+		float t2 = 0f;
+		Color OG = L.color;
+		while (t2 < 1f)
+		{
+			t2 += Time.deltaTime;
+			L.color = Color.Lerp(OG, Color.red, t2);
+			yield return null;
+		}
+		yield return new WaitForSeconds(4f);
+		t2 = 0f;
+		while (t2 < 1f)
+		{
+			t2 += Time.deltaTime;
+			L.color = Color.Lerp(Color.red, OG, t2);
+			yield return null;
+		}
+	}
+
+	private IEnumerator AirRaidBlock(MeshRenderer R)
+	{
+		float t2 = 0f;
+		Color OG = R.material.GetColor("_EmissionColor");
+		while (t2 < 1f)
+		{
+			t2 += Time.deltaTime;
+			Color value = Color.Lerp(OG, Color.red, t2);
+			R.material.SetColor("_EmissionColor", value);
+			yield return null;
+		}
+		yield return new WaitForSeconds(4f);
+		t2 = 0f;
+		while (t2 < 1f)
+		{
+			t2 += Time.deltaTime;
+			Color value2 = Color.Lerp(Color.red, OG, t2);
+			R.material.SetColor("_EmissionColor", value2);
+			yield return null;
+		}
+	}
+
+	private IEnumerator InitiateAirRaid()
+	{
+		float seconds = Random.Range(10f, 30f);
+		yield return new WaitForSeconds(seconds);
+		if ((KTS.IsInBattle || KTS.IsInFinalBattle) && TimeInBattle > 10f)
+		{
+			Vector3 validLocation = GameMaster.instance.GetValidLocation(CheckForDist: false, 0f, Vector3.zero, TargetPlayer: true);
+			if (validLocation != Vector3.zero)
+			{
+				BomberPlane.TargetLocation = new Vector3(validLocation.x, 10f, validLocation.z);
+			}
+			BomberPlane.StartFlyToTB(-1, -1);
+			SFXManager.instance.PlaySFX(AirRaid);
+			Light[] lights = Lights;
+			foreach (Light l in lights)
+			{
+				StartCoroutine(AirRaidLight(l));
+			}
+			MeshRenderer[] lightBlocks = LightBlocks;
+			foreach (MeshRenderer r in lightBlocks)
+			{
+				StartCoroutine(AirRaidBlock(r));
+			}
+		}
+		yield return new WaitForSeconds(8f);
+		StartCoroutine(InitiateAirRaid());
 	}
 
 	public IEnumerator DoPhasing1()
@@ -304,7 +393,6 @@ public class MissionHundredController : MonoBehaviour
 			PM.SpawnInOrder.Add(item4);
 		}
 		PM.StartCoroutine(PM.DoOrder());
-		yield return new WaitForSeconds(7f);
 		if (!KTS.IsInBattle)
 		{
 			yield break;
@@ -313,6 +401,7 @@ public class MissionHundredController : MonoBehaviour
 		{
 			yield return new WaitForSeconds(7f);
 		}
+		yield return new WaitForSeconds(13f);
 		if (!KTS.IsInFinalBattle && KTS.IsInBattle)
 		{
 			num = Random.Range(1, 4);
@@ -323,7 +412,7 @@ public class MissionHundredController : MonoBehaviour
 				MessageHasBeenShown = true;
 				TutorialMaster.instance.ShowTutorial("Use mines on the bombs!");
 			}
-			yield return new WaitForSeconds(4f);
+			yield return new WaitForSeconds(7f);
 			if (KTS.IsInBattle && !KTS.IsInFinalBattle)
 			{
 				StartCoroutine(DoPhasing1());

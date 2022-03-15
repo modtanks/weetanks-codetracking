@@ -40,7 +40,7 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 		{
 			myImage = GetComponent<RawImage>();
 		}
-		if (myImage == null)
+		if (myImage_img == null)
 		{
 			myImage_img = GetComponent<Image>();
 		}

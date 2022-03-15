@@ -435,7 +435,10 @@ public class MapEditorMaster : MonoBehaviour
 			component2.Play();
 			ShowMenu(0);
 		}
-		StartCoroutine(LateStart());
+		if (!inPlayingMode)
+		{
+			StartCoroutine(LateStart());
+		}
 	}
 
 	private IEnumerator LateStart()
@@ -530,6 +533,7 @@ public class MapEditorMaster : MonoBehaviour
 		BulletSpeedSlider.value = CustomTankDatas[customNumber].CustomBulletSpeed;
 		CanBeAirdroppedToggle.IsEnabled = CustomTankDatas[customNumber].CustomCanBeAirdropped;
 		TankHealthSlider.value = CustomTankDatas[customNumber].CustomTankHealth;
+		ArmouredSlider.value = CustomTankDatas[customNumber].CustomArmourPoints;
 		ArmouredToggle.IsEnabled = CustomTankDatas[customNumber].CustomArmoured;
 		BulletTypeList.value = CustomTankDatas[customNumber].CustomBulletType;
 		MusicList.value = CustomTankDatas[customNumber].CustomMusic;
@@ -1451,7 +1455,7 @@ public class MapEditorMaster : MonoBehaviour
 
 	private void ActivateView(int tab)
 	{
-		Play2DClipAtPoint(MenuSwitch);
+		SFXManager.instance.PlaySFX(MenuSwitch);
 		for (int i = 0; i < Menus.Length; i++)
 		{
 			Menus[i].SetActive(value: false);
@@ -1528,7 +1532,7 @@ public class MapEditorMaster : MonoBehaviour
 	{
 		NightToggler.IsEnabled = false;
 		Debug.Log("new map button clicked!");
-		Play2DClipAtPoint(NewMapSound);
+		SFXManager.instance.PlaySFX(NewMapSound);
 		CreateNewLevel(isBrandNew: true);
 		SwitchLevel(Levels.Count - 1);
 	}
@@ -1649,7 +1653,7 @@ public class MapEditorMaster : MonoBehaviour
 		playerThreePlaced.RemoveAt(removeMission);
 		playerFourPlaced.RemoveAt(removeMission);
 		enemyTanksPlaced.RemoveAt(removeMission);
-		Play2DClipAtPoint(NewMapSound);
+		SFXManager.instance.PlaySFX(NewMapSound);
 		Levels.RemoveAt(removeMission);
 		ShowPositiveMessage("SUCCES: Level " + (removeMission + 1) + " removed!");
 		GameMaster.instance.MissionNames.RemoveAt(removeMission);
@@ -1908,7 +1912,7 @@ public class MapEditorMaster : MonoBehaviour
 		playerThreePlaced.Insert(MissionToDuplicate, playerThreePlaced[MissionToDuplicate]);
 		playerFourPlaced.Insert(MissionToDuplicate, playerFourPlaced[MissionToDuplicate]);
 		enemyTanksPlaced.Insert(MissionToDuplicate, enemyTanksPlaced[MissionToDuplicate]);
-		Play2DClipAtPoint(NewMapSound);
+		SFXManager.instance.PlaySFX(NewMapSound);
 		SaveCurrentProps();
 		RemoveCurrentObjects();
 		Debug.Log("duplicating mission " + MissionToDuplicate);
@@ -1924,6 +1928,7 @@ public class MapEditorMaster : MonoBehaviour
 				mapPiecesClass.propRotation[j] = missionDataProps[i].propRotation[j];
 				mapPiecesClass.TeamColor[j] = missionDataProps[i].TeamColor[j];
 				mapPiecesClass.SpawnDifficulty = missionDataProps[i].SpawnDifficulty;
+				mapPiecesClass.CustomColor = missionDataProps[i].CustomColor;
 			}
 			mapPiecesClass.missionNumber = Levels.Count;
 			singleMapEditorData.MissionDataProps.Add(mapPiecesClass);
@@ -1962,7 +1967,7 @@ public class MapEditorMaster : MonoBehaviour
 
 	public void SaveLevelSettings(TMP_InputField theTextFile)
 	{
-		Play2DClipAtPoint(ClickSound);
+		SFXManager.instance.PlaySFX(ClickSound);
 		if (theTextFile.text == "")
 		{
 			GameMaster.instance.MissionNames[GameMaster.instance.CurrentMission] = "No name";
@@ -2042,9 +2047,12 @@ public class MapEditorMaster : MonoBehaviour
 		ErrorFieldMessage.SetBool("ToTest", value: false);
 		ErrorFieldMessage.Play("ErrorMessage", -1, 0f);
 		ErrorField.text = Message;
+		if (!ErrorFieldMessage.GetBool("ShowMessage"))
+		{
+			GetComponent<AudioSource>().PlayOneShot(ErrorSound);
+		}
 		ErrorFieldMessage.SetBool("ShowMessage", value: true);
 		ErrorFieldMessage.SetBool("ShowGoodMessage", value: false);
-		GetComponent<AudioSource>().PlayOneShot(ErrorSound);
 		StartCoroutine(SetBoolFalse("ShowMessage"));
 	}
 
@@ -2063,16 +2071,5 @@ public class MapEditorMaster : MonoBehaviour
 	{
 		yield return new WaitForSeconds(0.1f);
 		ErrorFieldMessage.SetBool(Bool, value: false);
-	}
-
-	public void Play2DClipAtPoint(AudioClip clip)
-	{
-		GameObject obj = new GameObject("TempAudio");
-		AudioSource audioSource = obj.AddComponent<AudioSource>();
-		audioSource.clip = clip;
-		audioSource.volume = 1f * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
-		audioSource.spatialBlend = 0f;
-		audioSource.Play();
-		UnityEngine.Object.Destroy(obj, clip.length);
 	}
 }

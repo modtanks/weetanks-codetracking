@@ -76,6 +76,8 @@ public class HealthTanks : MonoBehaviour
 
 	private bool ChargeDying;
 
+	private float TimeAlive;
+
 	private bool isDestroying;
 
 	private void Start()
@@ -295,6 +297,14 @@ public class HealthTanks : MonoBehaviour
 
 	private void Update()
 	{
+		if (GameMaster.instance.inMenuMode)
+		{
+			TimeAlive += Time.deltaTime;
+			if (TimeAlive >= 30f)
+			{
+				DamageMe(999);
+			}
+		}
 		if (!canGetHurt || GameMaster.instance.inTankeyTown)
 		{
 			if (GameMaster.instance.inTankeyTown)
@@ -553,6 +563,25 @@ public class HealthTanks : MonoBehaviour
 				if ((component2.isLevel10Boss || component2.isLevel30Boss || component2.isLevel50Boss || component2.isLevel70Boss || component2.isLevel100Boss) && !IsHitByBullet && OptionsMainMenu.instance.AM[16] != 1)
 				{
 					AchievementsTracker.instance.completeAchievement(16);
+				}
+				if (component2.isLevel100Boss)
+				{
+					if (OptionsMainMenu.instance.AM[0] != 1)
+					{
+						AchievementsTracker.instance.completeAchievement(0);
+					}
+					if (OptionsMainMenu.instance.currentDifficulty >= 2 && OptionsMainMenu.instance.AM[4] != 1)
+					{
+						AchievementsTracker.instance.completeAchievementWithAI(4);
+					}
+					if (OptionsMainMenu.instance.currentDifficulty >= 1 && OptionsMainMenu.instance.AM[27] != 1 && AchievementsTracker.instance.StartedFromBegin)
+					{
+						AchievementsTracker.instance.completeAchievement(27);
+					}
+					if (OptionsMainMenu.instance.AM[10] != 1 && !AchievementsTracker.instance.HasBeenHit && AchievementsTracker.instance.StartedFromBegin)
+					{
+						AchievementsTracker.instance.completeAchievement(10);
+					}
 				}
 			}
 			GameMaster.instance.totalKills++;
@@ -1021,6 +1050,14 @@ public class HealthTanks : MonoBehaviour
 		gameObject.transform.parent = null;
 		if (GameMaster.instance.CurrentMission == 99 && GameMaster.instance.Players.Count < 2)
 		{
+			if (MissionHundredController.instance != null && (bool)MissionHundredController.instance.KTS)
+			{
+				HealthTanks component5 = MissionHundredController.instance.KTS.GetComponent<HealthTanks>();
+				if ((bool)component5 && component5.health <= 11 && OptionsMainMenu.instance.AM[26] != 1)
+				{
+					AchievementsTracker.instance.completeAchievement(26);
+				}
+			}
 			if (GameMaster.instance.Bosses.Length < 1)
 			{
 				GameMaster.instance.Lives = 0;

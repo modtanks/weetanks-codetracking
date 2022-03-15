@@ -131,7 +131,7 @@ public class MapEditorUIprop : MonoBehaviour, IPointerEnterHandler, IEventSystem
 		myImage.color = color;
 		if (Input.GetMouseButtonDown(0) && !selected && canSelectMe)
 		{
-			MapEditorMaster.instance.Play2DClipAtPoint(MapEditorMaster.instance.MenuSelect);
+			SFXManager.instance.PlaySFX(MapEditorMaster.instance.MenuSelect);
 			MapEditorMaster.instance.SelectedPropUITextureMenu = MapEditorMaster.instance.MenuCurrent;
 			MapEditorMaster.instance.SelectedProp = PropID;
 			MapEditorMaster.instance.SelectedPropUITexture.transform.position = new Vector3(base.transform.position.x, MapEditorMaster.instance.SelectedPropUITexture.transform.position.y, MapEditorMaster.instance.SelectedPropUITexture.transform.position.z);
@@ -139,7 +139,7 @@ public class MapEditorUIprop : MonoBehaviour, IPointerEnterHandler, IEventSystem
 		}
 		else if (Input.GetMouseButtonDown(0) && selected)
 		{
-			MapEditorMaster.instance.Play2DClipAtPoint(MapEditorMaster.instance.MenuSelect);
+			SFXManager.instance.PlaySFX(MapEditorMaster.instance.MenuSelect);
 			MapEditorMaster.instance.SelectedProp = -1;
 			MapEditorMaster.instance.SelectedPropUITexture.transform.position = new Vector3(-5000f, MapEditorMaster.instance.SelectedPropUITexture.transform.position.y, 0f);
 			selected = false;

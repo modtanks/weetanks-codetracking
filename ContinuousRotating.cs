@@ -10,6 +10,8 @@ public class ContinuousRotating : MonoBehaviour
 
 	public bool xAxis;
 
+	public bool zAxis;
+
 	private void Start()
 	{
 		Light component = GetComponent<Light>();
@@ -43,6 +45,10 @@ public class ContinuousRotating : MonoBehaviour
 		if (xAxis)
 		{
 			base.transform.Rotate(Time.deltaTime * RotateSpeed, 0f, 0f);
+		}
+		else if (zAxis)
+		{
+			base.transform.Rotate(0f, 0f, Time.deltaTime * RotateSpeed);
 		}
 		else
 		{

@@ -87,6 +87,8 @@ public class KingTankScript : MonoBehaviour
 
 	public bool isRammingMoving;
 
+	private Vector3 RamDirection;
+
 	public bool BossDefeated;
 
 	private void Start()
@@ -138,7 +140,7 @@ public class KingTankScript : MonoBehaviour
 				{
 					Debug.Log("FORCE");
 					rb.isKinematic = false;
-					rb.AddRelativeForce(Vector3.forward * RamSpeed * Time.deltaTime * 50f);
+					rb.AddRelativeForce(RamDirection * RamSpeed * Time.deltaTime * 50f);
 				}
 				else
 				{
@@ -153,6 +155,7 @@ public class KingTankScript : MonoBehaviour
 				isRammingMoving = false;
 				RD.CheckForZeroSpeed = false;
 				StartCoroutine(RamSequence());
+				EA.enabled = true;
 				EA.CanMove = false;
 				Timer = TimeTillRam;
 			}
@@ -173,6 +176,10 @@ public class KingTankScript : MonoBehaviour
 		float angle = Vector3.Angle(from, EA.transform.forward);
 		while (angle > 6f)
 		{
+			if (isRammingMoving)
+			{
+				yield break;
+			}
 			EA.CanMove = false;
 			from = GameMaster.instance.Players[0].transform.position - EA.transform.position;
 			from.y = 0f;
@@ -184,6 +191,7 @@ public class KingTankScript : MonoBehaviour
 		}
 		yield return new WaitForSeconds(0.3f);
 		Debug.Log("GO!!!");
+		RamDirection = Vector3.forward;
 		isRammingMoving = true;
 		yield return new WaitForSeconds(0.6f);
 		Debug.Log("done..!!!");

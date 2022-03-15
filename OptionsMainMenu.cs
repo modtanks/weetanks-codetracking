@@ -187,6 +187,7 @@ public class OptionsMainMenu : MonoBehaviour
 			{
 				MenuCompanion = settingsData.AIactived;
 			}
+			LocalizationMaster.instance.CurrentLang = settingsData.LangSetting;
 			Debug.LogWarning("Settings-Data loaded from save file");
 		}
 		else

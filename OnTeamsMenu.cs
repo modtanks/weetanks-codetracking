@@ -28,6 +28,10 @@ public class OnTeamsMenu : MonoBehaviour
 
 	private Animator myAnimator;
 
+	public Image FCP_mat;
+
+	public FlexibleColorPicker FCP;
+
 	private void Start()
 	{
 		myAnimator = GetComponent<Animator>();
@@ -99,9 +103,18 @@ public class OnTeamsMenu : MonoBehaviour
 
 	private void Update()
 	{
-		if (SelectedMEP != null && (bool)SelectedMEP.myMEGP)
+		if (SelectedMEP != null)
 		{
-			SelectedMEP.myMEGP.FieldSelected = true;
+			if ((bool)SelectedMEP.myMEGP)
+			{
+				SelectedMEP.myMEGP.FieldSelected = true;
+			}
+			if (SelectedMEP.CanBeColored)
+			{
+				Color color = FCP_mat.material.GetColor("_Color1");
+				SelectedMEP.SetMaterials(color, reset: false);
+				MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[SelectedMEP.myMEGP.ID].CustomColor[SelectedMEP.LayerNumber].Color = color;
+			}
 		}
 		if (GameMaster.instance.GameHasPaused)
 		{

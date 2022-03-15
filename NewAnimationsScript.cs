@@ -198,7 +198,7 @@ public class NewAnimationsScript : MonoBehaviour
 		extraWait = 0f;
 		if (newTank)
 		{
-			BonusTank.text = "You got a bonus tank!";
+			BonusTank.text = LocalizationMaster.instance.GetText("clapperboard_bonus_tank");
 		}
 		else
 		{
@@ -206,7 +206,7 @@ public class NewAnimationsScript : MonoBehaviour
 		}
 		if (checkPoint)
 		{
-			Checkpoint.text = "You have reached checkpoint " + GameMaster.instance.CurrentMission + "!";
+			Checkpoint.text = LocalizationMaster.instance.GetText("clapperboard_checkpoint_reached") + " " + GameMaster.instance.CurrentMission + "!";
 		}
 		else
 		{
@@ -279,7 +279,7 @@ public class NewAnimationsScript : MonoBehaviour
 		playingAnimation = true;
 		startTime = Time.time;
 		Debug.LogError("made it here");
-		Play2DClipAtPoint(FinalWinSound);
+		SFXManager.instance.PlaySFX(FinalWinSound);
 		PlayAnimator(active: true);
 		finished = true;
 	}
@@ -301,14 +301,21 @@ public class NewAnimationsScript : MonoBehaviour
 	{
 		if (GameMaster.instance.Lives < 2 && restart)
 		{
-			EnemiesHeader.text = "KILLS:";
+			EnemiesHeader.text = LocalizationMaster.instance.GetText("clapperboard_kills");
 			if (!GameMaster.instance.isZombieMode)
 			{
 				missionNumber.text = (GameMaster.instance.CurrentMission + 1).ToString();
 			}
 			enemyCount.text = GameMaster.instance.TotalKillsThisSession + "x";
-			missionName.text = GameMaster.instance.MissionNames[GameMaster.instance.CurrentMission];
-			livesLeft.text = "Dead!";
+			if (GameMaster.instance.isOfficialCampaign)
+			{
+				missionName.text = LocalizationMaster.instance.GetText("Mission_" + (GameMaster.instance.CurrentMission + 1));
+			}
+			else
+			{
+				missionName.text = GameMaster.instance.MissionNames[GameMaster.instance.CurrentMission];
+			}
+			livesLeft.text = LocalizationMaster.instance.GetText("clapperboard_dead");
 			SLI.RemoveIcons();
 		}
 	}
@@ -340,7 +347,7 @@ public class NewAnimationsScript : MonoBehaviour
 			if (newTank)
 			{
 				GameMaster.instance.Lives++;
-				Play2DClipAtPoint(NewLife);
+				SFXManager.instance.PlaySFX(NewLife);
 			}
 			if (newTank || checkPoint)
 			{
@@ -376,12 +383,19 @@ public class NewAnimationsScript : MonoBehaviour
 		newTank = false;
 		checkPoint = false;
 		Debug.LogError("WHAT HERE ALREADY!");
-		Play2DClipAtPoint(Click);
+		SFXManager.instance.PlaySFX(Click);
 		if (GameMaster.instance.Lives >= 1)
 		{
 			if (GameMaster.instance.MissionNames.Count > GameMaster.instance.CurrentMission)
 			{
-				missionName.text = GameMaster.instance.MissionNames[GameMaster.instance.CurrentMission];
+				if (GameMaster.instance.isOfficialCampaign)
+				{
+					missionName.text = LocalizationMaster.instance.GetText("Mission_" + (GameMaster.instance.CurrentMission + 1));
+				}
+				else
+				{
+					missionName.text = GameMaster.instance.MissionNames[GameMaster.instance.CurrentMission];
+				}
 			}
 			else
 			{
@@ -394,7 +408,7 @@ public class NewAnimationsScript : MonoBehaviour
 		else
 		{
 			StartCoroutine("PauseAnimationFor", 5f);
-			livesLeft.text = "Dead!";
+			livesLeft.text = LocalizationMaster.instance.GetText("clapperboard_dead");
 			StartCoroutine(GoToMainMenu());
 		}
 	}
@@ -453,16 +467,5 @@ public class NewAnimationsScript : MonoBehaviour
 	{
 		yield return new WaitForSeconds(3f);
 		SceneManager.LoadScene(0);
-	}
-
-	public void Play2DClipAtPoint(AudioClip clip)
-	{
-		GameObject obj = new GameObject("TempAudio");
-		AudioSource audioSource = obj.AddComponent<AudioSource>();
-		audioSource.clip = clip;
-		audioSource.volume = 2f;
-		audioSource.spatialBlend = 0f;
-		audioSource.Play();
-		Object.Destroy(obj, clip.length);
 	}
 }

@@ -136,7 +136,7 @@ public class MapEditorMissionBarUI : MonoBehaviour, ISelectHandler, IEventSystem
 	{
 		Debug.LogWarning("Map button clicked!", base.gameObject);
 		MapEditorMaster.instance.SwitchLevel(mission);
-		MapEditorMaster.instance.Play2DClipAtPoint(missionCreateSound);
+		SFXManager.instance.PlaySFX(missionCreateSound);
 	}
 
 	private void OnRemoveBtn()
@@ -153,7 +153,7 @@ public class MapEditorMissionBarUI : MonoBehaviour, ISelectHandler, IEventSystem
 		if (MapEditorMaster.instance.canDoButton)
 		{
 			MapEditorMaster.instance.DuplicateLevel(mission);
-			MapEditorMaster.instance.Play2DClipAtPoint(missionCreateSound);
+			SFXManager.instance.PlaySFX(missionCreateSound);
 			MapEditorMaster.instance.StartCoroutine(MapEditorMaster.instance.coolDown());
 		}
 	}
@@ -163,7 +163,7 @@ public class MapEditorMissionBarUI : MonoBehaviour, ISelectHandler, IEventSystem
 		if (MapEditorMaster.instance.canDoButton)
 		{
 			MapEditorMaster.instance.MoveLevel(up: false, mission);
-			MapEditorMaster.instance.Play2DClipAtPoint(missionCreateSound);
+			SFXManager.instance.PlaySFX(missionCreateSound);
 			MapEditorMaster.instance.StartCoroutine(MapEditorMaster.instance.coolDown());
 		}
 	}
@@ -173,7 +173,7 @@ public class MapEditorMissionBarUI : MonoBehaviour, ISelectHandler, IEventSystem
 		if (MapEditorMaster.instance.canDoButton)
 		{
 			MapEditorMaster.instance.MoveLevel(up: true, mission);
-			MapEditorMaster.instance.Play2DClipAtPoint(missionCreateSound);
+			SFXManager.instance.PlaySFX(missionCreateSound);
 			MapEditorMaster.instance.StartCoroutine(MapEditorMaster.instance.coolDown());
 		}
 	}
@@ -181,7 +181,7 @@ public class MapEditorMissionBarUI : MonoBehaviour, ISelectHandler, IEventSystem
 	public void CheckMaster()
 	{
 		mission = base.transform.GetSiblingIndex() - 1;
-		myMissionNumber.text = "Mission " + (mission + 1);
+		myMissionNumber.text = LocalizationMaster.instance.GetText("HUD_mission") + " " + (mission + 1);
 		if (myMissionName.text != GameMaster.instance.MissionNames[mission] && LastKnownName != GameMaster.instance.MissionNames[mission])
 		{
 			myMissionName.text = GameMaster.instance.MissionNames[mission];

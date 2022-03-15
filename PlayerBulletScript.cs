@@ -65,8 +65,6 @@ public class PlayerBulletScript : MonoBehaviour
 
 	public FiringTank TankScript;
 
-	public EnemyTargetingSystemNew TankScriptAI;
-
 	public AudioSource MySource;
 
 	private Vector3 lastFrameVelocity;
@@ -144,11 +142,6 @@ public class PlayerBulletScript : MonoBehaviour
 	{
 		rb = GetComponent<Rigidbody>();
 		MySource = GetComponent<AudioSource>();
-		base.transform.Rotate(-90f, 180f, 0f);
-		if (!GameMaster.instance.isZombieMode && !GameMaster.instance.inMenuMode)
-		{
-			base.transform.position = new Vector3(base.transform.position.x, 1f, base.transform.position.z);
-		}
 		if (!(Dart != null))
 		{
 			return;
@@ -181,6 +174,15 @@ public class PlayerBulletScript : MonoBehaviour
 		if (!isEnemyBullet)
 		{
 			SetColorBullet();
+		}
+		if (!GameMaster.instance.isZombieMode && !GameMaster.instance.inMenuMode && (bool)EnemyTankScript)
+		{
+			Debug.Log("LESS GOw");
+			if ((bool)EnemyTankScript.AIscript && (EnemyTankScript.AIscript.isLevel100Boss || EnemyTankScript.AIscript.isLevel70Boss || EnemyTankScript.AIscript.isLevel50Boss || EnemyTankScript.AIscript.isLevel30Boss || EnemyTankScript.AIscript.isLevel10Boss || EnemyTankScript.AIscript.HTscript.IsCustom))
+			{
+				Debug.Log("SETTING IT TO 1");
+				base.transform.position = new Vector3(base.transform.position.x, 1f, base.transform.position.z);
+			}
 		}
 		if (OptionsMainMenu.instance.showxraybullets)
 		{
@@ -319,7 +321,8 @@ public class PlayerBulletScript : MonoBehaviour
 	private IEnumerator LateStart()
 	{
 		DrawReflectionPattern(base.transform.position, StartingVelocity, isDistanceTest: false);
-		yield return new WaitForSeconds(0.01f);
+		yield return new WaitForSeconds(1f);
+		StartCoroutine(KeepCasting());
 		yield return new WaitForSeconds(15f);
 		TimesBounced = 9999;
 	}
@@ -329,6 +332,13 @@ public class PlayerBulletScript : MonoBehaviour
 		Debug.Log("VELOCITY IS ZERO!!");
 		yield return new WaitForSeconds(0.01f);
 		CastLaser(rb.velocity);
+	}
+
+	private IEnumerator KeepCasting()
+	{
+		yield return new WaitForSeconds(0.25f);
+		CastLaser(rb.velocity);
+		StartCoroutine(KeepCasting());
 	}
 
 	private void CastLaser(Vector3 velocity)
@@ -348,7 +358,7 @@ public class PlayerBulletScript : MonoBehaviour
 		DestroyOnImpact = false;
 		Vector3 start = position;
 		Ray ray = new Ray(position, direction);
-		LayerMask layerMask = (1 << LayerMask.NameToLayer("CorkWall")) | (1 << LayerMask.NameToLayer("Wall")) | (1 << LayerMask.NameToLayer("NoBounceWall")) | (1 << LayerMask.NameToLayer("DestroyableWall"));
+		LayerMask layerMask = (1 << LayerMask.NameToLayer("CorkWall")) | (1 << LayerMask.NameToLayer("Wall")) | (1 << LayerMask.NameToLayer("NoBounceWall")) | (1 << LayerMask.NameToLayer("DestroyableWall")) | (1 << LayerMask.NameToLayer("FLOOR"));
 		Debug.DrawRay(position, direction * 15f, Color.cyan, 3f);
 		if (Physics.Raycast(ray, out var hitInfo, 1000f, layerMask))
 		{
@@ -370,16 +380,14 @@ public class PlayerBulletScript : MonoBehaviour
 			lookAtPoint = position;
 			LookAtPointSet = true;
 			Debug.DrawLine(start, position, Color.blue, 5f);
-			DrawReflectionPattern(position, upcomingDirection, isDistanceTest: true);
+			if (MaxBounces > 0)
+			{
+				DrawReflectionPattern(position, upcomingDirection, isDistanceTest: true);
+			}
 		}
 		else if (isDistanceTest)
 		{
 			DestroyOnImpact = true;
-		}
-		else
-		{
-			Physics.Raycast(ray, out hitInfo, 1000f);
-			TimesBounced = 999;
 		}
 	}
 
@@ -429,6 +437,11 @@ public class PlayerBulletScript : MonoBehaviour
 			{
 				rb.angularVelocity = Vector3.zero;
 			}
+		}
+		else
+		{
+			_ = StartingVelocity;
+			rb.velocity = StartingVelocity;
 		}
 		lastFrameVelocity = rb.velocity;
 		lastPosition = base.transform.position;
@@ -492,9 +505,9 @@ public class PlayerBulletScript : MonoBehaviour
 				{
 					TankScript.firedBullets--;
 				}
-				else if (TankScriptAI != null)
+				else if (EnemyTankScript != null)
 				{
-					TankScriptAI.firedBullets--;
+					EnemyTankScript.firedBullets--;
 				}
 			}
 			else if ((bool)EnemyTankScript)
@@ -519,9 +532,9 @@ public class PlayerBulletScript : MonoBehaviour
 				{
 					TankScript.firedBullets--;
 				}
-				else if (TankScriptAI != null)
+				else if (EnemyTankScript != null)
 				{
-					TankScriptAI.firedBullets--;
+					EnemyTankScript.firedBullets--;
 				}
 			}
 			else if ((bool)EnemyTankScript)
@@ -607,7 +620,6 @@ public class PlayerBulletScript : MonoBehaviour
 		}
 		if (WallGonnaBounceInTo == null)
 		{
-			Debug.LogWarning("Wall bounce is null! , target tag = " + collision.gameObject.tag + collision.gameObject.name);
 			if ((TimesBounced == 0 && collision.gameObject.tag == "Player" && !isEnemyBullet) || (TimesBounced == 0 && collision.gameObject.tag == "Enemy" && isEnemyBullet))
 			{
 				return;
@@ -698,7 +710,7 @@ public class PlayerBulletScript : MonoBehaviour
 			yield break;
 		}
 		MyPreviousCollidersInteractions.Add(collision.gameObject);
-		if (collision.gameObject != WallGonnaBounceInTo && (collision.gameObject.tag == "Solid" || collision.gameObject.tag == "MapBorder"))
+		if (collision.gameObject != WallGonnaBounceInTo && (collision.gameObject.tag == "Solid" || collision.gameObject.tag == "MapBorder" || collision.gameObject.tag == "Floor"))
 		{
 			if (TimeFlying < 0.05f)
 			{
@@ -748,7 +760,7 @@ public class PlayerBulletScript : MonoBehaviour
 		{
 			TimesBounced = 999;
 		}
-		if (collision.gameObject.tag == "Solid" || collision.gameObject.tag == "MapBorder")
+		if (collision.gameObject.tag == "Solid" || collision.gameObject.tag == "MapBorder" || collision.gameObject.tag == "Floor")
 		{
 			if (collision.gameObject.layer == 16 || collision.gameObject.layer == LayerMask.NameToLayer("NoBounceWall"))
 			{
@@ -876,7 +888,7 @@ public class PlayerBulletScript : MonoBehaviour
 				{
 					TimesBounced = 999;
 				}
-				else if ((bool)TankScriptAI && component3 == TankScriptAI.AIscript)
+				else if ((bool)EnemyTankScript && component3 == EnemyTankScript.AIscript)
 				{
 					HitTank(collision);
 				}
@@ -1166,16 +1178,25 @@ public class PlayerBulletScript : MonoBehaviour
 			DestroyableWall component5 = obj.GetComponent<DestroyableWall>();
 			WeeTurret component6 = obj.GetComponent<WeeTurret>();
 			ExplosiveBlock component7 = obj.GetComponent<ExplosiveBlock>();
-			if ((bool)component7 && !component7.isExploding)
+			BossPlatform component8 = obj.GetComponent<BossPlatform>();
+			BombSackScript component9 = obj.GetComponent<BombSackScript>();
+			if ((bool)component7)
 			{
-				component7.StartCoroutine(component7.Death());
+				if (!component7.isExploding)
+				{
+					component7.StartCoroutine(component7.Death());
+				}
 			}
-			if (component6 != null)
+			else if (component6 != null)
 			{
 				component6.Health--;
 			}
-			if (component != null && !component.immuneToExplosion)
+			else if (component != null)
 			{
+				if (component.immuneToExplosion)
+				{
+					continue;
+				}
 				if ((bool)component.ShieldFade)
 				{
 					if (component.ShieldFade.ShieldHealth > 0)
@@ -1192,21 +1213,44 @@ public class PlayerBulletScript : MonoBehaviour
 					component.DamageMe(1);
 				}
 			}
-			if (component2 != null)
+			else if (component2 != null)
 			{
 				component2.BounceAmount = 999;
 			}
-			if (component3 != null && !component3.isElectric)
+			else if (component3 != null)
 			{
-				component3.BounceAmount = 999;
+				if (!component3.isElectric)
+				{
+					component3.BounceAmount = 999;
+				}
 			}
-			if (component4 != null)
+			else if (component4 != null)
 			{
 				component4.DetinationTime = 0f;
 			}
-			if (component5 != null)
+			else if (component5 != null)
 			{
 				component5.StartCoroutine(component5.destroy());
+			}
+			else if ((bool)component8)
+			{
+				component8.PlatformHealth--;
+			}
+			else if (component9 != null)
+			{
+				component9.FlyBack();
+			}
+		}
+		array = Physics.OverlapSphere(location, radius * 2.2f);
+		foreach (Collider collider in array)
+		{
+			Rigidbody component10 = collider.GetComponent<Rigidbody>();
+			if (component10 != null && (collider.tag == "Player" || collider.tag == "Enemy"))
+			{
+				float num = Vector3.Distance(component10.transform.position, base.transform.position);
+				float num2 = (radius * 2.2f - num) * 2f;
+				Vector3 vector = component10.transform.position - base.transform.position;
+				component10.AddForce(vector * num2, ForceMode.Impulse);
 			}
 		}
 	}

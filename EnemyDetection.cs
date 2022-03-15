@@ -173,7 +173,7 @@ public class EnemyDetection : MonoBehaviour
 		{
 			return;
 		}
-		if (GameMaster.instance.CurrentMission != 49)
+		if (GameMaster.instance.CurrentMission != 49 || (bool)MapEditorMaster.instance)
 		{
 			if (checkMines())
 			{
@@ -244,7 +244,7 @@ public class EnemyDetection : MonoBehaviour
 
 	private void OnTriggerEnter(Collider other)
 	{
-		if ((other.transform.tag == "Solid" || other.transform.tag == "MapBorder") && !isCenter && GameMaster.instance.CurrentMission != 49)
+		if ((other.transform.tag == "Solid" || other.transform.tag == "MapBorder") && !isCenter && (GameMaster.instance.CurrentMission != 49 || (bool)MapEditorMaster.instance))
 		{
 			if (!SolidPieces.Contains(other))
 			{
@@ -258,7 +258,7 @@ public class EnemyDetection : MonoBehaviour
 				SolidPieces.Add(other);
 			}
 		}
-		else if (GameMaster.instance.CurrentMission != 69 && other.transform.tag == "ElectricPad" && !AIscript.isElectric)
+		else if ((GameMaster.instance.CurrentMission != 69 || (bool)MapEditorMaster.instance) && other.transform.tag == "ElectricPad" && !AIscript.isElectric)
 		{
 			if (!SolidPieces.Contains(other))
 			{
@@ -300,7 +300,7 @@ public class EnemyDetection : MonoBehaviour
 					Bullets.Add(other);
 				}
 			}
-			else if ((other.transform.tag == "Solid" || other.transform.tag == "MapBorder") && GameMaster.instance.CurrentMission == 49)
+			else if ((other.transform.tag == "Solid" || other.transform.tag == "MapBorder") && GameMaster.instance.CurrentMission == 49 && !MapEditorMaster.instance)
 			{
 				FloorPieces.Add(other);
 				if (FloorPieces.Count > 0)
@@ -322,7 +322,7 @@ public class EnemyDetection : MonoBehaviour
 
 	private void OnTriggerExit(Collider other)
 	{
-		if ((other.transform.tag == "Solid" || other.transform.tag == "MapBorder") && GameMaster.instance.CurrentMission != 49)
+		if ((other.transform.tag == "Solid" || other.transform.tag == "MapBorder") && (GameMaster.instance.CurrentMission != 49 || (bool)MapEditorMaster.instance))
 		{
 			SolidPieces.Remove(other);
 		}
@@ -330,7 +330,7 @@ public class EnemyDetection : MonoBehaviour
 		{
 			SolidPieces.Remove(other);
 		}
-		else if (GameMaster.instance.CurrentMission != 69 && other.transform.tag == "ElectricPad")
+		else if ((GameMaster.instance.CurrentMission != 69 || (bool)MapEditorMaster.instance) && other.transform.tag == "ElectricPad")
 		{
 			SolidPieces.Remove(other);
 		}
@@ -346,7 +346,7 @@ public class EnemyDetection : MonoBehaviour
 		{
 			Bullets.Remove(other);
 		}
-		else if (!(other.transform.tag == "Mine") && (other.transform.tag == "Solid" || other.transform.tag == "MapBorder") && GameMaster.instance.CurrentMission == 49)
+		else if (!(other.transform.tag == "Mine") && (other.transform.tag == "Solid" || other.transform.tag == "MapBorder") && GameMaster.instance.CurrentMission != 49 && !MapEditorMaster.instance)
 		{
 			FloorPieces.Remove(other);
 			if (FloorPieces.Count < 1)

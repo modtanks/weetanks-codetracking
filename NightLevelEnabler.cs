@@ -75,7 +75,7 @@ public class NightLevelEnabler : MonoBehaviour
 
 	private void SetLightColor()
 	{
-		if (HT.IsAirdropped && LightObject != null)
+		if (HT.IsAirdropped && LightObject != null && (bool)MapEditorMaster.instance)
 		{
 			LightObject.GetComponent<MeshRenderer>().material.color = MapEditorMaster.instance.TeamColors[EA.MyTeam];
 			LightObject.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", MapEditorMaster.instance.TeamColors[EA.MyTeam]);

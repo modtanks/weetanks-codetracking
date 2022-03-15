@@ -80,7 +80,7 @@ public class TutorialMaster : MonoBehaviour
 
 	public void ShowTutorial(string message)
 	{
-		if (!IsShowingTutorial)
+		if (message.Length > 2 && !IsShowingTutorial)
 		{
 			IsShowingTutorial = true;
 			myAnimator.SetBool("ShowTutorial", value: true);

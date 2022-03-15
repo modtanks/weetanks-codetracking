@@ -158,6 +158,18 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	public bool DeflectingBullet;
 
+	public void SetLayerMasks()
+	{
+		if (IgnoreCork || bulletPrefab.name.Contains("plosive"))
+		{
+			myLayerMasks = ~((1 << LayerMask.NameToLayer("EnemyDetectionLayer")) | (1 << LayerMask.NameToLayer("EnemyBorder")) | (1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("CorkWall")) | (1 << LayerMask.NameToLayer("BulletDetectField")) | (1 << LayerMask.NameToLayer("Other")) | (1 << LayerMask.NameToLayer("OneWayBlock")));
+		}
+		else
+		{
+			myLayerMasks = ~((1 << LayerMask.NameToLayer("EnemyDetectionLayer")) | (1 << LayerMask.NameToLayer("BulletDetectField")) | (1 << LayerMask.NameToLayer("EnemyBorder")) | (1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("Other")) | (1 << LayerMask.NameToLayer("OneWayBlock")));
+		}
+	}
+
 	private void Start()
 	{
 		rot = Quaternion.Euler(0f, 0f, 0f);
@@ -170,14 +182,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 			mineCountdown = AIscript.LayMinesSpeed + Random.Range(-0.4f, AIscript.LayMinesSpeed / 2f);
 		}
 		source = GetComponent<AudioSource>();
-		if (IgnoreCork)
-		{
-			myLayerMasks = ~((1 << LayerMask.NameToLayer("EnemyDetectionLayer")) | (1 << LayerMask.NameToLayer("EnemyBorder")) | (1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("CorkWall")) | (1 << LayerMask.NameToLayer("BulletDetectField")) | (1 << LayerMask.NameToLayer("Other")) | (1 << LayerMask.NameToLayer("OneWayBlock")));
-		}
-		else
-		{
-			myLayerMasks = ~((1 << LayerMask.NameToLayer("EnemyDetectionLayer")) | (1 << LayerMask.NameToLayer("BulletDetectField")) | (1 << LayerMask.NameToLayer("EnemyBorder")) | (1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("Other")) | (1 << LayerMask.NameToLayer("OneWayBlock")));
-		}
+		SetLayerMasks();
 		if (AIscript.HTscript.IsAirdropped)
 		{
 			StartCoroutine(LatePlayerCheck());
@@ -237,6 +242,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		CR_running = false;
 		SR_running = 0;
 		specialMove = false;
+		SetLayerMasks();
 		if (SR_running == 0 && AIscript.hasRockets)
 		{
 			for (int i = 0; i < rocketSlots.Length; i++)
@@ -406,7 +412,16 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 						return;
 					}
 					rotation = Quaternion.LookRotation(vector);
-					pick = Random.Range(0f - AIscript.Accuracy, AIscript.Accuracy) + LookAngleOffset;
+					float num = AIscript.Accuracy;
+					if (currentTarget != null)
+					{
+						EnemyAI component = currentTarget.GetComponent<EnemyAI>();
+						if ((bool)component && component.isInvisible)
+						{
+							num += 15f;
+						}
+					}
+					pick = Random.Range(0f - num, num) + LookAngleOffset;
 					rotation *= Quaternion.Euler(0f, pick, 0f);
 					angleSize = Quaternion.Angle(base.transform.rotation, rotation);
 					if (angleSize > 1f)
@@ -1637,7 +1652,6 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 			component.MaxBounces = AIscript.amountOfBounces;
 			component.papaTank = AIscript.gameObject;
 			component.ShotByPlayer = AIscript.CompanionID;
-			component.TankScriptAI = this;
 			component.EnemyTankScript = this;
 		}
 		if (CustomShootSpeed > -1)

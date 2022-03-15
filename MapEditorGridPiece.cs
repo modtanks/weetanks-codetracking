@@ -73,7 +73,7 @@ public class MapEditorGridPiece : MonoBehaviour
 
 	private void OnMouseEnter()
 	{
-		if (!(MapEditorMaster.instance == null) && !(GameMaster.instance == null) && !MapEditorMaster.instance.isTesting && !MapEditorMaster.instance.inPlayingMode && !GameMaster.instance.GameHasPaused && MapEditorMaster.instance.SelectedProp >= 0 && selected && !check)
+		if (!(MapEditorMaster.instance == null) && !(GameMaster.instance == null) && (!MapEditorMaster.instance.OTM || !(MapEditorMaster.instance.OTM.SelectedMEP != null)) && !MapEditorMaster.instance.isTesting && !MapEditorMaster.instance.inPlayingMode && !GameMaster.instance.GameHasPaused && MapEditorMaster.instance.SelectedProp >= 0 && selected && !check)
 		{
 			checkSelections();
 		}
@@ -81,7 +81,7 @@ public class MapEditorGridPiece : MonoBehaviour
 
 	private void OnMouseOver()
 	{
-		if (!(MapEditorMaster.instance == null) && !(GameMaster.instance == null) && !MapEditorMaster.instance.isTesting && !MapEditorMaster.instance.inPlayingMode && !GameMaster.instance.GameHasPaused && MapEditorMaster.instance.SelectedProp >= 0 && !MapEditorMaster.instance.RemoveMode)
+		if (!(MapEditorMaster.instance == null) && !(GameMaster.instance == null) && (!MapEditorMaster.instance.OTM || !(MapEditorMaster.instance.OTM.SelectedMEP != null)) && !MapEditorMaster.instance.isTesting && !MapEditorMaster.instance.inPlayingMode && !GameMaster.instance.GameHasPaused && MapEditorMaster.instance.SelectedProp >= 0 && !MapEditorMaster.instance.RemoveMode)
 		{
 			if (myRend != null)
 			{
@@ -501,6 +501,10 @@ public class MapEditorGridPiece : MonoBehaviour
 		myPropID[IDlayer] = MapEditorMaster.instance.SelectedProp;
 		SetCustomMaterial(mapEditorProp);
 		SetGridPieceColor();
+		if (mapEditorProp.CanBeColored)
+		{
+			mapEditorProp.SetMyColor();
+		}
 	}
 
 	public void SetGridPieceColor()
@@ -637,6 +641,10 @@ public class MapEditorGridPiece : MonoBehaviour
 			if ((bool)component)
 			{
 				component.myDifficulty = SpawnDifficulty;
+			}
+			if (mapEditorProp.CanBeColored)
+			{
+				mapEditorProp.StartCoroutine(mapEditorProp.SetMaterialsDelay());
 			}
 		}
 	}

@@ -413,7 +413,7 @@ public class MoveTankScript : MonoBehaviour
 			skidMarkCreator.Stop();
 			return;
 		}
-		if ((double)Math.Abs(input.x) < 0.5 && (double)Mathf.Abs(input.y) < 0.5)
+		if ((double)Math.Abs(input.x) < 0.1 && (double)Mathf.Abs(input.y) < 0.1)
 		{
 			if (source.isPlaying)
 			{
@@ -428,7 +428,7 @@ public class MoveTankScript : MonoBehaviour
 				DeactivateBooster();
 			}
 		}
-		if ((double)Math.Abs(input.x) > 0.5 || (double)Mathf.Abs(input.y) > 0.5)
+		if ((double)Math.Abs(input.x) > 0.1 || (double)Mathf.Abs(input.y) > 0.1)
 		{
 			if (!GameMaster.instance.GameHasPaused)
 			{
@@ -566,25 +566,25 @@ public class MoveTankScript : MonoBehaviour
 
 	private void CalculateDirection()
 	{
-		if ((!((double)input.x > 0.5) && !((double)input.x < 0.5) && !((double)input.y > 0.5) && !((double)input.y < 0.5)) || !cam)
+		if ((!((double)input.x > 0.1) && !((double)input.x < 0.1) && !((double)input.y > 0.1) && !((double)input.y < 0.1)) || !cam)
 		{
 			return;
 		}
 		if (!OptionsMainMenu.instance.IsThirdPerson)
 		{
-			if (SolidDetection[0] && ((double)input.x < -0.5 || (double)input.x > 0.5) && (double)input.y > 0.5)
+			if (SolidDetection[0] && ((double)input.x < -0.1 || (double)input.x > 0.1) && (double)input.y > 0.1)
 			{
 				input.y = 0f;
 			}
-			else if (SolidDetection[1] && (double)input.x > 0.5 && ((double)input.y < -0.5 || (double)input.y > 0.5))
+			else if (SolidDetection[1] && (double)input.x > 0.1 && ((double)input.y < -0.1 || (double)input.y > 0.1))
 			{
 				input.x = 0f;
 			}
-			else if (SolidDetection[2] && ((double)input.x < -0.5 || (double)input.x > 0.5) && (double)input.y < -0.5)
+			else if (SolidDetection[2] && ((double)input.x < -0.1 || (double)input.x > 0.1) && (double)input.y < -0.1)
 			{
 				input.y = 0f;
 			}
-			else if (SolidDetection[3] && (double)input.x < -0.5 && ((double)input.y < -0.5 || (double)input.y > 0.5))
+			else if (SolidDetection[3] && (double)input.x < -0.1 && ((double)input.y < -0.1 || (double)input.y > 0.1))
 			{
 				input.x = 0f;
 			}
@@ -649,7 +649,7 @@ public class MoveTankScript : MonoBehaviour
 				DeactivateBooster();
 			}
 		}
-		if (HTtanks.dying || (!((double)input.x > 0.5) && !((double)input.y > 0.5) && !((double)input.x < -0.5) && !((double)input.y < -0.5)))
+		if (HTtanks.dying || (!((double)input.x > 0.1) && !((double)input.y > 0.1) && !((double)input.x < -0.1) && !((double)input.y < -0.1)))
 		{
 			return;
 		}

@@ -69,6 +69,18 @@ public class AchievementsTracker : MonoBehaviour
 		{
 			AchievementNotificationParent = GameObject.FindGameObjectWithTag("AchievementNotificationParent");
 		}
+		bool flag = false;
+		for (int i = 0; i < 34; i++)
+		{
+			if (OptionsMainMenu.instance.AM[i] != 1 && i != 14)
+			{
+				flag = true;
+			}
+		}
+		if (!flag && OptionsMainMenu.instance.AM[14] != 1)
+		{
+			completeAlwaysAchievement(14);
+		}
 	}
 
 	public void ResetVariables()
@@ -178,9 +190,9 @@ public class AchievementsTracker : MonoBehaviour
 				}
 			}
 		}
-		else if (GameMaster.instance.PlayerModeWithAI[1] != 1 && GameMaster.instance.inMapEditor && !GameMaster.instance.isZombieMode)
+		else if (GameMaster.instance.inMapEditor && !GameMaster.instance.isZombieMode)
 		{
-			if ((bool)MapEditorMaster.instance && GameMaster.instance.Levels.Count > 9 && OptionsMainMenu.instance.AM[8] != 1)
+			if ((bool)MapEditorMaster.instance && MapEditorMaster.instance.Levels.Count > 9 && OptionsMainMenu.instance.AM[8] != 1)
 			{
 				completeOtherAchievement(8);
 			}
@@ -295,6 +307,25 @@ public class AchievementsTracker : MonoBehaviour
 	public void completeOtherAchievement(int ID)
 	{
 		if (GameMaster.instance.PlayerModeWithAI[1] != 1 && OptionsMainMenu.instance.AM[ID] != 1 && AccountMaster.instance.isSignedIn)
+		{
+			AccountMaster.instance.SaveCloudData(3, ID, 0, bounceKill: false);
+			OptionsMainMenu.instance.AM[ID] = 1;
+			GameObject obj = Object.Instantiate(AchievementNotification);
+			obj.transform.parent = AchievementNotificationParent.transform;
+			obj.transform.localPosition = new Vector3(0f, -350f, 0f);
+			SFXManager.instance.PlaySFX(AchievementCompleted, 1f, null);
+			AchievementItemScript component = obj.GetComponent<AchievementItemScript>();
+			if ((bool)component)
+			{
+				Debug.Log("SETTINGS ID!!" + ID);
+				component.AMID = ID;
+			}
+		}
+	}
+
+	public void completeAlwaysAchievement(int ID)
+	{
+		if (OptionsMainMenu.instance.AM[ID] != 1 && AccountMaster.instance.isSignedIn)
 		{
 			AccountMaster.instance.SaveCloudData(3, ID, 0, bounceKill: false);
 			OptionsMainMenu.instance.AM[ID] = 1;

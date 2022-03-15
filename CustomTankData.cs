@@ -7,17 +7,17 @@ public class CustomTankData
 
 	public string CustomTankName;
 
-	public int CustomTankSpeed;
+	public int CustomTankSpeed = 50;
 
 	public float CustomFireSpeed;
 
 	public int CustomBounces;
 
-	public int CustomBullets;
+	public int CustomBullets = 1;
 
 	public float CustomMineSpeed;
 
-	public int CustomTurnHead;
+	public int CustomTurnHead = 3;
 
 	public int CustomAccuracy;
 
@@ -35,7 +35,7 @@ public class CustomTankData
 
 	public int CustomArmourPoints;
 
-	public float CustomTankScale;
+	public float CustomTankScale = 1f;
 
 	public bool CustomCanBeAirdropped;
 
@@ -49,5 +49,5 @@ public class CustomTankData
 
 	public string UniqueTankID;
 
-	public int CustomBulletSpeed;
+	public int CustomBulletSpeed = 7;
 }

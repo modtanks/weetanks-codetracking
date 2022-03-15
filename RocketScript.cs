@@ -90,17 +90,23 @@ public class RocketScript : MonoBehaviour
 			Vector3 b = new Vector3(TargetPosition.x, base.transform.position.y, TargetPosition.z);
 			Vector3 vector = FlyDirection;
 			float num = Vector3.Distance(base.transform.position, b);
-			if (num <= 6f && theAnim.GetBool("Swerving"))
+			float num2 = 15f;
+			if (num <= 6f)
 			{
-				theAnim.SetBool("Swerving", value: false);
+				num2 = 12f;
+				if (theAnim.GetBool("Swerving"))
+				{
+					theAnim.SetBool("Swerving", value: false);
+				}
 			}
 			if (num <= 3f)
 			{
+				num2 = 9f;
 				float angle = Mathf.Lerp(0f, 90f, 1f - num / 4f);
 				base.transform.RotateAround(base.transform.position, base.transform.right, angle);
 				vector = Vector3.Lerp(b: new Vector3(FlyDirection.x, -2f, FlyDirection.z), a: FlyDirection, t: 1f - num / 4f);
 			}
-			base.transform.Translate(vector * Time.deltaTime * 15f, Space.World);
+			base.transform.Translate(vector * Time.deltaTime * num2, Space.World);
 			if (num <= 0.6f)
 			{
 				state = 3;

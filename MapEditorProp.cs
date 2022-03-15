@@ -41,6 +41,8 @@ public class MapEditorProp : MonoBehaviour
 
 	public bool SelectAllChildren;
 
+	public bool CanBeColored;
+
 	private HealthTanks HT;
 
 	public bool removeParentOnDelete;
@@ -69,7 +71,15 @@ public class MapEditorProp : MonoBehaviour
 
 	private bool LatestKnownColorState = true;
 
-	private void SetMaterials(Color clr, bool reset)
+	private bool ColorSetPlayingMode;
+
+	public IEnumerator SetMaterialsDelay()
+	{
+		yield return new WaitForSeconds(0.1f);
+		SetMaterials(Color.white, reset: true);
+	}
+
+	public void SetMaterials(Color clr, bool reset)
 	{
 		if ((bool)myEnemyAI && myEnemyAI.HTscript.isGary && MapEditorMaster.instance.inPlayingMode)
 		{
@@ -131,7 +141,7 @@ public class MapEditorProp : MonoBehaviour
 			Material[] materials3 = myRend.materials;
 			for (int m = 0; m < myRend.materials.Length; m++)
 			{
-				if (notSelectedColor.Length >= m)
+				if (notSelectedColor.Length > m)
 				{
 					materials3[m].color = notSelectedColor[m];
 				}
@@ -182,6 +192,29 @@ public class MapEditorProp : MonoBehaviour
 		}
 	}
 
+	public void SetMyColor()
+	{
+		if (!CanBeColored)
+		{
+			return;
+		}
+		if (MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor == null)
+		{
+			MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor = new SerializableColor[5];
+		}
+		if (MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber] == null)
+		{
+			MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber] = new SerializableColor();
+			MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber].Color = MapEditorMaster.instance.OTM.FCP_mat.material.GetColor("_Color1");
+			Color color = MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber].Color;
+			for (int i = 0; i < notSelectedColor.Length; i++)
+			{
+				notSelectedColor[i] = color;
+			}
+			SetMaterials(Color.white, reset: true);
+		}
+	}
+
 	private void Start()
 	{
 		myEnemyAI = GetComponent<EnemyAI>();
@@ -191,6 +224,15 @@ public class MapEditorProp : MonoBehaviour
 		if ((bool)myRend && OriginalBodyColor == Color.black && myRend.materials[0].color != Color.black)
 		{
 			OriginalBodyColor = myRend.materials[0].color;
+		}
+		if (CanBeColored)
+		{
+			SetMyColor();
+			StartCoroutine(SetMaterialsDelay());
+		}
+		else
+		{
+			SetMyColor();
 		}
 		SetCustomTankProperties();
 		if (TeamNumber < 0)
@@ -338,7 +380,7 @@ public class MapEditorProp : MonoBehaviour
 	private void OnEnable()
 	{
 		SetCustomTankProperties();
-		if (myRend != null && notSelectedColor != null && notSelectedColor.Length != 0)
+		if (myRend != null && notSelectedColor != null && !CanBeColored && notSelectedColor.Length != 0)
 		{
 			SetMaterials(Color.white, reset: true);
 		}
@@ -616,17 +658,27 @@ public class MapEditorProp : MonoBehaviour
 
 	private void SelectThisProp()
 	{
-		if ((bool)MapEditorMaster.instance.OTM.SelectedMEP)
+		if ((bool)MapEditorMaster.instance.OTM.SelectedMEP && (bool)MapEditorMaster.instance.OTM.SelectedMEP.myMEGP)
 		{
 			MapEditorMaster.instance.OTM.SelectedMEP.myMEGP.FieldSelected = false;
 		}
-		MapEditorMaster.instance.OTM.OnOpenMenu(0, this);
+		int menuType = 0;
+		if (CanBeColored)
+		{
+			menuType = 1;
+		}
+		MapEditorMaster.instance.OTM.OnOpenMenu(menuType, this);
 		MapEditorMaster.instance.OTM.CurrentDifficulty = MyDifficultySpawn;
 		MapEditorMaster.instance.OTM.DifficultyPick.value = MyDifficultySpawn;
 		MapEditorMaster.instance.TeamsCursorMenu.SetActive(value: true);
 		MapEditorMaster.instance.OTM.SelectedMEP = this;
 		MapEditorMaster.instance.OTM.CurrentTeamNumber = TeamNumber;
 		myMEGP.FieldSelected = true;
+		if (CanBeColored)
+		{
+			MapEditorMaster.instance.OTM.FCP.startingColor = MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber].Color;
+			MapEditorMaster.instance.OTM.FCP.color = MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber].Color;
+		}
 	}
 
 	private void Update()
@@ -652,15 +704,40 @@ public class MapEditorProp : MonoBehaviour
 				SetTankBodyColor();
 			}
 		}
-		if (!(myEnemyAI != null))
-		{
-			_ = MTS != null;
-		}
 		if (MapEditorMaster.instance.isTesting || GameMaster.instance.GameHasPaused || MapEditorMaster.instance.inPlayingMode || MapEditorMaster.instance.CurrentLayer != LayerNumber || MapEditorMaster.instance.MenuCurrent == 8)
 		{
+			if (ColorSetPlayingMode || !CanBeColored)
+			{
+				return;
+			}
+			ColorSetPlayingMode = true;
+			if (MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber] != null)
+			{
+				Color color = MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber].Color;
+				for (int i = 0; i < notSelectedColor.Length; i++)
+				{
+					notSelectedColor[i] = color;
+				}
+			}
 			return;
 		}
-		if (mouseOverMe && (isEnemyTank || isPlayerOne || isPlayerTwo || isPlayerThree || isPlayerFour) && !MapEditorMaster.instance.RemoveMode && ReInput.players.GetPlayer(0).GetButtonDown("Use"))
+		if (CanBeColored)
+		{
+			if (MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber] == null)
+			{
+				Debug.LogError("NO COLOR SET");
+				MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber] = new SerializableColor();
+			}
+			else
+			{
+				Color color2 = MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber].Color;
+				for (int j = 0; j < notSelectedColor.Length; j++)
+				{
+					notSelectedColor[j] = color2;
+				}
+			}
+		}
+		if (mouseOverMe && (isEnemyTank || isPlayerOne || isPlayerTwo || isPlayerThree || isPlayerFour || CanBeColored) && !MapEditorMaster.instance.RemoveMode && ReInput.players.GetPlayer(0).GetButtonDown("Use"))
 		{
 			if (MapEditorMaster.instance.OTM.SelectedMEP != this)
 			{
@@ -756,6 +833,10 @@ public class MapEditorProp : MonoBehaviour
 				MapEditorMaster.instance.ShowErrorMessage("ERROR: Remove object on top!");
 				return;
 			}
+		}
+		if (CanBeColored)
+		{
+			MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber] = null;
 		}
 		if (base.transform.tag == "Player" || isEnemyTank)
 		{

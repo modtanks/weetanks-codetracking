@@ -35,6 +35,12 @@ public class PlayerInputsMenu : MonoBehaviour
 	{
 	}
 
+	private void OnEnable()
+	{
+		SetControllers();
+		LoadData();
+	}
+
 	public void UpdateDropdown(int playerID)
 	{
 		string text = Dropdowns[playerID].captionText.text;

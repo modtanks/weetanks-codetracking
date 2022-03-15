@@ -15,6 +15,7 @@ public static class SavingMapEditorData
 		if (File.Exists(text) && !overwrite)
 		{
 			Debug.LogError("File already exists!");
+			Debug.LogError(text);
 			return false;
 		}
 		FileStream fileStream = new FileStream(text, FileMode.Create);
@@ -51,6 +52,7 @@ public static class SavingMapEditorData
 		if (File.Exists(text) && !overwrite)
 		{
 			Debug.LogError("File already exists!");
+			Debug.LogError(text);
 			return false;
 		}
 		FileStream fileStream = new FileStream(text, FileMode.Create);

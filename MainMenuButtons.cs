@@ -319,7 +319,7 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 
 	public ScrollRect ParentSR;
 
-	private bool RightClicked;
+	public bool RightClicked;
 
 	public bool IsSelected;
 
@@ -398,6 +398,15 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 			PMS = gameObject.GetComponent<PauseMenuScript>();
 			speed = 5.5f;
 		}
+		else
+		{
+			gameObject = GameObject.Find("PauseMenuCanvas_NEW");
+			if ((bool)gameObject)
+			{
+				PMS = gameObject.GetComponent<PauseMenuScript>();
+				speed = 5.5f;
+			}
+		}
 		GameObject gameObject2 = GameObject.Find("Canvas");
 		if ((bool)gameObject2 && gameObject == null)
 		{
@@ -472,6 +481,10 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 		if (IsContinue || IsSurvivalMap)
 		{
 			ButtonMetaImage.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+			if (ContinueLevel == 99)
+			{
+				ButtonMetaImage.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
+			}
 		}
 	}
 
@@ -571,7 +584,7 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 			}
 			if (ContinueLevel != 99)
 			{
-				ButtonTitle.text = "Checkpoint " + ContinueLevel;
+				ButtonTitle.text = LocalizationMaster.instance.GetText("MM_Checkpoint") + " " + ContinueLevel;
 			}
 			if (CanPlayCheckPoint())
 			{
@@ -609,7 +622,7 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 		{
 			if (AccountMaster.instance.isSignedIn)
 			{
-				if (AccountMaster.instance.PDO.maxMission0 >= ContinueLevel)
+				if (AccountMaster.instance.PDO.maxMission0 > ContinueLevel)
 				{
 					return true;
 				}
@@ -623,7 +636,7 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 		{
 			if (AccountMaster.instance.isSignedIn)
 			{
-				if (AccountMaster.instance.PDO.maxMission1 >= ContinueLevel)
+				if (AccountMaster.instance.PDO.maxMission1 > ContinueLevel)
 				{
 					return true;
 				}
@@ -637,7 +650,7 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 		{
 			if (AccountMaster.instance.isSignedIn)
 			{
-				if (AccountMaster.instance.PDO.maxMission2 >= ContinueLevel)
+				if (AccountMaster.instance.PDO.maxMission2 > ContinueLevel)
 				{
 					return true;
 				}
@@ -651,7 +664,7 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 		{
 			if (AccountMaster.instance.isSignedIn)
 			{
-				if (AccountMaster.instance.PDO.maxMission3 >= ContinueLevel)
+				if (AccountMaster.instance.PDO.maxMission3 > ContinueLevel)
 				{
 					return true;
 				}
@@ -899,13 +912,13 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 
 	public void Update()
 	{
-		if ((IsBack || IsBack2Menu || IsBackCustomMenu) && menuNumber != 12 && NMC != null && NMC.player != null && (NMC.player.GetButtonUp("Escape") || NMC.player.GetButtonUp("Menu Back")))
+		if ((IsBack || IsBack2Menu || IsBackCustomMenu) && menuNumber != 12 && NMC != null && NMC.player != null && NMC.currentMenu != 20 && NMC.currentMenu != 19 && NMC.currentMenu != 13 && (NMC.player.GetButtonUp("Escape") || NMC.player.GetButtonUp("Menu Back")))
 		{
 			NMC.doButton(this);
 		}
 		if ((bool)NMC)
 		{
-			if (NMC.player != null && (NMC.player.GetButtonUp("Menu Use") || NMC.player.GetButtonUp("Use")))
+			if (NMC.player != null && NMC.currentMenu != 20 && NMC.currentMenu != 19 && NMC.Selection == Place && (NMC.player.GetButtonUp("Menu Use") || NMC.player.GetButtonUp("Use")))
 			{
 				NMC.doButton(this);
 			}
@@ -939,7 +952,7 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 				}
 			}
 		}
-		_StartTime += Time.deltaTime;
+		_StartTime += Time.unscaledDeltaTime;
 		if (MouseOn)
 		{
 			if ((bool)ChavronBorder)

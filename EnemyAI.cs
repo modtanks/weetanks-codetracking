@@ -435,6 +435,7 @@ public class EnemyAI : MonoBehaviour
 		}
 		NavMeshTimer = (IsCompanion ? Random.Range(1f, 3f) : Random.Range(2f, 6f));
 		DownPlayerTimer = 0f;
+		skidMarkCreator.Stop();
 		ParticleSystem.MainModule main = skidMarkCreator.main;
 		SetArmour();
 		if ((bool)Rush)
@@ -499,11 +500,13 @@ public class EnemyAI : MonoBehaviour
 		if (OptionsMainMenu.instance.currentDifficulty > 2 && !IsCompanion && !HTscript.IsCustom)
 		{
 			ShootSpeed /= 2f;
+			OriginalShootSpeed = ShootSpeed;
 			if (!isLevel70Boss && !isLevel50Boss)
 			{
 				TankSpeed *= 1.25f;
+				OriginalTankSpeed = TankSpeed;
 			}
-			ETSN.maxFiredBullets++;
+			ETSN.maxFiredBullets *= 2;
 		}
 		SetTankBodyTracks();
 	}
@@ -595,6 +598,10 @@ public class EnemyAI : MonoBehaviour
 		{
 			SpawnMagicPoof();
 		}
+		if (TankSpeed > 20f && !skidMarkCreator.isPlaying)
+		{
+			skidMarkCreator.Play();
+		}
 	}
 
 	private void SlowUpdate()
@@ -677,7 +684,7 @@ public class EnemyAI : MonoBehaviour
 				GameMaster.instance.musicScript.Orchestra.CherryRage = true;
 				GameMaster.instance.musicScript.Orchestra.RagingCherries++;
 				source.clip = AngerTracks;
-				Play2DClipAtPoint(spotted);
+				SFXManager.instance.PlaySFX(spotted);
 				AngerVein.SetActive(value: true);
 			}
 		}
@@ -685,6 +692,14 @@ public class EnemyAI : MonoBehaviour
 		{
 			AngrySteam.Stop();
 			coolingDown -= 0.25f;
+			if (AngerVein.activeSelf)
+			{
+				TimeBeingAnger += 0.25f;
+				if (TimeBeingAnger >= 40f)
+				{
+					AngrySteam.Play();
+				}
+			}
 			if (coolingDown <= 0f)
 			{
 				DisableAnger();
@@ -713,7 +728,7 @@ public class EnemyAI : MonoBehaviour
 			source.clip = TankTracks;
 			AngerVein.SetActive(value: false);
 			TimeBeingAnger = 0f;
-			Play2DClipAtPoint(cooldown);
+			SFXManager.instance.PlaySFX(cooldown);
 		}
 	}
 
@@ -812,7 +827,7 @@ public class EnemyAI : MonoBehaviour
 		yield return new WaitForSeconds(4f);
 		if (isCharged && (GameMaster.instance.GameHasStarted || GameMaster.instance.inMenuMode))
 		{
-			Vector3 validLocation = GameMaster.instance.GetValidLocation(CheckForDist: true, 8f, base.transform.position);
+			Vector3 validLocation = GameMaster.instance.GetValidLocation(CheckForDist: true, 8f, base.transform.position, TargetPlayer: false);
 			if (validLocation == Vector3.zero)
 			{
 				isCharged = false;
@@ -822,9 +837,10 @@ public class EnemyAI : MonoBehaviour
 			if (!isInvisibleNow)
 			{
 				MakeMeInvisible();
+				Debug.Log("PAUSING SKID MMARKS");
 				skidMarkCreator.Pause();
 			}
-			Play2DClipAtPoint(StartTeleport);
+			SFXManager.instance.PlaySFX(StartTeleport);
 			isCharged = false;
 			StartPos = base.transform.position;
 			_timeStartedLerping = Time.time;
@@ -1036,7 +1052,7 @@ public class EnemyAI : MonoBehaviour
 			{
 				return;
 			}
-			Play2DClipAtPoint(EndTeleport);
+			SFXManager.instance.PlaySFX(EndTeleport);
 			isTransporting = false;
 			GetComponent<Rigidbody>().isKinematic = false;
 			GetComponent<BoxCollider>().enabled = true;
@@ -1127,7 +1143,7 @@ public class EnemyAI : MonoBehaviour
 						particleSystem2.Play();
 					}
 				}
-				Play2DClipAtPoint(ChargedUpSound);
+				SFXManager.instance.PlaySFX(ChargedUpSound);
 				isCharged = true;
 			}
 		}
@@ -1872,16 +1888,5 @@ public class EnemyAI : MonoBehaviour
 		{
 			boosting = false;
 		}
-	}
-
-	public void Play2DClipAtPoint(AudioClip clip)
-	{
-		GameObject obj = new GameObject("TempAudio");
-		AudioSource audioSource = obj.AddComponent<AudioSource>();
-		audioSource.clip = clip;
-		audioSource.volume = 1f;
-		audioSource.spatialBlend = 0f;
-		audioSource.Play();
-		Object.Destroy(obj, clip.length);
 	}
 }

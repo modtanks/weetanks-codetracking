@@ -108,13 +108,13 @@ public class RaycastBullet : MonoBehaviour
 						TargetED(component);
 					}
 				}
-				else if (component2.TankScriptAI != null)
+				else if (component2.EnemyTankScript != null)
 				{
-					if (component2.TankScriptAI.AIscript.gameObject == component.papaTank && component2.TimesBounced > 0)
+					if (component2.EnemyTankScript.AIscript.gameObject == component.papaTank && component2.TimesBounced > 0)
 					{
 						TargetED(component);
 					}
-					else if (component2.TankScriptAI.AIscript.gameObject != component.papaTank)
+					else if (component2.EnemyTankScript.AIscript.gameObject != component.papaTank)
 					{
 						TargetED(component);
 					}

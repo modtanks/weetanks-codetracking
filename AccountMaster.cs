@@ -279,7 +279,7 @@ public class AccountMaster : MonoBehaviour
 		{
 			wWWForm.AddField("kB", 1);
 		}
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_stats_b.php", wWWForm);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_stats.php", wWWForm);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
@@ -666,30 +666,33 @@ public class AccountMaster : MonoBehaviour
 	{
 		GameMaster.instance.CurrentData = JsonUtility.FromJson<ProgressDataOnline>(post_data);
 		PDO = JsonUtility.FromJson<ProgressDataOnline>(post_data);
-		if (PDO != null && PDO.killed.Length >= 10)
+		if (PDO == null || PDO.killed.Length < 10)
 		{
-			OptionsMainMenu.instance.AM = PDO.AM;
-			OptionsMainMenu.instance.AMselected = PDO.ActivatedAM;
-			OptionsMainMenu.instance.CheckCustomHitmarkers();
-			TimePlayed = PDO.TimePlayed;
-			GameMaster.instance.totalKills = PDO.totalKills;
-			GameMaster.instance.totalWins = PDO.totalWins;
-			GameMaster.instance.totalDefeats = PDO.totalDefeats;
-			if (PDO.hW.Length > 6)
-			{
-				GameMaster.instance.highestWaves = PDO.hW;
-			}
-			GameMaster.instance.TankColorKilled = PDO.killed;
-			GameMaster.instance.survivalTanksKilled = PDO.survivalTanksKilled;
-			GameMaster.instance.maxMissionReached = ((PDO.maxMission0 < PDO.maxMission1) ? PDO.maxMission1 : PDO.maxMission0);
-			GameMaster.instance.maxMissionReachedHard = PDO.maxMission2;
-			GameMaster.instance.maxMissionReachedKid = ((PDO.maxMission1 < PDO.maxMission2) ? PDO.maxMission2 : PDO.maxMission1);
-			GameMaster.instance.totalKillsBounce = PDO.totalKillsBounce;
-			GameMaster.instance.totalRevivesPerformed = PDO.totalRevivesPerformed;
-			if ((bool)TankeyTownMaster.instance)
-			{
-				TankeyTownMaster.instance.MarblesText.text = PDO.marbles.ToString();
-			}
+			Debug.Log("NO DATA FOUND SUPER ERROR DESTRUCTION");
+			PDO = new ProgressDataOnline();
+			return;
+		}
+		OptionsMainMenu.instance.AM = PDO.AM;
+		OptionsMainMenu.instance.AMselected = PDO.ActivatedAM;
+		OptionsMainMenu.instance.CheckCustomHitmarkers();
+		TimePlayed = PDO.TimePlayed;
+		GameMaster.instance.totalKills = PDO.totalKills;
+		GameMaster.instance.totalWins = PDO.totalWins;
+		GameMaster.instance.totalDefeats = PDO.totalDefeats;
+		if (PDO.hW.Length > 6)
+		{
+			GameMaster.instance.highestWaves = PDO.hW;
+		}
+		GameMaster.instance.TankColorKilled = PDO.killed;
+		GameMaster.instance.survivalTanksKilled = PDO.survivalTanksKilled;
+		GameMaster.instance.maxMissionReached = ((PDO.maxMission0 < PDO.maxMission1) ? PDO.maxMission1 : PDO.maxMission0);
+		GameMaster.instance.maxMissionReachedHard = PDO.maxMission2;
+		GameMaster.instance.maxMissionReachedKid = ((PDO.maxMission1 < PDO.maxMission2) ? PDO.maxMission2 : PDO.maxMission1);
+		GameMaster.instance.totalKillsBounce = PDO.totalKillsBounce;
+		GameMaster.instance.totalRevivesPerformed = PDO.totalRevivesPerformed;
+		if ((bool)TankeyTownMaster.instance)
+		{
+			TankeyTownMaster.instance.MarblesText.text = PDO.marbles.ToString();
 		}
 	}
 

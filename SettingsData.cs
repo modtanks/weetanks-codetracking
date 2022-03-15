@@ -49,6 +49,8 @@ public class SettingsData
 
 	public bool[] AIactived;
 
+	public int LangSetting;
+
 	public SettingsData(OptionsMainMenu OMM)
 	{
 		musicVolLevel = OMM.musicVolumeLvl;
@@ -73,5 +75,6 @@ public class SettingsData
 		UIsettings = OMM.UIsetting;
 		xraybullets = OMM.showxraybullets;
 		AIactived = OMM.MenuCompanion;
+		LangSetting = OMM.GetComponent<LocalizationMaster>().CurrentLang;
 	}
 }

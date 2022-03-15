@@ -1,9 +1,12 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 public class PlaneScript : MonoBehaviour
 {
+	public bool isBomberPlane;
+
 	public bool isFlying;
 
 	public Transform SpawnBoxPoint;
@@ -50,12 +53,20 @@ public class PlaneScript : MonoBehaviour
 
 	private int TankToSpawnID = -1;
 
+	public bool CanDropBombs;
+
 	private void Start()
 	{
 		OriginalTanks = Tanks;
 		myAnimator = GetComponent<Animator>();
-		PlaneParticles.Stop();
-		InvokeRepeating("SearchCommandos", 2f, 2f);
+		if ((bool)PlaneParticles)
+		{
+			PlaneParticles.Stop();
+		}
+		if (!isBomberPlane)
+		{
+			InvokeRepeating("SearchCommandos", 2f, 2f);
+		}
 		if (GameMaster.instance.CurrentMission < 99)
 		{
 			PlaneModel.SetActive(value: false);
@@ -87,33 +98,37 @@ public class PlaneScript : MonoBehaviour
 	public void StartFlyToTB(int TeamNumber, int TankID)
 	{
 		PlaneModel.SetActive(value: true);
-		TankToSpawnID = -1;
-		if (TankID > -1)
+		if (!isBomberPlane)
 		{
-			TankToSpawnID = TankID;
-		}
-		int num = 0;
-		for (int i = 0; i < CommandosActiveColor.Length; i++)
-		{
-			if (CommandosActiveColor[i] > 0)
+			TankToSpawnID = -1;
+			if (TankID > -1)
 			{
-				num++;
+				TankToSpawnID = TankID;
 			}
-		}
-		CurrentTeamNumber = TeamNumber;
-		if (RecentSpawnedInColor == -1)
-		{
+			int num = 0;
+			for (int i = 0; i < CommandosActiveColor.Length; i++)
+			{
+				if (CommandosActiveColor[i] > 0)
+				{
+					num++;
+				}
+			}
+			CurrentTeamNumber = TeamNumber;
+			if (RecentSpawnedInColor == -1)
+			{
+				RecentSpawnedInColor = TeamNumber;
+			}
+			else if (CommandosActives > 1 && num > 1 && TeamNumber == RecentSpawnedInColor && Random.Range(0, 6) != 2)
+			{
+				PlaneModel.SetActive(value: false);
+				return;
+			}
 			RecentSpawnedInColor = TeamNumber;
 		}
-		else if (CommandosActives > 1 && num > 1 && TeamNumber == RecentSpawnedInColor && Random.Range(0, 6) != 2)
-		{
-			PlaneModel.SetActive(value: false);
-			return;
-		}
-		RecentSpawnedInColor = TeamNumber;
 		isFlying = true;
 		int num2 = ((Random.Range(0, 2) == 0) ? (-55) : 55);
-		StartLocation = TargetLocation + new Vector3(num2, 10f, 0f);
+		float y = (isBomberPlane ? 20f : 10f);
+		StartLocation = TargetLocation + new Vector3(num2, y, 0f);
 		base.transform.position = StartLocation;
 		Vector3 vector = TargetLocation - StartLocation;
 		Vector3 vector2 = vector + vector.normalized * 60f;
@@ -124,11 +139,47 @@ public class PlaneScript : MonoBehaviour
 		base.transform.rotation = rotation;
 		base.transform.Rotate(0f, 180f, 0f);
 		startTime = Time.time;
-		if (!PlaneParticles.isPlaying)
+		if ((bool)PlaneParticles && !PlaneParticles.isPlaying)
 		{
 			PlaneParticles.Play();
 		}
 		journeyLength = Vector3.Distance(StartLocation, PlaneTargetLocation);
+		if (isBomberPlane)
+		{
+			StartCoroutine(DropBombs());
+		}
+	}
+
+	private IEnumerator DropBombs()
+	{
+		if (CanDropBombs)
+		{
+			Vector3 position = SpawnBoxPoint.position + new Vector3(Random.Range(-2f, 2f), 0f, Random.Range(-2f, 2f));
+			GameObject gameObject = Object.Instantiate(BoxPrefab, position, Quaternion.Euler(SpawnBoxPoint.transform.forward));
+			PlayerBulletScript component = gameObject.GetComponent<PlayerBulletScript>();
+			component.MyTeam = 0;
+			Rigidbody component2 = gameObject.GetComponent<Rigidbody>();
+			if ((bool)component2)
+			{
+				component2.AddForce(SpawnBoxPoint.forward * 3f);
+				component.StartingVelocity = SpawnBoxPoint.forward * 3f;
+				component.BulletSpeed = 3f;
+				gameObject.transform.Rotate(Vector3.right * 90f);
+				_ = SpawnBoxPoint.position;
+				Ray ray = new Ray(SpawnBoxPoint.position, SpawnBoxPoint.forward);
+				LayerMask layerMask = (1 << LayerMask.NameToLayer("CorkWall")) | (1 << LayerMask.NameToLayer("Wall")) | (1 << LayerMask.NameToLayer("NoBounceWall")) | (1 << LayerMask.NameToLayer("DestroyableWall")) | (1 << LayerMask.NameToLayer("FLOOR"));
+				Debug.DrawRay(SpawnBoxPoint.position, SpawnBoxPoint.forward * 15f, Color.cyan, 3f);
+				if (Physics.Raycast(ray, out var hitInfo, 500f, layerMask))
+				{
+					component.WallGonnaBounceInTo = hitInfo.transform.gameObject;
+				}
+			}
+		}
+		yield return new WaitForSeconds(0.1f);
+		if (isFlying)
+		{
+			StartCoroutine(DropBombs());
+		}
 	}
 
 	private void Update()
@@ -144,18 +195,21 @@ public class PlaneScript : MonoBehaviour
 			}
 			else
 			{
-				mySource.volume = 1f - num;
+				mySource.volume = 2f - num * 2f;
 			}
 			base.transform.position = new Vector3(base.transform.position.x, y, base.transform.position.z);
-			if (num > 0.3f && num < 0.5f && !myAnimator.GetBool("KlepOpen"))
+			if (!isBomberPlane)
 			{
-				myAnimator.SetBool("KlepOpen", value: true);
+				if (num > 0.3f && num < 0.5f && !myAnimator.GetBool("KlepOpen"))
+				{
+					myAnimator.SetBool("KlepOpen", value: true);
+				}
+				else if (num > 0.6f && num < 0.8f && myAnimator.GetBool("KlepOpen"))
+				{
+					myAnimator.SetBool("KlepOpen", value: false);
+				}
 			}
-			else if (num > 0.6f && num < 0.8f && myAnimator.GetBool("KlepOpen"))
-			{
-				myAnimator.SetBool("KlepOpen", value: false);
-			}
-			if (!PlaneParticles.isPlaying)
+			if ((bool)PlaneParticles && !PlaneParticles.isPlaying)
 			{
 				PlaneParticles.Play();
 			}
@@ -163,96 +217,114 @@ public class PlaneScript : MonoBehaviour
 			{
 				isFlying = false;
 				BoxSpawned = false;
+				PlaneModel.SetActive(value: false);
 				mySource.volume = 0f;
 			}
-			if (BoxSpawned)
+			else if (isBomberPlane)
 			{
-				return;
-			}
-			LayerMask layerMask = 1 << LayerMask.NameToLayer("FLOOR");
-			Debug.DrawRay(base.transform.position, -Vector3.up * 25f, Color.red, 3f);
-			if (!Physics.Raycast(base.transform.position, -Vector3.up * 25f, out var hitInfo, (int)layerMask))
-			{
-				return;
-			}
-			float num2 = Vector3.Distance(hitInfo.point, new Vector3(TargetLocation.x, 0f, TargetLocation.z));
-			if (!(num2 < 3f))
-			{
-				return;
-			}
-			if (num2 < 3f && GameMaster.instance.GameHasStarted)
-			{
-				BoxSpawned = true;
-				CarePackageScript component = Object.Instantiate(BoxPrefab, new Vector3(TargetLocation.x, 0f, TargetLocation.z), Quaternion.identity).transform.GetChild(0).GetComponent<CarePackageScript>();
-				if ((bool)MapEditorMaster.instance && MapEditorMaster.instance.CustomTankDatas.Count > 0)
+				CanDropBombs = false;
+				LayerMask layerMask = 1 << LayerMask.NameToLayer("TeleportBlock");
+				Debug.DrawRay(base.transform.position, -Vector3.up * 25f, Color.red, 3f);
+				if (Physics.Raycast(base.transform.position, -Vector3.up, out var _, 25f, layerMask))
 				{
-					for (int i = 0; i < MapEditorMaster.instance.CustomTankDatas.Count; i++)
-					{
-						if (MapEditorMaster.instance.CustomTankDatas[i].CustomCanBeAirdropped)
-						{
-							Tanks.Add(MapEditorMaster.instance.Props[19]);
-							component.mats.Add(MapEditorMaster.instance.CustomMaterial[i]);
-						}
-					}
-				}
-				GameObject gameObject;
-				if (TankToSpawnID < 0)
-				{
-					do
-					{
-						int num3 = Random.Range(0, Tanks.Count);
-						if (SkipTankIndexKid.Contains(num3) && OptionsMainMenu.instance.currentDifficulty == 1)
-						{
-							gameObject = null;
-						}
-						else if (SkipTankIndexToddler.Contains(num3) && OptionsMainMenu.instance.currentDifficulty == 0)
-						{
-							gameObject = null;
-						}
-						else if (num3 != 15 && num3 != 16 && num3 != 17)
-						{
-							gameObject = Tanks[num3];
-							component.index = num3;
-						}
-						else if (num3 > 17)
-						{
-							gameObject = Tanks[num3];
-							component.index = 18 - num3;
-						}
-						else
-						{
-							gameObject = null;
-						}
-					}
-					while (gameObject == null);
+					CanDropBombs = true;
 				}
 				else
 				{
-					gameObject = Tanks[TankToSpawnID];
-					component.index = TankToSpawnID;
+					CanDropBombs = false;
 				}
-				component.TankToSpawn = gameObject;
-				component.MyTeam = CurrentTeamNumber;
-				if ((bool)MapEditorMaster.instance && MapEditorMaster.instance.CustomTankDatas.Count > 0)
+			}
+			else
+			{
+				if (BoxSpawned || isBomberPlane)
 				{
-					for (int j = 0; j < MapEditorMaster.instance.CustomTankDatas.Count; j++)
+					return;
+				}
+				LayerMask layerMask2 = 1 << LayerMask.NameToLayer("FLOOR");
+				Debug.DrawRay(base.transform.position, -Vector3.up * 25f, Color.red, 3f);
+				if (!Physics.Raycast(base.transform.position, -Vector3.up, out var hitInfo2, 25f, layerMask2))
+				{
+					return;
+				}
+				float num2 = Vector3.Distance(hitInfo2.point, new Vector3(TargetLocation.x, 0f, TargetLocation.z));
+				if (!(num2 < 3f))
+				{
+					return;
+				}
+				if (num2 < 3f && GameMaster.instance.GameHasStarted)
+				{
+					BoxSpawned = true;
+					CarePackageScript component = Object.Instantiate(BoxPrefab, new Vector3(TargetLocation.x, 0f, TargetLocation.z), Quaternion.identity).transform.GetChild(0).GetComponent<CarePackageScript>();
+					if ((bool)MapEditorMaster.instance && MapEditorMaster.instance.CustomTankDatas.Count > 0)
 					{
-						if (MapEditorMaster.instance.CustomTankDatas[j].CustomCanBeAirdropped)
+						for (int i = 0; i < MapEditorMaster.instance.CustomTankDatas.Count; i++)
 						{
-							Tanks.Remove(MapEditorMaster.instance.Props[19]);
+							if (MapEditorMaster.instance.CustomTankDatas[i].CustomCanBeAirdropped)
+							{
+								Tanks.Add(MapEditorMaster.instance.Props[19]);
+								component.mats.Add(MapEditorMaster.instance.CustomMaterial[i]);
+							}
 						}
 					}
+					GameObject gameObject;
+					if (TankToSpawnID < 0)
+					{
+						do
+						{
+							int num3 = Random.Range(0, Tanks.Count);
+							if (SkipTankIndexKid.Contains(num3) && OptionsMainMenu.instance.currentDifficulty == 1)
+							{
+								gameObject = null;
+							}
+							else if (SkipTankIndexToddler.Contains(num3) && OptionsMainMenu.instance.currentDifficulty == 0)
+							{
+								gameObject = null;
+							}
+							else if (num3 != 15 && num3 != 16 && num3 != 17)
+							{
+								gameObject = Tanks[num3];
+								component.index = num3;
+							}
+							else if (num3 > 17)
+							{
+								gameObject = Tanks[num3];
+								component.index = 18 - num3;
+							}
+							else
+							{
+								gameObject = null;
+							}
+						}
+						while (gameObject == null);
+					}
+					else
+					{
+						gameObject = Tanks[TankToSpawnID];
+						component.index = TankToSpawnID;
+					}
+					component.TankToSpawn = gameObject;
+					component.MyTeam = CurrentTeamNumber;
+					if ((bool)MapEditorMaster.instance && MapEditorMaster.instance.CustomTankDatas.Count > 0)
+					{
+						for (int j = 0; j < MapEditorMaster.instance.CustomTankDatas.Count; j++)
+						{
+							if (MapEditorMaster.instance.CustomTankDatas[j].CustomCanBeAirdropped)
+							{
+								Tanks.Remove(MapEditorMaster.instance.Props[19]);
+							}
+						}
+					}
+					PlaneModel.SetActive(value: true);
 				}
-				PlaneModel.SetActive(value: true);
-			}
-			else if (!GameMaster.instance.GameHasStarted)
-			{
-				BoxSpawned = true;
+				else if (!GameMaster.instance.GameHasStarted)
+				{
+					BoxSpawned = true;
+				}
 			}
 		}
 		else
 		{
-			if (PlaneParticles.isPlaying)
+			if ((bool)PlaneParticles && PlaneParticles.isPlaying)
 			{
 				PlaneParticles.Stop();
 			}

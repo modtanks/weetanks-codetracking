@@ -268,6 +268,7 @@ public class NewMenuControl : MonoBehaviour
 		FileInfo[] files = new DirectoryInfo(text).GetFiles("*.campaign");
 		if (files.Length != 0)
 		{
+			Debug.LogError("MapFiles FOUND!" + files.Length);
 			FileInfo[] array = files;
 			foreach (FileInfo fileInfo in array)
 			{
@@ -366,6 +367,7 @@ public class NewMenuControl : MonoBehaviour
 		}
 		else if (NoMapsText != null)
 		{
+			Debug.LogError("NO MAPS FOUND! " + text);
 			NoMapsText.gameObject.SetActive(value: true);
 		}
 	}
@@ -382,43 +384,21 @@ public class NewMenuControl : MonoBehaviour
 		{
 			yield return new WaitForSeconds(0.5f);
 			StartCoroutine(CheckData());
-			yield break;
 		}
-		if (AccountMaster.instance.isSignedIn)
+		else if (AccountMaster.instance.isSignedIn)
 		{
 			Debug.Log("SIGNED IN!");
 			if (SteamTest.instance.SteamAccountID > 1000 && AccountMaster.instance.SteamUserID < 1000)
 			{
 				EnableTransferMenu();
 			}
-			yield break;
-		}
-		Debug.Log("Normal way...");
-		if (SavingData.ExistData())
-		{
-			int num = SavingData.LoadData().cM;
-			if (num < 0)
-			{
-				num = 0;
-			}
-			string text = "Record Mission: " + num;
-			Recordmission.text = text;
-			RecordmissionPage2.text = text;
-			if (num <= 9)
-			{
-			}
-		}
-		else
-		{
-			string text2 = "RecoRd Misision: -";
-			Recordmission.text = text2;
-			RecordmissionPage2.text = text2;
 		}
 	}
 
 	private void Start()
 	{
 		OptionsMainMenu.instance.MapSize = 285;
+		OptionsMainMenu.instance.StartLevel = 0;
 		StartCoroutine(PlayJingle());
 		StartCoroutine(CheckData());
 		if ((bool)OptionsMainMenu.instance)
@@ -449,15 +429,6 @@ public class NewMenuControl : MonoBehaviour
 		SnowMode_toggle.IsEnabled = OptionsMainMenu.instance.SnowMode;
 		XRAYBULLETS_toggle.IsEnabled = OptionsMainMenu.instance.showxraybullets;
 		MarkedTanks_toggle.IsEnabled = OptionsMainMenu.instance.MarkedTanks;
-		AICompaniontext.text = OptionsMainMenu.instance.AIcompanion.ToString();
-		if (OptionsMainMenu.instance.BloodMode)
-		{
-			GoreModeText.text = "(x)";
-		}
-		else
-		{
-			GoreModeText.text = "( )";
-		}
 		vsync_toggle.IsEnabled = OptionsMainMenu.instance.vsync;
 		for (int k = 0; k < 50; k++)
 		{
@@ -477,10 +448,6 @@ public class NewMenuControl : MonoBehaviour
 		MusicVolume_list.SetValueWithoutNotify(OptionsMainMenu.instance.musicVolumeLvl);
 		MasterVolume_list.SetValueWithoutNotify(OptionsMainMenu.instance.masterVolumeLvl);
 		SFXVolume_list.SetValueWithoutNotify(OptionsMainMenu.instance.sfxVolumeLvl);
-		if (OptionsMainMenu.instance.inAndroid)
-		{
-			VideoOptionstext.color = Color.gray;
-		}
 		SetAudioText();
 		SetDifficultyText();
 		SetGraphicsText();
@@ -516,7 +483,6 @@ public class NewMenuControl : MonoBehaviour
 				num++;
 			}
 		}
-		UnityEngine.Object.Destroy(NoKillsText.gameObject);
 		_ = 0;
 		for (int j = 0; j < 5; j++)
 		{
@@ -529,45 +495,10 @@ public class NewMenuControl : MonoBehaviour
 		}
 		for (int k = 0; k < 8; k++)
 		{
-			GameObject gameObject = UnityEngine.Object.Instantiate(RebindKeyPrefab);
-			gameObject.transform.SetParent(RebindKeyParent.transform);
-			gameObject.GetComponent<RebindKeyScript>().myMenu = 0;
-			gameObject.GetComponent<RebindKeyScript>().NMC = this;
-			switch (k)
-			{
-			case 0:
-				gameObject.GetComponent<RebindKeyScript>().IsKeyChangeBoost = true;
-				break;
-			case 1:
-				gameObject.GetComponent<RebindKeyScript>().IsKeyChangeMine = true;
-				break;
-			case 2:
-				gameObject.GetComponent<RebindKeyScript>().IsKeyChangeShoot = true;
-				break;
-			case 3:
-				gameObject.GetComponent<RebindKeyScript>().IsMoveUp = true;
-				break;
-			case 4:
-				gameObject.GetComponent<RebindKeyScript>().IsMoveRight = true;
-				break;
-			case 5:
-				gameObject.GetComponent<RebindKeyScript>().IsMoveDown = true;
-				break;
-			case 6:
-				gameObject.GetComponent<RebindKeyScript>().IsMoveLeft = true;
-				break;
-			case 7:
-				gameObject.GetComponent<RebindKeyScript>().IsHUD = true;
-				break;
-			}
-			gameObject.GetComponent<RebindKeyScript>().originalParent = RebindKeyParent.transform;
-		}
-		for (int l = 0; l < 8; l++)
-		{
 			GameObject obj3 = UnityEngine.Object.Instantiate(TankKillItemPrefab);
 			obj3.transform.SetParent(TankKillItemParent.transform);
 			obj3.GetComponent<TankStatsItem>().myMenu = 2;
-			obj3.GetComponent<TankStatsItem>().myStatID = l;
+			obj3.GetComponent<TankStatsItem>().myStatID = k;
 			obj3.GetComponent<TankStatsItem>().NMC = this;
 			obj3.GetComponent<TankStatsItem>().originalParent = TankKillItemParent.transform;
 		}
@@ -739,32 +670,21 @@ public class NewMenuControl : MonoBehaviour
 				}
 			}
 		}
-		if (!doSomething)
+		if (doSomething)
 		{
-			return;
-		}
-		if (input.y < -0.5f)
-		{
-			GameMaster.instance.isPlayingWithController = true;
-			if (Selection < menuAmountOptions[currentMenu])
+			if (input.y < -0.5f)
 			{
-				Selection++;
-				StartCoroutine("doing");
+				GameMaster.instance.isPlayingWithController = true;
 			}
-		}
-		else if (input.y > 0.5f)
-		{
-			GameMaster.instance.isPlayingWithController = true;
-			if (Selection > 0)
+			else if (input.y > 0.5f)
 			{
-				Selection--;
-				StartCoroutine("doing");
+				GameMaster.instance.isPlayingWithController = true;
 			}
-		}
-		if (flag)
-		{
-			GameMaster.instance.isPlayingWithController = true;
-			doButton(currentScript);
+			if (flag)
+			{
+				GameMaster.instance.isPlayingWithController = true;
+				doButton(currentScript);
+			}
 		}
 	}
 
@@ -782,50 +702,60 @@ public class NewMenuControl : MonoBehaviour
 
 	public IEnumerator MoveSelection(bool up)
 	{
-		IsUsingMouse = false;
-		CanMove = false;
-		if (up)
+		Debug.Log("MOVING.. with can move on:" + CanMove);
+		if (CanMove)
 		{
-			Selection--;
+			IsUsingMouse = false;
+			CanMove = false;
+			Debug.Log("Pos before:" + Selection);
+			if (up)
+			{
+				Selection--;
+			}
+			else
+			{
+				Selection++;
+			}
+			Debug.Log("Pos now:" + Selection);
+			yield return new WaitForSeconds(0.3f);
+			CanMove = true;
 		}
-		else
-		{
-			Selection++;
-		}
-		yield return new WaitForSeconds(0.2f);
-		CanMove = true;
 	}
 
 	private void deselectButton(MainMenuButtons MMB)
 	{
 		MMB.Selected = false;
 		MMB.startTime = Time.time;
+		MMB.RightClicked = false;
 	}
 
 	public void doRightButton(MainMenuButtons MMB)
 	{
 		Debug.LogError("RIGHT CLICKED");
-		if (!MMB.IsContinue || !MMB.canBeSelected)
+		if (MMB.IsContinue && MMB.canBeSelected)
 		{
-			return;
-		}
-		CheckPointTitle.text = "Checkpoint " + MMB.ContinueLevel;
-		for (int i = 0; i < MMBlevels.Length; i++)
-		{
-			MMBlevels[i].ContinueLevel = MMB.ContinueLevel - 10 + i;
-			if ((bool)MMBlevels[i].ButtonTitle)
+			for (int i = 0; i < MMBlevels.Length; i++)
 			{
-				MMBlevels[i].ButtonTitle.text = "Mission " + (MMB.ContinueLevel - 9 + i);
-				continue;
+				MMBlevels[i].ContinueLevel = MMB.ContinueLevel - 10 + i;
+				if ((bool)MMBlevels[i].ButtonTitle)
+				{
+					MMBlevels[i].ButtonTitle.text = LocalizationMaster.instance.GetText("HUD_mission") + " " + (MMB.ContinueLevel - 9 + i);
+					continue;
+				}
+				MMBlevels[i].thisText = MMBlevels[i].GetComponent<TextMeshProUGUI>();
+				MMBlevels[i].thisText.text = LocalizationMaster.instance.GetText("HUD_mission") + " " + (MMB.ContinueLevel - 9 + i);
 			}
-			MMBlevels[i].thisText = MMBlevels[i].GetComponent<TextMeshProUGUI>();
-			MMBlevels[i].thisText.text = "Mission " + (MMB.ContinueLevel - 9 + i);
+			SelectedCheckpoint = MMB.ContinueLevel;
+			Debug.LogError("now CLICKED");
+			deselectButton(MMB);
+			enableMenu(17);
+			StartCoroutine("doing");
 		}
-		SelectedCheckpoint = MMB.ContinueLevel;
-		Debug.LogError("now CLICKED");
-		deselectButton(MMB);
-		enableMenu(17);
-		StartCoroutine("doing");
+		else
+		{
+			deselectButton(MMB);
+			StartCoroutine("doing");
+		}
 	}
 
 	public void ChangeFile()
@@ -1016,6 +946,7 @@ public class NewMenuControl : MonoBehaviour
 				AccountMaster.instance.Key = splitArray[0];
 				AccountMaster.instance.Username = Login_AccountNameInput.text;
 				AccountMaster.instance.isSignedIn = true;
+				AccountMaster.instance.SteamUserID = 0uL;
 				AccountMaster.instance.SaveCredentials();
 				yield return new WaitForSeconds(1f);
 				int num2 = int.Parse(splitArray[2]);
@@ -1365,6 +1296,10 @@ public class NewMenuControl : MonoBehaviour
 
 	public void doButton(MainMenuButtons MMB)
 	{
+		if (MMB == null)
+		{
+			return;
+		}
 		if (MMB.ChangeAchievementDifficulty)
 		{
 			if ((bool)AchievementsTracker.instance)

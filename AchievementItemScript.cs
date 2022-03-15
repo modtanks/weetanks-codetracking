@@ -65,13 +65,11 @@ public class AchievementItemScript : MonoBehaviour
 			{
 				return;
 			}
-			Debug.Log("CHECKING : " + AMID);
 			MyTitle.text = OptionsMainMenu.instance.AMnames[AMID];
 			MyDescription.text = OptionsMainMenu.instance.AMdesc[AMID];
 			myDifficulty = OptionsMainMenu.instance.AMdifficulty[AMID];
 			if (OptionsMainMenu.instance.AM[AMID] == 1)
 			{
-				Debug.Log("UNLOCKED : " + AMID);
 				CheckMark.SetActive(value: true);
 				AchievementBorder.texture = Borders[myDifficulty];
 				if (OptionsMainMenu.instance.AMimages[AMID] != null)

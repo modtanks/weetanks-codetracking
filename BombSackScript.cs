@@ -15,6 +15,8 @@ public class BombSackScript : MonoBehaviour
 
 	public AudioClip ExplosionSound;
 
+	public AudioClip BombBackUp;
+
 	public bool isLanded;
 
 	public float TimeTillDetonation = 6f;
@@ -50,6 +52,8 @@ public class BombSackScript : MonoBehaviour
 	private int GroundedCounter;
 
 	private GameObject SpawnedTarget;
+
+	private bool LaunchedBack;
 
 	public MeshRenderer BombBase;
 
@@ -178,6 +182,11 @@ public class BombSackScript : MonoBehaviour
 		}
 		else if (BombState == 2)
 		{
+			if (!LaunchedBack)
+			{
+				SFXManager.instance.PlaySFX(BombBackUp);
+				LaunchedBack = true;
+			}
 			rb.isKinematic = true;
 			if (!FlyingParticles.isPlaying)
 			{
@@ -247,6 +256,7 @@ public class BombSackScript : MonoBehaviour
 		Rigidbody component3 = obj.GetComponent<Rigidbody>();
 		Vector3 vector = direction - base.transform.position;
 		component3.AddForce(vector * 6f);
+		component.StartingVelocity = vector * 6f;
 	}
 
 	private void SpawnBullets(int index)
@@ -265,28 +275,28 @@ public class BombSackScript : MonoBehaviour
 		switch (index)
 		{
 		case 0:
-			direction = base.transform.position + new Vector3(1f, 0f, 0f);
+			direction = base.transform.position + new Vector3(1f, 0.5f, 0f);
 			break;
 		case 1:
-			direction = base.transform.position + new Vector3(1f, 0f, 1f);
+			direction = base.transform.position + new Vector3(1f, 0.5f, 1f);
 			break;
 		case 2:
-			direction = base.transform.position + new Vector3(0f, 0f, 1f);
+			direction = base.transform.position + new Vector3(0f, 0.5f, 1f);
 			break;
 		case 3:
-			direction = base.transform.position + new Vector3(0f, 0f, -1f);
+			direction = base.transform.position + new Vector3(0f, 0.5f, -1f);
 			break;
 		case 4:
-			direction = base.transform.position + new Vector3(-1f, 0f, -1f);
+			direction = base.transform.position + new Vector3(-1f, 0.5f, -1f);
 			break;
 		case 5:
-			direction = base.transform.position + new Vector3(-1f, 0f, 0f);
+			direction = base.transform.position + new Vector3(-1f, 0.5f, 0f);
 			break;
 		case 6:
-			direction = base.transform.position + new Vector3(-1f, 0f, 1f);
+			direction = base.transform.position + new Vector3(-1f, 0.5f, 1f);
 			break;
 		case 7:
-			direction = base.transform.position + new Vector3(1f, 0f, -1f);
+			direction = base.transform.position + new Vector3(1f, 0.5f, -1f);
 			break;
 		}
 		ShootBullet(direction);

@@ -98,7 +98,7 @@ public class ShieldScript : MonoBehaviour
 		if (ShieldHealth > 0 && other.tag == "Bullet")
 		{
 			PlayerBulletScript component = other.GetComponent<PlayerBulletScript>();
-			if ((bool)component && (!(component.EnemyTankScript != null) || component.TimesBounced != 0 || !(component.EnemyTankScript.AIscript == base.transform.parent.GetComponent<EnemyAI>())) && (!(component.TankScript != null) || component.TimesBounced != 0 || !(component.TankScript.tankMovingScript == base.transform.parent.GetComponent<MoveTankScript>())) && (!(component.TankScriptAI != null) || component.TimesBounced != 0 || !(component.TankScriptAI.AIscript == base.transform.parent.GetComponent<EnemyAI>())))
+			if ((bool)component && (!(component.EnemyTankScript != null) || component.TimesBounced != 0 || !(component.EnemyTankScript.AIscript == base.transform.parent.GetComponent<EnemyAI>())) && (!(component.TankScript != null) || component.TimesBounced != 0 || !(component.TankScript.tankMovingScript == base.transform.parent.GetComponent<MoveTankScript>())) && (!(component.EnemyTankScript != null) || component.TimesBounced != 0 || !(component.EnemyTankScript.AIscript == base.transform.parent.GetComponent<EnemyAI>())))
 			{
 				component.TimesBounced = 99999;
 				StartFade();
