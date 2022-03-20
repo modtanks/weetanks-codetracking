@@ -1,3 +1,4 @@
+using Rewired;
 using UnityEngine;
 
 public class ContinuousRotating : MonoBehaviour
@@ -12,12 +13,41 @@ public class ContinuousRotating : MonoBehaviour
 
 	public bool zAxis;
 
+	public bool IsLoadingScreen;
+
+	public Player player;
+
+	public GameObject[] ObjToSpawn;
+
+	public GameObject SpawnedObject;
+
 	private void Start()
 	{
+		player = ReInput.players.GetPlayer(0);
 		Light component = GetComponent<Light>();
 		if ((bool)component)
 		{
 			originalIntensity = component.intensity;
+		}
+		if (!IsLoadingScreen)
+		{
+			return;
+		}
+		SpawnedObject = Object.Instantiate(ObjToSpawn[Random.Range(0, ObjToSpawn.Length)], base.transform.position, Quaternion.Euler(0f, 180f, 0f), base.transform);
+		MonoBehaviour[] componentsInChildren = SpawnedObject.GetComponentsInChildren<MonoBehaviour>();
+		foreach (MonoBehaviour monoBehaviour in componentsInChildren)
+		{
+			monoBehaviour.enabled = false;
+			if (monoBehaviour.transform.name == "Shield")
+			{
+				monoBehaviour.gameObject.SetActive(value: false);
+			}
+		}
+		ParticleSystem[] componentsInChildren2 = SpawnedObject.GetComponentsInChildren<ParticleSystem>();
+		foreach (ParticleSystem obj in componentsInChildren2)
+		{
+			obj.Stop();
+			obj.gameObject.SetActive(value: false);
 		}
 	}
 
@@ -42,7 +72,12 @@ public class ContinuousRotating : MonoBehaviour
 				}
 			}
 		}
-		if (xAxis)
+		if (IsLoadingScreen)
+		{
+			SpawnedObject.transform.position = base.transform.position;
+			base.transform.Rotate(Time.deltaTime * 6f + player.GetAxis("Move Vertically") * RotateSpeed, player.GetAxis("Move Horizontal") * RotateSpeed, 0f);
+		}
+		else if (xAxis)
 		{
 			base.transform.Rotate(Time.deltaTime * RotateSpeed, 0f, 0f);
 		}

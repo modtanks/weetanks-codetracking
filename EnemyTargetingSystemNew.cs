@@ -1544,6 +1544,10 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		{
 			ShootCountdown = AIscript.ShootSpeed - Random.Range(0f, AIscript.ShootSpeed / 2f);
 		}
+		if (AIscript.HTscript.IsCustom)
+		{
+			ShootCountdown = AIscript.ShootSpeed;
+		}
 		DeflectingBullet = false;
 		if (!firepoint)
 		{

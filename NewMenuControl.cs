@@ -42,7 +42,7 @@ public class NewMenuControl : MonoBehaviour
 
 	private MainMenuButtons currentScript;
 
-	public bool doSomething = true;
+	public bool CanDoSomething = true;
 
 	public Animator camAnimator;
 
@@ -205,6 +205,8 @@ public class NewMenuControl : MonoBehaviour
 	public Player player;
 
 	public int AmountMaps;
+
+	public GameObject DemoObject;
 
 	public TextAsset EditClassicMapID;
 
@@ -404,6 +406,14 @@ public class NewMenuControl : MonoBehaviour
 		if ((bool)OptionsMainMenu.instance)
 		{
 			OptionsMainMenu.instance.AMUS.Clear();
+			if (OptionsMainMenu.instance.IsDemo)
+			{
+				DemoObject.SetActive(value: true);
+			}
+			else
+			{
+				DemoObject.SetActive(value: false);
+			}
 		}
 		GetMapFiles();
 		GameObject[] menus = Menus;
@@ -470,7 +480,7 @@ public class NewMenuControl : MonoBehaviour
 	{
 		yield return new WaitForSeconds(0.2f);
 		int num = 0;
-		for (int i = 0; i < GameMaster.instance.TankColorKilled.Length; i++)
+		for (int i = 0; i < GameMaster.instance.TankColorKilled.Count; i++)
 		{
 			GameObject obj = UnityEngine.Object.Instantiate(TankKillItemPrefab);
 			obj.transform.SetParent(TankKillItemParent.transform);
@@ -563,8 +573,8 @@ public class NewMenuControl : MonoBehaviour
 		PIM.CanPlayWithAI = true;
 		PIM.SetControllers();
 		enableMenu(25);
-		PIM.SetDifficultyController.SetActive(value: true);
-		StartCoroutine("doing");
+		PIM.EnableDifficultySetter();
+		StartCoroutine(doing());
 		if (mapname == "CLASSICMAP")
 		{
 			OptionsMainMenu.instance.ClassicMap = EditClassicMapID;
@@ -582,7 +592,7 @@ public class NewMenuControl : MonoBehaviour
 	{
 		if (AccountMaster.instance.isSignedIn)
 		{
-			SignedInText.text = "Currently signed in as:<br>" + AccountMaster.instance.Username;
+			SignedInText.text = LocalizationMaster.instance.GetText("Account_signed_in_status") + "<br>" + AccountMaster.instance.Username;
 			SignedInText.color = Color.black;
 		}
 		else
@@ -670,7 +680,7 @@ public class NewMenuControl : MonoBehaviour
 				}
 			}
 		}
-		if (doSomething)
+		if (CanDoSomething)
 		{
 			if (input.y < -0.5f)
 			{
@@ -694,20 +704,18 @@ public class NewMenuControl : MonoBehaviour
 
 	public IEnumerator doing()
 	{
-		doSomething = false;
+		CanDoSomething = false;
 		SFXManager.instance.PlaySFX(MarkerSound, 0.8f);
 		yield return new WaitForSeconds(0.2f);
-		doSomething = true;
+		CanDoSomething = true;
 	}
 
 	public IEnumerator MoveSelection(bool up)
 	{
-		Debug.Log("MOVING.. with can move on:" + CanMove);
 		if (CanMove)
 		{
 			IsUsingMouse = false;
 			CanMove = false;
-			Debug.Log("Pos before:" + Selection);
 			if (up)
 			{
 				Selection--;
@@ -716,7 +724,6 @@ public class NewMenuControl : MonoBehaviour
 			{
 				Selection++;
 			}
-			Debug.Log("Pos now:" + Selection);
 			yield return new WaitForSeconds(0.3f);
 			CanMove = true;
 		}
@@ -731,7 +738,6 @@ public class NewMenuControl : MonoBehaviour
 
 	public void doRightButton(MainMenuButtons MMB)
 	{
-		Debug.LogError("RIGHT CLICKED");
 		if (MMB.IsContinue && MMB.canBeSelected)
 		{
 			for (int i = 0; i < MMBlevels.Length; i++)
@@ -746,15 +752,14 @@ public class NewMenuControl : MonoBehaviour
 				MMBlevels[i].thisText.text = LocalizationMaster.instance.GetText("HUD_mission") + " " + (MMB.ContinueLevel - 9 + i);
 			}
 			SelectedCheckpoint = MMB.ContinueLevel;
-			Debug.LogError("now CLICKED");
 			deselectButton(MMB);
 			enableMenu(17);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 		}
 		else
 		{
 			deselectButton(MMB);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 		}
 	}
 
@@ -1371,19 +1376,19 @@ public class NewMenuControl : MonoBehaviour
 		{
 			deselectButton(MMB);
 			enableMenu(21);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 		}
 		else if (MMB.IsOptions)
 		{
 			deselectButton(MMB);
 			enableMenu(1);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 		}
 		else if (MMB.IsStats)
 		{
 			deselectButton(MMB);
 			enableMenu(7);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 		}
 		else if (MMB.IsCredits)
 		{
@@ -1395,13 +1400,13 @@ public class NewMenuControl : MonoBehaviour
 		{
 			deselectButton(MMB);
 			enableMenu(3);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 		}
 		else if (MMB.IsClassicCampaign)
 		{
 			deselectButton(MMB);
 			enableMenu(2);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 			MMB.Selected = false;
 		}
 		else if (MMB.IsNewClassicCampaign)
@@ -1414,8 +1419,8 @@ public class NewMenuControl : MonoBehaviour
 			PIM.LoadData();
 			deselectButton(MMB);
 			enableMenu(25);
-			PIM.SetDifficultyController.SetActive(value: false);
-			StartCoroutine("doing");
+			PIM.DisableDifficultySetter();
+			StartCoroutine(doing());
 			MMB.Selected = false;
 		}
 		else if (MMB.IsAcceptTransferAccount)
@@ -1435,7 +1440,7 @@ public class NewMenuControl : MonoBehaviour
 		{
 			deselectButton(MMB);
 			enableMenu(22);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 			MMB.Selected = false;
 		}
 		else if (MMB.IsCreateLobby)
@@ -1477,7 +1482,7 @@ public class NewMenuControl : MonoBehaviour
 		{
 			deselectButton(MMB);
 			enableMenu(9);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 			MMB.Selected = false;
 		}
 		else if (MMB.IsSelectPlayerController)
@@ -1502,7 +1507,7 @@ public class NewMenuControl : MonoBehaviour
 			}
 			GetMapFiles();
 			deselectButton(MMB);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 			MMB.Selected = false;
 		}
 		else if (MMB.IsUnlockables)
@@ -1514,7 +1519,7 @@ public class NewMenuControl : MonoBehaviour
 			}
 			deselectButton(MMB);
 			enableMenu(13);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 			MMB.Selected = false;
 		}
 		else if (MMB.IsAchievements)
@@ -1526,7 +1531,7 @@ public class NewMenuControl : MonoBehaviour
 			}
 			deselectButton(MMB);
 			enableMenu(14);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 			MMB.Selected = false;
 		}
 		else if (MMB.IsStatistics)
@@ -1538,26 +1543,26 @@ public class NewMenuControl : MonoBehaviour
 			}
 			deselectButton(MMB);
 			enableMenu(15);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 			MMB.Selected = false;
 		}
 		else if (MMB.IsBack)
 		{
 			deselectButton(MMB);
 			enableMenu(0);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 		}
 		else if (MMB.IsBackPrevMenu)
 		{
 			deselectButton(MMB);
 			enableMenu(PreviousMenu);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 		}
 		else if (MMB.IsBackCustomMenu)
 		{
 			deselectButton(MMB);
 			enableMenu(MMB.menuNumber);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 		}
 		else if (MMB.IsExit)
 		{
@@ -1568,13 +1573,13 @@ public class NewMenuControl : MonoBehaviour
 		{
 			deselectButton(MMB);
 			enableMenu(4);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 		}
 		else if (MMB.IsGamePlay)
 		{
 			deselectButton(MMB);
 			enableMenu(5);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 		}
 		else if (MMB.IsControls)
 		{
@@ -1588,13 +1593,13 @@ public class NewMenuControl : MonoBehaviour
 		{
 			deselectButton(MMB);
 			enableMenu(6);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 		}
 		else if (MMB.IsBack2Menu)
 		{
 			deselectButton(MMB);
 			enableMenu(1);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 		}
 		else if (MMB.IsGoreMode)
 		{
@@ -1684,13 +1689,13 @@ public class NewMenuControl : MonoBehaviour
 			MapLoading = false;
 			deselectButton(MMB);
 			enableMenu(10);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 		}
 		else if (MMB.IsCreateMap)
 		{
 			deselectButton(MMB);
 			enableMenu(16);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 		}
 		else if (MMB.IsSmallMap)
 		{
@@ -1725,7 +1730,7 @@ public class NewMenuControl : MonoBehaviour
 			MapLoading = true;
 			deselectButton(MMB);
 			enableMenu(10);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 		}
 		else if (MMB.IsToTankeyTown)
 		{
@@ -1736,7 +1741,7 @@ public class NewMenuControl : MonoBehaviour
 		{
 			deselectButton(MMB);
 			enableMenu(8);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 		}
 		else if (MMB.IsSurvivalMap)
 		{
@@ -1752,8 +1757,8 @@ public class NewMenuControl : MonoBehaviour
 			PIM.SetControllers();
 			deselectButton(MMB);
 			enableMenu(25);
-			PIM.SetDifficultyController.SetActive(value: false);
-			StartCoroutine("doing");
+			PIM.DisableDifficultySetter();
+			StartCoroutine(doing());
 		}
 		else if (MMB.IsContinue && MMB.canBeSelected)
 		{
@@ -1763,10 +1768,10 @@ public class NewMenuControl : MonoBehaviour
 			PIM.CanPlayWithAI = true;
 			PIM.SetControllers();
 			PIM.LoadData();
-			PIM.SetDifficultyController.SetActive(value: false);
+			PIM.DisableDifficultySetter();
 			deselectButton(MMB);
 			enableMenu(25);
-			StartCoroutine("doing");
+			StartCoroutine(doing());
 		}
 		else
 		{
@@ -1881,6 +1886,7 @@ public class NewMenuControl : MonoBehaviour
 
 	public void SetDifficultyText()
 	{
+		Debug.Log("SETTING DA TING " + OptionsMainMenu.instance.currentDifficulty);
 		Difficulty_list.SetValueWithoutNotify(OptionsMainMenu.instance.currentDifficulty);
 		Difficulty_list_campaign.SetValueWithoutNotify(OptionsMainMenu.instance.currentDifficulty);
 	}
@@ -1997,14 +2003,11 @@ public class NewMenuControl : MonoBehaviour
 		SFXManager.instance.PlaySFX(MenuSwitch);
 		float t2 = 0f;
 		CanvasGroup CG2 = Menus[currentMenu].GetComponent<CanvasGroup>();
-		if (menunumber == 2)
+		MainMenuButtons[] MMBs2 = Menus[currentMenu].GetComponentsInChildren<MainMenuButtons>();
+		MainMenuButtons[] array = MMBs2;
+		for (int i = 0; i < array.Length; i++)
 		{
-			SetDifficultyText();
-		}
-		MainMenuButtons[] componentsInChildren = Menus[currentMenu].GetComponentsInChildren<MainMenuButtons>();
-		for (int i = 0; i < componentsInChildren.Length; i++)
-		{
-			componentsInChildren[i].SwitchedMenu();
+			array[i].SwitchedMenu();
 		}
 		if ((bool)CG2)
 		{
@@ -2014,6 +2017,11 @@ public class NewMenuControl : MonoBehaviour
 				CG2.alpha = 1f - t2;
 				yield return null;
 			}
+		}
+		array = MMBs2;
+		for (int i = 0; i < array.Length; i++)
+		{
+			array[i].SwitchedMenu();
 		}
 		GameObject[] menus = Menus;
 		foreach (GameObject gameObject in menus)
@@ -2031,10 +2039,11 @@ public class NewMenuControl : MonoBehaviour
 		currentMenu = menunumber;
 		Selection = lastKnownPlaces[menunumber];
 		Menus[menunumber].SetActive(value: true);
-		componentsInChildren = Menus[currentMenu].GetComponentsInChildren<MainMenuButtons>();
-		for (int i = 0; i < componentsInChildren.Length; i++)
+		MMBs2 = Menus[currentMenu].GetComponentsInChildren<MainMenuButtons>();
+		array = MMBs2;
+		for (int i = 0; i < array.Length; i++)
 		{
-			componentsInChildren[i].LoadButton();
+			array[i].LoadButton();
 		}
 		t2 = 0f;
 		CG2 = Menus[currentMenu].GetComponent<CanvasGroup>();
@@ -2046,6 +2055,10 @@ public class NewMenuControl : MonoBehaviour
 				yield return null;
 			}
 			CG2.alpha = 1f;
+		}
+		if (menunumber == 2 || menunumber == 25)
+		{
+			SetDifficultyText();
 		}
 	}
 }

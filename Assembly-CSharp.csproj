@@ -38,11 +38,11 @@
     <Reference Include="UnityEngine.AnimationModule">
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Wee Tanks\Wee Tanks_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Wee Tanks\Wee Tanks_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
-    </Reference>
     <Reference Include="Rewired_Core">
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Wee Tanks\Wee Tanks_Data\Managed\Rewired_Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Wee Tanks\Wee Tanks_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.IMGUIModule">
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Wee Tanks\Wee Tanks_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
@@ -64,6 +64,9 @@
     </Reference>
     <Reference Include="UnityEngine.JSONSerializeModule">
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Wee Tanks\Wee Tanks_Data\Managed\UnityEngine.JSONSerializeModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Wee Tanks\Wee Tanks_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
     </Reference>
     <Reference Include="Rewired_Windows">
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Wee Tanks\Wee Tanks_Data\Managed\Rewired_Windows.dll</HintPath>

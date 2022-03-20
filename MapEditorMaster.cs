@@ -1902,7 +1902,7 @@ public class MapEditorMaster : MonoBehaviour
 
 	public void DuplicateLevel(int MissionToDuplicate)
 	{
-		if (Levels.Count >= MaxLayer)
+		if (Levels.Count >= maxMission)
 		{
 			ShowErrorMessage("ERROR: Max missions reached");
 			return;

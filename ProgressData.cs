@@ -26,7 +26,7 @@ public class ProgressData
 
 	public int totalRevivesPerformed;
 
-	public int[] ColorKills;
+	public List<int> ColorKills;
 
 	public List<int> SecretMissions = new List<int>();
 

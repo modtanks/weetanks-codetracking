@@ -24,7 +24,7 @@ public class ProgressDataOnline
 
 	public int totalRevivesPerformed;
 
-	public int[] killed = new int[10];
+	public List<int> killed = new List<int>();
 
 	public int[] AM = new int[100];
 

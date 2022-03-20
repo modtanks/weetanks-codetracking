@@ -42,8 +42,6 @@ public class PlayerKillsUI : MonoBehaviour
 
 	public GameObject[] PlayerBox;
 
-	public GameObject[] PlayerTankStats;
-
 	public float BoostPosYup;
 
 	public float BoostPosYdown;
@@ -364,9 +362,9 @@ public class PlayerKillsUI : MonoBehaviour
 		Pkills[0].text = "x " + GameMaster.instance.Playerkills[0];
 		for (int j = 1; j < GameMaster.instance.PlayerJoining.Count; j++)
 		{
-			if (!GameMaster.instance.PlayerJoined[j] && !OptionsMainMenu.instance.AIcompanion[j])
+			if (!GameMaster.instance.PlayerJoined[j])
 			{
-				PlayerBox[j].SetActive(value: false);
+				_ = OptionsMainMenu.instance.AIcompanion[j];
 			}
 		}
 	}
@@ -388,46 +386,18 @@ public class PlayerKillsUI : MonoBehaviour
 		if (GameMaster.instance.PlayerJoined[1] && GameMaster.instance.PlayerModeWithAI[1] != 1)
 		{
 			PlayerBox[1].SetActive(value: true);
-			if ((bool)UIdis && UIdis.current > 0)
-			{
-				foreach (Transform item in StatsTanks[1])
-				{
-					item.gameObject.SetActive(value: false);
-				}
-			}
 		}
 		else if (GameMaster.instance.PlayerModeWithAI[1] == 1)
 		{
 			PlayerBox[1].SetActive(value: true);
-			if ((bool)UIdis && UIdis.current > 0)
-			{
-				foreach (Transform item2 in StatsTanks[1])
-				{
-					item2.gameObject.SetActive(value: false);
-				}
-			}
 		}
 		if (GameMaster.instance.PlayerJoined[2])
 		{
 			PlayerBox[2].SetActive(value: true);
-			if ((bool)UIdis && UIdis.current > 0)
-			{
-				foreach (Transform item3 in StatsTanks[2])
-				{
-					item3.gameObject.SetActive(value: false);
-				}
-			}
 		}
 		if (GameMaster.instance.PlayerJoined[3])
 		{
 			PlayerBox[3].SetActive(value: true);
-			if ((bool)UIdis && UIdis.current > 0)
-			{
-				foreach (Transform item4 in StatsTanks[3])
-				{
-					item4.gameObject.SetActive(value: false);
-				}
-			}
 		}
 		if (!GameMaster.instance.GameHasStarted || GameMaster.instance.Players.Count <= 0)
 		{

@@ -480,9 +480,9 @@ public class EnemyAI : MonoBehaviour
 		{
 			ActivateElectric();
 		}
-		if (isLevel10Boss || isLevel30Boss || isLevel50Boss || isLevel70Boss)
+		if (!isLevel10Boss && !isLevel30Boss && !isLevel50Boss)
 		{
-			InvokeRepeating("DistanceToPlayer", 0.5f, 0.5f);
+			_ = isLevel70Boss;
 		}
 		if (IsCompanion)
 		{
@@ -1487,7 +1487,7 @@ public class EnemyAI : MonoBehaviour
 			CanGoStraightToPlayer = false;
 			yield break;
 		}
-		LayerMask layersToIgnore = ~((1 << LayerMask.NameToLayer("EnemyDetectionLayer")) | (1 << LayerMask.NameToLayer("BulletDetectField")) | (1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("Other")) | (1 << LayerMask.NameToLayer("OneWayBlock")));
+		LayerMask layersToIgnore = ~((1 << LayerMask.NameToLayer("EnemyDetectionLayer")) | (1 << LayerMask.NameToLayer("BulletDetectField")) | (1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("Other")) | (1 << LayerMask.NameToLayer("EnemyBorder")) | (1 << LayerMask.NameToLayer("OneWayBlock")));
 		float seconds = Random.Range(0.2f, 0.4f);
 		yield return new WaitForSeconds(seconds);
 		if (!DownedPlayer)

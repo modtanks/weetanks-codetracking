@@ -128,7 +128,7 @@ public class KingTankScript : MonoBehaviour
 			CallInTimer -= Time.deltaTime;
 			if (CallInTimer < 0f)
 			{
-				int[] array = ((OptionsMainMenu.instance.currentDifficulty != 0) ? ((OptionsMainMenu.instance.currentDifficulty != 1) ? ((OptionsMainMenu.instance.currentDifficulty != 2) ? new int[9] { 0, 1, 2, 3, 4, 5, 6, 8, 9 } : new int[8] { 0, 1, 2, 3, 4, 5, 6, 16 }) : new int[6] { 0, 1, 3, 4, 5, 16 }) : new int[4] { 0, 1, 3, 16 });
+				int[] array = ((OptionsMainMenu.instance.currentDifficulty != 0) ? ((OptionsMainMenu.instance.currentDifficulty != 1) ? ((OptionsMainMenu.instance.currentDifficulty != 2) ? new int[9] { 0, 1, 2, 3, 4, 5, 6, 8, 9 } : new int[9] { 0, 1, 2, 3, 4, 5, 6, 16, 16 }) : new int[7] { 0, 1, 3, 4, 5, 16, 16 }) : new int[5] { 0, 1, 3, 16, 16 });
 				int item = array[Random.Range(0, array.Length)];
 				MHC.PM.SpawnInOrder.Add(item);
 				MHC.PM.StartCoroutine(MHC.PM.DoOrder());

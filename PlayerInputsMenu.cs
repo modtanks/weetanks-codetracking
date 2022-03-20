@@ -23,12 +23,30 @@ public class PlayerInputsMenu : MonoBehaviour
 
 	public GameObject SetDifficultyController;
 
+	public MainMenuButtons StartGame;
+
+	public MainMenuButtons Back;
+
 	public GameObject CompanionNote;
 
 	private void Start()
 	{
 		SetControllers();
 		LoadData();
+	}
+
+	public void EnableDifficultySetter()
+	{
+		SetDifficultyController.SetActive(value: true);
+		StartGame.Place = 6;
+		Back.Place = 7;
+	}
+
+	public void DisableDifficultySetter()
+	{
+		SetDifficultyController.SetActive(value: false);
+		StartGame.Place = 5;
+		Back.Place = 6;
 	}
 
 	public void IncreaseDropdown(int playerID)

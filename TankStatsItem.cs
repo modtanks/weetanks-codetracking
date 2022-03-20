@@ -72,14 +72,14 @@ public class TankStatsItem : MonoBehaviour
 			hidden = false;
 			base.transform.SetParent(originalParent);
 			TankImage.texture = TankImages[myStatID];
-			Title.text = TankNames[myStatID];
+			Title.text = LocalizationMaster.instance.GetText(TankNames[myStatID]);
 			Amount.text = AccountMaster.instance.PDO.killed[myStatID] + "x";
 		}
 		else if (myMenu == 0)
 		{
 			base.transform.localScale = scale;
 			TankImage.gameObject.SetActive(value: false);
-			Title.text = CampaignNames[myStatID];
+			Title.text = LocalizationMaster.instance.GetText(CampaignNames[myStatID]);
 			string text = "";
 			switch (myStatID)
 			{
@@ -105,7 +105,7 @@ public class TankStatsItem : MonoBehaviour
 		{
 			base.transform.localScale = scale;
 			TankImage.gameObject.SetActive(value: false);
-			Title.text = SurvivalNames[myStatID];
+			Title.text = LocalizationMaster.instance.GetText(SurvivalNames[myStatID]);
 			string text2 = "";
 			switch (myStatID)
 			{

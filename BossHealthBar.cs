@@ -123,11 +123,6 @@ public class BossHealthBar : MonoBehaviour
 			latestKnownMission = -1;
 			StartCoroutine(disableBar(latestKnownMission));
 		}
-		else if ((GameMaster.instance.AmountGoodTanks >= 1 || GameMaster.instance.AmountEnemyTanks >= 1) && GameMaster.instance.GameHasStarted)
-		{
-			_ = GameMaster.instance.AmountEnemyTanks;
-			_ = 1;
-		}
 		if (GameMaster.instance.Bosses.Length < 1)
 		{
 			GameObject[] bossOverlays = BossOverlays;

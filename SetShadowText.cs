@@ -11,16 +11,5 @@ public class SetShadowText : MonoBehaviour
 
 	private void Start()
 	{
-		myText = GetComponent<TextMeshProUGUI>();
-		shadowText = base.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
-	}
-
-	private void Update()
-	{
-		isRunning = true;
-		if ((bool)shadowText)
-		{
-			shadowText.text = myText.text;
-		}
 	}
 }

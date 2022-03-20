@@ -83,9 +83,7 @@ public class Loc_SetText : MonoBehaviour
 		int num = AmountCharacters - OriginalCharacters;
 		if (num > 2 && OriginalCharacters > 10)
 		{
-			Debug.Log("INCREASE!!" + num + " AND " + OriginalCharacters);
 			float num2 = (float)num / (float)OriginalCharacters;
-			Debug.Log("percentage!!" + num2);
 			float num3 = 1f - num2 / 2f;
 			if (num3 < 0.1f)
 			{
@@ -97,7 +95,6 @@ public class Loc_SetText : MonoBehaviour
 				num4 = OriginalFontSize / 1.6f;
 			}
 			MyText.fontSize = num4;
-			Debug.Log(num3 + num2 + " and new font size is : " + MyText.fontSize);
 		}
 		else
 		{

@@ -91,10 +91,6 @@ public class AccountMaster : MonoBehaviour
 
 	private void Update()
 	{
-		if (Input.GetKeyDown(KeyCode.Y))
-		{
-			Debug.Log("thanks for noting, non!");
-		}
 		if ((bool)AchievementsTracker.instance && isSignedIn && AchievementsTracker.instance.StartedFromBegin && !SetTime)
 		{
 			if (GameMaster.instance.CurrentMission == 20 && !GameMaster.instance.GameHasStarted && GameMaster.instance.Enemies.Count < 1)
@@ -279,17 +275,14 @@ public class AccountMaster : MonoBehaviour
 		{
 			wWWForm.AddField("kB", 1);
 		}
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_stats.php", wWWForm);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_stats_b.php", wWWForm);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
 		{
 			isSaving = false;
-			Debug.Log("Error While Sending: " + uwr.error);
-			yield break;
 		}
-		Debug.Log("Received: " + uwr.downloadHandler.text);
-		if (uwr.downloadHandler.text.Contains("FAILED"))
+		else if (uwr.downloadHandler.text.Contains("FAILED"))
 		{
 			isSaving = false;
 		}
@@ -391,6 +384,7 @@ public class AccountMaster : MonoBehaviour
 		}
 		if (ST.SteamAccountID > 1000 && userCredentials.steamid > 1000 && ST.SteamAccountID == userCredentials.steamid)
 		{
+			Debug.Log("creating new account steam, or logging in?");
 			StartCoroutine(CreateAccountViaSteam("https://www.weetanks.com/create_steam_account.php", ST.username, ST.SteamAccountID, IsSignIn: true));
 			return;
 		}
@@ -398,6 +392,16 @@ public class AccountMaster : MonoBehaviour
 		Key = userCredentials.key;
 		Debug.Log("LOADING:" + userCredentials.key);
 		UserID = userCredentials.id;
+		if (userCredentials.key == "" || userCredentials.key == null)
+		{
+			Debug.Log("EM<PTY KEY: " + ST.SteamAccountID);
+			if (ST.SteamAccountID > 1000)
+			{
+				Debug.Log("STEAM ID IS SET");
+				StartCoroutine(CreateAccountViaSteam("https://www.weetanks.com/create_steam_account.php", ST.username, ST.SteamAccountID, IsSignIn: true));
+				return;
+			}
+		}
 		StartCoroutine(LoadCloudData());
 		if (userCredentials.steamid > 1000)
 		{
@@ -462,7 +466,7 @@ public class AccountMaster : MonoBehaviour
 			Username = array[2];
 			isSignedIn = true;
 			SaveCredentials();
-			if (array.Length > 2 && array[3] != null)
+			if (array.Length > 3 && array[3] != null)
 			{
 				AssignData(array[3]);
 			}
@@ -666,11 +670,18 @@ public class AccountMaster : MonoBehaviour
 	{
 		GameMaster.instance.CurrentData = JsonUtility.FromJson<ProgressDataOnline>(post_data);
 		PDO = JsonUtility.FromJson<ProgressDataOnline>(post_data);
-		if (PDO == null || PDO.killed.Length < 10)
+		if (PDO == null)
 		{
 			Debug.Log("NO DATA FOUND SUPER ERROR DESTRUCTION");
 			PDO = new ProgressDataOnline();
 			return;
+		}
+		if (PDO.killed.Count < 30)
+		{
+			for (int i = PDO.killed.Count; i < 30; i++)
+			{
+				PDO.killed.Add(0);
+			}
 		}
 		OptionsMainMenu.instance.AM = PDO.AM;
 		OptionsMainMenu.instance.AMselected = PDO.ActivatedAM;

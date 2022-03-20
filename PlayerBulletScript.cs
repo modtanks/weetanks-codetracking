@@ -175,14 +175,9 @@ public class PlayerBulletScript : MonoBehaviour
 		{
 			SetColorBullet();
 		}
-		if (!GameMaster.instance.isZombieMode && !GameMaster.instance.inMenuMode && (bool)EnemyTankScript)
+		if (!GameMaster.instance.isZombieMode && !GameMaster.instance.inMenuMode && (bool)EnemyTankScript && (bool)EnemyTankScript.AIscript && (EnemyTankScript.AIscript.isLevel100Boss || EnemyTankScript.AIscript.isLevel70Boss || EnemyTankScript.AIscript.isLevel50Boss || EnemyTankScript.AIscript.isLevel30Boss || EnemyTankScript.AIscript.isLevel10Boss || EnemyTankScript.AIscript.HTscript.IsCustom))
 		{
-			Debug.Log("LESS GOw");
-			if ((bool)EnemyTankScript.AIscript && (EnemyTankScript.AIscript.isLevel100Boss || EnemyTankScript.AIscript.isLevel70Boss || EnemyTankScript.AIscript.isLevel50Boss || EnemyTankScript.AIscript.isLevel30Boss || EnemyTankScript.AIscript.isLevel10Boss || EnemyTankScript.AIscript.HTscript.IsCustom))
-			{
-				Debug.Log("SETTING IT TO 1");
-				base.transform.position = new Vector3(base.transform.position.x, 1f, base.transform.position.z);
-			}
+			base.transform.position = new Vector3(base.transform.position.x, 1f, base.transform.position.z);
 		}
 		if (OptionsMainMenu.instance.showxraybullets)
 		{
@@ -409,11 +404,13 @@ public class PlayerBulletScript : MonoBehaviour
 			{
 				if (TimesBounced > MaxBounces)
 				{
+					Debug.Log("TIMES BOUNCED");
 					End(isEndingGame: false);
 				}
 			}
 			else
 			{
+				Debug.Log("TIMES something lese");
 				End(isEndingGame: true);
 			}
 		}
@@ -423,6 +420,7 @@ public class PlayerBulletScript : MonoBehaviour
 		}
 		else if (TimesBounced > MaxBounces)
 		{
+			Debug.Log("TIMES BOUNCED!!");
 			End(isEndingGame: false);
 		}
 	}
@@ -458,6 +456,7 @@ public class PlayerBulletScript : MonoBehaviour
 
 	private void End(bool isEndingGame)
 	{
+		Debug.Log("ENDING.");
 		if (isEnding)
 		{
 			return;
@@ -644,7 +643,6 @@ public class PlayerBulletScript : MonoBehaviour
 				{
 					BulletSpeed -= 3f;
 				}
-				Debug.Log("SLOWED DOWN" + BulletSpeed);
 				return true;
 			}
 			if (component.papaTank == papaTank && TimesBounced == 0 && component.TimesBounced == 0)

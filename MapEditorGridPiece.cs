@@ -388,7 +388,7 @@ public class MapEditorGridPiece : MonoBehaviour
 				return;
 			}
 		}
-		else if ((MapEditorMaster.instance.SelectedProp == 3 || MapEditorMaster.instance.SelectedProp == 46 || MapEditorMaster.instance.SelectedProp == 47 || MapEditorMaster.instance.SelectedProp == 48) && IDlayer > 0 && myPropID[IDlayer - 1] != 0 && myPropID[IDlayer - 1] != 1 && myPropID[IDlayer - 1] != 2)
+		else if ((MapEditorMaster.instance.SelectedProp == 3 || MapEditorMaster.instance.SelectedProp == 46 || MapEditorMaster.instance.SelectedProp == 47 || MapEditorMaster.instance.SelectedProp == 48) && IDlayer > 0 && myPropID[IDlayer - 1] != 0 && myPropID[IDlayer - 1] != 1 && myPropID[IDlayer - 1] != 2 && myPropID[IDlayer - 1] != 2002)
 		{
 			MapEditorMaster.instance.ShowErrorMessage("ERROR: No Block Below!");
 			return;

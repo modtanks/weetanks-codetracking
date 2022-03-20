@@ -700,6 +700,292 @@ public class LocalizationMaster : MonoBehaviour
 		public string Pause_Menu_Title;
 
 		public string Pause_Menu_Jump;
+
+		public string Map_name;
+
+		public string Map_name_placeholder;
+
+		public string Author_name;
+
+		public string Quality_0;
+
+		public string Quality_1;
+
+		public string Quality_2;
+
+		public string Quality_3;
+
+		public string Quality_4;
+
+		public string AM_0;
+
+		public string AM_1;
+
+		public string AM_2;
+
+		public string AM_3;
+
+		public string AM_4;
+
+		public string AM_5;
+
+		public string AM_6;
+
+		public string AM_7;
+
+		public string AM_8;
+
+		public string AM_9;
+
+		public string AM_10;
+
+		public string AM_11;
+
+		public string AM_12;
+
+		public string AM_13;
+
+		public string AM_14;
+
+		public string AM_15;
+
+		public string AM_16;
+
+		public string AM_17;
+
+		public string AM_18;
+
+		public string AM_19;
+
+		public string AM_20;
+
+		public string AM_21;
+
+		public string AM_22;
+
+		public string AM_23;
+
+		public string AM_24;
+
+		public string AM_25;
+
+		public string AM_26;
+
+		public string AM_27;
+
+		public string AM_28;
+
+		public string AM_29;
+
+		public string AM_30;
+
+		public string AM_31;
+
+		public string AM_32;
+
+		public string AM_33;
+
+		public string AM_34;
+
+		public string AM_35;
+
+		public string AM_desc_0;
+
+		public string AM_desc_1;
+
+		public string AM_desc_2;
+
+		public string AM_desc_3;
+
+		public string AM_desc_4;
+
+		public string AM_desc_5;
+
+		public string AM_desc_6;
+
+		public string AM_desc_7;
+
+		public string AM_desc_8;
+
+		public string AM_desc_9;
+
+		public string AM_desc_10;
+
+		public string AM_desc_11;
+
+		public string AM_desc_12;
+
+		public string AM_desc_13;
+
+		public string AM_desc_14;
+
+		public string AM_desc_15;
+
+		public string AM_desc_16;
+
+		public string AM_desc_17;
+
+		public string AM_desc_18;
+
+		public string AM_desc_19;
+
+		public string AM_desc_20;
+
+		public string AM_desc_21;
+
+		public string AM_desc_22;
+
+		public string AM_desc_23;
+
+		public string AM_desc_24;
+
+		public string AM_desc_25;
+
+		public string AM_desc_26;
+
+		public string AM_desc_27;
+
+		public string AM_desc_28;
+
+		public string AM_desc_29;
+
+		public string AM_desc_30;
+
+		public string AM_desc_31;
+
+		public string AM_desc_32;
+
+		public string AM_desc_33;
+
+		public string AM_desc_34;
+
+		public string ToolTip_0;
+
+		public string ToolTip_1;
+
+		public string ToolTip_2;
+
+		public string ToolTip_3;
+
+		public string ToolTip_4;
+
+		public string ToolTip_5;
+
+		public string ToolTip_6;
+
+		public string ToolTip_7;
+
+		public string ToolTip_8;
+
+		public string ToolTip_9;
+
+		public string ToolTip_10;
+
+		public string ToolTip_11;
+
+		public string ToolTip_12;
+
+		public string ToolTip_13;
+
+		public string ToolTip_14;
+
+		public string ToolTip_15;
+
+		public string ToolTip_16;
+
+		public string ToolTip_17;
+
+		public string ToolTip_18;
+
+		public string ToolTip_19;
+
+		public string ToolTip_20;
+
+		public string ToolTip_21;
+
+		public string ToolTip_22;
+
+		public string ToolTip_23;
+
+		public string ToolTip_24;
+
+		public string ToolTip_25;
+
+		public string ToolTip_26;
+
+		public string ToolTip_27;
+
+		public string ToolTip_28;
+
+		public string ToolTip_29;
+
+		public string ToolTip_30;
+
+		public string ToolTip_31;
+
+		public string ToolTip_32;
+
+		public string ToolTip_33;
+
+		public string ToolTip_34;
+
+		public string ToolTip_35;
+
+		public string ToolTip_36;
+
+		public string Credits_0;
+
+		public string Credits_1;
+
+		public string Credits_2;
+
+		public string Credits_3;
+
+		public string Credits_4;
+
+		public string Credits_5;
+
+		public string Credits_6;
+
+		public string Credits_7;
+
+		public string Credits_8;
+
+		public string Credits_9;
+
+		public string Credits_10;
+
+		public string Stats_0;
+
+		public string Stats_1;
+
+		public string Stats_2;
+
+		public string Stats_3;
+
+		public string Stats_4;
+
+		public string Stats_5;
+
+		public string Stats_6;
+
+		public string Unlockable_0;
+
+		public string Unlockable_1;
+
+		public string Unlockable_2;
+
+		public string Unlockable_3;
+
+		public string Unlockable_4;
+
+		public string Unlockable_5;
+
+		public string Unlockable_6;
+
+		public string Unlockable_7;
+
+		public string Unlockable_8;
 	}
 
 	private static LocalizationMaster _instance;

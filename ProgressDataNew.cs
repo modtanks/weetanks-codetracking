@@ -26,7 +26,7 @@ public class ProgressDataNew
 
 	public int tRP;
 
-	public int[] CK;
+	public List<int> CK;
 
 	public List<int> SM = new List<int>();
 

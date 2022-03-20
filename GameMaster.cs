@@ -46,7 +46,7 @@ public class GameMaster : MonoBehaviour
 
 	public int TotalKillsThisSession;
 
-	public int[] TankColorKilled = new int[20];
+	public List<int> TankColorKilled = new List<int>();
 
 	public int totalKills;
 
@@ -1652,7 +1652,7 @@ public class GameMaster : MonoBehaviour
 		{
 			highestWaves[i] = 0;
 		}
-		for (int j = 0; j < TankColorKilled.Length; j++)
+		for (int j = 0; j < TankColorKilled.Count; j++)
 		{
 			TankColorKilled[j] = 0;
 		}

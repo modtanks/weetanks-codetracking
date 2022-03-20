@@ -37,6 +37,8 @@ public class AchievementItemScript : MonoBehaviour
 
 	public int[] CompanionAllowedIDS;
 
+	private int prevLang = -1;
+
 	private void Start()
 	{
 		if ((bool)CompanionAllowed)
@@ -59,47 +61,49 @@ public class AchievementItemScript : MonoBehaviour
 			AchievementBorder.gameObject.SetActive(value: false);
 			BACKGROUND.SetActive(value: false);
 		}
-		else
+		else if ((bool)OptionsMainMenu.instance)
 		{
-			if (!OptionsMainMenu.instance)
-			{
-				return;
-			}
-			MyTitle.text = OptionsMainMenu.instance.AMnames[AMID];
-			MyDescription.text = OptionsMainMenu.instance.AMdesc[AMID];
-			myDifficulty = OptionsMainMenu.instance.AMdifficulty[AMID];
-			if (OptionsMainMenu.instance.AM[AMID] == 1)
-			{
-				CheckMark.SetActive(value: true);
-				AchievementBorder.texture = Borders[myDifficulty];
-				if (OptionsMainMenu.instance.AMimages[AMID] != null)
-				{
-					AchievementPicture.texture = OptionsMainMenu.instance.AMimages[AMID];
-				}
-				else
-				{
-					AchievementPicture.texture = OptionsMainMenu.instance.AMimages[0];
-				}
-				return;
-			}
-			int[] companionAllowedIDS = CompanionAllowedIDS;
-			for (int i = 0; i < companionAllowedIDS.Length; i++)
-			{
-				if (companionAllowedIDS[i] == AMID && (bool)CompanionAllowed)
-				{
-					CompanionAllowed.SetActive(value: true);
-				}
-			}
-			CheckMark.SetActive(value: false);
-			AchievementBorder.texture = Borders[4];
+			SetText();
+		}
+	}
+
+	private void SetText()
+	{
+		prevLang = LocalizationMaster.instance.CurrentLang;
+		MyTitle.text = LocalizationMaster.instance.GetText("AM_" + AMID);
+		MyDescription.text = LocalizationMaster.instance.GetText("AM_desc_" + AMID);
+		myDifficulty = OptionsMainMenu.instance.AMdifficulty[AMID];
+		if (OptionsMainMenu.instance.AM[AMID] == 1)
+		{
+			CheckMark.SetActive(value: true);
+			AchievementBorder.texture = Borders[myDifficulty];
 			if (OptionsMainMenu.instance.AMimages[AMID] != null)
 			{
-				AchievementPicture.texture = OptionsMainMenu.instance.AMimagesNot[AMID];
+				AchievementPicture.texture = OptionsMainMenu.instance.AMimages[AMID];
 			}
 			else
 			{
-				AchievementPicture.texture = OptionsMainMenu.instance.AMimagesNot[0];
+				AchievementPicture.texture = OptionsMainMenu.instance.AMimages[0];
 			}
+			return;
+		}
+		int[] companionAllowedIDS = CompanionAllowedIDS;
+		for (int i = 0; i < companionAllowedIDS.Length; i++)
+		{
+			if (companionAllowedIDS[i] == AMID && (bool)CompanionAllowed)
+			{
+				CompanionAllowed.SetActive(value: true);
+			}
+		}
+		CheckMark.SetActive(value: false);
+		AchievementBorder.texture = Borders[4];
+		if (OptionsMainMenu.instance.AMimages[AMID] != null)
+		{
+			AchievementPicture.texture = OptionsMainMenu.instance.AMimagesNot[AMID];
+		}
+		else
+		{
+			AchievementPicture.texture = OptionsMainMenu.instance.AMimagesNot[0];
 		}
 	}
 
@@ -115,6 +119,10 @@ public class AchievementItemScript : MonoBehaviour
 
 	private void Update()
 	{
+		if (prevLang != LocalizationMaster.instance.CurrentLang)
+		{
+			SetText();
+		}
 		if ((bool)AchievementsTracker.instance && !isInGame)
 		{
 			if (AchievementsTracker.instance.selectedDifficulty != myDifficulty)

@@ -54,6 +54,62 @@ public class UnlockableScript : MonoBehaviour
 
 	public bool isTankeyTownItem;
 
+	private int prevLang = -1;
+
+	public void SetText()
+	{
+		prevLang = LocalizationMaster.instance.CurrentLang;
+		if (!AccountMaster.instance)
+		{
+			return;
+		}
+		if (AccountMaster.instance.PDO.AM.Length > ULID)
+		{
+			if (AccountMaster.instance.PDO.AM[ULID] == 1)
+			{
+				UnlockableTitle.text = myUI.UnlockableName;
+				UnlockableRequire.text = "";
+				GetComponent<MainMenuButtons>().MakeAvailable();
+				if (myUI.code != "")
+				{
+					code = myUI.code;
+				}
+			}
+			else if (!myUI.codeNeededToUnlock)
+			{
+				UnlockableTitle.text = myUI.UnlockableName;
+				GetComponent<MainMenuButtons>().MakeUnavailable();
+				if (myUI.code != "")
+				{
+					code = myUI.code;
+				}
+				UnlockableRequire.text = "( Achievement: '" + LocalizationMaster.instance.GetText("AM_" + ULID) + "' required!)";
+			}
+			else
+			{
+				UnlockableTitle.text = myUI.UnlockableName;
+				code = myUI.code;
+				GetComponent<MainMenuButtons>().MakeUnavailable();
+			}
+		}
+		else if (!myUI.codeNeededToUnlock)
+		{
+			UnlockableTitle.text = myUI.UnlockableName;
+			GetComponent<MainMenuButtons>().MakeUnavailable();
+			if (myUI.code != "")
+			{
+				code = myUI.code;
+			}
+			UnlockableRequire.text = "( Achievement: '" + LocalizationMaster.instance.GetText("AM_" + ULID) + "' required!)";
+		}
+		else
+		{
+			UnlockableTitle.text = myUI.UnlockableName;
+			GetComponent<MainMenuButtons>().MakeUnavailable();
+			code = myUI.code;
+		}
+	}
+
 	private void Start()
 	{
 		if (isTankeyTownItem)
@@ -114,52 +170,7 @@ public class UnlockableScript : MonoBehaviour
 			TaskOnClick();
 		});
 		component2.triggers.Add(entry2);
-		if ((bool)AccountMaster.instance)
-		{
-			if (AccountMaster.instance.PDO.AM.Length > ULID)
-			{
-				if (AccountMaster.instance.PDO.AM[ULID] == 1)
-				{
-					UnlockableTitle.text = myUI.UnlockableName;
-					UnlockableRequire.text = "";
-					GetComponent<MainMenuButtons>().MakeAvailable();
-					if (myUI.code != "")
-					{
-						code = myUI.code;
-					}
-				}
-				else if (!myUI.codeNeededToUnlock)
-				{
-					UnlockableTitle.text = myUI.UnlockableName;
-					GetComponent<MainMenuButtons>().MakeUnavailable();
-					if (myUI.code != "")
-					{
-						code = myUI.code;
-					}
-					UnlockableRequire.text = "( Achievement: '" + OptionsMainMenu.instance.AMnames[ULID] + "' required!)";
-				}
-				else
-				{
-					UnlockableTitle.text = myUI.UnlockableName;
-					code = myUI.code;
-					GetComponent<MainMenuButtons>().MakeUnavailable();
-				}
-			}
-			else if (!myUI.codeNeededToUnlock)
-			{
-				UnlockableTitle.text = myUI.UnlockableName;
-				if (myUI.code != "")
-				{
-					code = myUI.code;
-				}
-				UnlockableRequire.text = "( Achievement: '" + OptionsMainMenu.instance.AMnames[ULID] + "' required!)";
-			}
-			else
-			{
-				UnlockableTitle.text = myUI.UnlockableName;
-				code = myUI.code;
-			}
-		}
+		SetText();
 		StartCoroutine(LateCheck());
 	}
 
@@ -174,6 +185,10 @@ public class UnlockableScript : MonoBehaviour
 
 	private void Update()
 	{
+		if (prevLang != LocalizationMaster.instance.CurrentLang)
+		{
+			SetText();
+		}
 		if (isTankeyTownItem)
 		{
 			if (AccountMaster.instance.PDO.ActivatedAM.Contains(ULID))

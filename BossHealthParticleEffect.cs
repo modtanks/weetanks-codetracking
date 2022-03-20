@@ -27,11 +27,15 @@ public class BossHealthParticleEffect : MonoBehaviour
 			{
 				StopParticles();
 			}
-			else if (HT.health < firstStateLives && !firstActive)
+			if (HT.health > secondStateLives && secondActive)
+			{
+				StopParticlesSecond();
+			}
+			if (HT.health < firstStateLives && !firstActive)
 			{
 				ActivateFirst();
 			}
-			else if (HT.health < secondStateLives && !secondActive)
+			if (HT.health < secondStateLives && !secondActive)
 			{
 				ActivateSecond();
 			}
@@ -84,12 +88,16 @@ public class BossHealthParticleEffect : MonoBehaviour
 		{
 			array[i].Stop();
 		}
-		array = secondBreak;
+		firstActive = false;
+	}
+
+	private void StopParticlesSecond()
+	{
+		ParticleSystem[] array = secondBreak;
 		for (int i = 0; i < array.Length; i++)
 		{
 			array[i].Stop();
 		}
-		firstActive = false;
 		secondActive = false;
 	}
 }

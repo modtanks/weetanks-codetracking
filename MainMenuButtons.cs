@@ -505,6 +505,7 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 		}
 		base.transform.localScale = StartingScale;
 		MouseOn = false;
+		ControllerOn = false;
 	}
 
 	public void LoadButton()
@@ -918,9 +919,18 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 		}
 		if ((bool)NMC)
 		{
-			if (NMC.player != null && NMC.currentMenu != 20 && NMC.currentMenu != 19 && NMC.Selection == Place && (NMC.player.GetButtonUp("Menu Use") || NMC.player.GetButtonUp("Use")))
+			if (NMC.player != null && NMC.currentMenu != 20 && NMC.currentMenu != 19)
 			{
-				NMC.doButton(this);
+				if (!base.gameObject.activeInHierarchy)
+				{
+					Debug.LogError("NOT ACTIVE IN HIERARCHY!!");
+					return;
+				}
+				if (NMC.Selection == Place && NMC.CanDoSomething && (NMC.player.GetButtonUp("Menu Use") || NMC.player.GetButtonUp("Use")))
+				{
+					Debug.Log("DOING THIS BUTTON: " + Place + " AND MENU IS ON: " + NMC.Selection, base.gameObject);
+					NMC.doButton(this);
+				}
 			}
 			if (NMC != null)
 			{

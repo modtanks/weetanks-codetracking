@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using UnityEngine;
 
 public class TankCustoms : MonoBehaviour
@@ -12,6 +14,12 @@ public class TankCustoms : MonoBehaviour
 	public int activeIndex = -1;
 
 	public int myIndex = -1;
+
+	public Material CustomModMaterial;
+
+	public CustomSkinData ModData;
+
+	public Texture2D texture;
 
 	private void Awake()
 	{
@@ -32,22 +40,59 @@ public class TankCustoms : MonoBehaviour
 				num = OptionsMainMenu.instance.FullBodySkins[i].AMselectedID;
 			}
 		}
-		if (num <= -1)
+		if (num > -1)
 		{
-			return;
-		}
-		myIndex = -1;
-		for (int j = 0; j < OptionsMainMenu.instance.FullBodySkins.Length; j++)
-		{
-			if (OptionsMainMenu.instance.FullBodySkins[j].AMselectedID == num)
+			myIndex = -1;
+			for (int j = 0; j < OptionsMainMenu.instance.FullBodySkins.Length; j++)
 			{
-				myIndex = j;
+				if (OptionsMainMenu.instance.FullBodySkins[j].AMselectedID == num)
+				{
+					myIndex = j;
+				}
+			}
+			if (myIndex > -1)
+			{
+				MySkinData = OptionsMainMenu.instance.FullBodySkins[myIndex];
+				SetSkin(OptionsMainMenu.instance.FullBodySkins[myIndex]);
 			}
 		}
-		if (myIndex > -1)
+		CheckForSkin();
+	}
+
+	private void CheckForSkin()
+	{
+		string text = "";
+		string text2 = "";
+		text = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
+		text2 += "/My Games/Wee Tanks/mods/turret_skin.png";
+		text += "/My Games/Wee Tanks/mods/tank_skin.png";
+		Debug.Log(text);
+		texture = new Texture2D(2, 2);
+		if (File.Exists(text))
 		{
-			MySkinData = OptionsMainMenu.instance.FullBodySkins[myIndex];
-			SetSkin(OptionsMainMenu.instance.FullBodySkins[myIndex]);
+			byte[] data = File.ReadAllBytes(text);
+			texture.LoadImage(data);
+			if ((bool)texture)
+			{
+				ModData = new CustomSkinData();
+				CustomModMaterial = new Material(Shader.Find("Standard"));
+				CustomModMaterial.mainTexture = texture;
+				ModData.MainMaterial = CustomModMaterial;
+				SetSkin(ModData);
+			}
+		}
+		if (File.Exists(text2))
+		{
+			byte[] data2 = File.ReadAllBytes(text2);
+			texture.LoadImage(data2);
+			if ((bool)texture)
+			{
+				ModData = new CustomSkinData();
+				CustomModMaterial = new Material(Shader.Find("Standard"));
+				CustomModMaterial.mainTexture = texture;
+				ModData.TurretMaterial = CustomModMaterial;
+				SetSkin(ModData);
+			}
 		}
 	}
 

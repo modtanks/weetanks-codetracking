@@ -1,10 +1,13 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHandler
 {
+	public int Place;
+
 	[Header("Textures, if you use RawImage")]
 	public Texture NotSelected;
 
@@ -31,6 +34,10 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 
 	public ScrollRect ParentSR;
 
+	public NewMenuControl NMC;
+
+	private TMP_Dropdown MyDropdown;
+
 	[HideInInspector]
 	public int CustomTankID;
 
@@ -44,7 +51,13 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 		{
 			myImage_img = GetComponent<Image>();
 		}
+		GameObject gameObject = GameObject.Find("Canvas");
+		if ((bool)gameObject)
+		{
+			NMC = gameObject.GetComponent<NewMenuControl>();
+		}
 		SetSpriteTexture(NotSelected, NotSelected_sprite);
+		MyDropdown = GetComponent<TMP_Dropdown>();
 		if ((bool)base.transform.parent && (bool)base.transform.parent.transform.parent && (bool)base.transform.parent.transform.parent.transform.parent)
 		{
 			ParentSR = base.transform.parent.transform.parent.transform.parent.gameObject.GetComponent<ScrollRect>();
@@ -76,6 +89,55 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 			{
 				CheckMarkImage.gameObject.SetActive(value: true);
 			}
+		}
+		if ((bool)NMC && NMC.player != null)
+		{
+			if (!base.gameObject.activeInHierarchy)
+			{
+				Debug.LogError("NOT ACTIVE IN HIERARCHY!!");
+				return;
+			}
+			if (NMC.Selection == Place && NMC.CanDoSomething && (NMC.player.GetButtonUp("Menu Use") || NMC.player.GetButtonUp("Use")) && (bool)MyDropdown)
+			{
+				if (MyDropdown.options.Count == MyDropdown.value + 1)
+				{
+					MyDropdown.value = 0;
+				}
+				else
+				{
+					MyDropdown.value += 1;
+				}
+			}
+		}
+		if (!NMC || !(NMC != null))
+		{
+			return;
+		}
+		if (NMC.Selection == Place && NMC.IsUsingMouse)
+		{
+			OnMouseExit(null);
+		}
+		if (NMC.player != null && NMC.Selection == Place)
+		{
+			if (!NMC.IsUsingMouse)
+			{
+				OnMouseOver(null);
+			}
+			if (NMC.player.GetAxis("Move Vertically") > 0f)
+			{
+				if (NMC.Selection > 0 && NMC.CanMove)
+				{
+					NMC.StartCoroutine(NMC.MoveSelection(up: true));
+				}
+			}
+			else if (NMC.player.GetAxis("Move Vertically") < 0f && NMC.CanMove)
+			{
+				NMC.StartCoroutine(NMC.MoveSelection(up: false));
+			}
+		}
+		else if (NMC.Selection != Place && !NMC.IsUsingMouse)
+		{
+			OnMouseExit(null);
 		}
 	}
 
