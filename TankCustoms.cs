@@ -17,9 +17,13 @@ public class TankCustoms : MonoBehaviour
 
 	public Material CustomModMaterial;
 
+	public Material CustomModTurretMaterial;
+
 	public CustomSkinData ModData;
 
 	public Texture2D texture;
+
+	public Texture2D texture_turret;
 
 	private void Awake()
 	{
@@ -64,7 +68,7 @@ public class TankCustoms : MonoBehaviour
 		string text = "";
 		string text2 = "";
 		text = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
-		text2 += "/My Games/Wee Tanks/mods/turret_skin.png";
+		text2 = text + "/My Games/Wee Tanks/mods/turret_skin.png";
 		text += "/My Games/Wee Tanks/mods/tank_skin.png";
 		Debug.Log(text);
 		texture = new Texture2D(2, 2);
@@ -79,20 +83,28 @@ public class TankCustoms : MonoBehaviour
 				CustomModMaterial.mainTexture = texture;
 				ModData.MainMaterial = CustomModMaterial;
 				SetSkin(ModData);
+				activeIndex = myIndex;
+				MySkinData = ModData;
 			}
 		}
-		if (File.Exists(text2))
+		texture_turret = new Texture2D(2, 2);
+		if (!File.Exists(text2))
 		{
-			byte[] data2 = File.ReadAllBytes(text2);
-			texture.LoadImage(data2);
-			if ((bool)texture)
+			return;
+		}
+		byte[] data2 = File.ReadAllBytes(text2);
+		texture_turret.LoadImage(data2);
+		if ((bool)texture_turret)
+		{
+			if (!ModData)
 			{
 				ModData = new CustomSkinData();
-				CustomModMaterial = new Material(Shader.Find("Standard"));
-				CustomModMaterial.mainTexture = texture;
-				ModData.TurretMaterial = CustomModMaterial;
-				SetSkin(ModData);
 			}
+			CustomModTurretMaterial = new Material(Shader.Find("Standard"));
+			CustomModTurretMaterial.mainTexture = texture_turret;
+			ModData.TurretMaterial = CustomModTurretMaterial;
+			activeIndex = myIndex;
+			MySkinData = ModData;
 		}
 	}
 

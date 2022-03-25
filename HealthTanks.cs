@@ -612,6 +612,8 @@ public class HealthTanks : MonoBehaviour
 		}
 		SkidMarkCreator.transform.parent = null;
 		SkidMarkCreator.Stop();
+		float t = ((OptionsMainMenu.instance.currentGraphicSettings == 0) ? 15f : ((OptionsMainMenu.instance.currentGraphicSettings == 1) ? 30f : ((OptionsMainMenu.instance.currentGraphicSettings == 2) ? 60f : ((OptionsMainMenu.instance.currentGraphicSettings == 3) ? 120f : ((OptionsMainMenu.instance.currentGraphicSettings == 4) ? 240f : 300f)))));
+		Object.Destroy(SkidMarkCreator, t);
 		SFXManager.instance.PlaySFX(Deathsound);
 		Collider[] array = Physics.OverlapSphere(base.transform.position, 4f);
 		foreach (Collider collider in array)
@@ -725,6 +727,8 @@ public class HealthTanks : MonoBehaviour
 		Explosion();
 		SkidMarkCreator.transform.parent = null;
 		SkidMarkCreator.Stop();
+		float t = ((OptionsMainMenu.instance.currentGraphicSettings == 0) ? 15f : ((OptionsMainMenu.instance.currentGraphicSettings == 1) ? 30f : ((OptionsMainMenu.instance.currentGraphicSettings == 2) ? 60f : ((OptionsMainMenu.instance.currentGraphicSettings == 3) ? 120f : ((OptionsMainMenu.instance.currentGraphicSettings == 4) ? 240f : 300f)))));
+		Object.Destroy(SkidMarkCreator, t);
 		SFXManager.instance.PlaySFX(Deathsound);
 		CameraShake component = Camera.main.GetComponent<CameraShake>();
 		if ((bool)component)
@@ -763,7 +767,7 @@ public class HealthTanks : MonoBehaviour
 				particleSystemRenderer2 = item.GetComponent<ParticleSystemRenderer>();
 			}
 		}
-		if (OptionsMainMenu.instance.BloodMode && (bool)GlobalHealthTanks.instance)
+		if (OptionsMainMenu.instance.AMselected.Contains(58) && (bool)GlobalHealthTanks.instance)
 		{
 			Object.Instantiate(GlobalHealthTanks.instance.BloodSplatters[Random.Range(0, GlobalHealthTanks.instance.BloodSplatters.Length)], base.transform.position + new Vector3(0f, 0.06f, 0f), Quaternion.identity, null);
 			if (Random.Range(0, 3) == 1)
@@ -926,6 +930,8 @@ public class HealthTanks : MonoBehaviour
 		{
 			SkidMarkCreator.transform.parent = null;
 			SkidMarkCreator.Stop();
+			float t = ((OptionsMainMenu.instance.currentGraphicSettings == 0) ? 15f : ((OptionsMainMenu.instance.currentGraphicSettings == 1) ? 30f : ((OptionsMainMenu.instance.currentGraphicSettings == 2) ? 60f : ((OptionsMainMenu.instance.currentGraphicSettings == 3) ? 120f : ((OptionsMainMenu.instance.currentGraphicSettings == 4) ? 240f : 300f)))));
+			Object.Destroy(SkidMarkCreator, t);
 		}
 		if (GameMaster.instance != null)
 		{

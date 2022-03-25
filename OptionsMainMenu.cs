@@ -120,8 +120,6 @@ public class OptionsMainMenu : MonoBehaviour
 
 	public int[] ResolutionY;
 
-	public bool BloodMode;
-
 	public bool[] MapEditorTankMessagesReceived;
 
 	public bool IsThirdPerson;
@@ -152,7 +150,6 @@ public class OptionsMainMenu : MonoBehaviour
 			isFullscreen = settingsData.Fullscreen;
 			currentDifficulty = settingsData.difficultySetting;
 			vsync = settingsData.vsync;
-			BloodMode = settingsData.GoreMode;
 			UIsetting = settingsData.UIsettings;
 			if (settingsData.MapEditorTankMessagesReceived != null)
 			{

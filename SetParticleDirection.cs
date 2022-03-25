@@ -19,14 +19,17 @@ public class SetParticleDirection : MonoBehaviour
 
 	private void Update()
 	{
-		ParticleSystem.MainModule main = PS.main;
-		if (trackParent)
+		if (!(base.transform.parent == null))
 		{
-			main.startRotationY = (invertRotation ? (base.transform.parent.transform.eulerAngles.y * (MathF.PI / 180f) + offset) : ((0f - base.transform.parent.transform.eulerAngles.y) * (MathF.PI / 180f) + offset));
-		}
-		else
-		{
-			main.startRotationY = (invertRotation ? (base.transform.eulerAngles.y * (MathF.PI / 180f) + offset) : ((0f - base.transform.eulerAngles.y) * (MathF.PI / 180f) + offset));
+			ParticleSystem.MainModule main = PS.main;
+			if (trackParent)
+			{
+				main.startRotationY = (invertRotation ? (base.transform.parent.transform.eulerAngles.y * (MathF.PI / 180f) + offset) : ((0f - base.transform.parent.transform.eulerAngles.y) * (MathF.PI / 180f) + offset));
+			}
+			else
+			{
+				main.startRotationY = (invertRotation ? (base.transform.eulerAngles.y * (MathF.PI / 180f) + offset) : ((0f - base.transform.eulerAngles.y) * (MathF.PI / 180f) + offset));
+			}
 		}
 	}
 }

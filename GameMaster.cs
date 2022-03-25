@@ -1293,6 +1293,11 @@ public class GameMaster : MonoBehaviour
 			StartCoroutine(DisableGameDelay());
 			if (MapEditorMaster.instance.MissionFloorTextures.Length != 0)
 			{
+				LoadModTexture component2 = instance.floor.GetComponent<LoadModTexture>();
+				if ((bool)component2 && component2.IsModded)
+				{
+					return;
+				}
 				floor.GetComponent<MeshRenderer>().material = MapEditorMaster.instance.FloorMaterials[MapEditorMaster.instance.MissionFloorTextures[CurrentMission]];
 			}
 			if (MapEditorMaster.instance.NoBordersMissions.Count > 0)

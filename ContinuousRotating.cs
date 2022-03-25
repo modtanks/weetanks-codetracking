@@ -75,7 +75,7 @@ public class ContinuousRotating : MonoBehaviour
 		if (IsLoadingScreen)
 		{
 			SpawnedObject.transform.position = base.transform.position;
-			base.transform.Rotate(Time.deltaTime * 6f + player.GetAxis("Move Vertically") * RotateSpeed, player.GetAxis("Move Horizontal") * RotateSpeed, 0f);
+			base.transform.Rotate(player.GetAxis("Move Vertically") * Time.deltaTime * RotateSpeed, Time.deltaTime * 6f + player.GetAxis("Move Horizontal") * Time.deltaTime * RotateSpeed, 0f);
 		}
 		else if (xAxis)
 		{

@@ -358,7 +358,7 @@ public class NewAnimationsScript : MonoBehaviour
 			enemyCount.text = GameMaster.instance.AmountEnemyTanks.ToString();
 			StartCoroutine(GameMaster.instance.GetTankTeamData(fast: true));
 			StartCoroutine(SetEnemyAmount());
-			if (GameMaster.instance.CurrentMission == 29 || GameMaster.instance.CurrentMission == 69)
+			if ((GameMaster.instance.CurrentMission == 29 || GameMaster.instance.CurrentMission == 69) && !MapEditorMaster.instance)
 			{
 				musicScript.CanStartMusic = true;
 			}

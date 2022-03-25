@@ -16,6 +16,8 @@ public class BossHealthParticleEffect : MonoBehaviour
 
 	public int secondStateLives = 10;
 
+	public bool CheckForAmour;
+
 	[Header("Zombie Attributes")]
 	public HealthTanks HT;
 
@@ -23,26 +25,71 @@ public class BossHealthParticleEffect : MonoBehaviour
 	{
 		if ((bool)HT)
 		{
-			if (HT.health > firstStateLives && firstActive)
+			if (CheckForAmour)
 			{
-				StopParticles();
+				if (HT.health_armour > firstStateLives && firstActive)
+				{
+					StopParticles();
+				}
+				if (HT.health_armour > secondStateLives && secondActive)
+				{
+					StopParticlesSecond();
+				}
+				if (HT.health_armour < firstStateLives && !firstActive)
+				{
+					ActivateFirst();
+				}
+				if (HT.health_armour < secondStateLives && !secondActive)
+				{
+					ActivateSecond();
+				}
 			}
-			if (HT.health > secondStateLives && secondActive)
+			else
 			{
-				StopParticlesSecond();
-			}
-			if (HT.health < firstStateLives && !firstActive)
-			{
-				ActivateFirst();
-			}
-			if (HT.health < secondStateLives && !secondActive)
-			{
-				ActivateSecond();
+				if (HT.health > firstStateLives && firstActive)
+				{
+					StopParticles();
+				}
+				if (HT.health > secondStateLives && secondActive)
+				{
+					StopParticlesSecond();
+				}
+				if (HT.health < firstStateLives && !firstActive)
+				{
+					ActivateFirst();
+				}
+				if (HT.health < secondStateLives && !secondActive)
+				{
+					ActivateSecond();
+				}
 			}
 		}
-		else if ((bool)HealthTankScript)
+		else
 		{
-			if (HealthTankScript.isTransporting)
+			if (!HealthTankScript)
+			{
+				return;
+			}
+			if (CheckForAmour)
+			{
+				if (HealthTankScript.isTransporting)
+				{
+					StopParticles();
+				}
+				else if (HealthTankScript.HTscript.health_armour > firstStateLives && firstActive)
+				{
+					StopParticles();
+				}
+				else if (HealthTankScript.HTscript.health_armour < firstStateLives && !firstActive)
+				{
+					ActivateFirst();
+				}
+				else if (HealthTankScript.HTscript.health_armour < secondStateLives && !secondActive)
+				{
+					ActivateSecond();
+				}
+			}
+			else if (HealthTankScript.isTransporting)
 			{
 				StopParticles();
 			}

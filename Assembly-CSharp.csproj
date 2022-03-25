@@ -77,5 +77,8 @@
     <Reference Include="UnityEngine.TextRenderingModule">
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Wee Tanks\Wee Tanks_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestAudioModule">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Wee Tanks\Wee Tanks_Data\Managed\UnityEngine.UnityWebRequestAudioModule.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

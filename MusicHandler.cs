@@ -48,7 +48,7 @@ public class MusicHandler : MonoBehaviour
 			return;
 		}
 		MusicSource.clip = null;
-		if (masterScript.CurrentMission == 29)
+		if (masterScript.CurrentMission == 29 && !MapEditorMaster.instance)
 		{
 			if (CanStartMusic)
 			{
@@ -137,7 +137,7 @@ public class MusicHandler : MonoBehaviour
 
 	public void StartMusic()
 	{
-		if (masterScript.CurrentMission != 29 && masterScript.CurrentMission != 69)
+		if ((masterScript.CurrentMission != 29 && masterScript.CurrentMission != 69) || (bool)MapEditorMaster.instance)
 		{
 			Orchestra.StopPlaying();
 			MusicSource.Stop();

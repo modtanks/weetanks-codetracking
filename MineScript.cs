@@ -9,10 +9,6 @@ public class MineScript : MonoBehaviour
 
 	public GameObject deathExplosionParty;
 
-	public AudioClip Deathsound;
-
-	public AudioClip Placesound;
-
 	public AudioClip MineBeep;
 
 	public AudioClip KillExtra;
@@ -76,7 +72,7 @@ public class MineScript : MonoBehaviour
 			StartCoroutine("setactive");
 		}
 		GameMaster.instance.AmountMinesPlaced++;
-		SFXManager.instance.PlaySFX(Placesound);
+		SFXManager.instance.PlaySFX(GlobalAssets.instance.AudioDB.MinePlace);
 		DetinationTime = Random.Range(ExplosionMinInterval, ExplosionMaxInterval);
 		InvokeRepeating("ScanForEnemies", 1f, 0.5f);
 		InvokeRepeating("BlinkingTripmine", 2f, 2f);
@@ -172,7 +168,7 @@ public class MineScript : MonoBehaviour
 			}
 			else
 			{
-				SFXManager.instance.PlaySFX(Deathsound);
+				SFXManager.instance.PlaySFX(GlobalAssets.instance.AudioDB.MineExplosion);
 			}
 		}
 		Object.Destroy(base.gameObject);

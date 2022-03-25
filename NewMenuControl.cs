@@ -635,19 +635,6 @@ public class NewMenuControl : MonoBehaviour
 				NoKillsText.gameObject.SetActive(value: false);
 			}
 		}
-		if ((bool)GoreModeObject)
-		{
-			if (GoreModeObject.activeSelf && !OptionsMainMenu.instance.AMselected.Contains(58))
-			{
-				OptionsMainMenu.instance.BloodMode = false;
-				GoreModeObject.SetActive(value: false);
-			}
-			else if (!GoreModeObject.activeSelf && OptionsMainMenu.instance.AMselected.Contains(58))
-			{
-				OptionsMainMenu.instance.BloodMode = true;
-				GoreModeObject.SetActive(value: true);
-			}
-		}
 		if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.L) && !HoldingShift)
 		{
 			HoldingShift = true;
@@ -1601,22 +1588,6 @@ public class NewMenuControl : MonoBehaviour
 			enableMenu(1);
 			StartCoroutine(doing());
 		}
-		else if (MMB.IsGoreMode)
-		{
-			PlayMenuChangeSound();
-			if (!OptionsMainMenu.instance.BloodMode)
-			{
-				OptionsMainMenu.instance.BloodMode = true;
-				GoreModeText.text = "(x)";
-				OptionsMainMenu.instance.SaveNewData();
-			}
-			else
-			{
-				OptionsMainMenu.instance.BloodMode = false;
-				GoreModeText.text = "( )";
-				OptionsMainMenu.instance.SaveNewData();
-			}
-		}
 		else if (MMB.IsExtraLivesDown)
 		{
 			PlayMenuChangeSound();
@@ -2059,6 +2030,10 @@ public class NewMenuControl : MonoBehaviour
 		if (menunumber == 2 || menunumber == 25)
 		{
 			SetDifficultyText();
+		}
+		if (menunumber == 4)
+		{
+			SetGraphicsText();
 		}
 	}
 }

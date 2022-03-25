@@ -202,39 +202,38 @@ public class UnlockableScript : MonoBehaviour
 				checkmark.enabled = false;
 				UnlockableRequire.text = "";
 			}
-			return;
 		}
-		if (Input.anyKeyDown)
+		else
 		{
-			_ = ULID;
-		}
-		if (!AccountMaster.instance.isSignedIn)
-		{
-			return;
-		}
-		if (AccountMaster.instance.PDO.AM[ULID] == 1)
-		{
-			if (myUI.codeNeededToUnlock && base.transform.parent == null)
+			if (!AccountMaster.instance.isSignedIn)
 			{
-				base.transform.SetParent(origiParent);
+				return;
 			}
-			if (AccountMaster.instance.PDO.ActivatedAM.Contains(ULID))
+			if (AccountMaster.instance.PDO.AM[ULID] == 1)
 			{
-				checkmark.enabled = true;
-				UnlockableTitle.color = ActivatedColor;
-				UnlockableRequire.color = ActivatedColor;
-				UnlockableRequire.text = "Activated.";
+				if (myUI.codeNeededToUnlock && base.transform.parent == null)
+				{
+					base.transform.SetParent(origiParent);
+					checkmark.texture = GetComponent<MainMenuButtons>().ButtonMetaPositive;
+				}
+				if (AccountMaster.instance.PDO.ActivatedAM.Contains(ULID))
+				{
+					checkmark.enabled = true;
+					UnlockableTitle.color = ActivatedColor;
+					UnlockableRequire.color = ActivatedColor;
+					UnlockableRequire.text = "Activated.";
+				}
+				else if (!AccountMaster.instance.PDO.ActivatedAM.Contains(ULID))
+				{
+					checkmark.enabled = false;
+					UnlockableRequire.text = "";
+					UnlockableTitle.color = NotActivatedColor;
+				}
 			}
-			else if (!AccountMaster.instance.PDO.ActivatedAM.Contains(ULID))
+			else if (myUI.codeNeededToUnlock && myUI.codeNeededToUnlock)
 			{
-				checkmark.enabled = false;
-				UnlockableRequire.text = "";
-				UnlockableTitle.color = NotActivatedColor;
+				base.transform.SetParent(null);
 			}
-		}
-		else if (myUI.codeNeededToUnlock && myUI.codeNeededToUnlock)
-		{
-			base.transform.SetParent(null);
 		}
 	}
 

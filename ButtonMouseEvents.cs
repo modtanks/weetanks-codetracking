@@ -113,9 +113,9 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 		{
 			return;
 		}
-		if (NMC.Selection == Place && NMC.IsUsingMouse)
+		if (NMC.Selection == Place)
 		{
-			OnMouseExit(null);
+			_ = NMC.IsUsingMouse;
 		}
 		if (NMC.player != null && NMC.Selection == Place)
 		{
@@ -125,14 +125,19 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 			}
 			if (NMC.player.GetAxis("Move Vertically") > 0f)
 			{
+				Debug.Log("INPUT works");
 				if (NMC.Selection > 0 && NMC.CanMove)
 				{
 					NMC.StartCoroutine(NMC.MoveSelection(up: true));
 				}
 			}
-			else if (NMC.player.GetAxis("Move Vertically") < 0f && NMC.CanMove)
+			else if (NMC.player.GetAxis("Move Vertically") < 0f)
 			{
-				NMC.StartCoroutine(NMC.MoveSelection(up: false));
+				Debug.Log("INPUT Y works");
+				if (NMC.CanMove)
+				{
+					NMC.StartCoroutine(NMC.MoveSelection(up: false));
+				}
 			}
 		}
 		else if (NMC.Selection != Place && !NMC.IsUsingMouse)
@@ -187,6 +192,7 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 
 	private void SetSpriteTexture(Texture tex, Sprite spr)
 	{
+		Debug.LogError("setting sprite");
 		if ((bool)myImage_img)
 		{
 			myImage_img.sprite = spr;
@@ -199,6 +205,7 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 
 	public void OnMouseOver(BaseEventData eventData)
 	{
+		Debug.LogError("hover btn");
 		mouseOnMe = true;
 		SetSpriteTexture(Hovering, Hovering_sprite);
 	}

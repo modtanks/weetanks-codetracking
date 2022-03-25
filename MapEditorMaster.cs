@@ -1430,7 +1430,11 @@ public class MapEditorMaster : MonoBehaviour
 		if (canChangeValues)
 		{
 			MissionFloorTextures[GameMaster.instance.CurrentMission] = FloorDropdown.value;
-			GameMaster.instance.floor.GetComponent<MeshRenderer>().material = FloorMaterials[MissionFloorTextures[GameMaster.instance.CurrentMission]];
+			LoadModTexture component = GameMaster.instance.floor.GetComponent<LoadModTexture>();
+			if (!component || !component.IsModded)
+			{
+				GameMaster.instance.floor.GetComponent<MeshRenderer>().material = FloorMaterials[MissionFloorTextures[GameMaster.instance.CurrentMission]];
+			}
 		}
 	}
 

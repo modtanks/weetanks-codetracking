@@ -70,7 +70,6 @@ public class SettingsData
 		MarkedTanks = OMM.MarkedTanks;
 		keys = OMM.keys;
 		vsync = OMM.vsync;
-		GoreMode = OMM.BloodMode;
 		MapEditorTankMessagesReceived = OMM.MapEditorTankMessagesReceived;
 		UIsettings = OMM.UIsetting;
 		xraybullets = OMM.showxraybullets;

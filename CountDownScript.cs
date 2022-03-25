@@ -23,7 +23,7 @@ public class CountDownScript : MonoBehaviour
 		{
 			if (!musicScript.MusicSource.isPlaying)
 			{
-				if (GameMaster.instance.CurrentMission != 29 && !GameMaster.instance.GameHasPaused)
+				if ((GameMaster.instance.CurrentMission != 29 && !GameMaster.instance.GameHasPaused) || (bool)MapEditorMaster.instance)
 				{
 					musicScript.MusicSource.PlayOneShot(musicScript.BeginMusicClip);
 				}

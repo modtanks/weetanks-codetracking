@@ -44,7 +44,7 @@ public class ToolTipLoading : MonoBehaviour
 				text = ClassicCampaignTexts[Random.Range(ContinueCheckpoint, maxExclusive)];
 			}
 			while (text == "");
-			ToolTipText.text = text;
+			ToolTipText.text = LocalizationMaster.instance.GetText(text);
 		}
 		else if (PlayCustomCampaign)
 		{
@@ -54,7 +54,7 @@ public class ToolTipLoading : MonoBehaviour
 				text2 = PlayCustomCampaigns[Random.Range(0, PlayCustomCampaigns.Length)];
 			}
 			while (text2 == "");
-			ToolTipText.text = text2;
+			ToolTipText.text = LocalizationMaster.instance.GetText(text2);
 		}
 		else if (CreateMap)
 		{
@@ -64,7 +64,7 @@ public class ToolTipLoading : MonoBehaviour
 				text3 = CreateMapEditor[Random.Range(0, CreateMapEditor.Length)];
 			}
 			while (text3 == "");
-			ToolTipText.text = text3;
+			ToolTipText.text = LocalizationMaster.instance.GetText(text3);
 		}
 		else if (Survival)
 		{
@@ -74,7 +74,7 @@ public class ToolTipLoading : MonoBehaviour
 				text4 = SurvivalTexts[Random.Range(0, SurvivalTexts.Length)];
 			}
 			while (text4 == "");
-			ToolTipText.text = text4;
+			ToolTipText.text = LocalizationMaster.instance.GetText(text4);
 		}
 	}
 }
