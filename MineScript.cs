@@ -104,7 +104,7 @@ public class MineScript : MonoBehaviour
 		}
 		if (GameMaster.instance != null && MapEditorMaster.instance == null && !GameMaster.instance.inTankeyTown)
 		{
-			if (DetinationTime < 0.1f || (((GameMaster.instance.AmountEnemyTanks < 1 && !GameMaster.instance.isZombieMode && GameMaster.instance.CurrentMission != 99) || GameMaster.instance.restartGame || !GameMaster.instance.PlayerAlive) && !isHuntingEnemies))
+			if (DetinationTime < 0.1f || (((GameMaster.instance.AmountEnemyTanks < 1 && !GameMaster.instance.isZombieMode && GameMaster.instance.CurrentMission < 99) || GameMaster.instance.restartGame || !GameMaster.instance.PlayerAlive) && !isHuntingEnemies))
 			{
 				InitiateDeath();
 			}

@@ -25,6 +25,14 @@ public class ElectroBoss : MonoBehaviour
 
 	private HealthTanks myHT;
 
+	public Material GlowyWhiteMaterial;
+
+	public Material OriginalMaterial;
+
+	public MeshRenderer HeadRender;
+
+	public MeshRenderer BodyRender;
+
 	private void Start()
 	{
 		ChargeTimer = ChargeTimerDuration + Random.Range(0f, ChargeTimerDuration);
@@ -47,6 +55,17 @@ public class ElectroBoss : MonoBehaviour
 		isAlmostCharged = false;
 		ChargeTimer = ChargeTimerDuration + Random.Range(0f, ChargeTimerDuration);
 		PadsToActivate.Clear();
+	}
+
+	private void SetBodyMaterial(Material m)
+	{
+		HeadRender.material = m;
+		Material[] materials = BodyRender.materials;
+		for (int i = 1; i < materials.Length; i++)
+		{
+			materials[i] = m;
+		}
+		BodyRender.materials = materials;
 	}
 
 	private void Update()
@@ -73,6 +92,7 @@ public class ElectroBoss : MonoBehaviour
 				obj2.Clear();
 				obj2.Play();
 			}
+			SetBodyMaterial(GlowyWhiteMaterial);
 			isAlmostCharged = true;
 			SFXManager.instance.PlaySFX(ElectricChargeSound, 1f, null);
 			int num = GetComponent<HealthTanks>().maxHealth - GetComponent<HealthTanks>().health;
@@ -115,6 +135,7 @@ public class ElectroBoss : MonoBehaviour
 				obj3.Clear();
 				obj3.Stop();
 			}
+			SetBodyMaterial(OriginalMaterial);
 			PlayedSound = false;
 			ElectricBlast.Play();
 			CameraShake component = Camera.main.GetComponent<CameraShake>();

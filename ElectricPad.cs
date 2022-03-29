@@ -35,6 +35,8 @@ public class ElectricPad : MonoBehaviour
 
 	public bool ChangingColor;
 
+	public float intensityEmission = 10f;
+
 	public float Duration = 1f;
 
 	public float t;
@@ -63,7 +65,7 @@ public class ElectricPad : MonoBehaviour
 
 	private void LightUp()
 	{
-		MR.material.SetColor("_EmissionColor", EmissionColor);
+		MR.material.SetColor("_EmissionColor", EmissionColor * intensityEmission);
 		if (OptionsMainMenu.instance.currentGraphicSettings > 4)
 		{
 			ElectroParticles.Play();
@@ -144,10 +146,10 @@ public class ElectricPad : MonoBehaviour
 		{
 			t += Time.deltaTime / Duration;
 		}
-		if (MR.material.GetColor("_EmissionColor") != TargetColor)
+		if (t < 1f)
 		{
 			lerpedColor = Color.Lerp(currentColor, TargetColor, t);
-			MR.material.SetColor("_EmissionColor", lerpedColor);
+			MR.material.SetColor("_EmissionColor", lerpedColor * intensityEmission);
 		}
 		else
 		{

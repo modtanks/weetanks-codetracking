@@ -46,13 +46,9 @@ public class TankCustoms : MonoBehaviour
 		}
 		if (num > -1)
 		{
-			myIndex = -1;
 			for (int j = 0; j < OptionsMainMenu.instance.FullBodySkins.Length; j++)
 			{
-				if (OptionsMainMenu.instance.FullBodySkins[j].AMselectedID == num)
-				{
-					myIndex = j;
-				}
+				_ = OptionsMainMenu.instance.FullBodySkins[j].AMselectedID;
 			}
 			if (myIndex > -1)
 			{
@@ -70,7 +66,6 @@ public class TankCustoms : MonoBehaviour
 		text = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
 		text2 = text + "/My Games/Wee Tanks/mods/turret_skin.png";
 		text += "/My Games/Wee Tanks/mods/tank_skin.png";
-		Debug.Log(text);
 		texture = new Texture2D(2, 2);
 		if (File.Exists(text))
 		{

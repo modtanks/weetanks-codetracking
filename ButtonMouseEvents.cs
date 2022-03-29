@@ -192,7 +192,6 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 
 	private void SetSpriteTexture(Texture tex, Sprite spr)
 	{
-		Debug.LogError("setting sprite");
 		if ((bool)myImage_img)
 		{
 			myImage_img.sprite = spr;
@@ -205,7 +204,6 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 
 	public void OnMouseOver(BaseEventData eventData)
 	{
-		Debug.LogError("hover btn");
 		mouseOnMe = true;
 		SetSpriteTexture(Hovering, Hovering_sprite);
 	}

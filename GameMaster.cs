@@ -624,16 +624,14 @@ public class GameMaster : MonoBehaviour
 			}
 			if (AmountEnemyTanks < 1 && !Victory && levelIsLoaded && !inTankeyTown && !isZombieMode && !inMapEditor && !MapEditorMaster.instance)
 			{
-				if (CurrentMission == 99)
+				if (CurrentMission < 99)
 				{
-					Debug.Log("MISSION 100 SUCCES!!");
-					return;
+					CheckSecretMission();
+					totalWins++;
+					AccountMaster.instance.SaveCloudData(1, 1, 0, bounceKill: false);
+					SaveData(skipCloud: false);
+					EndTheGame();
 				}
-				CheckSecretMission();
-				totalWins++;
-				AccountMaster.instance.SaveCloudData(1, 1, 0, bounceKill: false);
-				SaveData(skipCloud: false);
-				EndTheGame();
 				return;
 			}
 			if (!Victory && levelIsLoaded && GameHasStarted && (bool)MapEditorMaster.instance && !inMapEditor && !inTankeyTown)
@@ -1568,7 +1566,6 @@ public class GameMaster : MonoBehaviour
 	public void DisableGame()
 	{
 		AmountMinesPlaced = 0;
-		Debug.LogWarning("Game disbaled.");
 		GameHasStarted = false;
 		restartGame = false;
 		FindPlayers();

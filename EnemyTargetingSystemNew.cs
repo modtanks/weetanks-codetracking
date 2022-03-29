@@ -373,15 +373,25 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		}
 		if (AIscript.isElectric && AIscript.isLevel70Boss)
 		{
+			if (ShootCountdown <= -2f)
+			{
+				ShootCountdown = 3.5f;
+			}
 			if (ShootCountdown < 1.1f && ElectricCharge.isStopped)
 			{
 				ElectricCharge.Clear();
 				ElectricCharge.Play();
+				if (!AIscript.isTransporting && OptionsMainMenu.instance.currentDifficulty < 2)
+				{
+					AIscript.TankSpeed = AIscript.OriginalTankSpeed / 2f;
+				}
 			}
 			else if (ShootCountdown >= 1.1f && ElectricCharge.isPlaying)
 			{
 				ElectricCharge.Stop();
 				ElectricCharge.Clear();
+				AIscript.TankSpeed = AIscript.OriginalTankSpeed;
+				AIscript.CanMove = true;
 			}
 		}
 		if (mineCountdown <= 0f)

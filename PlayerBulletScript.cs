@@ -400,17 +400,15 @@ public class PlayerBulletScript : MonoBehaviour
 		}
 		if ((GameMaster.instance.AmountEnemyTanks < 1 || GameMaster.instance.restartGame || !GameMaster.instance.PlayerAlive) && !GameMaster.instance.isZombieMode && !GameMaster.instance.CM && !GameMaster.instance.inTankeyTown && !GameMaster.instance.inMenuMode && !MapEditorMaster.instance)
 		{
-			if (GameMaster.instance.PlayerAlive && GameMaster.instance.CurrentMission == 99)
+			if (GameMaster.instance.PlayerAlive && GameMaster.instance.CurrentMission >= 99)
 			{
 				if (TimesBounced > MaxBounces)
 				{
-					Debug.Log("TIMES BOUNCED");
 					End(isEndingGame: false);
 				}
 			}
 			else
 			{
-				Debug.Log("TIMES something lese");
 				End(isEndingGame: true);
 			}
 		}
@@ -420,7 +418,6 @@ public class PlayerBulletScript : MonoBehaviour
 		}
 		else if (TimesBounced > MaxBounces)
 		{
-			Debug.Log("TIMES BOUNCED!!");
 			End(isEndingGame: false);
 		}
 	}
@@ -456,7 +453,6 @@ public class PlayerBulletScript : MonoBehaviour
 
 	private void End(bool isEndingGame)
 	{
-		Debug.Log("ENDING.");
 		if (isEnding)
 		{
 			return;

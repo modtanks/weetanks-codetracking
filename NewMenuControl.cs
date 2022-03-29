@@ -1823,6 +1823,11 @@ public class NewMenuControl : MonoBehaviour
 
 	public IEnumerator LoadYourAsyncScene(int lvlNumber)
 	{
+		if (LIS.Play)
+		{
+			yield break;
+		}
+		Debug.Log("loading new level: " + lvlNumber);
 		GameObject[] menus = Menus;
 		foreach (GameObject gameObject in menus)
 		{

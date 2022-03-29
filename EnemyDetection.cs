@@ -346,7 +346,7 @@ public class EnemyDetection : MonoBehaviour
 		{
 			Bullets.Remove(other);
 		}
-		else if (!(other.transform.tag == "Mine") && (other.transform.tag == "Solid" || other.transform.tag == "MapBorder") && GameMaster.instance.CurrentMission != 49 && !MapEditorMaster.instance)
+		else if (!(other.transform.tag == "Mine") && (other.transform.tag == "Solid" || other.transform.tag == "MapBorder") && GameMaster.instance.CurrentMission == 49 && !MapEditorMaster.instance)
 		{
 			FloorPieces.Remove(other);
 			if (FloorPieces.Count < 1)
