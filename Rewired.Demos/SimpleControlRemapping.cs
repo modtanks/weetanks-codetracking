@@ -39,9 +39,9 @@ public class SimpleControlRemapping : MonoBehaviour
 
 	public Text statusUIText;
 
-	private ControllerType selectedControllerType;
+	private ControllerType selectedControllerType = ControllerType.Keyboard;
 
-	private int selectedControllerId;
+	private int selectedControllerId = 0;
 
 	private List<Row> rows = new List<Row>();
 
@@ -96,18 +96,18 @@ public class SimpleControlRemapping : MonoBehaviour
 		{
 			Row row = rows[i];
 			InputAction action = rows[i].action;
-			string text = string.Empty;
+			string name = string.Empty;
 			int actionElementMapId = -1;
-			foreach (ActionElementMap item in controllerMap.ElementMapsWithAction(action.id))
+			foreach (ActionElementMap actionElementMap in controllerMap.ElementMapsWithAction(action.id))
 			{
-				if (item.ShowInField(row.actionRange))
+				if (actionElementMap.ShowInField(row.actionRange))
 				{
-					text = item.elementIdentifierName;
-					actionElementMapId = item.id;
+					name = actionElementMap.elementIdentifierName;
+					actionElementMapId = actionElementMap.id;
 					break;
 				}
 			}
-			row.text.text = text;
+			row.text.text = name;
 			row.button.onClick.RemoveAllListeners();
 			int index = i;
 			row.button.onClick.AddListener(delegate
@@ -135,25 +135,25 @@ public class SimpleControlRemapping : MonoBehaviour
 
 	private void InitializeUI()
 	{
-		foreach (Transform item in actionGroupTransform)
+		foreach (Transform t in actionGroupTransform)
 		{
-			Object.Destroy(item.gameObject);
+			Object.Destroy(t.gameObject);
 		}
-		foreach (Transform item2 in fieldGroupTransform)
+		foreach (Transform t2 in fieldGroupTransform)
 		{
-			Object.Destroy(item2.gameObject);
+			Object.Destroy(t2.gameObject);
 		}
-		foreach (InputAction item3 in ReInput.mapping.ActionsInCategory("Default"))
+		foreach (InputAction action in ReInput.mapping.ActionsInCategory("Default"))
 		{
-			if (item3.type == InputActionType.Axis)
+			if (action.type == InputActionType.Axis)
 			{
-				CreateUIRow(item3, AxisRange.Full, item3.descriptiveName);
-				CreateUIRow(item3, AxisRange.Positive, (!string.IsNullOrEmpty(item3.positiveDescriptiveName)) ? item3.positiveDescriptiveName : (item3.descriptiveName + " +"));
-				CreateUIRow(item3, AxisRange.Negative, (!string.IsNullOrEmpty(item3.negativeDescriptiveName)) ? item3.negativeDescriptiveName : (item3.descriptiveName + " -"));
+				CreateUIRow(action, AxisRange.Full, action.descriptiveName);
+				CreateUIRow(action, AxisRange.Positive, (!string.IsNullOrEmpty(action.positiveDescriptiveName)) ? action.positiveDescriptiveName : (action.descriptiveName + " +"));
+				CreateUIRow(action, AxisRange.Negative, (!string.IsNullOrEmpty(action.negativeDescriptiveName)) ? action.negativeDescriptiveName : (action.descriptiveName + " -"));
 			}
-			else if (item3.type == InputActionType.Button)
+			else if (action.type == InputActionType.Button)
 			{
-				CreateUIRow(item3, AxisRange.Positive, item3.descriptiveName);
+				CreateUIRow(action, AxisRange.Positive, action.descriptiveName);
 			}
 		}
 		RedrawUI();
@@ -161,31 +161,31 @@ public class SimpleControlRemapping : MonoBehaviour
 
 	private void CreateUIRow(InputAction action, AxisRange actionRange, string label)
 	{
-		GameObject obj = Object.Instantiate(textPrefab);
-		obj.transform.SetParent(actionGroupTransform);
-		obj.transform.SetAsLastSibling();
-		obj.GetComponent<Text>().text = label;
-		GameObject gameObject = Object.Instantiate(buttonPrefab);
-		gameObject.transform.SetParent(fieldGroupTransform);
-		gameObject.transform.SetAsLastSibling();
+		GameObject labelGo = Object.Instantiate(textPrefab);
+		labelGo.transform.SetParent(actionGroupTransform);
+		labelGo.transform.SetAsLastSibling();
+		labelGo.GetComponent<Text>().text = label;
+		GameObject buttonGo = Object.Instantiate(buttonPrefab);
+		buttonGo.transform.SetParent(fieldGroupTransform);
+		buttonGo.transform.SetAsLastSibling();
 		rows.Add(new Row
 		{
 			action = action,
 			actionRange = actionRange,
-			button = gameObject.GetComponent<Button>(),
-			text = gameObject.GetComponentInChildren<Text>()
+			button = buttonGo.GetComponent<Button>(),
+			text = buttonGo.GetComponentInChildren<Text>()
 		});
 	}
 
 	private void SetSelectedController(ControllerType controllerType)
 	{
-		bool flag = false;
+		bool changed = false;
 		if (controllerType != selectedControllerType)
 		{
 			selectedControllerType = controllerType;
-			flag = true;
+			changed = true;
 		}
-		int num = selectedControllerId;
+		int origId = selectedControllerId;
 		if (selectedControllerType == ControllerType.Joystick)
 		{
 			if (player.controllers.joystickCount > 0)
@@ -201,11 +201,11 @@ public class SimpleControlRemapping : MonoBehaviour
 		{
 			selectedControllerId = 0;
 		}
-		if (selectedControllerId != num)
+		if (selectedControllerId != origId)
 		{
-			flag = true;
+			changed = true;
 		}
-		if (flag)
+		if (changed)
 		{
 			inputMapper.Stop();
 			RedrawUI();

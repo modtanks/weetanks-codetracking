@@ -5,7 +5,7 @@ public class DrawGizmos : MonoBehaviour
 {
 	public PathfindingBlock myPB;
 
-	public bool Picked;
+	public bool Picked = false;
 
 	private void Start()
 	{
@@ -26,20 +26,20 @@ public class DrawGizmos : MonoBehaviour
 
 	private IEnumerator GetMyPB()
 	{
-		float seconds = Random.Range(3f, 7f);
-		yield return new WaitForSeconds(seconds);
-		PathfindingBlock pathfindingBlock = null;
-		float num = 99999f;
-		foreach (PathfindingBlock allBlock in PathfindingBlocksMaster.instance.AllBlocks)
+		float searchTime = Random.Range(3f, 7f);
+		yield return new WaitForSeconds(searchTime);
+		PathfindingBlock ClosestPB = null;
+		float recentDist = 99999f;
+		foreach (PathfindingBlock PB in PathfindingBlocksMaster.instance.AllBlocks)
 		{
-			float num2 = Vector3.Distance(base.transform.position, allBlock.transform.position);
-			if (num2 < num)
+			float dist = Vector3.Distance(base.transform.position, PB.transform.position);
+			if (dist < recentDist)
 			{
-				pathfindingBlock = allBlock;
-				num = num2;
+				ClosestPB = PB;
+				recentDist = dist;
 			}
 		}
-		myPB = pathfindingBlock;
+		myPB = ClosestPB;
 	}
 
 	private void OnDrawGizmos()

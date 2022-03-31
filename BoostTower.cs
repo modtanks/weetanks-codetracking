@@ -29,9 +29,9 @@ public class BoostTower : MonoBehaviour
 
 	public GameObject TowerDestruction;
 
-	public bool InitiateDestroyTower;
+	public bool InitiateDestroyTower = false;
 
-	private bool prevent;
+	private bool prevent = false;
 
 	private void Start()
 	{
@@ -41,17 +41,17 @@ public class BoostTower : MonoBehaviour
 
 	private void CheckForPlayers()
 	{
-		Collider[] array = Physics.OverlapSphere(base.transform.position, TowerRange);
+		Collider[] bigobjectsInRange = Physics.OverlapSphere(base.transform.position, TowerRange);
 		PlayersInRange.Clear();
-		Collider[] array2 = array;
-		foreach (Collider collider in array2)
+		Collider[] array = bigobjectsInRange;
+		foreach (Collider col in array)
 		{
-			if (collider.tag == "Player")
+			if (col.tag == "Player")
 			{
-				MoveTankScript component = collider.gameObject.GetComponent<MoveTankScript>();
-				if ((bool)component && !PlayersInRange.Contains(component))
+				MoveTankScript MTS = col.gameObject.GetComponent<MoveTankScript>();
+				if ((bool)MTS && !PlayersInRange.Contains(MTS))
 				{
-					PlayersInRange.Add(component);
+					PlayersInRange.Add(MTS);
 				}
 			}
 		}
@@ -59,7 +59,8 @@ public class BoostTower : MonoBehaviour
 
 	public void DestroyTower()
 	{
-		Object.Destroy(Object.Instantiate(TowerDestruction, base.transform.position, Quaternion.identity), 4f);
+		GameObject DestructionObject = Object.Instantiate(TowerDestruction, base.transform.position, Quaternion.identity);
+		Object.Destroy(DestructionObject, 4f);
 		base.transform.parent.gameObject.SetActive(value: false);
 	}
 
@@ -73,48 +74,49 @@ public class BoostTower : MonoBehaviour
 		if (PlayersInRange.Count > 0)
 		{
 			TowerLight.intensity = Mathf.Lerp(TowerLight.intensity, PlayerLightIntensity, Time.deltaTime);
-			float num = TowerGlowBlock.material.GetVector("_EmissionColor")[3];
-			if (num < BlockPlayerLightIntensity)
+			float CurrentIntensity2 = TowerGlowBlock.material.GetVector("_EmissionColor")[3];
+			if (CurrentIntensity2 < BlockPlayerLightIntensity)
 			{
-				float num2 = num + 0.05f;
-				TowerGlowBlock.material.SetVector("_EmissionColor", TowerColor * num2);
+				float newIntensity2 = CurrentIntensity2 + 0.05f;
+				TowerGlowBlock.material.SetVector("_EmissionColor", TowerColor * newIntensity2);
 			}
 			if (!TowerParticles.isPlaying)
 			{
 				TowerParticles.Play();
 			}
-			List<MoveTankScript> list = new List<MoveTankScript>();
-			foreach (MoveTankScript item in PlayersInRange)
+			List<MoveTankScript> PlayersToRemove = new List<MoveTankScript>();
+			foreach (MoveTankScript Player2 in PlayersInRange)
 			{
-				if (item != null)
+				if (Player2 != null)
 				{
-					if (Vector3.Distance(base.transform.position, item.transform.position) <= TowerRange + 0.3f)
+					float DistToPlayer = Vector3.Distance(base.transform.position, Player2.transform.position);
+					if (DistToPlayer <= TowerRange + 0.3f)
 					{
-						item.isBeingTowerBoosted = true;
+						Player2.isBeingTowerBoosted = true;
 						continue;
 					}
-					item.isBeingTowerBoosted = false;
-					list.Add(item);
+					Player2.isBeingTowerBoosted = false;
+					PlayersToRemove.Add(Player2);
 				}
 			}
-			if (list.Count <= 0)
+			if (PlayersToRemove.Count <= 0)
 			{
 				return;
 			}
 			{
-				foreach (MoveTankScript item2 in list)
+				foreach (MoveTankScript Player in PlayersToRemove)
 				{
-					item2.isBeingTowerBoosted = false;
-					PlayersInRange.Remove(item2);
+					Player.isBeingTowerBoosted = false;
+					PlayersInRange.Remove(Player);
 				}
 				return;
 			}
 		}
-		float num3 = TowerGlowBlock.material.GetVector("_EmissionColor")[3];
-		if (num3 > BlockLightIntensity)
+		float CurrentIntensity = TowerGlowBlock.material.GetVector("_EmissionColor")[3];
+		if (CurrentIntensity > BlockLightIntensity)
 		{
-			float num4 = num3 - 0.05f;
-			TowerGlowBlock.material.SetVector("_EmissionColor", TowerColor * num4);
+			float newIntensity = CurrentIntensity - 0.05f;
+			TowerGlowBlock.material.SetVector("_EmissionColor", TowerColor * newIntensity);
 		}
 		TowerParticles.Stop();
 		TowerLight.intensity = Mathf.Lerp(TowerLight.intensity, NormalLightIntensity, Time.deltaTime);

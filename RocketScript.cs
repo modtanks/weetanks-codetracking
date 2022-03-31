@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class RocketScript : MonoBehaviour
 {
-	public int state;
+	public int state = 0;
 
 	public float landingOffset = 3f;
 
@@ -38,7 +38,7 @@ public class RocketScript : MonoBehaviour
 
 	public Animator theAnim;
 
-	private bool PlayedDeadSound;
+	private bool PlayedDeadSound = false;
 
 	public Vector3 TargetPosition;
 
@@ -50,10 +50,11 @@ public class RocketScript : MonoBehaviour
 		boxC.enabled = false;
 		if (papaTank != null)
 		{
-			ParticleSystem[] componentsInChildren = root.GetComponentsInChildren<ParticleSystem>();
-			for (int i = 0; i < componentsInChildren.Length; i++)
+			ParticleSystem[] childrenParticleSytems = root.GetComponentsInChildren<ParticleSystem>();
+			ParticleSystem[] array = childrenParticleSytems;
+			foreach (ParticleSystem system in array)
 			{
-				componentsInChildren[i].Stop();
+				system.Stop();
 			}
 		}
 	}
@@ -66,11 +67,13 @@ public class RocketScript : MonoBehaviour
 			{
 				Object.Destroy(spawnedTarget);
 			}
-			Object.Destroy(Object.Instantiate(explosionPrefab, base.transform.position, Quaternion.identity).gameObject, 2f);
-			Transform obj = root.Find("SmokeBullet");
-			obj.GetComponent<ParticleSystem>().Stop();
-			obj.parent = null;
-			Object.Destroy(obj.gameObject, 5f);
+			GameObject poof = Object.Instantiate(explosionPrefab, base.transform.position, Quaternion.identity);
+			Object.Destroy(poof.gameObject, 2f);
+			Transform PE = root.Find("SmokeBullet");
+			ParticleSystem PEsystem = PE.GetComponent<ParticleSystem>();
+			PEsystem.Stop();
+			PE.parent = null;
+			Object.Destroy(PE.gameObject, 5f);
 			Object.Destroy(base.gameObject);
 		}
 		if (state == 1)
@@ -87,27 +90,27 @@ public class RocketScript : MonoBehaviour
 		{
 			base.transform.LookAt(new Vector3(TargetPosition.x, base.transform.position.y, TargetPosition.z));
 			base.transform.RotateAround(base.transform.position, base.transform.right, 90f);
-			Vector3 b = new Vector3(TargetPosition.x, base.transform.position.y, TargetPosition.z);
-			Vector3 vector = FlyDirection;
-			float num = Vector3.Distance(base.transform.position, b);
-			float num2 = 15f;
-			if (num <= 6f)
+			Vector3 TargetMyHeight = new Vector3(TargetPosition.x, base.transform.position.y, TargetPosition.z);
+			Vector3 dir = FlyDirection;
+			float dist = Vector3.Distance(base.transform.position, TargetMyHeight);
+			float speed = 15f;
+			if (dist <= 6f)
 			{
-				num2 = 12f;
+				speed = 12f;
 				if (theAnim.GetBool("Swerving"))
 				{
 					theAnim.SetBool("Swerving", value: false);
 				}
 			}
-			if (num <= 3f)
+			if (dist <= 3f)
 			{
-				num2 = 9f;
-				float angle = Mathf.Lerp(0f, 90f, 1f - num / 4f);
-				base.transform.RotateAround(base.transform.position, base.transform.right, angle);
-				vector = Vector3.Lerp(b: new Vector3(FlyDirection.x, -2f, FlyDirection.z), a: FlyDirection, t: 1f - num / 4f);
+				speed = 9f;
+				float amountDown = Mathf.Lerp(0f, 90f, 1f - dist / 4f);
+				base.transform.RotateAround(base.transform.position, base.transform.right, amountDown);
+				dir = Vector3.Lerp(b: new Vector3(FlyDirection.x, -2f, FlyDirection.z), a: FlyDirection, t: 1f - dist / 4f);
 			}
-			base.transform.Translate(vector * Time.deltaTime * num2, Space.World);
-			if (num <= 0.6f)
+			base.transform.Translate(dir * Time.deltaTime * speed, Space.World);
+			if (dist <= 0.6f)
 			{
 				state = 3;
 			}
@@ -146,10 +149,11 @@ public class RocketScript : MonoBehaviour
 	public void Launch()
 	{
 		SFXManager.instance.PlaySFX(launchSound);
-		ParticleSystem[] componentsInChildren = root.GetComponentsInChildren<ParticleSystem>();
-		for (int i = 0; i < componentsInChildren.Length; i++)
+		ParticleSystem[] childrenParticleSytems = root.GetComponentsInChildren<ParticleSystem>();
+		ParticleSystem[] array = childrenParticleSytems;
+		foreach (ParticleSystem system in array)
 		{
-			componentsInChildren[i].Play();
+			system.Play();
 		}
 		state = 1;
 		base.transform.parent = null;
@@ -162,10 +166,11 @@ public class RocketScript : MonoBehaviour
 		boxC.enabled = true;
 		yield return new WaitForSeconds(2.5f);
 		base.transform.RotateAround(base.transform.position, base.transform.right, 180f);
-		ParticleSystem[] componentsInChildren = root.GetComponentsInChildren<ParticleSystem>();
-		for (int i = 0; i < componentsInChildren.Length; i++)
+		ParticleSystem[] childrenParticleSytems = root.GetComponentsInChildren<ParticleSystem>();
+		ParticleSystem[] array = childrenParticleSytems;
+		foreach (ParticleSystem system in array)
 		{
-			componentsInChildren[i].Play();
+			system.Play();
 		}
 		GetTarget();
 	}
@@ -195,50 +200,49 @@ public class RocketScript : MonoBehaviour
 
 	private void TargetTanks(bool onlyPlayers)
 	{
-		List<GameObject> list = new List<GameObject>();
-		GameObject[] array;
+		List<GameObject> PossibleTargets = new List<GameObject>();
 		if (!onlyPlayers)
 		{
-			array = GameObject.FindGameObjectsWithTag("Enemy");
-			foreach (GameObject gameObject in array)
+			GameObject[] array = GameObject.FindGameObjectsWithTag("Enemy");
+			foreach (GameObject go2 in array)
 			{
-				EnemyAI component = gameObject.GetComponent<EnemyAI>();
-				if ((bool)component && (component.MyTeam != MyTeam || component.MyTeam == 0) && component.gameObject != papaTank)
+				EnemyAI EA2 = go2.GetComponent<EnemyAI>();
+				if ((bool)EA2 && (EA2.MyTeam != MyTeam || EA2.MyTeam == 0) && EA2.gameObject != papaTank)
 				{
-					list.Add(gameObject);
+					PossibleTargets.Add(go2);
 				}
 			}
 		}
-		array = GameObject.FindGameObjectsWithTag("Player");
-		foreach (GameObject gameObject2 in array)
+		GameObject[] array2 = GameObject.FindGameObjectsWithTag("Player");
+		foreach (GameObject go in array2)
 		{
-			EnemyAI component2 = gameObject2.GetComponent<EnemyAI>();
-			if ((bool)component2)
+			EnemyAI EA = go.GetComponent<EnemyAI>();
+			if ((bool)EA)
 			{
-				if (component2.MyTeam != MyTeam || component2.MyTeam == 0)
+				if (EA.MyTeam != MyTeam || EA.MyTeam == 0)
 				{
-					list.Add(gameObject2);
+					PossibleTargets.Add(go);
 				}
 				continue;
 			}
-			MoveTankScript component3 = gameObject2.GetComponent<MoveTankScript>();
-			if (component3.MyTeam != MyTeam || component3.MyTeam == 0)
+			MoveTankScript MTS = go.GetComponent<MoveTankScript>();
+			if (MTS.MyTeam != MyTeam || MTS.MyTeam == 0)
 			{
-				list.Add(gameObject2);
+				PossibleTargets.Add(go);
 			}
 		}
-		if (list.Count > 0)
+		if (PossibleTargets.Count > 0)
 		{
-			int index = Random.Range(0, list.Count);
-			new Vector3(0f, 3f, 0f);
-			_ = list[index].transform.position;
+			int target = Random.Range(0, PossibleTargets.Count);
+			Vector3 playerLocation = new Vector3(0f, 3f, 0f);
+			playerLocation = PossibleTargets[target].transform.position;
 			state = 2;
-			TargetPosition = CalculateEnemyPosition(list[index]);
+			TargetPosition = CalculateEnemyPosition(PossibleTargets[target]);
 			SpawnTarget(new Vector3(TargetPosition.x, 0.1f, TargetPosition.z));
-			Vector3 vector = TargetPosition - base.transform.position;
-			vector.y = 0f;
-			float magnitude = vector.magnitude;
-			FlyDirection = vector / magnitude;
+			Vector3 heading = TargetPosition - base.transform.position;
+			heading.y = 0f;
+			float distance = heading.magnitude;
+			FlyDirection = heading / distance;
 			Debug.Log(FlyDirection);
 			state = 2;
 		}
@@ -252,9 +256,9 @@ public class RocketScript : MonoBehaviour
 	{
 		LayerMask layerMask = (1 << LayerMask.NameToLayer("Wall")) | (1 << LayerMask.NameToLayer("FLOOR")) | (1 << LayerMask.NameToLayer("NoBounceWall")) | (1 << LayerMask.NameToLayer("CorkWall"));
 		Debug.DrawRay(pos, Vector3.down * 150f, Color.red, 1f);
-		if (Physics.Raycast(pos, Vector3.down * 150f, out var hitInfo, 150f, layerMask) && (hitInfo.collider.tag == "Solid" || hitInfo.collider.tag == "Floor"))
+		if (Physics.Raycast(pos, Vector3.down * 150f, out var hitPoint, 150f, layerMask) && (hitPoint.collider.tag == "Solid" || hitPoint.collider.tag == "Floor"))
 		{
-			spawnedTarget = Object.Instantiate(GroundTarget, hitInfo.point + new Vector3(0f, 0.3f, 0f), Quaternion.identity);
+			spawnedTarget = Object.Instantiate(GroundTarget, hitPoint.point + new Vector3(0f, 0.3f, 0f), Quaternion.identity);
 		}
 	}
 
@@ -274,10 +278,11 @@ public class RocketScript : MonoBehaviour
 		base.transform.Find("SmokeBullet").gameObject.SetActive(value: false);
 		yield return new WaitForSeconds(0.1f);
 		base.transform.Find("SmokeBullet").gameObject.SetActive(value: true);
-		ParticleSystem[] componentsInChildren = root.GetComponentsInChildren<ParticleSystem>();
-		for (int i = 0; i < componentsInChildren.Length; i++)
+		ParticleSystem[] childrenParticleSytems = root.GetComponentsInChildren<ParticleSystem>();
+		ParticleSystem[] array = childrenParticleSytems;
+		foreach (ParticleSystem system in array)
 		{
-			componentsInChildren[i].Play();
+			system.Play();
 		}
 	}
 
@@ -300,97 +305,111 @@ public class RocketScript : MonoBehaviour
 			{
 				AreaDamageEnemies(base.transform.position, impactRange, 1.5f);
 			}
-			CameraShake component = Camera.main.GetComponent<CameraShake>();
-			if ((bool)component)
+			CameraShake CS = Camera.main.GetComponent<CameraShake>();
+			if ((bool)CS)
 			{
-				component.StartCoroutine(component.Shake(0.08f, 0.12f));
+				CS.StartCoroutine(CS.Shake(0.08f, 0.12f));
 			}
-			Object.Destroy(Object.Instantiate(explosionPrefab, base.transform.position, Quaternion.identity).gameObject, 2f);
-			Transform obj = root.Find("SmokeBullet");
-			obj.GetComponent<ParticleSystem>().Stop();
-			obj.parent = null;
-			Object.Destroy(obj.gameObject, 5f);
+			GameObject poof = Object.Instantiate(explosionPrefab, base.transform.position, Quaternion.identity);
+			Object.Destroy(poof.gameObject, 2f);
+			Transform PE = root.Find("SmokeBullet");
+			ParticleSystem PEsystem = PE.GetComponent<ParticleSystem>();
+			PEsystem.Stop();
+			PE.parent = null;
+			Object.Destroy(PE.gameObject, 5f);
 			Object.Destroy(base.gameObject);
 		}
 	}
 
 	private Vector3 CalculateEnemyPosition(GameObject TargetObject)
 	{
-		if (TargetObject.GetComponent<Rigidbody>().velocity.magnitude > 0.5f)
+		Rigidbody rb = TargetObject.GetComponent<Rigidbody>();
+		if (rb.velocity.magnitude > 0.5f)
 		{
-			EnemyAI component = TargetObject.GetComponent<EnemyAI>();
-			Vector3 vector = (component ? ((!component.DrivingBackwards) ? (TargetObject.transform.position + TargetObject.transform.forward * 2f) : (TargetObject.transform.position + -TargetObject.transform.forward * 2f)) : ((!TargetObject.GetComponent<MoveTankScript>().DrivingBackwards) ? (TargetObject.transform.position + TargetObject.transform.forward * 2f) : (TargetObject.transform.position + -TargetObject.transform.forward * 2f)));
-			Debug.DrawLine(vector, base.transform.position, Color.blue);
-			return vector + new Vector3(Random.Range(0f - landingOffset, landingOffset), 50f, Random.Range(0f - landingOffset, landingOffset));
+			EnemyAI EA = TargetObject.GetComponent<EnemyAI>();
+			Vector3 calcPos;
+			if ((bool)EA)
+			{
+				calcPos = ((!EA.DrivingBackwards) ? (TargetObject.transform.position + TargetObject.transform.forward * 2f) : (TargetObject.transform.position + -TargetObject.transform.forward * 2f));
+			}
+			else
+			{
+				MoveTankScript MTS = TargetObject.GetComponent<MoveTankScript>();
+				calcPos = ((!MTS.DrivingBackwards) ? (TargetObject.transform.position + TargetObject.transform.forward * 2f) : (TargetObject.transform.position + -TargetObject.transform.forward * 2f));
+			}
+			Debug.DrawLine(calcPos, base.transform.position, Color.blue);
+			return calcPos + new Vector3(Random.Range(0f - landingOffset, landingOffset), 50f, Random.Range(0f - landingOffset, landingOffset));
 		}
 		return TargetObject.transform.position + new Vector3(Random.Range(0f - landingOffset, landingOffset), 50f, Random.Range(0f - landingOffset, landingOffset));
 	}
 
 	private void AreaDamageEnemies(Vector3 location, float radius, float damage)
 	{
-		Collider[] array = Physics.OverlapSphere(location, radius);
-		foreach (Collider obj in array)
+		Collider[] objectsInRange = Physics.OverlapSphere(location, radius);
+		Collider[] array = objectsInRange;
+		foreach (Collider col in array)
 		{
-			HealthTanks component = obj.GetComponent<HealthTanks>();
-			LookAtMyDirection component2 = obj.GetComponent<LookAtMyDirection>();
-			EnemyBulletScript component3 = obj.GetComponent<EnemyBulletScript>();
-			MineScript component4 = obj.GetComponent<MineScript>();
-			DestroyableWall component5 = obj.GetComponent<DestroyableWall>();
-			ExplosiveBlock component6 = obj.GetComponent<ExplosiveBlock>();
-			if ((bool)component6 && !component6.isExploding)
+			HealthTanks enemy = col.GetComponent<HealthTanks>();
+			LookAtMyDirection friendbullet = col.GetComponent<LookAtMyDirection>();
+			EnemyBulletScript enemybullet = col.GetComponent<EnemyBulletScript>();
+			MineScript mines = col.GetComponent<MineScript>();
+			DestroyableWall DestroyWall = col.GetComponent<DestroyableWall>();
+			ExplosiveBlock EB = col.GetComponent<ExplosiveBlock>();
+			if ((bool)EB && !EB.isExploding)
 			{
-				component6.StartCoroutine(component6.Death());
+				EB.StartCoroutine(EB.Death());
 			}
-			if (component != null)
+			if (enemy != null)
 			{
-				if (component.ShieldFade != null)
+				if (enemy.ShieldFade != null)
 				{
-					if (component.ShieldFade.ShieldHealth > 0)
+					if (enemy.ShieldFade.ShieldHealth > 0)
 					{
-						component.ShieldFade.ShieldHealth = 0;
+						enemy.ShieldFade.ShieldHealth = 0;
 					}
 					else
 					{
-						component.DamageMe(1);
+						enemy.DamageMe(1);
 					}
 				}
 				else
 				{
-					component.DamageMe(1);
+					enemy.DamageMe(1);
 				}
 			}
-			if (component2 != null)
+			if (friendbullet != null)
 			{
-				component2.BounceAmount = 999;
+				friendbullet.BounceAmount = 999;
 			}
-			if (component3 != null)
+			if (enemybullet != null)
 			{
-				component3.BounceAmount = 999;
+				enemybullet.BounceAmount = 999;
 			}
-			if (component4 != null)
+			if (mines != null)
 			{
-				component4.DetinationTime = 0f;
+				mines.DetinationTime = 0f;
 			}
-			if (component5 != null)
+			if (DestroyWall != null)
 			{
-				component5.StartCoroutine(component5.destroy());
+				DestroyWall.StartCoroutine(DestroyWall.destroy());
 			}
 		}
-		array = Physics.OverlapSphere(location, 1f);
-		for (int i = 0; i < array.Length; i++)
+		Collider[] smallRange = Physics.OverlapSphere(location, 1f);
+		Collider[] array2 = smallRange;
+		foreach (Collider col2 in array2)
 		{
-			DestroyableBlock component7 = array[i].GetComponent<DestroyableBlock>();
-			if (component7 != null)
+			DestroyableBlock destroyBlocks = col2.GetComponent<DestroyableBlock>();
+			if (destroyBlocks != null)
 			{
-				component7.blockHealth--;
+				destroyBlocks.blockHealth--;
 			}
 		}
 	}
 
 	private void DeadSound()
 	{
-		int maxExclusive = DeadHit.Length;
-		int num = Random.Range(0, maxExclusive);
-		SFXManager.instance.PlaySFX(DeadHit[num], 0.6f, null);
+		int lengthClips = DeadHit.Length;
+		int randomPick = Random.Range(0, lengthClips);
+		SFXManager.instance.PlaySFX(DeadHit[randomPick], 0.6f, null);
 	}
 }

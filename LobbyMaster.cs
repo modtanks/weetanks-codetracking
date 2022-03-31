@@ -7,13 +7,13 @@ public class LobbyMaster : MonoBehaviour
 {
 	private static LobbyMaster _instance;
 
-	public int MyPlayerID;
+	public int MyPlayerID = 0;
 
 	public string Player1Name;
 
 	public string Player2Name;
 
-	public bool LobbyStarted;
+	public bool LobbyStarted = false;
 
 	public OnlinePlayerData OtherPlayerInfo;
 
@@ -23,7 +23,7 @@ public class LobbyMaster : MonoBehaviour
 
 	public float waitingTimeBetweenRequests = 0.4f;
 
-	public bool isDoingInfo;
+	public bool isDoingInfo = false;
 
 	public static LobbyMaster instance => _instance;
 
@@ -49,15 +49,15 @@ public class LobbyMaster : MonoBehaviour
 			yield break;
 		}
 		prevRequestIsHere = false;
-		WWWForm wWWForm = new WWWForm();
+		WWWForm form = new WWWForm();
 		new OnlinePlayerData();
-		wWWForm.AddField("username", AccountMaster.instance.Username);
-		wWWForm.AddField("userid", AccountMaster.instance.UserID);
-		wWWForm.AddField("key", AccountMaster.instance.Key);
-		wWWForm.AddField("lobbyid", AccountMaster.instance.LobbyID);
-		wWWForm.AddField("action", 1);
-		wWWForm.AddField("playerData", JsonUtility.ToJson(MyPlayerInfo));
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/send_lobby_data.php", wWWForm);
+		form.AddField("username", AccountMaster.instance.Username);
+		form.AddField("userid", AccountMaster.instance.UserID);
+		form.AddField("key", AccountMaster.instance.Key);
+		form.AddField("lobbyid", AccountMaster.instance.LobbyID);
+		form.AddField("action", 1);
+		form.AddField("playerData", JsonUtility.ToJson(MyPlayerInfo));
+		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/send_lobby_data.php", form);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		prevRequestIsHere = true;

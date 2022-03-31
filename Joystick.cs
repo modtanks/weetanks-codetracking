@@ -7,24 +7,24 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IEventSystemHandler,
 	private float handleRange = 1f;
 
 	[SerializeField]
-	private float deadZone;
+	private float deadZone = 0f;
 
 	[SerializeField]
-	private AxisOptions axisOptions;
+	private AxisOptions axisOptions = AxisOptions.Both;
 
 	[SerializeField]
-	private bool snapX;
+	private bool snapX = false;
 
 	[SerializeField]
-	private bool snapY;
+	private bool snapY = false;
 
 	[SerializeField]
-	protected RectTransform background;
+	protected RectTransform background = null;
 
 	[SerializeField]
-	private RectTransform handle;
+	private RectTransform handle = null;
 
-	private RectTransform baseRect;
+	private RectTransform baseRect = null;
 
 	private Canvas canvas;
 
@@ -32,29 +32,9 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IEventSystemHandler,
 
 	private Vector2 input = Vector2.zero;
 
-	public float Horizontal
-	{
-		get
-		{
-			if (!snapX)
-			{
-				return input.x;
-			}
-			return SnapFloat(input.x, AxisOptions.Horizontal);
-		}
-	}
+	public float Horizontal => snapX ? SnapFloat(input.x, AxisOptions.Horizontal) : input.x;
 
-	public float Vertical
-	{
-		get
-		{
-			if (!snapY)
-			{
-				return input.y;
-			}
-			return SnapFloat(input.y, AxisOptions.Vertical);
-		}
-	}
+	public float Vertical => snapY ? SnapFloat(input.y, AxisOptions.Vertical) : input.y;
 
 	public Vector2 Direction => new Vector2(Horizontal, Vertical);
 
@@ -128,11 +108,11 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IEventSystemHandler,
 		{
 			Debug.LogError("The Joystick is not placed inside a canvas");
 		}
-		Vector2 vector = new Vector2(0.5f, 0.5f);
-		background.pivot = vector;
-		handle.anchorMin = vector;
-		handle.anchorMax = vector;
-		handle.pivot = vector;
+		Vector2 center = new Vector2(0.5f, 0.5f);
+		background.pivot = center;
+		handle.anchorMin = center;
+		handle.anchorMax = center;
+		handle.pivot = center;
 		handle.anchoredPosition = Vector2.zero;
 	}
 
@@ -148,12 +128,12 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IEventSystemHandler,
 		{
 			cam = canvas.worldCamera;
 		}
-		Vector2 vector = RectTransformUtility.WorldToScreenPoint(cam, background.position);
-		Vector2 vector2 = background.sizeDelta / 2f;
-		input = (eventData.position - vector) / (vector2 * canvas.scaleFactor);
+		Vector2 position = RectTransformUtility.WorldToScreenPoint(cam, background.position);
+		Vector2 radius = background.sizeDelta / 2f;
+		input = (eventData.position - position) / (radius * canvas.scaleFactor);
 		FormatInput();
-		HandleInput(input.magnitude, input.normalized, vector2, cam);
-		handle.anchoredPosition = input * vector2 * handleRange;
+		HandleInput(input.magnitude, input.normalized, radius, cam);
+		handle.anchoredPosition = input * radius * handleRange;
 	}
 
 	protected virtual void HandleInput(float magnitude, Vector2 normalised, Vector2 radius, Camera cam)
@@ -191,17 +171,17 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IEventSystemHandler,
 		}
 		if (axisOptions == AxisOptions.Both)
 		{
-			float num = Vector2.Angle(input, Vector2.up);
+			float angle = Vector2.Angle(input, Vector2.up);
 			switch (snapAxis)
 			{
 			case AxisOptions.Horizontal:
-				if (num < 22.5f || num > 157.5f)
+				if (angle < 22.5f || angle > 157.5f)
 				{
 					return 0f;
 				}
 				return (value > 0f) ? 1 : (-1);
 			case AxisOptions.Vertical:
-				if (num > 67.5f && num < 112.5f)
+				if (angle > 67.5f && angle < 112.5f)
 				{
 					return 0f;
 				}
@@ -232,8 +212,8 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IEventSystemHandler,
 		Vector2 localPoint = Vector2.zero;
 		if (RectTransformUtility.ScreenPointToLocalPointInRectangle(baseRect, screenPosition, cam, out localPoint))
 		{
-			Vector2 vector = baseRect.pivot * baseRect.sizeDelta;
-			return localPoint - background.anchorMax * baseRect.sizeDelta + vector;
+			Vector2 pivotOffset = baseRect.pivot * baseRect.sizeDelta;
+			return localPoint - background.anchorMax * baseRect.sizeDelta + pivotOffset;
 		}
 		return Vector2.zero;
 	}

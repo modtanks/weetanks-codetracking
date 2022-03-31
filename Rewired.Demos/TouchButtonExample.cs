@@ -43,10 +43,6 @@ public class TouchButtonExample : MonoBehaviour, IPointerDownHandler, IEventSyst
 
 	private static bool IsMousePointerId(int id)
 	{
-		if (id != -1 && id != -2)
-		{
-			return id == -3;
-		}
-		return true;
+		return id == -1 || id == -2 || id == -3;
 	}
 }

@@ -25,9 +25,8 @@ public class LaserRaycast : MonoBehaviour
 		else if ((bool)MTS)
 		{
 			myLine.colorGradient = TeamColors[MTS.playerId + 1];
-			if (!GameMaster.instance.isPlayingWithController)
+			if (!GameMaster.instance.isPlayingWithController && MTS.playerId != 0)
 			{
-				_ = MTS.playerId;
 			}
 		}
 		myParent = base.transform.parent;
@@ -40,27 +39,25 @@ public class LaserRaycast : MonoBehaviour
 		{
 			if (ReInput.players.GetPlayer(0).controllers.GetLastActiveController().type == ControllerType.Joystick)
 			{
-				Debug.Log("ENABLOE LASER");
 				myParent.gameObject.SetActive(value: true);
 				base.transform.SetParent(myParent);
 				myLine.enabled = true;
 			}
 			else
 			{
-				Debug.Log("DISABLE LASER");
 				base.transform.SetParent(myParent.parent);
 				myLine.enabled = false;
 				myParent.gameObject.SetActive(value: false);
 			}
 		}
-		_ = base.transform.forward;
-		_ = base.transform.position - base.transform.forward;
-		base.transform.TransformDirection(Vector3.forward);
-		if (Physics.Raycast(base.transform.position, base.transform.forward, out var hitInfo, 50f, myLayerMasks))
+		Vector3 testdir = base.transform.forward;
+		Vector3 dir = base.transform.position - base.transform.forward;
+		Vector3 fwd = base.transform.TransformDirection(Vector3.forward);
+		if (Physics.Raycast(base.transform.position, base.transform.forward, out var rayhit, 50f, myLayerMasks))
 		{
-			float num = Vector3.Distance(base.transform.position, hitInfo.point);
-			Vector3 position = new Vector3(0f, 0f, num / 3f);
-			myLine.SetPosition(1, position);
+			float length = Vector3.Distance(base.transform.position, rayhit.point);
+			Vector3 newPos = new Vector3(0f, 0f, length / 3f);
+			myLine.SetPosition(1, newPos);
 		}
 	}
 }

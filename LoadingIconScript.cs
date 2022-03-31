@@ -9,7 +9,7 @@ public class LoadingIconScript : MonoBehaviour
 
 	public RawImage RI;
 
-	public bool Play;
+	public bool Play = false;
 
 	private void Start()
 	{
@@ -21,10 +21,10 @@ public class LoadingIconScript : MonoBehaviour
 		if (Play)
 		{
 			RI.color = Color.white;
-			int num = Mathf.RoundToInt(Time.time * (float)framesPerSecond % (float)frames.Length);
-			if (num != frames.Length)
+			int index = Mathf.RoundToInt(Time.time * (float)framesPerSecond % (float)frames.Length);
+			if (index != frames.Length)
 			{
-				RI.texture = frames[num];
+				RI.texture = frames[index];
 			}
 		}
 	}

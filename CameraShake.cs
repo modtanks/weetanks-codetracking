@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class CameraShake : MonoBehaviour
 {
-	public bool isThirdPersonCam;
+	public bool isThirdPersonCam = false;
 
 	public IEnumerator Shake(float duration, float magnitude)
 	{

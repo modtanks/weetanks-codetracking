@@ -24,26 +24,26 @@ public class TankIdentifierScript : MonoBehaviour
 			else if (myID > -1)
 			{
 				Text[] texts = Texts;
-				for (int i = 0; i < texts.Length; i++)
+				foreach (Text text3 in texts)
 				{
-					texts[i].text = TankCode[myID];
+					text3.text = TankCode[myID];
 				}
 			}
 			else
 			{
-				Text[] texts = Texts;
-				for (int i = 0; i < texts.Length; i++)
+				Text[] texts2 = Texts;
+				foreach (Text text2 in texts2)
 				{
-					texts[i].text = "";
+					text2.text = "";
 				}
 			}
 		}
 		else
 		{
-			Text[] texts = Texts;
-			for (int i = 0; i < texts.Length; i++)
+			Text[] texts3 = Texts;
+			foreach (Text text in texts3)
 			{
-				texts[i].text = "";
+				text.text = "";
 			}
 		}
 	}

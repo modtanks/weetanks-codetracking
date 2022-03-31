@@ -15,22 +15,22 @@ public class ScrollWithController : MonoBehaviour
 
 	private void Update()
 	{
-		Vector2 vector = default(Vector2);
+		Vector2 input = default(Vector2);
 		for (int i = 0; i < ReInput.players.playerCount; i++)
 		{
-			Player player = ReInput.players.GetPlayer(i);
-			if (player.isPlaying)
+			Player p = ReInput.players.GetPlayer(i);
+			if (p.isPlaying)
 			{
-				vector.y = player.GetAxis("Look Vertically");
-				if (vector.y < 0f || vector.y > 0f)
+				input.y = p.GetAxis("Look Vertically");
+				if (input.y < 0f || input.y > 0f)
 				{
 					break;
 				}
 			}
 		}
-		if (vector.y < 0f || vector.y > 0f)
+		if (input.y < 0f || input.y > 0f)
 		{
-			SR.verticalNormalizedPosition += vector.y / 16f;
+			SR.verticalNormalizedPosition += input.y / 16f;
 		}
 	}
 }

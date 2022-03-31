@@ -24,7 +24,7 @@ public class BossVoiceLines : MonoBehaviour
 
 	public AudioClip[] SpecialAttacks2;
 
-	private bool KilledPlayerLine;
+	private bool KilledPlayerLine = false;
 
 	private void Start()
 	{

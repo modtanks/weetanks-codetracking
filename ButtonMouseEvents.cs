@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHandler
 {
-	public int Place;
+	public int Place = 0;
 
 	[Header("Textures, if you use RawImage")]
 	public Texture NotSelected;
@@ -26,11 +26,11 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 
 	public Image myImage_img;
 
-	public bool IsEnabled;
+	public bool IsEnabled = false;
 
 	public RawImage CheckMarkImage;
 
-	public bool mouseOnMe;
+	public bool mouseOnMe = false;
 
 	public ScrollRect ParentSR;
 
@@ -39,7 +39,7 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 	private TMP_Dropdown MyDropdown;
 
 	[HideInInspector]
-	public int CustomTankID;
+	public int CustomTankID = 0;
 
 	private void Start()
 	{
@@ -51,10 +51,10 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 		{
 			myImage_img = GetComponent<Image>();
 		}
-		GameObject gameObject = GameObject.Find("Canvas");
-		if ((bool)gameObject)
+		GameObject N = GameObject.Find("Canvas");
+		if ((bool)N)
 		{
-			NMC = gameObject.GetComponent<NewMenuControl>();
+			NMC = N.GetComponent<NewMenuControl>();
 		}
 		SetSpriteTexture(NotSelected, NotSelected_sprite);
 		MyDropdown = GetComponent<TMP_Dropdown>();
@@ -113,9 +113,8 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 		{
 			return;
 		}
-		if (NMC.Selection == Place)
+		if (NMC.Selection != Place || NMC.IsUsingMouse)
 		{
-			_ = NMC.IsUsingMouse;
 		}
 		if (NMC.player != null && NMC.Selection == Place)
 		{
@@ -125,19 +124,14 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 			}
 			if (NMC.player.GetAxis("Move Vertically") > 0f)
 			{
-				Debug.Log("INPUT works");
 				if (NMC.Selection > 0 && NMC.CanMove)
 				{
 					NMC.StartCoroutine(NMC.MoveSelection(up: true));
 				}
 			}
-			else if (NMC.player.GetAxis("Move Vertically") < 0f)
+			else if (NMC.player.GetAxis("Move Vertically") < 0f && NMC.CanMove)
 			{
-				Debug.Log("INPUT Y works");
-				if (NMC.CanMove)
-				{
-					NMC.StartCoroutine(NMC.MoveSelection(up: false));
-				}
+				NMC.StartCoroutine(NMC.MoveSelection(up: false));
 			}
 		}
 		else if (NMC.Selection != Place && !NMC.IsUsingMouse)

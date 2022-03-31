@@ -4,17 +4,17 @@ using UnityEngine;
 
 public class KingTankScript : MonoBehaviour
 {
-	public bool IsInBattle;
+	public bool IsInBattle = false;
 
-	public bool IsInFinalBattle;
+	public bool IsInFinalBattle = false;
 
-	public int BossMode;
+	public int BossMode = 0;
 
 	public float TimeTillRam = 10f;
 
-	public float Timer;
+	public float Timer = 0f;
 
-	public float CallInTimer;
+	public float CallInTimer = 0f;
 
 	public float TimeBetweenCalls = 20f;
 
@@ -36,7 +36,7 @@ public class KingTankScript : MonoBehaviour
 	public FollowTank FT;
 
 	[Header("Mortar Stuff")]
-	public bool IsInMortarMode;
+	public bool IsInMortarMode = false;
 
 	public float MortarFireSpeed_1b;
 
@@ -83,13 +83,13 @@ public class KingTankScript : MonoBehaviour
 
 	public MissionHundredController MHC;
 
-	public bool isRamming;
+	public bool isRamming = false;
 
-	public bool isRammingMoving;
+	public bool isRammingMoving = false;
 
 	private Vector3 RamDirection;
 
-	public bool BossDefeated;
+	public bool BossDefeated = false;
 
 	private void Start()
 	{
@@ -128,13 +128,13 @@ public class KingTankScript : MonoBehaviour
 			CallInTimer -= Time.deltaTime;
 			if (CallInTimer < 0f)
 			{
-				int[] array = ((OptionsMainMenu.instance.currentDifficulty != 0) ? ((OptionsMainMenu.instance.currentDifficulty != 1) ? ((OptionsMainMenu.instance.currentDifficulty != 2) ? new int[11]
+				int[] TanksToSpawn = ((OptionsMainMenu.instance.currentDifficulty != 0) ? ((OptionsMainMenu.instance.currentDifficulty != 1) ? ((OptionsMainMenu.instance.currentDifficulty != 2) ? new int[11]
 				{
 					0, 1, 2, 3, 4, 5, 6, 8, 9, 16,
 					16
 				} : new int[10] { 0, 1, 2, 3, 4, 5, 6, 16, 16, 16 }) : new int[3] { 16, 16, 16 }) : new int[2] { 16, 16 });
-				int item = array[Random.Range(0, array.Length)];
-				MHC.PM.SpawnInOrder.Add(item);
+				int PickedTank = TanksToSpawn[Random.Range(0, TanksToSpawn.Length)];
+				MHC.PM.SpawnInOrder.Add(PickedTank);
 				MHC.PM.StartCoroutine(MHC.PM.DoOrder());
 				CallInTimer = TimeBetweenCalls + Random.Range(0f, TimeBetweenCalls);
 			}
@@ -171,9 +171,9 @@ public class KingTankScript : MonoBehaviour
 	private IEnumerator RamSequence()
 	{
 		_ = EA.transform.rotation;
-		Vector3 from = GameMaster.instance.Players[0].transform.position - EA.transform.position;
-		from.y = 0f;
-		float angle = Vector3.Angle(from, EA.transform.forward);
+		Vector3 lookPos = GameMaster.instance.Players[0].transform.position - EA.transform.position;
+		lookPos.y = 0f;
+		float angle = Vector3.Angle(lookPos, EA.transform.forward);
 		while (angle > 6f)
 		{
 			if (isRammingMoving)
@@ -181,12 +181,12 @@ public class KingTankScript : MonoBehaviour
 				yield break;
 			}
 			EA.CanMove = false;
-			from = GameMaster.instance.Players[0].transform.position - EA.transform.position;
-			from.y = 0f;
-			Quaternion b = Quaternion.LookRotation(from);
-			float num = (((float)HT.health < (float)HT.maxHealth / 2f) ? 7f : 5f);
-			EA.transform.rotation = Quaternion.Slerp(EA.transform.rotation, b, Time.deltaTime * num);
-			angle = Vector3.Angle(from, EA.transform.forward);
+			lookPos = GameMaster.instance.Players[0].transform.position - EA.transform.position;
+			lookPos.y = 0f;
+			Quaternion rotation = Quaternion.LookRotation(lookPos);
+			float turnSpeed = (((float)HT.health < (float)HT.maxHealth / 2f) ? 7f : 5f);
+			EA.transform.rotation = Quaternion.Slerp(EA.transform.rotation, rotation, Time.deltaTime * turnSpeed);
+			angle = Vector3.Angle(lookPos, EA.transform.forward);
 			yield return null;
 		}
 		yield return new WaitForSeconds(0.3f);
@@ -205,9 +205,9 @@ public class KingTankScript : MonoBehaviour
 	{
 		MHC.PlayMusic(-1);
 		GameObject[] blocksToDisableWhenThroneBroken = MHC.BlocksToDisableWhenThroneBroken;
-		for (int i = 0; i < blocksToDisableWhenThroneBroken.Length; i++)
+		foreach (GameObject block in blocksToDisableWhenThroneBroken)
 		{
-			blocksToDisableWhenThroneBroken[i].SetActive(value: false);
+			block.SetActive(value: false);
 		}
 		StartCoroutine(FallingDown());
 	}
@@ -240,9 +240,9 @@ public class KingTankScript : MonoBehaviour
 		isRammingMoving = false;
 		RD.RamAS.volume = 0f;
 		ParticleSystem[] ramParticles = RD.RamParticles;
-		for (int i = 0; i < ramParticles.Length; i++)
+		foreach (ParticleSystem PS in ramParticles)
 		{
-			ramParticles[i].Stop();
+			PS.Stop();
 		}
 		RD.enabled = false;
 		yield return new WaitForSeconds(0.01f);
@@ -340,13 +340,13 @@ public class KingTankScript : MonoBehaviour
 			MyAnimator.SetBool("MortarMode", value: false);
 			yield break;
 		}
-		GameObject gameObject = Object.Instantiate(Mortar, ShootingPoint.position, ShootingPoint.rotation);
-		ShotMortars.Add(gameObject);
-		BombSackScript component = gameObject.GetComponent<BombSackScript>();
-		component.MHC = MHC;
-		if ((bool)component)
+		GameObject SpawnedMortar = Object.Instantiate(Mortar, ShootingPoint.position, ShootingPoint.rotation);
+		ShotMortars.Add(SpawnedMortar);
+		BombSackScript BSS = SpawnedMortar.GetComponent<BombSackScript>();
+		BSS.MHC = MHC;
+		if ((bool)BSS)
 		{
-			component.ShootMeTutorial.SetActive(value: false);
+			BSS.ShootMeTutorial.SetActive(value: false);
 		}
 		SFXManager.instance.PlaySFX(MortarSound[Random.Range(0, MortarSound.Length)], 1f, null);
 		MortarParticles.Play(withChildren: true);

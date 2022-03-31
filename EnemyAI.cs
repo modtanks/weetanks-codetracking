@@ -6,11 +6,11 @@ using UnityEngine;
 public class EnemyAI : MonoBehaviour
 {
 	[Header("AI Behaviour")]
-	public bool IsCompanion;
+	public bool IsCompanion = false;
 
 	public int CompanionID = 1;
 
-	public int difficulty;
+	public int difficulty = 0;
 
 	public int NotSeeBulletChancePercentage = 5;
 
@@ -18,37 +18,37 @@ public class EnemyAI : MonoBehaviour
 
 	public bool CanMove = true;
 
-	public bool LayMines;
+	public bool LayMines = false;
 
-	public float LayMinesSpeed;
+	public float LayMinesSpeed = 0f;
 
 	public float MineSenseRange = 5f;
 
 	public float ShootSpeed = 3f;
 
-	public bool BouncyBullets;
+	public bool BouncyBullets = false;
 
 	public int amountOfBounces = 2;
 
-	public bool isInvisible;
+	public bool isInvisible = false;
 
 	public GameObject MagicPoof;
 
-	public bool hasRockets;
+	public bool hasRockets = false;
 
-	public bool isAggressive;
+	public bool isAggressive = false;
 
-	public bool CalculateEnemyPosition;
+	public bool CalculateEnemyPosition = false;
 
-	public bool isSmart;
+	public bool isSmart = false;
 
-	public bool isElectric;
+	public bool isElectric = false;
 
-	public bool isCharged;
+	public bool isCharged = false;
 
-	public bool isAggro;
+	public bool isAggro = false;
 
-	public bool isWallHugger;
+	public bool isWallHugger = false;
 
 	public GameObject[] ElectricComponents;
 
@@ -56,7 +56,7 @@ public class EnemyAI : MonoBehaviour
 
 	public ParticleSystem AngrySteam;
 
-	public float ElectricMeter;
+	public float ElectricMeter = 0f;
 
 	public Vector3 ElectricTargetLocation;
 
@@ -66,9 +66,9 @@ public class EnemyAI : MonoBehaviour
 
 	public float _timeStartedLerping;
 
-	public bool isTransporting;
+	public bool isTransporting = false;
 
-	private bool isInvisibleNow;
+	private bool isInvisibleNow = false;
 
 	public AudioClip StartTeleport;
 
@@ -89,7 +89,7 @@ public class EnemyAI : MonoBehaviour
 
 	public float turnSpeed = 10f;
 
-	public bool IsTurning;
+	public bool IsTurning = false;
 
 	public Transform BaseRaycastPoint;
 
@@ -109,7 +109,7 @@ public class EnemyAI : MonoBehaviour
 
 	public ParticleSystem skidMarkCreatorLvl50;
 
-	public bool boosting;
+	public bool boosting = false;
 
 	private Quaternion targetRotation;
 
@@ -129,28 +129,28 @@ public class EnemyAI : MonoBehaviour
 
 	public float rotyOriginal;
 
-	public bool MineFleeing;
+	public bool MineFleeing = false;
 
-	public bool isLevel10Boss;
+	public bool isLevel10Boss = false;
 
-	public bool isLevel30Boss;
+	public bool isLevel30Boss = false;
 
 	public int lvl30Boss2modeLives = 35;
 
 	public int lvl30Boss3modeLives = 20;
 
-	public bool isLevel50Boss;
+	public bool isLevel50Boss = false;
 
-	public bool isLevel70Boss;
+	public bool isLevel70Boss = false;
 
-	public bool isLevel100Boss;
+	public bool isLevel100Boss = false;
 
 	public GameObject groundChecker;
 
 	[HideInInspector]
 	public float lvl30BossTurnSpeed = 50f;
 
-	public bool movingToPreferred;
+	public bool movingToPreferred = false;
 
 	[Header("Raycast Stuff")]
 	public GameObject THEGRID;
@@ -165,13 +165,13 @@ public class EnemyAI : MonoBehaviour
 
 	public Vector3 TargetPosition;
 
-	public bool Targeted;
+	public bool Targeted = false;
 
 	public float angle;
 
 	public float desiredangle;
 
-	public bool armoured;
+	public bool armoured = false;
 
 	public float OriginalShootSpeed;
 
@@ -179,16 +179,16 @@ public class EnemyAI : MonoBehaviour
 
 	public EnemyTargetingSystemNew ETSN;
 
-	public bool gettingCloser;
+	public bool gettingCloser = false;
 
 	public float lastDistanceToPlayer = 10000f;
 
 	public float marge = 5f;
 
 	[Header("electric stuff")]
-	public bool isStunned;
+	public bool isStunned = false;
 
-	public float stunTimer;
+	public float stunTimer = 0f;
 
 	public ParticleSystem StunnedParticles;
 
@@ -201,7 +201,7 @@ public class EnemyAI : MonoBehaviour
 
 	public bool couldMove;
 
-	public bool DrivingBackwards;
+	public bool DrivingBackwards = false;
 
 	public bool HasPathfinding;
 
@@ -212,9 +212,9 @@ public class EnemyAI : MonoBehaviour
 	public float DownPlayerTimer;
 
 	[Header("SHINY stuff")]
-	public bool isShiny;
+	public bool isShiny = false;
 
-	public bool isSuperShiny;
+	public bool isSuperShiny = false;
 
 	public ParticleSystem ShinySystem;
 
@@ -234,11 +234,11 @@ public class EnemyAI : MonoBehaviour
 
 	public AudioClip cooldown;
 
-	private float TimeBeingAnger;
+	private float TimeBeingAnger = 0f;
 
-	private float coolingDown;
+	private float coolingDown = 0f;
 
-	public bool ElectricTeleportRunning;
+	public bool ElectricTeleportRunning = false;
 
 	private ElectricPad UnderEP;
 
@@ -248,35 +248,36 @@ public class EnemyAI : MonoBehaviour
 
 	private float angleSize;
 
-	public bool isMoving;
+	public bool isMoving = false;
 
-	public float lastKnownDist;
+	public float lastKnownDist = 0f;
 
 	public EnemyDetection chosenED;
 
-	public bool noSafeED;
+	public bool noSafeED = false;
 
-	public int direction;
+	public int direction = 0;
 
-	public int directionOffset;
+	public int directionOffset = 0;
 
-	private bool changeCooldown;
+	private bool changeCooldown = false;
 
-	public GameObject DownedPlayer;
+	public GameObject DownedPlayer = null;
 
-	public bool GoingToPlayer;
+	public bool GoingToPlayer = false;
 
-	public bool CanGoStraightToPlayer;
+	public bool CanGoStraightToPlayer = false;
 
 	public Vector3 preferredLocation;
 
-	public bool hasGottenPath;
+	public bool hasGottenPath = false;
 
 	private void Awake()
 	{
 		bulletBounces = -1;
 		PAI = GetComponent<PathfindingAI>();
-		if (Random.Range(0, 16384) == 1 && !IsCompanion && MapEditorMaster.instance == null)
+		int chance = Random.Range(0, 16384);
+		if (chance == 1 && !IsCompanion && MapEditorMaster.instance == null)
 		{
 			isShiny = true;
 			ShinySystem.Play();
@@ -287,15 +288,19 @@ public class EnemyAI : MonoBehaviour
 				Body.materials[0].mainTexture = null;
 			}
 		}
-		else if (Random.Range(0, 114688) == 1 && !IsCompanion && MapEditorMaster.instance == null)
+		else
 		{
-			isSuperShiny = true;
-			SuperShinySystem.Play();
-			Barrel.materials[0].color = Color.yellow;
-			Body.materials[0].color = Color.yellow;
-			if (isLevel100Boss)
+			chance = Random.Range(0, 114688);
+			if (chance == 1 && !IsCompanion && MapEditorMaster.instance == null)
 			{
-				Body.materials[0].mainTexture = null;
+				isSuperShiny = true;
+				SuperShinySystem.Play();
+				Barrel.materials[0].color = Color.yellow;
+				Body.materials[0].color = Color.yellow;
+				if (isLevel100Boss)
+				{
+					Body.materials[0].mainTexture = null;
+				}
 			}
 		}
 		if (base.transform.position.y < 0.1f)
@@ -324,69 +329,73 @@ public class EnemyAI : MonoBehaviour
 		{
 			for (int i = 0; i < THEGRID.transform.childCount; i++)
 			{
-				EnemyDetection component = THEGRID.transform.GetChild(i).GetComponent<EnemyDetection>();
-				component.papaTank = base.gameObject;
-				int num = 16;
-				int num2 = 16;
-				int num3 = 16;
-				component.ID = i;
+				EnemyDetection EDinQuestion = THEGRID.transform.GetChild(i).GetComponent<EnemyDetection>();
+				EDinQuestion.papaTank = base.gameObject;
+				int ring1amount = 16;
+				int ring2amount = 16;
+				int ring3amount = 16;
+				EDinQuestion.ID = i;
 				if (i == 0)
 				{
-					Ring0Detection = component;
+					Ring0Detection = EDinQuestion;
 				}
-				else if (i > 0 && i <= num)
+				else if (i > 0 && i <= ring1amount)
 				{
-					Ring1Detection.Add(component);
-					component.isRing1 = true;
+					Ring1Detection.Add(EDinQuestion);
+					EDinQuestion.isRing1 = true;
 				}
-				else if (i > num && i <= num + num2)
+				else if (i > ring1amount && i <= ring1amount + ring2amount)
 				{
-					Ring2Detection.Add(component);
+					Ring2Detection.Add(EDinQuestion);
 				}
-				else if (i > num + num2 && i <= num + num2 + num3)
+				else if (i > ring1amount + ring2amount && i <= ring1amount + ring2amount + ring3amount)
 				{
-					Ring3Detection.Add(component);
+					Ring3Detection.Add(EDinQuestion);
 				}
 			}
 		}
 		if (CanMove)
 		{
-			EnemyDetection[] array;
 			if (difficulty < 2)
 			{
-				array = Ring2Detection.Concat(Ring3Detection).ToArray();
-				for (int j = 0; j < array.Length; j++)
+				EnemyDetection[] all3 = Ring2Detection.Concat(Ring3Detection).ToArray();
+				EnemyDetection[] array = all3;
+				foreach (EnemyDetection ED4 in array)
 				{
-					Object.Destroy(array[j].gameObject);
+					Object.Destroy(ED4.gameObject);
 				}
-				array = Ring3Detection.ToArray();
-				for (int j = 0; j < array.Length; j++)
+				all3 = Ring3Detection.ToArray();
+				EnemyDetection[] array2 = all3;
+				foreach (EnemyDetection ED5 in array2)
 				{
-					Object.Destroy(array[j].gameObject);
+					Object.Destroy(ED5.gameObject);
 				}
 			}
 			else if (difficulty < 3)
 			{
-				array = Ring3Detection.ToArray();
-				for (int j = 0; j < array.Length; j++)
+				EnemyDetection[] all4 = Ring3Detection.ToArray();
+				EnemyDetection[] array3 = all4;
+				foreach (EnemyDetection ED3 in array3)
 				{
-					Object.Destroy(array[j].gameObject);
+					Object.Destroy(ED3.gameObject);
 				}
 			}
-			array = Ring3Detection.ToArray();
-			for (int j = 0; j < array.Length; j++)
+			EnemyDetection[] all2 = Ring3Detection.ToArray();
+			EnemyDetection[] array4 = all2;
+			foreach (EnemyDetection ED2 in array4)
 			{
-				Object.Destroy(array[j].gameObject);
+				Object.Destroy(ED2.gameObject);
 			}
 			Ring3Detection.Clear();
 			THEGRID.SetActive(value: false);
 		}
 		else if ((bool)THEGRID)
 		{
-			EnemyDetection[] array = Ring2Detection.Concat(Ring1Detection).Concat(Ring3Detection).ToArray();
-			for (int j = 0; j < array.Length; j++)
+			EnemyDetection[] all = Ring2Detection.Concat(Ring1Detection).Concat(Ring3Detection).ToArray();
+			EnemyDetection[] array5 = all;
+			foreach (EnemyDetection ED in array5)
 			{
-				Object.Destroy(array[j].gameObject);
+				Object.Destroy(ED.gameObject);
 			}
 		}
 		skidMarkCreator.Stop();
@@ -426,8 +435,8 @@ public class EnemyAI : MonoBehaviour
 		couldMove = CanMove;
 		if (ETSN == null)
 		{
-			Transform parent = base.gameObject.transform.parent;
-			ETSN = parent.GetChild(1).GetChild(0).GetComponent<EnemyTargetingSystemNew>();
+			Transform Grandparent = base.gameObject.transform.parent;
+			ETSN = Grandparent.GetChild(1).GetChild(0).GetComponent<EnemyTargetingSystemNew>();
 		}
 		if (GameMaster.instance.inMenuMode)
 		{
@@ -443,20 +452,20 @@ public class EnemyAI : MonoBehaviour
 			originalDurationParticles = skidMarkCreator.main.duration;
 			BoostSource = Rush.GetComponent<AudioSource>();
 		}
-		float num;
+		float durcalc;
 		if (TankSpeed < 80f)
 		{
-			num = 0.85f - TankSpeed / 90f;
-			if (num < 0.12f)
+			durcalc = 0.85f - TankSpeed / 90f;
+			if (durcalc < 0.12f)
 			{
-				num = 0.12f;
+				durcalc = 0.12f;
 			}
 		}
 		else
 		{
-			num = 0.1f;
+			durcalc = 0.1f;
 		}
-		main.duration = num;
+		main.duration = durcalc;
 		angle = rotyOriginal;
 		originalLocation = base.transform.position;
 		originalRotation = base.transform.rotation;
@@ -480,17 +489,20 @@ public class EnemyAI : MonoBehaviour
 		{
 			ActivateElectric();
 		}
-		if (!isLevel10Boss && !isLevel30Boss && !isLevel50Boss)
+		if (isLevel10Boss || isLevel30Boss || isLevel50Boss || isLevel70Boss)
 		{
-			_ = isLevel70Boss;
 		}
 		if (IsCompanion)
 		{
 			InvokeRepeating("CheckForDownedPlayer", 0.4f, 0.4f);
 		}
-		if ((bool)MapEditorMaster.instance && !isShiny && !isSuperShiny && (bool)GameObject.Find("Cube.003").GetComponent<MeshRenderer>() && Body != null && MyTeam > -1 && MapEditorMaster.instance.TeamColorEnabled[MyTeam])
+		if ((bool)MapEditorMaster.instance && !isShiny && !isSuperShiny)
 		{
-			Body.materials[0].SetColor("_Color", MapEditorMaster.instance.TeamColors[MyTeam]);
+			MeshRenderer MR = GameObject.Find("Cube.003").GetComponent<MeshRenderer>();
+			if ((bool)MR && Body != null && MyTeam > -1 && MapEditorMaster.instance.TeamColorEnabled[MyTeam])
+			{
+				Body.materials[0].SetColor("_Color", MapEditorMaster.instance.TeamColors[MyTeam]);
+			}
 		}
 		if (isLevel50Boss && OptionsMainMenu.instance.currentDifficulty > 1)
 		{
@@ -521,22 +533,22 @@ public class EnemyAI : MonoBehaviour
 		{
 			if (MapEditorMaster.instance.TeamColorEnabled[MyTeam])
 			{
-				SkidmarkController component = skidMarkCreator.GetComponent<SkidmarkController>();
-				component.startingColor = MapEditorMaster.instance.TeamColors[MyTeam];
-				component.StartCoroutine(component.SetTrackColor());
+				SkidmarkController SC3 = skidMarkCreator.GetComponent<SkidmarkController>();
+				SC3.startingColor = MapEditorMaster.instance.TeamColors[MyTeam];
+				SC3.StartCoroutine(SC3.SetTrackColor());
 			}
 			else
 			{
-				SkidmarkController component2 = skidMarkCreator.GetComponent<SkidmarkController>();
-				component2.startingColor = component2.originalColor;
-				component2.StartCoroutine(component2.SetTrackColor());
+				SkidmarkController SC2 = skidMarkCreator.GetComponent<SkidmarkController>();
+				SC2.startingColor = SC2.originalColor;
+				SC2.StartCoroutine(SC2.SetTrackColor());
 			}
 		}
 		else
 		{
-			SkidmarkController component3 = skidMarkCreator.GetComponent<SkidmarkController>();
-			component3.startingColor = component3.originalColor;
-			component3.StartCoroutine(component3.SetTrackColor());
+			SkidmarkController SC = skidMarkCreator.GetComponent<SkidmarkController>();
+			SC.startingColor = SC.originalColor;
+			SC.StartCoroutine(SC.SetTrackColor());
 		}
 	}
 
@@ -578,18 +590,19 @@ public class EnemyAI : MonoBehaviour
 		{
 			return;
 		}
-		Renderer[] componentsInChildren = base.transform.parent.gameObject.GetComponentsInChildren<Renderer>();
-		foreach (Renderer renderer in componentsInChildren)
+		Renderer[] rs = base.transform.parent.gameObject.GetComponentsInChildren<Renderer>();
+		Renderer[] array = rs;
+		foreach (Renderer r in array)
 		{
-			if (renderer.tag != "Temp")
+			if (r.tag != "Temp")
 			{
-				if (renderer.tag != "AlwaysVisible")
+				if (r.tag != "AlwaysVisible")
 				{
-					renderer.enabled = false;
+					r.enabled = false;
 				}
 				else
 				{
-					renderer.enabled = true;
+					r.enabled = true;
 				}
 			}
 		}
@@ -631,17 +644,17 @@ public class EnemyAI : MonoBehaviour
 				NotSeeBulletChancePercentage = 85;
 			}
 		}
-		List<GameObject> list = new List<GameObject>();
-		for (int num = IncomingBullets.Count - 1; num > -1; num--)
+		List<GameObject> ObjToRemove = new List<GameObject>();
+		for (int i = IncomingBullets.Count - 1; i > -1; i--)
 		{
-			if (IncomingBullets[num] == null)
+			if (IncomingBullets[i] == null)
 			{
-				list.Add(IncomingBullets[num]);
+				ObjToRemove.Add(IncomingBullets[i]);
 			}
 		}
-		foreach (GameObject item in list)
+		foreach (GameObject Remove in ObjToRemove)
 		{
-			IncomingBullets.Remove(item);
+			IncomingBullets.Remove(Remove);
 		}
 		if (rigi.velocity.magnitude > 0.5f && HTscript.EnemyID == 7 && (!skidMarkCreator.isPlaying || skidMarkCreator.isStopped))
 		{
@@ -734,27 +747,29 @@ public class EnemyAI : MonoBehaviour
 
 	private void SpawnMagicPoof()
 	{
-		Vector3 eulerAngles = base.transform.rotation.eulerAngles;
-		GameObject obj2 = Object.Instantiate(rotation: Quaternion.Euler(new Vector3(eulerAngles.x + 90f, eulerAngles.y, eulerAngles.z)), original: MagicPoof, position: base.transform.position + new Vector3(0f, 0.5f, 0f));
-		obj2.GetComponent<ParticleSystem>().Play();
-		Object.Destroy(obj2, 3f);
+		Vector3 rot = base.transform.rotation.eulerAngles;
+		GameObject poof = Object.Instantiate(rotation: Quaternion.Euler(new Vector3(rot.x + 90f, rot.y, rot.z)), original: MagicPoof, position: base.transform.position + new Vector3(0f, 0.5f, 0f));
+		ParticleSystem poofie = poof.GetComponent<ParticleSystem>();
+		poofie.Play();
+		Object.Destroy(poof, 3f);
 	}
 
 	private IEnumerator MakeMeVisible()
 	{
 		yield return new WaitForSeconds(0.01f);
-		Renderer[] componentsInChildren = base.transform.parent.gameObject.GetComponentsInChildren<Renderer>();
-		foreach (Renderer renderer in componentsInChildren)
+		Renderer[] rs = base.transform.parent.gameObject.GetComponentsInChildren<Renderer>();
+		Renderer[] array = rs;
+		foreach (Renderer r in array)
 		{
-			if (renderer.tag != "Temp" && renderer.tag != "EnemyBorder" && renderer.tag != "BulletDetection")
+			if (r.tag != "Temp" && r.tag != "EnemyBorder" && r.tag != "BulletDetection")
 			{
-				if (renderer.tag != "AlwaysVisible")
+				if (r.tag != "AlwaysVisible")
 				{
-					renderer.enabled = true;
+					r.enabled = true;
 				}
 				else
 				{
-					renderer.enabled = false;
+					r.enabled = false;
 				}
 			}
 		}
@@ -800,10 +815,10 @@ public class EnemyAI : MonoBehaviour
 		}
 		ShootSpeed = OriginalShootSpeed;
 		SetTankBodyTracks();
-		Rigidbody component = GetComponent<Rigidbody>();
-		if ((bool)component && GameMaster.instance.CurrentMission != 49)
+		Rigidbody myRB = GetComponent<Rigidbody>();
+		if ((bool)myRB && GameMaster.instance.CurrentMission != 49)
 		{
-			component.isKinematic = true;
+			myRB.isKinematic = true;
 		}
 	}
 
@@ -827,8 +842,8 @@ public class EnemyAI : MonoBehaviour
 		yield return new WaitForSeconds(4f);
 		if (isCharged && (GameMaster.instance.GameHasStarted || GameMaster.instance.inMenuMode))
 		{
-			Vector3 validLocation = GameMaster.instance.GetValidLocation(CheckForDist: true, 8f, base.transform.position, TargetPlayer: false);
-			if (validLocation == Vector3.zero)
+			Vector3 Location = GameMaster.instance.GetValidLocation(CheckForDist: true, 8f, base.transform.position, TargetPlayer: false);
+			if (Location == Vector3.zero)
 			{
 				isCharged = false;
 				StartCoroutine(ElectricTeleport());
@@ -847,22 +862,23 @@ public class EnemyAI : MonoBehaviour
 			if (isLevel70Boss)
 			{
 				timeTakenDuringLerp = 2f;
-				CameraShake component = Camera.main.GetComponent<CameraShake>();
-				if ((bool)component)
+				CameraShake CS = Camera.main.GetComponent<CameraShake>();
+				if ((bool)CS)
 				{
-					component.StartCoroutine(component.Shake(0.15f, 0.15f));
+					CS.StartCoroutine(CS.Shake(0.15f, 0.15f));
 				}
 			}
 			isTransporting = true;
 			Ring0Detection.SolidPieces.Clear();
-			EnemyDetection[] array = Ring1Detection.Concat(Ring2Detection).Concat(Ring3Detection).ToArray();
-			for (int i = 0; i < array.Length; i++)
+			EnemyDetection[] EDS = Ring1Detection.Concat(Ring2Detection).Concat(Ring3Detection).ToArray();
+			EnemyDetection[] array = EDS;
+			foreach (EnemyDetection ED in array)
 			{
-				array[i].SolidPieces.Clear();
+				ED.SolidPieces.Clear();
 			}
 			ETSN.normalLockedIn = false;
 			ETSN.ShootCountdown = ShootSpeed;
-			ElectricTargetLocation = new Vector3(validLocation.x, base.transform.parent.transform.position.y, validLocation.z);
+			ElectricTargetLocation = new Vector3(Location.x, base.transform.parent.transform.position.y, Location.z);
 		}
 		StartCoroutine(ElectricTeleport());
 	}
@@ -917,20 +933,20 @@ public class EnemyAI : MonoBehaviour
 		{
 			return;
 		}
-		Vector3 vector = new Vector3(base.transform.position.x, base.transform.position.y - 1f, base.transform.position.z);
-		Vector3 vector2 = new Vector3(base.transform.position.x, base.transform.position.y + 1f, base.transform.position.z);
-		Vector3 vector3 = vector - vector2;
-		float maxDistance = 4f;
-		RaycastHit[] array = Physics.RaycastAll(vector2, vector3, maxDistance);
-		for (int i = 0; i < array.Length; i++)
+		Vector3 To = new Vector3(base.transform.position.x, base.transform.position.y - 1f, base.transform.position.z);
+		Vector3 From = new Vector3(base.transform.position.x, base.transform.position.y + 1f, base.transform.position.z);
+		Vector3 toPos = To - From;
+		float dist = 4f;
+		RaycastHit[] allhits = Physics.RaycastAll(From, toPos, dist);
+		for (int i = 0; i < allhits.Length; i++)
 		{
-			RaycastHit raycastHit = array[i];
-			if (!(raycastHit.transform.tag == "ElectricPad"))
+			RaycastHit hit = allhits[i];
+			if (!(hit.transform.tag == "ElectricPad"))
 			{
 				continue;
 			}
-			ElectricPad component = raycastHit.transform.GetComponent<ElectricPad>();
-			if (component != UnderEP)
+			ElectricPad EP = hit.transform.GetComponent<ElectricPad>();
+			if (EP != UnderEP)
 			{
 				if ((bool)UnderEP)
 				{
@@ -938,9 +954,9 @@ public class EnemyAI : MonoBehaviour
 				}
 				if (!isTransporting)
 				{
-					component.Active = true;
+					EP.Active = true;
 				}
-				UnderEP = component;
+				UnderEP = EP;
 			}
 		}
 	}
@@ -1044,11 +1060,13 @@ public class EnemyAI : MonoBehaviour
 		}
 		if (isTransporting)
 		{
-			float num = (Time.time - _timeStartedLerping) / timeTakenDuringLerp;
+			float timeSinceStarted = Time.time - _timeStartedLerping;
+			float percentageComplete = timeSinceStarted / timeTakenDuringLerp;
 			GetComponent<Rigidbody>().isKinematic = true;
 			GetComponent<BoxCollider>().enabled = false;
-			base.transform.position = Vector3.Lerp(StartPos, ElectricTargetLocation, num);
-			if (!(Vector3.Distance(base.transform.position, ElectricTargetLocation) < 1f) && !(num >= 1f))
+			base.transform.position = Vector3.Lerp(StartPos, ElectricTargetLocation, percentageComplete);
+			float dist = Vector3.Distance(base.transform.position, ElectricTargetLocation);
+			if (!(dist < 1f) && !(percentageComplete >= 1f))
 			{
 				return;
 			}
@@ -1067,10 +1085,10 @@ public class EnemyAI : MonoBehaviour
 			if (isLevel70Boss && HTscript.health < HTscript.maxHealth / 2)
 			{
 				ElectricMeter = Random.Range(0f, 0.5f);
-				CameraShake component = Camera.main.GetComponent<CameraShake>();
-				if ((bool)component)
+				CameraShake CS = Camera.main.GetComponent<CameraShake>();
+				if ((bool)CS)
 				{
-					component.StartCoroutine(component.Shake(0.15f, 0.15f));
+					CS.StartCoroutine(CS.Shake(0.15f, 0.15f));
 				}
 			}
 			return;
@@ -1110,37 +1128,37 @@ public class EnemyAI : MonoBehaviour
 			if (ElectricMeter < 1f)
 			{
 				isCharged = false;
-				float num2 = (isLevel70Boss ? 0.18f : 0.22f);
-				ElectricMeter += Time.deltaTime * num2;
+				float chargeSpeed = (isLevel70Boss ? 0.18f : 0.22f);
+				ElectricMeter += Time.deltaTime * chargeSpeed;
 				GameObject[] electricComponents = ElectricComponents;
-				for (int i = 0; i < electricComponents.Length; i++)
+				foreach (GameObject Component2 in electricComponents)
 				{
-					electricComponents[i].GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.black);
+					Component2.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.black);
 				}
 				ParticleSystem[] electricSystems = ElectricSystems;
-				foreach (ParticleSystem particleSystem in electricSystems)
+				foreach (ParticleSystem System in electricSystems)
 				{
-					particleSystem.gameObject.SetActive(value: false);
-					if (particleSystem.isPlaying)
+					System.gameObject.SetActive(value: false);
+					if (System.isPlaying)
 					{
-						particleSystem.Stop();
+						System.Stop();
 					}
 				}
 			}
 			else if (!isCharged && ElectricMeter >= 1f)
 			{
-				GameObject[] electricComponents = ElectricComponents;
-				for (int i = 0; i < electricComponents.Length; i++)
+				GameObject[] electricComponents2 = ElectricComponents;
+				foreach (GameObject Component in electricComponents2)
 				{
-					electricComponents[i].GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.white);
+					Component.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.white);
 				}
-				ParticleSystem[] electricSystems = ElectricSystems;
-				foreach (ParticleSystem particleSystem2 in electricSystems)
+				ParticleSystem[] electricSystems2 = ElectricSystems;
+				foreach (ParticleSystem System2 in electricSystems2)
 				{
-					particleSystem2.gameObject.SetActive(value: true);
-					if (!particleSystem2.isPlaying)
+					System2.gameObject.SetActive(value: true);
+					if (!System2.isPlaying)
 					{
-						particleSystem2.Play();
+						System2.Play();
 					}
 				}
 				SFXManager.instance.PlaySFX(ChargedUpSound);
@@ -1324,39 +1342,39 @@ public class EnemyAI : MonoBehaviour
 	{
 		if (Ring1Detection.Count > 0)
 		{
-			int num = Ring1Detection.Count;
-			List<EnemyDetection> list = new List<EnemyDetection>();
-			foreach (EnemyDetection item in Ring1Detection)
+			int ToGo = Ring1Detection.Count;
+			List<EnemyDetection> EDwMines = new List<EnemyDetection>();
+			foreach (EnemyDetection ED in Ring1Detection)
 			{
-				if (item.MineClose)
+				if (ED.MineClose)
 				{
-					list.Add(item);
-					num--;
+					EDwMines.Add(ED);
+					ToGo--;
 				}
 			}
-			if (num <= 1 && list.Count > 0 && !toLayMine)
+			if (ToGo <= 1 && EDwMines.Count > 0 && !toLayMine)
 			{
-				list = list.OrderByDescending((EnemyDetection x) => x.DistToMine).ToList();
-				list[0].isTargeted = false;
-				SetNewTarget(list[0], isPreferred: false, useBoost: false);
+				EDwMines = EDwMines.OrderByDescending((EnemyDetection x) => x.DistToMine).ToList();
+				EDwMines[0].isTargeted = false;
+				SetNewTarget(EDwMines[0], isPreferred: false, useBoost: false);
 				return true;
 			}
-			if (num <= 6 && list.Count > 0 && toLayMine)
+			if (ToGo <= 6 && EDwMines.Count > 0 && toLayMine)
 			{
 				return true;
 			}
 		}
 		if (Ring2Detection.Count > 0 && toLayMine)
 		{
-			int num2 = Ring2Detection.Count;
-			foreach (EnemyDetection item2 in Ring2Detection)
+			int ToGo2 = Ring2Detection.Count;
+			foreach (EnemyDetection ED2 in Ring2Detection)
 			{
-				if (item2.MineClose)
+				if (ED2.MineClose)
 				{
-					num2--;
+					ToGo2--;
 				}
 			}
-			if (num2 <= 8)
+			if (ToGo2 <= 8)
 			{
 				return true;
 			}
@@ -1366,7 +1384,7 @@ public class EnemyAI : MonoBehaviour
 
 	private bool CheckRing(List<EnemyDetection> Ring, int newDirection, bool newdir)
 	{
-		int num = 0;
+		int counter = 0;
 		direction = newDirection;
 		if (direction < 0)
 		{
@@ -1376,77 +1394,77 @@ public class EnemyAI : MonoBehaviour
 		{
 			direction -= 15;
 		}
-		bool flag = false;
-		int num2 = (newdir ? (direction - 3) : (direction - 2));
-		int num3 = (newdir ? (direction + 3) : (direction + 2));
-		if (num2 < 0)
+		bool specialCheck = false;
+		int leftDirection = (newdir ? (direction - 3) : (direction - 2));
+		int rightDirection = (newdir ? (direction + 3) : (direction + 2));
+		if (leftDirection < 0)
 		{
-			num2 = 16 + num2;
+			leftDirection = 16 + leftDirection;
 		}
-		if (num3 > 15)
+		if (rightDirection > 15)
 		{
-			num3 -= 15;
+			rightDirection -= 15;
 		}
-		if (Mathf.Abs(num3 - num2) > 7)
+		if (Mathf.Abs(rightDirection - leftDirection) > 7)
 		{
-			flag = true;
+			specialCheck = true;
 		}
-		List<EnemyDetection> list = new List<EnemyDetection>();
-		List<int> list2 = new List<int>();
-		List<EnemyDetection> list3 = new List<EnemyDetection>();
-		List<int> list4 = new List<int>();
-		List<EnemyDetection> list5 = new List<EnemyDetection>();
-		List<int> list6 = new List<int>();
-		foreach (EnemyDetection item in Ring)
+		List<EnemyDetection> SaveED = new List<EnemyDetection>();
+		List<int> Direction = new List<int>();
+		List<EnemyDetection> SaveEDInDir = new List<EnemyDetection>();
+		List<int> DirectionInDir = new List<int>();
+		List<EnemyDetection> CorrectDir = new List<EnemyDetection>();
+		List<int> CorrectDirInt = new List<int>();
+		foreach (EnemyDetection ED in Ring)
 		{
-			if (!item.isTargeted && num == direction)
+			if (!ED.isTargeted && counter == direction)
 			{
-				list5.Add(item);
-				list6.Add(num);
+				CorrectDir.Add(ED);
+				CorrectDirInt.Add(counter);
 			}
 			else
 			{
-				if (item.isPreferred && !item.isTargeted)
+				if (ED.isPreferred && !ED.isTargeted)
 				{
-					SetNewTarget(item, isPreferred: true, useBoost: true);
+					SetNewTarget(ED, isPreferred: true, useBoost: true);
 					return true;
 				}
-				if (!item.isTargeted && ((num >= num2 && num <= num3 && !flag) || num >= num2 || (num <= num3 && flag)))
+				if (!ED.isTargeted && ((counter >= leftDirection && counter <= rightDirection && !specialCheck) || counter >= leftDirection || (counter <= rightDirection && specialCheck)))
 				{
-					list3.Add(item);
-					list4.Add(num);
+					SaveEDInDir.Add(ED);
+					DirectionInDir.Add(counter);
 				}
-				else if (!item.isTargeted)
+				else if (!ED.isTargeted)
 				{
-					list.Add(item);
-					list2.Add(num);
+					SaveED.Add(ED);
+					Direction.Add(counter);
 				}
-				else if (item.isChosen)
+				else if (ED.isChosen)
 				{
-					item.isChosen = false;
+					ED.isChosen = false;
 				}
 			}
-			num++;
+			counter++;
 		}
-		if (list5.Count > 0)
+		if (CorrectDir.Count > 0)
 		{
-			int index = Random.Range(0, list5.Count - 1);
-			direction = list6[index];
-			SetNewTarget(list5[index], isPreferred: false, useBoost: false);
+			int pick3 = Random.Range(0, CorrectDir.Count - 1);
+			direction = CorrectDirInt[pick3];
+			SetNewTarget(CorrectDir[pick3], isPreferred: false, useBoost: false);
 			return true;
 		}
-		if (list3.Count > 0)
+		if (SaveEDInDir.Count > 0)
 		{
-			int index2 = Random.Range(0, list3.Count - 1);
-			direction = list4[index2];
-			SetNewTarget(list3[index2], isPreferred: false, useBoost: false);
+			int pick2 = Random.Range(0, SaveEDInDir.Count - 1);
+			direction = DirectionInDir[pick2];
+			SetNewTarget(SaveEDInDir[pick2], isPreferred: false, useBoost: false);
 			return true;
 		}
-		if (list.Count > 0)
+		if (SaveED.Count > 0)
 		{
-			int index3 = Random.Range(0, list.Count - 1);
-			direction = list2[index3];
-			SetNewTarget(list[index3], isPreferred: false, useBoost: false);
+			int pick = Random.Range(0, SaveED.Count - 1);
+			direction = Direction[pick];
+			SetNewTarget(SaveED[pick], isPreferred: false, useBoost: false);
 			return true;
 		}
 		return false;
@@ -1474,8 +1492,8 @@ public class EnemyAI : MonoBehaviour
 
 	private IEnumerator ResetChange()
 	{
-		float seconds = Random.Range(0.4f, 0.9f);
-		yield return new WaitForSeconds(seconds);
+		float waittime = Random.Range(0.4f, 0.9f);
+		yield return new WaitForSeconds(waittime);
 		changeCooldown = false;
 	}
 
@@ -1488,29 +1506,29 @@ public class EnemyAI : MonoBehaviour
 			yield break;
 		}
 		LayerMask layersToIgnore = ~((1 << LayerMask.NameToLayer("EnemyDetectionLayer")) | (1 << LayerMask.NameToLayer("BulletDetectField")) | (1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("Other")) | (1 << LayerMask.NameToLayer("EnemyBorder")) | (1 << LayerMask.NameToLayer("OneWayBlock")));
-		float seconds = Random.Range(0.2f, 0.4f);
-		yield return new WaitForSeconds(seconds);
+		float waittime = Random.Range(0.2f, 0.4f);
+		yield return new WaitForSeconds(waittime);
 		if (!DownedPlayer)
 		{
 			GoingToPlayer = false;
 			CanGoStraightToPlayer = false;
 			yield break;
 		}
-		Vector3 vector = DownedPlayer.transform.position - base.transform.position;
-		Debug.DrawRay(base.transform.position, vector * 8f, Color.blue, 1f);
-		bool flag = false;
-		if (Physics.Raycast(base.transform.position, vector, out var hitInfo, 8f, layersToIgnore))
+		Vector3 direction = DownedPlayer.transform.position - base.transform.position;
+		Debug.DrawRay(base.transform.position, direction * 8f, Color.blue, 1f);
+		bool gotHit = false;
+		if (Physics.Raycast(base.transform.position, direction, out var rayhit, 8f, layersToIgnore))
 		{
-			Debug.Log("Companion scanning for player, but is seeing:" + hitInfo.transform.name, hitInfo.transform.gameObject);
-			if (hitInfo.transform.gameObject == DownedPlayer)
+			Debug.Log("Companion scanning for player, but is seeing:" + rayhit.transform.name, rayhit.transform.gameObject);
+			if (rayhit.transform.gameObject == DownedPlayer)
 			{
 				Debug.Log("PLAYER STRAGITH LINE!!");
-				flag = true;
+				gotHit = true;
 				GoingToPlayer = true;
 				CanGoStraightToPlayer = true;
 			}
 		}
-		if (!flag && GoingToPlayer)
+		if (!gotHit && GoingToPlayer)
 		{
 			StartCoroutine(CheckIfPlayerStraightLine());
 		}
@@ -1522,18 +1540,18 @@ public class EnemyAI : MonoBehaviour
 		{
 			return;
 		}
-		bool flag = false;
+		bool aPlayerIsDown = false;
 		for (int i = 0; i < 4; i++)
 		{
 			if (GameMaster.instance.PlayerDown[i] && !GoingToPlayer)
 			{
-				flag = true;
+				aPlayerIsDown = true;
 				foreach (GameObject player in GameMaster.instance.Players)
 				{
-					MoveTankScript component = player.GetComponent<MoveTankScript>();
-					if ((bool)component)
+					MoveTankScript MTS = player.GetComponent<MoveTankScript>();
+					if ((bool)MTS)
 					{
-						if (component.playerId == i)
+						if (MTS.playerId == i)
 						{
 							DownedPlayer = player;
 							StartCoroutine(CheckIfPlayerStraightLine());
@@ -1541,20 +1559,23 @@ public class EnemyAI : MonoBehaviour
 							PAI.SearchAIblock();
 							return;
 						}
+						continue;
 					}
-					else if (player.GetComponent<EnemyAI>().CompanionID == i)
+					EnemyAI EA = player.GetComponent<EnemyAI>();
+					if (EA.CompanionID != i)
 					{
-						DownedPlayer = player;
-						StartCoroutine(CheckIfPlayerStraightLine());
-						PAI.SearchForPlayer = true;
-						PAI.SearchAIblock();
-						return;
+						continue;
 					}
+					DownedPlayer = player;
+					StartCoroutine(CheckIfPlayerStraightLine());
+					PAI.SearchForPlayer = true;
+					PAI.SearchAIblock();
+					return;
 				}
 			}
 			else if (GameMaster.instance.PlayerDown[i] && GoingToPlayer)
 			{
-				flag = true;
+				aPlayerIsDown = true;
 				if (!boosting && canBoost)
 				{
 					ActivateBooster();
@@ -1562,7 +1583,7 @@ public class EnemyAI : MonoBehaviour
 				}
 			}
 		}
-		if (GoingToPlayer && !flag)
+		if (GoingToPlayer && !aPlayerIsDown)
 		{
 			DownedPlayer = null;
 			DisablePathFinding();
@@ -1571,34 +1592,34 @@ public class EnemyAI : MonoBehaviour
 
 	public void SetDestination(Vector3 dest)
 	{
-		foreach (EnemyDetection item in Ring1Detection)
+		foreach (EnemyDetection ED4 in Ring1Detection)
 		{
-			item.isChosen = false;
+			ED4.isChosen = false;
 		}
-		foreach (EnemyDetection item2 in Ring2Detection)
+		foreach (EnemyDetection ED3 in Ring2Detection)
 		{
-			item2.isChosen = false;
+			ED3.isChosen = false;
 		}
-		foreach (EnemyDetection item3 in Ring3Detection)
+		foreach (EnemyDetection ED2 in Ring3Detection)
 		{
-			item3.isChosen = false;
+			ED2.isChosen = false;
 		}
-		float num = 10000f;
-		EnemyDetection enemyDetection = null;
-		foreach (EnemyDetection item4 in Ring1Detection)
+		float closestDistanceSoFar = 10000f;
+		EnemyDetection closestED = null;
+		foreach (EnemyDetection ED in Ring1Detection)
 		{
-			float num2 = Vector3.Distance(dest, item4.transform.position);
-			if (num2 < num)
+			float dist = Vector3.Distance(dest, ED.transform.position);
+			if (dist < closestDistanceSoFar)
 			{
-				enemyDetection = item4;
-				num = num2;
+				closestED = ED;
+				closestDistanceSoFar = dist;
 			}
 		}
-		if (enemyDetection != null)
+		if (closestED != null)
 		{
 			isPathfinding = true;
-			enemyDetection.isChosen = true;
-			chosenED = enemyDetection;
+			closestED.isChosen = true;
+			chosenED = closestED;
 			isMoving = true;
 		}
 		else
@@ -1623,20 +1644,20 @@ public class EnemyAI : MonoBehaviour
 		{
 			TankSpeed = BoostedTankSpeed;
 		}
-		int num = 0;
-		foreach (EnemyDetection item in Ring1Detection)
+		int amountTargeted = 0;
+		foreach (EnemyDetection ED in Ring1Detection)
 		{
-			if (item.isTargeted && item.Bullets.Count > 0)
+			if (ED.isTargeted && ED.Bullets.Count > 0)
 			{
-				num++;
+				amountTargeted++;
 			}
 		}
 		if (GoingToPlayer && CanGoStraightToPlayer && (bool)DownedPlayer)
 		{
-			Vector3 position = DownedPlayer.transform.position;
-			Vector3 forward = ((!DrivingBackwards) ? (position - base.transform.position) : (base.transform.position - position));
-			forward.y = 0f;
-			rotation = Quaternion.LookRotation(forward);
+			Vector3 ChosenPos = DownedPlayer.transform.position;
+			Vector3 targetDir = ((!DrivingBackwards) ? (ChosenPos - base.transform.position) : (base.transform.position - ChosenPos));
+			targetDir.y = 0f;
+			rotation = Quaternion.LookRotation(targetDir);
 			if (!rigi.isKinematic)
 			{
 				if (DrivingBackwards)
@@ -1654,16 +1675,17 @@ public class EnemyAI : MonoBehaviour
 		{
 			if (LayMines && !GoingToPlayer)
 			{
-				Collider[] array = Physics.OverlapSphere(base.transform.position, 1.5f);
-				for (int i = 0; i < array.Length; i++)
+				Collider[] objectsInRange = Physics.OverlapSphere(base.transform.position, 1.5f);
+				Collider[] array = objectsInRange;
+				foreach (Collider col in array)
 				{
-					if (array[i].gameObject.layer == LayerMask.NameToLayer("CorkWall"))
+					if (col.gameObject.layer == LayerMask.NameToLayer("CorkWall"))
 					{
 						DisablePathFinding();
 					}
 				}
 			}
-			if (!Ring0Detection.isTargeted && num < 2 && !isPathfinding)
+			if (!Ring0Detection.isTargeted && amountTargeted < 2 && !isPathfinding)
 			{
 				return;
 			}
@@ -1671,7 +1693,7 @@ public class EnemyAI : MonoBehaviour
 			{
 				DisablePathFinding();
 			}
-			else if (num >= 3)
+			else if (amountTargeted >= 3)
 			{
 				DisablePathFinding();
 			}
@@ -1681,10 +1703,10 @@ public class EnemyAI : MonoBehaviour
 				{
 					DisablePathFinding();
 				}
-				Vector3 vector = preferredLocation;
-				Vector3 forward2 = ((!DrivingBackwards) ? (vector - base.transform.position) : (base.transform.position - vector));
-				forward2.y = 0f;
-				rotation = Quaternion.LookRotation(forward2);
+				Vector3 ChosenPos2 = preferredLocation;
+				Vector3 targetDir2 = ((!DrivingBackwards) ? (ChosenPos2 - base.transform.position) : (base.transform.position - ChosenPos2));
+				targetDir2.y = 0f;
+				rotation = Quaternion.LookRotation(targetDir2);
 				if (!rigi.isKinematic)
 				{
 					if (DrivingBackwards)
@@ -1696,12 +1718,12 @@ public class EnemyAI : MonoBehaviour
 						rigi.AddRelativeForce(Vector3.forward * TankSpeed * Time.deltaTime * 50f);
 					}
 				}
-				float num2 = Vector3.Distance(base.transform.position, preferredLocation);
-				if (num2 < 1.5f)
+				float distToPoint = Vector3.Distance(base.transform.position, preferredLocation);
+				if (distToPoint < 1.5f)
 				{
 					PAI.NextPoint();
 				}
-				else if (num2 > 4.5f)
+				else if (distToPoint > 4.5f)
 				{
 					DisablePathFinding();
 				}
@@ -1710,19 +1732,19 @@ public class EnemyAI : MonoBehaviour
 		}
 		if (isMoving && !noSafeED)
 		{
-			float num3 = Vector3.Distance(chosenED.transform.position, base.transform.position);
+			float dist = Vector3.Distance(chosenED.transform.position, base.transform.position);
 			if (Ring0Detection.isTargeted && Ring0Detection.Bullets.Count > 0 && (bool)Rush)
 			{
-				float num4 = 100f;
-				foreach (Collider bullet in Ring0Detection.Bullets)
+				float closestBulletDistance = 100f;
+				foreach (Collider Bullet in Ring0Detection.Bullets)
 				{
-					float num5 = Vector3.Distance(bullet.transform.position, base.transform.position);
-					if (num5 < num4)
+					float distance = Vector3.Distance(Bullet.transform.position, base.transform.position);
+					if (distance < closestBulletDistance)
 					{
-						num4 = num5;
+						closestBulletDistance = distance;
 					}
 				}
-				if (num4 < 8f && (bool)Rush && !boosting && canBoost)
+				if (closestBulletDistance < 8f && (bool)Rush && !boosting && canBoost)
 				{
 					ActivateBooster();
 					StartCoroutine(StopBoostingAfter(1.5f));
@@ -1733,7 +1755,7 @@ public class EnemyAI : MonoBehaviour
 				chosenED.isChosen = false;
 				CheckForSafeED(newdir: false);
 			}
-			if (num3 < 0.3f)
+			if (dist < 0.3f)
 			{
 				isMoving = false;
 				chosenED.isChosen = false;
@@ -1741,7 +1763,7 @@ public class EnemyAI : MonoBehaviour
 			}
 			else
 			{
-				lastKnownDist = num3;
+				lastKnownDist = dist;
 				if (Random.Range(0, 14) == 0 && !changeCooldown)
 				{
 					isMoving = false;
@@ -1768,10 +1790,10 @@ public class EnemyAI : MonoBehaviour
 
 	private void MoveAndRotateTank()
 	{
-		Vector3 vector = new Vector3(chosenED.transform.position.x, chosenED.transform.position.y, chosenED.transform.position.z);
-		Vector3 vector2 = ((!DrivingBackwards) ? (vector - base.transform.position) : (base.transform.position - vector));
-		vector2.y = 0f;
-		rotation = Quaternion.LookRotation(vector2.normalized);
+		Vector3 ChosenPos = new Vector3(chosenED.transform.position.x, chosenED.transform.position.y, chosenED.transform.position.z);
+		Vector3 targetDir = ((!DrivingBackwards) ? (ChosenPos - base.transform.position) : (base.transform.position - ChosenPos));
+		targetDir.y = 0f;
+		rotation = Quaternion.LookRotation(targetDir.normalized);
 		if (DrivingBackwards)
 		{
 			rigi.AddRelativeForce(-Vector3.forward * TankSpeed * Time.deltaTime * 50f);
@@ -1789,27 +1811,27 @@ public class EnemyAI : MonoBehaviour
 		{
 			BoostSource.Play();
 		}
-		ParticleSystem[] componentsInChildren = Rush.transform.GetComponentsInChildren<ParticleSystem>();
-		ParticleSystem[] componentsInChildren2 = RushBackwards.transform.GetComponentsInChildren<ParticleSystem>();
+		ParticleSystem[] PE = Rush.transform.GetComponentsInChildren<ParticleSystem>();
+		ParticleSystem[] PEback = RushBackwards.transform.GetComponentsInChildren<ParticleSystem>();
 		if (DrivingBackwards)
 		{
-			ParticleSystem[] array = componentsInChildren2;
-			foreach (ParticleSystem particleSystem in array)
+			ParticleSystem[] array = PEback;
+			foreach (ParticleSystem ps2 in array)
 			{
-				if (!particleSystem.isPlaying)
+				if (!ps2.isPlaying)
 				{
-					particleSystem.Play();
+					ps2.Play();
 				}
 			}
 		}
 		else
 		{
-			ParticleSystem[] array = componentsInChildren;
-			foreach (ParticleSystem particleSystem2 in array)
+			ParticleSystem[] array2 = PE;
+			foreach (ParticleSystem ps in array2)
 			{
-				if (!particleSystem2.isPlaying)
+				if (!ps.isPlaying)
 				{
-					particleSystem2.Play();
+					ps.Play();
 				}
 			}
 		}
@@ -1849,22 +1871,22 @@ public class EnemyAI : MonoBehaviour
 			BoostSource.Stop();
 		}
 		Rush.GetComponent<AudioSource>().Stop();
-		ParticleSystem[] componentsInChildren = Rush.GetComponentsInChildren<ParticleSystem>();
-		ParticleSystem[] componentsInChildren2 = RushBackwards.GetComponentsInChildren<ParticleSystem>();
-		ParticleSystem[] array = componentsInChildren;
-		foreach (ParticleSystem particleSystem in array)
+		ParticleSystem[] PE = Rush.GetComponentsInChildren<ParticleSystem>();
+		ParticleSystem[] PEback = RushBackwards.GetComponentsInChildren<ParticleSystem>();
+		ParticleSystem[] array = PE;
+		foreach (ParticleSystem ps in array)
 		{
-			if (particleSystem.isPlaying)
+			if (ps.isPlaying)
 			{
-				particleSystem.Stop();
+				ps.Stop();
 			}
 		}
-		array = componentsInChildren2;
-		foreach (ParticleSystem particleSystem2 in array)
+		ParticleSystem[] array2 = PEback;
+		foreach (ParticleSystem ps2 in array2)
 		{
-			if (particleSystem2.isPlaying)
+			if (ps2.isPlaying)
 			{
-				particleSystem2.Stop();
+				ps2.Stop();
 			}
 		}
 		skidMarkCreatorLvl50.Stop();

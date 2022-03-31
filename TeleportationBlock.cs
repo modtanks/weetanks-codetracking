@@ -7,19 +7,19 @@ public class TeleportationBlock : MonoBehaviour
 
 	public Color availableColor;
 
-	public bool canTeleportHere;
+	public bool canTeleportHere = false;
 
 	public MeshRenderer MR;
 
 	public List<GameObject> inMe = new List<GameObject>();
 
-	public float NoTeleportCounter;
+	public float NoTeleportCounter = 0f;
 
 	private void Start()
 	{
 		MR = GetComponent<MeshRenderer>();
-		float num = Random.Range(0.5f, 0.9f);
-		InvokeRepeating("CheckPlace", num, num);
+		float RandomizedChecker = Random.Range(0.5f, 0.9f);
+		InvokeRepeating("CheckPlace", RandomizedChecker, RandomizedChecker);
 	}
 
 	private void Update()
@@ -64,17 +64,17 @@ public class TeleportationBlock : MonoBehaviour
 
 	private void CheckPlace()
 	{
-		List<GameObject> list = new List<GameObject>();
-		foreach (GameObject item in inMe)
+		List<GameObject> ToRemove = new List<GameObject>();
+		foreach (GameObject inObj in inMe)
 		{
-			if (item == null)
+			if (inObj == null)
 			{
-				list.Add(item);
+				ToRemove.Add(inObj);
 			}
 		}
-		foreach (GameObject item2 in list)
+		foreach (GameObject obj in ToRemove)
 		{
-			inMe.Remove(item2);
+			inMe.Remove(obj);
 		}
 		if (!(NoTeleportCounter > 0f))
 		{

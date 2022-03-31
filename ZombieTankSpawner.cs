@@ -91,9 +91,9 @@ public class ZombieTankSpawner : MonoBehaviour
 
 	private static ZombieTankSpawner _instance;
 
-	public bool timerRunning;
+	public bool timerRunning = false;
 
-	private int WeatherCooldown;
+	private int WeatherCooldown = 0;
 
 	public static ZombieTankSpawner instance => _instance;
 
@@ -121,15 +121,15 @@ public class ZombieTankSpawner : MonoBehaviour
 
 	private void Start()
 	{
-		int num = 0;
+		int amount = 0;
 		foreach (bool item in GameMaster.instance.PlayerJoined)
 		{
 			if (item)
 			{
-				num++;
+				amount++;
 			}
 		}
-		multiplier = MultipliersAmountOfPlayers[num];
+		multiplier = MultipliersAmountOfPlayers[amount];
 		maxSpawnedAmount = Mathf.RoundToInt((float)maxSpawnedAmount * multiplier);
 		for (int i = 0; i < GameMaster.instance.Levels.Count; i++)
 		{
@@ -142,36 +142,41 @@ public class ZombieTankSpawner : MonoBehaviour
 
 	private IEnumerator Spawner()
 	{
-		float num = 0.5f - (float)(spawnAmount / 100);
-		if (num < 0.1f)
+		float waitTime = 0.5f - (float)(spawnAmount / 100);
+		if (waitTime < 0.1f)
 		{
 			yield return new WaitForSeconds(0.1f);
 		}
 		else
 		{
-			yield return new WaitForSeconds(num);
+			yield return new WaitForSeconds(waitTime);
 		}
 		if (spawned < spawnAmount && GameMaster.instance.GameHasStarted && GameMaster.instance.AmountEnemyTanks < maxSpawnedAmount)
 		{
-			bool flag = false;
-			if (Wave >= 14 && Random.value < 0.04f && CurrentAmountOfEnemyTypes[9] < EnemyLimit[9])
+			bool TankSpawned = false;
+			if (Wave >= 14)
 			{
-				SpawnTank(BossTanks[0], 9);
-				spawned++;
-				amountEnemies++;
-				flag = true;
+				float dicerollBoss = Random.value;
+				if (dicerollBoss < 0.04f && CurrentAmountOfEnemyTypes[9] < EnemyLimit[9])
+				{
+					SpawnTank(BossTanks[0], 9);
+					spawned++;
+					amountEnemies++;
+					TankSpawned = true;
+				}
 			}
-			while (!flag)
+			while (!TankSpawned)
 			{
 				for (int i = 0; i < Tanks.Length; i++)
 				{
-					float num2 = ((i > 0) ? ((float)CurrentAmountOfEnemyTypes[i] / 32f) : 0f);
-					if (Random.value + num2 <= TankSpawnChance[i] && TanksSpawnRound[i] <= Wave && CurrentAmountOfEnemyTypes[i] < EnemyLimit[i])
+					float modifier = ((i > 0) ? ((float)CurrentAmountOfEnemyTypes[i] / 32f) : 0f);
+					float diceRoll = Random.value + modifier;
+					if (diceRoll <= TankSpawnChance[i] && TanksSpawnRound[i] <= Wave && CurrentAmountOfEnemyTypes[i] < EnemyLimit[i])
 					{
 						SpawnTank(Tanks[i], i);
 						spawned++;
 						amountEnemies++;
-						flag = true;
+						TankSpawned = true;
 						break;
 					}
 				}
@@ -198,8 +203,8 @@ public class ZombieTankSpawner : MonoBehaviour
 	private void SpawnTank(GameObject tankPrefab, int type)
 	{
 		CurrentAmountOfEnemyTypes[type]++;
-		int num = Random.Range(0, SpawnPoints.Length);
-		Object.Instantiate(tankPrefab, SpawnPoints[num].transform.position, base.transform.rotation);
+		int chosenPoint = Random.Range(0, SpawnPoints.Length);
+		Object.Instantiate(tankPrefab, SpawnPoints[chosenPoint].transform.position, base.transform.rotation);
 		GameMaster.instance.AmountEnemyTanks++;
 	}
 
@@ -208,18 +213,18 @@ public class ZombieTankSpawner : MonoBehaviour
 		timerRunning = true;
 		if ((bool)CloudGeneration.instance && WeatherCooldown < 1)
 		{
-			int[] array = new int[28]
+			int[] WeatherChances = new int[28]
 			{
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				0, 1, 1, 1, 2, 2, 3, 3
 			};
-			int num = array[Random.Range(0, array.Length)];
-			if (num > 0 && num != CloudGeneration.instance.CurrentWeatherType)
+			int picked = WeatherChances[Random.Range(0, WeatherChances.Length)];
+			if (picked > 0 && picked != CloudGeneration.instance.CurrentWeatherType)
 			{
-				WeatherCooldown += num;
+				WeatherCooldown += picked;
 				CloudGeneration.instance.MakeItDark();
-				CloudGeneration.instance.StartCoroutine(CloudGeneration.instance.SetWeatherType(num, force: true));
+				CloudGeneration.instance.StartCoroutine(CloudGeneration.instance.SetWeatherType(picked, force: true));
 			}
 			else
 			{
@@ -238,10 +243,10 @@ public class ZombieTankSpawner : MonoBehaviour
 			Debug.LogWarning("BLUE TANK SPAWNED!");
 			GameMaster.instance.AmountGoodTanks++;
 			Object.Instantiate(MainTankPrefab, playerLocation, Quaternion.identity);
-			GameObject obj = Object.Instantiate(MagicPoof, playerLocation, Quaternion.identity);
-			ParticleSystem component = obj.GetComponent<ParticleSystem>();
-			obj.transform.Rotate(new Vector3(-90f, 0f, 0f));
-			component.Play();
+			GameObject magic = Object.Instantiate(MagicPoof, playerLocation, Quaternion.identity);
+			ParticleSystem magicSystem2 = magic.GetComponent<ParticleSystem>();
+			magic.transform.Rotate(new Vector3(-90f, 0f, 0f));
+			magicSystem2.Play();
 			Play2DClipAtPoint(MagicSound);
 		}
 		if ((GameMaster.instance.PlayerDied[1] && GameMaster.instance.PlayerJoined[1]) || GameMaster.instance.PlayerJoining[1])
@@ -252,10 +257,10 @@ public class ZombieTankSpawner : MonoBehaviour
 			Debug.LogWarning("RED TANK SPAWNED!");
 			GameMaster.instance.AmountGoodTanks++;
 			Object.Instantiate(SecondTankPrefab, player2Location, Quaternion.identity);
-			GameObject obj2 = Object.Instantiate(MagicPoof, player2Location, Quaternion.identity);
-			ParticleSystem component2 = obj2.GetComponent<ParticleSystem>();
-			obj2.transform.Rotate(new Vector3(-90f, 0f, 0f));
-			component2.Play();
+			GameObject magic2 = Object.Instantiate(MagicPoof, player2Location, Quaternion.identity);
+			ParticleSystem magicSystem3 = magic2.GetComponent<ParticleSystem>();
+			magic2.transform.Rotate(new Vector3(-90f, 0f, 0f));
+			magicSystem3.Play();
 			Play2DClipAtPoint(MagicSound);
 		}
 		if ((GameMaster.instance.PlayerDied[2] && GameMaster.instance.PlayerJoined[2]) || GameMaster.instance.PlayerJoining[2])
@@ -266,10 +271,10 @@ public class ZombieTankSpawner : MonoBehaviour
 			GameMaster.instance.PlayerJoined[2] = true;
 			GameMaster.instance.AmountGoodTanks++;
 			Object.Instantiate(ThirdTankPrefab, player3Location, Quaternion.identity);
-			GameObject obj3 = Object.Instantiate(MagicPoof, player3Location, Quaternion.identity);
-			ParticleSystem component3 = obj3.GetComponent<ParticleSystem>();
-			obj3.transform.Rotate(new Vector3(-90f, 0f, 0f));
-			component3.Play();
+			GameObject magic3 = Object.Instantiate(MagicPoof, player3Location, Quaternion.identity);
+			ParticleSystem magicSystem4 = magic3.GetComponent<ParticleSystem>();
+			magic3.transform.Rotate(new Vector3(-90f, 0f, 0f));
+			magicSystem4.Play();
 			Play2DClipAtPoint(MagicSound);
 		}
 		if ((GameMaster.instance.PlayerDied[3] && GameMaster.instance.PlayerJoined[3]) || GameMaster.instance.PlayerJoining[3])
@@ -280,10 +285,10 @@ public class ZombieTankSpawner : MonoBehaviour
 			GameMaster.instance.PlayerJoined[3] = true;
 			GameMaster.instance.AmountGoodTanks++;
 			Object.Instantiate(FourthTankPrefab, player4Location, Quaternion.identity);
-			GameObject obj4 = Object.Instantiate(MagicPoof, player4Location, Quaternion.identity);
-			ParticleSystem component4 = obj4.GetComponent<ParticleSystem>();
-			obj4.transform.Rotate(new Vector3(-90f, 0f, 0f));
-			component4.Play();
+			GameObject magic4 = Object.Instantiate(MagicPoof, player4Location, Quaternion.identity);
+			ParticleSystem magicSystem = magic4.GetComponent<ParticleSystem>();
+			magic4.transform.Rotate(new Vector3(-90f, 0f, 0f));
+			magicSystem.Play();
 			Play2DClipAtPoint(MagicSound);
 		}
 		GameMaster.instance.FindPlayers();
@@ -298,12 +303,12 @@ public class ZombieTankSpawner : MonoBehaviour
 
 	public void Play2DClipAtPoint(AudioClip clip)
 	{
-		GameObject obj = new GameObject("TempAudio");
-		AudioSource audioSource = obj.AddComponent<AudioSource>();
+		GameObject tempAudioSource = new GameObject("TempAudio");
+		AudioSource audioSource = tempAudioSource.AddComponent<AudioSource>();
 		audioSource.clip = clip;
 		audioSource.volume = 1f;
 		audioSource.spatialBlend = 0f;
 		audioSource.Play();
-		Object.Destroy(obj, clip.length);
+		Object.Destroy(tempAudioSource, clip.length);
 	}
 }

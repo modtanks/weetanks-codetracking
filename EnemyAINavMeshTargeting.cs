@@ -32,7 +32,7 @@ public class EnemyAINavMeshTargeting : MonoBehaviour
 	[SerializeField]
 	private Vector3 lastFrameVelocity;
 
-	public bool specialMove;
+	public bool specialMove = false;
 
 	private void Start()
 	{
@@ -53,23 +53,23 @@ public class EnemyAINavMeshTargeting : MonoBehaviour
 		{
 			initialVelocity = firePoint.transform.forward * 100f;
 			target = new Vector3(Player.transform.position.x, firePoint.transform.position.y, Player.transform.position.z);
-			Vector3 forward = Player.transform.position - base.transform.position;
-			forward.y = 0f;
-			Quaternion b = Quaternion.LookRotation(forward);
-			base.transform.rotation = Quaternion.Slerp(base.transform.rotation, b, Time.deltaTime * 18.5f);
+			Vector3 lookPos2 = Player.transform.position - base.transform.position;
+			lookPos2.y = 0f;
+			Quaternion rotation2 = Quaternion.LookRotation(lookPos2);
+			base.transform.rotation = Quaternion.Slerp(base.transform.rotation, rotation2, Time.deltaTime * 18.5f);
 		}
 		else
 		{
-			Vector3 forward2 = startingPosition - base.transform.position;
-			forward2.y = 0f;
-			Quaternion b2 = Quaternion.LookRotation(forward2);
-			base.transform.rotation = Quaternion.Slerp(base.transform.rotation, b2, Time.deltaTime * 18.5f);
+			Vector3 lookPos = startingPosition - base.transform.position;
+			lookPos.y = 0f;
+			Quaternion rotation = Quaternion.LookRotation(lookPos);
+			base.transform.rotation = Quaternion.Slerp(base.transform.rotation, rotation, Time.deltaTime * 18.5f);
 		}
 	}
 
 	public void CheckForPlayer()
 	{
-		if (Physics.Raycast(base.transform.position, base.transform.TransformDirection(Vector3.forward) * 100f, out var hitInfo) && hitInfo.transform.tag != "Player" && !specialMove)
+		if (Physics.Raycast(base.transform.position, base.transform.TransformDirection(Vector3.forward) * 100f, out var rayhit) && rayhit.transform.tag != "Player" && !specialMove)
 		{
 			if (!DrawReflectionPattern(base.transform.position, rot * base.transform.forward, maxReflectionCount))
 			{
@@ -86,16 +86,17 @@ public class EnemyAINavMeshTargeting : MonoBehaviour
 	{
 		do
 		{
-			Vector3 start = position;
-			if (Physics.Raycast(new Ray(position, direction), out var hitInfo, maxStepDistance))
+			Vector3 startPosition = position;
+			Ray ray = new Ray(position, direction);
+			if (Physics.Raycast(ray, out var hit, maxStepDistance))
 			{
 				if (reflectionsRemaining == maxReflectionCount)
 				{
-					startingPosition = hitInfo.point;
+					startingPosition = hit.point;
 				}
-				direction = Vector3.Reflect(direction, hitInfo.normal);
-				position = hitInfo.point;
-				if (hitInfo.collider.tag == "Player")
+				direction = Vector3.Reflect(direction, hit.normal);
+				position = hit.point;
+				if (hit.collider.tag == "Player")
 				{
 					return true;
 				}
@@ -104,7 +105,7 @@ public class EnemyAINavMeshTargeting : MonoBehaviour
 			{
 				position += direction * maxStepDistance;
 			}
-			Debug.DrawLine(start, position, Color.red);
+			Debug.DrawLine(startPosition, position, Color.red);
 			reflectionsRemaining--;
 		}
 		while (reflectionsRemaining > 0);
@@ -113,32 +114,34 @@ public class EnemyAINavMeshTargeting : MonoBehaviour
 
 	private IEnumerator ShootAtPlayer()
 	{
-		float seconds = AIscript.ShootSpeed + Random.Range(0f, 1f);
-		yield return new WaitForSeconds(seconds);
-		RaycastHit hitInfo;
+		float ShootInterval = AIscript.ShootSpeed + Random.Range(0f, 1f);
+		yield return new WaitForSeconds(ShootInterval);
+		RaycastHit rayhit;
 		if (specialMove)
 		{
-			GameObject obj = Object.Instantiate(bulletPrefab, firePoint.position, firePoint.transform.rotation);
-			EnemyBulletScript component = obj.GetComponent<EnemyBulletScript>();
-			if (component != null)
+			GameObject bulletGO2 = Object.Instantiate(bulletPrefab, firePoint.position, firePoint.transform.rotation);
+			EnemyBulletScript bullet2 = bulletGO2.GetComponent<EnemyBulletScript>();
+			if (bullet2 != null)
 			{
-				component.dir = target;
+				bullet2.dir = target;
 			}
-			obj.transform.Rotate(Vector3.right * 90f);
-			obj.GetComponent<Rigidbody>().AddForce(firePoint.forward * 6f);
+			bulletGO2.transform.Rotate(Vector3.right * 90f);
+			Rigidbody bulletBody2 = bulletGO2.GetComponent<Rigidbody>();
+			bulletBody2.AddForce(firePoint.forward * 6f);
 			specialMove = false;
 		}
-		else if (Physics.Raycast(base.transform.position, base.transform.TransformDirection(Vector3.forward) * 100f, out hitInfo) && hitInfo.transform.tag == "Player")
+		else if (Physics.Raycast(base.transform.position, base.transform.TransformDirection(Vector3.forward) * 100f, out rayhit) && rayhit.transform.tag == "Player")
 		{
 			source.PlayOneShot(shotSound);
-			GameObject obj2 = Object.Instantiate(bulletPrefab, firePoint.position, firePoint.transform.rotation);
-			EnemyBulletScript component2 = obj2.GetComponent<EnemyBulletScript>();
-			if (component2 != null)
+			GameObject bulletGO = Object.Instantiate(bulletPrefab, firePoint.position, firePoint.transform.rotation);
+			EnemyBulletScript bullet = bulletGO.GetComponent<EnemyBulletScript>();
+			if (bullet != null)
 			{
-				component2.dir = target;
+				bullet.dir = target;
 			}
-			obj2.transform.Rotate(Vector3.right * 90f);
-			obj2.GetComponent<Rigidbody>().AddForce(firePoint.forward * 6f);
+			bulletGO.transform.Rotate(Vector3.right * 90f);
+			Rigidbody bulletBody = bulletGO.GetComponent<Rigidbody>();
+			bulletBody.AddForce(firePoint.forward * 6f);
 		}
 		StartCoroutine("ShootAtPlayer");
 	}

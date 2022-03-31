@@ -25,15 +25,15 @@ public class CustomControllersTiltDemo : MonoBehaviour
 	{
 		if (!(target == null))
 		{
-			Vector3 zero = Vector3.zero;
-			zero.y = player.GetAxis("Tilt Vertical");
-			zero.x = player.GetAxis("Tilt Horizontal");
-			if (zero.sqrMagnitude > 1f)
+			Vector3 dir = Vector3.zero;
+			dir.y = player.GetAxis("Tilt Vertical");
+			dir.x = player.GetAxis("Tilt Horizontal");
+			if (dir.sqrMagnitude > 1f)
 			{
-				zero.Normalize();
+				dir.Normalize();
 			}
-			zero *= Time.deltaTime;
-			target.Translate(zero * speed);
+			dir *= Time.deltaTime;
+			target.Translate(dir * speed);
 		}
 	}
 

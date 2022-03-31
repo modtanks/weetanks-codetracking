@@ -28,14 +28,14 @@ public class PlayerPointerEventData : PointerEventData
 
 	public override string ToString()
 	{
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.AppendLine("<b>Player Id</b>: " + playerId);
-		stringBuilder.AppendLine("<b>Mouse Source</b>: " + mouseSource);
-		stringBuilder.AppendLine("<b>Input Source Index</b>: " + inputSourceIndex);
-		stringBuilder.AppendLine("<b>Touch Source/b>: " + touchSource);
-		stringBuilder.AppendLine("<b>Source Type</b>: " + sourceType);
-		stringBuilder.AppendLine("<b>Button Index</b>: " + buttonIndex);
-		stringBuilder.Append(base.ToString());
-		return stringBuilder.ToString();
+		StringBuilder sb = new StringBuilder();
+		sb.AppendLine("<b>Player Id</b>: " + playerId);
+		sb.AppendLine("<b>Mouse Source</b>: " + mouseSource);
+		sb.AppendLine("<b>Input Source Index</b>: " + inputSourceIndex);
+		sb.AppendLine("<b>Touch Source/b>: " + touchSource);
+		sb.AppendLine("<b>Source Type</b>: " + sourceType);
+		sb.AppendLine("<b>Button Index</b>: " + buttonIndex);
+		sb.Append(base.ToString());
+		return sb.ToString();
 	}
 }

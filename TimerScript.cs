@@ -14,25 +14,25 @@ public class TimerScript : MonoBehaviour
 	{
 		if ((bool)GameMaster.instance)
 		{
-			int num = 0;
-			int num2 = 0;
-			int num3 = 0;
-			int num4 = Mathf.RoundToInt(GameMaster.instance.counter);
-			num3 = ((num4 >= 3600) ? Mathf.FloorToInt(num4 / 3600) : 0);
-			if (num3 < 1)
+			int minutes = 0;
+			int seconds = 0;
+			int hours = 0;
+			int timer = Mathf.RoundToInt(GameMaster.instance.counter);
+			hours = ((timer >= 3600) ? Mathf.FloorToInt(timer / 3600) : 0);
+			if (hours < 1)
 			{
-				num = ((num4 >= 60) ? Mathf.FloorToInt(num4 / 60) : 0);
+				minutes = ((timer >= 60) ? Mathf.FloorToInt(timer / 60) : 0);
 			}
 			else
 			{
-				int num5 = num4 - num3 * 3600;
-				num = ((num5 >= 60) ? Mathf.FloorToInt(num5 / 60) : 0);
+				int noHoursTimer = timer - hours * 3600;
+				minutes = ((noHoursTimer >= 60) ? Mathf.FloorToInt(noHoursTimer / 60) : 0);
 			}
-			num2 = ((num < 1) ? num4 : ((num3 >= 1) ? (num4 - num * 60 - num3 * 3600) : (num4 - num * 60)));
-			string text = ((num3 < 10) ? ("0" + num3) : num3.ToString());
-			string text2 = ((num < 10) ? ("0" + num) : num.ToString());
-			string text3 = ((num2 < 10) ? ("0" + num2) : num2.ToString());
-			MyTimerText.text = text + ":" + text2 + ":" + text3;
+			seconds = ((minutes < 1) ? timer : ((hours >= 1) ? (timer - minutes * 60 - hours * 3600) : (timer - minutes * 60)));
+			string hoursText = ((hours < 10) ? ("0" + hours) : hours.ToString());
+			string minutesText = ((minutes < 10) ? ("0" + minutes) : minutes.ToString());
+			string secondsText = ((seconds < 10) ? ("0" + seconds) : seconds.ToString());
+			MyTimerText.text = hoursText + ":" + minutesText + ":" + secondsText;
 		}
 	}
 }

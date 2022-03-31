@@ -4,7 +4,7 @@ public class RammingDetection : MonoBehaviour
 {
 	public KingTankScript KTS;
 
-	public bool CheckForZeroSpeed;
+	public bool CheckForZeroSpeed = false;
 
 	public AudioClip TankImpact;
 
@@ -20,11 +20,11 @@ public class RammingDetection : MonoBehaviour
 		RamAS.volume = KTS.EA.rigi.velocity.magnitude;
 		KTS.ETSN.canShoot = false;
 		ParticleSystem[] ramParticles = RamParticles;
-		foreach (ParticleSystem particleSystem in ramParticles)
+		foreach (ParticleSystem PS in ramParticles)
 		{
-			if (!particleSystem.isPlaying)
+			if (!PS.isPlaying)
 			{
-				particleSystem.Play();
+				PS.Play();
 			}
 		}
 	}
@@ -33,11 +33,11 @@ public class RammingDetection : MonoBehaviour
 	{
 		RamAS.volume = 0f;
 		ParticleSystem[] ramParticles = RamParticles;
-		foreach (ParticleSystem particleSystem in ramParticles)
+		foreach (ParticleSystem PS in ramParticles)
 		{
-			if (particleSystem.isPlaying)
+			if (PS.isPlaying)
 			{
-				particleSystem.Stop();
+				PS.Stop();
 			}
 		}
 	}
@@ -76,39 +76,40 @@ public class RammingDetection : MonoBehaviour
 			KTS.ResetAfterRam();
 			if (KTS.EA.rigi.velocity.magnitude > 0.5f)
 			{
-				CameraShake component = Camera.main.GetComponent<CameraShake>();
-				if ((bool)component)
+				CameraShake CS = Camera.main.GetComponent<CameraShake>();
+				if ((bool)CS)
 				{
-					component.StartCoroutine(component.Shake(0.25f, 0.25f));
+					CS.StartCoroutine(CS.Shake(0.25f, 0.25f));
 				}
 				SFXManager.instance.PlaySFX(TankImpact, 1f, null);
-				Object.Destroy(Object.Instantiate(RamImpactingParticles, base.transform.position + base.transform.forward * 2f, Quaternion.identity), 3f);
+				GameObject Impact = Object.Instantiate(RamImpactingParticles, base.transform.position + base.transform.forward * 2f, Quaternion.identity);
+				Object.Destroy(Impact, 3f);
 			}
-			BoostTower component2 = collision.transform.gameObject.GetComponent<BoostTower>();
-			if ((bool)component2)
+			BoostTower BT = collision.transform.gameObject.GetComponent<BoostTower>();
+			if ((bool)BT)
 			{
-				component2.DestroyTower();
+				BT.DestroyTower();
 			}
-			DestroyableWall component3 = collision.transform.gameObject.GetComponent<DestroyableWall>();
-			if ((bool)component3)
+			DestroyableWall DW = collision.transform.gameObject.GetComponent<DestroyableWall>();
+			if ((bool)DW)
 			{
-				component3.StartCoroutine(component3.destroy());
+				DW.StartCoroutine(DW.destroy());
 			}
 		}
 		else if (collision.transform.tag == "Player")
 		{
-			HealthTanks component4 = collision.transform.GetComponent<HealthTanks>();
-			if ((bool)component4)
+			HealthTanks HT = collision.transform.GetComponent<HealthTanks>();
+			if ((bool)HT)
 			{
-				component4.DamageMe(999);
+				HT.DamageMe(999);
 			}
 		}
 		else if (collision.transform.tag == "Enemy")
 		{
-			HealthTanks component5 = collision.transform.GetComponent<HealthTanks>();
-			if ((bool)component5)
+			HealthTanks HT2 = collision.transform.GetComponent<HealthTanks>();
+			if ((bool)HT2)
 			{
-				component5.DamageMe(999);
+				HT2.DamageMe(999);
 			}
 		}
 	}

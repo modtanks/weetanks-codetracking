@@ -36,14 +36,14 @@ public class GetMissionData : MonoBehaviour
 		}
 		else if (GameMaster.instance != null)
 		{
-			int num = GameMaster.instance.CurrentMission + 1;
-			if (num > 100)
+			int amount = GameMaster.instance.CurrentMission + 1;
+			if (amount > 100)
 			{
-				num = 100;
+				amount = 100;
 			}
 			if (GameMaster.instance.PlayerAlive && GameMaster.instance.AmountGoodTanks > 0 && GameMaster.instance.AmountEnemyTanks > 0)
 			{
-				Mission_Text.text = LocalizationMaster.instance.GetText("HUD_mission") + " " + num;
+				Mission_Text.text = LocalizationMaster.instance.GetText("HUD_mission") + " " + amount;
 			}
 			TanksLeft_Text.text = "x" + GameMaster.instance.AmountEnemyTanks;
 		}

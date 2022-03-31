@@ -36,21 +36,25 @@ public class MousePosition : MonoBehaviour
 
 	private void MousePos(Vector3 pos)
 	{
-		int num = 1 << LayerMask.NameToLayer("FLOOR");
-		int num2 = 1 << LayerMask.NameToLayer("InvisibleFloor");
-		int layerMask = num | num2;
-		if (!GameMaster.instance.isPlayingWithController && Physics.Raycast(Camera.main.ScreenPointToRay(pos), out var hitInfo, 50000f, layerMask) && hitInfo.transform.tag == "Floor")
+		int mask_1 = 1 << LayerMask.NameToLayer("FLOOR");
+		int mask_2 = 1 << LayerMask.NameToLayer("InvisibleFloor");
+		int Mask = mask_1 | mask_2;
+		if (!GameMaster.instance.isPlayingWithController)
 		{
-			mousePos = hitInfo.point + new Vector3(0f, 0f, -1f);
+			Ray ray = Camera.main.ScreenPointToRay(pos);
+			if (Physics.Raycast(ray, out var hit, 50000f, Mask) && hit.transform.tag == "Floor")
+			{
+				mousePos = hit.point + new Vector3(0f, 0f, -1f);
+			}
 		}
 	}
 
 	public bool PointIsOverUI(float x, float y)
 	{
-		PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
-		pointerEventData.position = new Vector2(x, y);
+		PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
+		eventDataCurrentPosition.position = new Vector2(x, y);
 		tempRaycastResults.Clear();
-		EventSystem.current.RaycastAll(pointerEventData, tempRaycastResults);
+		EventSystem.current.RaycastAll(eventDataCurrentPosition, tempRaycastResults);
 		foreach (RaycastResult tempRaycastResult in tempRaycastResults)
 		{
 			if (tempRaycastResult.gameObject.transform.tag == "IgnoreMobile")

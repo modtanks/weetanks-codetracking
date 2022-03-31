@@ -36,19 +36,21 @@ public class TankCustoms : MonoBehaviour
 
 	private void SetIndex()
 	{
-		int num = -1;
-		for (int i = 0; i < OptionsMainMenu.instance.FullBodySkins.Length; i++)
+		int AMselNumber = -1;
+		for (int j = 0; j < OptionsMainMenu.instance.FullBodySkins.Length; j++)
 		{
-			if (OptionsMainMenu.instance.AMselected.Contains(OptionsMainMenu.instance.FullBodySkins[i].AMselectedID))
+			if (OptionsMainMenu.instance.AMselected.Contains(OptionsMainMenu.instance.FullBodySkins[j].AMselectedID))
 			{
-				num = OptionsMainMenu.instance.FullBodySkins[i].AMselectedID;
+				AMselNumber = OptionsMainMenu.instance.FullBodySkins[j].AMselectedID;
 			}
 		}
-		if (num > -1)
+		if (AMselNumber > -1)
 		{
-			for (int j = 0; j < OptionsMainMenu.instance.FullBodySkins.Length; j++)
+			for (int i = 0; i < OptionsMainMenu.instance.FullBodySkins.Length; i++)
 			{
-				_ = OptionsMainMenu.instance.FullBodySkins[j].AMselectedID;
+				if (OptionsMainMenu.instance.FullBodySkins[i].AMselectedID == AMselNumber)
+				{
+				}
 			}
 			if (myIndex > -1)
 			{
@@ -61,16 +63,16 @@ public class TankCustoms : MonoBehaviour
 
 	private void CheckForSkin()
 	{
-		string text = "";
-		string text2 = "";
-		text = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
-		text2 = text + "/My Games/Wee Tanks/mods/turret_skin.png";
-		text += "/My Games/Wee Tanks/mods/tank_skin.png";
+		string savePath = "";
+		string savePathTurret = "";
+		savePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
+		savePathTurret = savePath + "/My Games/Wee Tanks/mods/turret_skin.png";
+		savePath += "/My Games/Wee Tanks/mods/tank_skin.png";
 		texture = new Texture2D(2, 2);
-		if (File.Exists(text))
+		if (File.Exists(savePath))
 		{
-			byte[] data = File.ReadAllBytes(text);
-			texture.LoadImage(data);
+			byte[] fileData2 = File.ReadAllBytes(savePath);
+			texture.LoadImage(fileData2);
 			if ((bool)texture)
 			{
 				ModData = new CustomSkinData();
@@ -83,12 +85,12 @@ public class TankCustoms : MonoBehaviour
 			}
 		}
 		texture_turret = new Texture2D(2, 2);
-		if (!File.Exists(text2))
+		if (!File.Exists(savePathTurret))
 		{
 			return;
 		}
-		byte[] data2 = File.ReadAllBytes(text2);
-		texture_turret.LoadImage(data2);
+		byte[] fileData = File.ReadAllBytes(savePathTurret);
+		texture_turret.LoadImage(fileData);
 		if ((bool)texture_turret)
 		{
 			if (!ModData)
@@ -111,15 +113,15 @@ public class TankCustoms : MonoBehaviour
 		}
 		for (int i = 0; i < allRends.Length; i++)
 		{
-			Material[] materials = allRends[i].materials;
-			for (int j = 0; j < materials.Length; j++)
+			Material[] mats = allRends[i].materials;
+			for (int j = 0; j < mats.Length; j++)
 			{
 				if (CSD.MainMaterial != null)
 				{
-					materials[j] = CSD.MainMaterial;
+					mats[j] = CSD.MainMaterial;
 				}
 			}
-			allRends[i].materials = materials;
+			allRends[i].materials = mats;
 		}
 	}
 

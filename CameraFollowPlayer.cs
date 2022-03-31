@@ -2,17 +2,17 @@ using UnityEngine;
 
 public class CameraFollowPlayer : MonoBehaviour
 {
-	public float offsetY;
+	public float offsetY = 0f;
 
-	public float offsetZ;
+	public float offsetZ = 0f;
 
-	public float YPOS;
+	public float YPOS = 0f;
 
-	public float ZPOS;
+	public float ZPOS = 0f;
 
-	private float playerOffsetY;
+	private float playerOffsetY = 0f;
 
-	private float playerOffsetZ;
+	private float playerOffsetZ = 0f;
 
 	public float Ycorrection = -5f;
 
@@ -106,9 +106,9 @@ public class CameraFollowPlayer : MonoBehaviour
 
 	private void SetPos(Vector3 targetpos)
 	{
-		Vector3 vector = Camera.main.WorldToViewportPoint(targetpos);
-		Vector3 vector2 = targetpos - Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, vector.z));
-		Vector3 target = base.transform.position + vector2;
-		base.transform.position = Vector3.SmoothDamp(base.transform.position, target, ref velocity, 0.15f);
+		Vector3 point = Camera.main.WorldToViewportPoint(targetpos);
+		Vector3 delta = targetpos - Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, point.z));
+		Vector3 destination = base.transform.position + delta;
+		base.transform.position = Vector3.SmoothDamp(base.transform.position, destination, ref velocity, 0.15f);
 	}
 }

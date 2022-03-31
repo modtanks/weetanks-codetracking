@@ -8,11 +8,11 @@ public class ThirdPersonCameraScript : MonoBehaviour
 
 	public Transform HeadTank;
 
-	public float offsetZ;
+	public float offsetZ = 0f;
 
-	public float offsetY;
+	public float offsetY = 0f;
 
-	public float offsetX;
+	public float offsetX = 0f;
 
 	private void Start()
 	{

@@ -73,24 +73,24 @@ public class BossHealthBar : MonoBehaviour
 		if ((GameMaster.instance.PlayerAlive && GameMaster.instance.AmountGoodTanks > 0 && GameMaster.instance.AmountEnemyTanks > 0 && GameMaster.instance.GameHasStarted && GameMaster.instance.CurrentMission > 8) || GameMaster.instance.CurrentMission == 99)
 		{
 			GameObject[] bossOverlays = BossOverlays;
-			for (int i = 0; i < bossOverlays.Length; i++)
+			foreach (GameObject Overlay2 in bossOverlays)
 			{
-				bossOverlays[i].SetActive(value: false);
+				Overlay2.SetActive(value: false);
 			}
-			GameObject gameObject = GameObject.FindGameObjectWithTag("Boss");
-			if (gameObject != null)
+			GameObject theBoss = GameObject.FindGameObjectWithTag("Boss");
+			if (theBoss != null)
 			{
 				if (GameMaster.instance.CurrentMission == 99 && !KTS)
 				{
-					KTS = gameObject.transform.parent.GetComponent<KingTankScript>();
+					KTS = theBoss.transform.parent.GetComponent<KingTankScript>();
 				}
 				else if (GameMaster.instance.CurrentMission == 99 && (bool)KTS && !KTS.IsInFinalBattle)
 				{
 					return;
 				}
-				HealthTanks component = gameObject.GetComponent<HealthTanks>();
-				int num = -1;
-				num = GameMaster.instance.CurrentMission switch
+				HealthTanks healthBoss = theBoss.GetComponent<HealthTanks>();
+				int mission = -1;
+				mission = GameMaster.instance.CurrentMission switch
 				{
 					9 => 0, 
 					29 => 1, 
@@ -99,15 +99,15 @@ public class BossHealthBar : MonoBehaviour
 					99 => 4, 
 					_ => -1, 
 				};
-				if (num > -1 && component.health > 0)
+				if (mission > -1 && healthBoss.health > 0)
 				{
-					latestKnownMission = num;
-					BossOverlays[num].SetActive(value: true);
-					rt[num].sizeDelta = Vector2.Lerp(rt[num].sizeDelta, new Vector2(originalWidth / (float)component.maxHealth * (float)component.health, rt[num].sizeDelta.y), Time.deltaTime * 2f);
+					latestKnownMission = mission;
+					BossOverlays[mission].SetActive(value: true);
+					rt[mission].sizeDelta = Vector2.Lerp(rt[mission].sizeDelta, new Vector2(originalWidth / (float)healthBoss.maxHealth * (float)healthBoss.health, rt[mission].sizeDelta.y), Time.deltaTime * 2f);
 				}
-				if (GameMaster.instance.CurrentMission == 99 && component.health < 1)
+				if (GameMaster.instance.CurrentMission == 99 && healthBoss.health < 1)
 				{
-					BossOverlays[num].SetActive(value: false);
+					BossOverlays[mission].SetActive(value: false);
 				}
 			}
 			else if (latestKnownMission > -1)
@@ -125,10 +125,10 @@ public class BossHealthBar : MonoBehaviour
 		}
 		if (GameMaster.instance.Bosses.Length < 1)
 		{
-			GameObject[] bossOverlays = BossOverlays;
-			for (int i = 0; i < bossOverlays.Length; i++)
+			GameObject[] bossOverlays2 = BossOverlays;
+			foreach (GameObject Overlay in bossOverlays2)
 			{
-				bossOverlays[i].SetActive(value: false);
+				Overlay.SetActive(value: false);
 			}
 		}
 	}

@@ -64,10 +64,10 @@ public class UISliderControl : UIControl
 			};
 			return;
 		}
-		EventTrigger eventTrigger = slider.GetComponent<EventTrigger>();
-		if (eventTrigger == null)
+		EventTrigger trigger = slider.GetComponent<EventTrigger>();
+		if (trigger == null)
 		{
-			eventTrigger = slider.gameObject.AddComponent<EventTrigger>();
+			trigger = slider.gameObject.AddComponent<EventTrigger>();
 		}
 		EventTrigger.Entry entry = new EventTrigger.Entry();
 		entry.callback = new EventTrigger.TriggerEvent();
@@ -76,10 +76,10 @@ public class UISliderControl : UIControl
 		{
 			cancelCallback();
 		});
-		if (eventTrigger.triggers == null)
+		if (trigger.triggers == null)
 		{
-			eventTrigger.triggers = new List<EventTrigger.Entry>();
+			trigger.triggers = new List<EventTrigger.Entry>();
 		}
-		eventTrigger.triggers.Add(entry);
+		trigger.triggers.Add(entry);
 	}
 }

@@ -15,16 +15,16 @@ public class TrainSpawner : MonoBehaviour
 
 	public AudioClip ChooChoo;
 
-	private bool isTrainRunning;
+	private bool isTrainRunning = false;
 
 	private void OnTriggerEnter(Collider other)
 	{
 		if (other.tag == "Solid" && !GameMaster.instance.GameHasStarted)
 		{
-			MeshRenderer component = other.GetComponent<MeshRenderer>();
-			if ((bool)component)
+			MeshRenderer MR = other.GetComponent<MeshRenderer>();
+			if ((bool)MR)
 			{
-				component.enabled = false;
+				MR.enabled = false;
 			}
 		}
 	}
@@ -46,8 +46,8 @@ public class TrainSpawner : MonoBehaviour
 	{
 		isTrainRunning = true;
 		Debug.LogWarning("train is gonna wait");
-		int num = SpawnSpeed + Random.Range(-SpawnSpeedOffsetRandom, SpawnSpeedOffsetRandom);
-		yield return new WaitForSeconds(num);
+		int waitTime = SpawnSpeed + Random.Range(-SpawnSpeedOffsetRandom, SpawnSpeedOffsetRandom);
+		yield return new WaitForSeconds(waitTime);
 		if ((bool)myTrain)
 		{
 			StartCoroutine("TrainSystem");
@@ -55,20 +55,20 @@ public class TrainSpawner : MonoBehaviour
 		}
 		Play2DClipAtPoint(ChooChoo);
 		yield return new WaitForSeconds(0.9f);
-		int num2 = Random.Range(0, Spawnpoints.Length);
-		myTrain = Object.Instantiate(TrainPrefab, Spawnpoints[num2]);
+		int pick = Random.Range(0, Spawnpoints.Length);
+		myTrain = Object.Instantiate(TrainPrefab, Spawnpoints[pick]);
 		Debug.LogWarning("train spawned");
 		StartCoroutine("TrainSystem");
 	}
 
 	public void Play2DClipAtPoint(AudioClip clip)
 	{
-		GameObject obj = new GameObject("TempAudio");
-		AudioSource audioSource = obj.AddComponent<AudioSource>();
+		GameObject tempAudioSource = new GameObject("TempAudio");
+		AudioSource audioSource = tempAudioSource.AddComponent<AudioSource>();
 		audioSource.clip = clip;
 		audioSource.volume = 2f;
 		audioSource.spatialBlend = 0f;
 		audioSource.Play();
-		Object.Destroy(obj, clip.length);
+		Object.Destroy(tempAudioSource, clip.length);
 	}
 }

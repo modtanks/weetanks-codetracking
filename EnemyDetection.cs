@@ -9,33 +9,33 @@ public class EnemyDetection : MonoBehaviour
 
 	public Color Chosen;
 
-	public bool isTargeted;
+	public bool isTargeted = false;
 
-	public bool isChosen;
+	public bool isChosen = false;
 
-	public bool isPreferred;
+	public bool isPreferred = false;
 
-	public bool isRing1;
+	public bool isRing1 = false;
 
-	public bool MineClose;
+	public bool MineClose = false;
 
 	public float DistToMine;
 
-	public int TargetDanger;
+	public int TargetDanger = 0;
 
-	public int ID;
+	public int ID = 0;
 
 	public GameObject papaTank;
 
 	public EnemyAI AIscript;
 
-	public bool isCenter;
+	public bool isCenter = false;
 
-	public bool inWall;
+	public bool inWall = false;
 
 	public bool onFloor = true;
 
-	public bool ignoringBullets;
+	public bool ignoringBullets = false;
 
 	public float mineCheckRange = 3f;
 
@@ -52,10 +52,10 @@ public class EnemyDetection : MonoBehaviour
 	private void Start()
 	{
 		AIscript = papaTank.GetComponent<EnemyAI>();
-		float num = Random.Range(0.3f, 0.5f);
-		InvokeRepeating("DisableTarget", num, num);
-		num = ((!(AIscript.TankSpeed > 70f) && !AIscript.isLevel50Boss) ? Random.Range(0.4f, 0.6f) : Random.Range(0.2f, 0.3f));
-		InvokeRepeating("CheckTarget", num, num);
+		float RandomizedChecker = Random.Range(0.3f, 0.5f);
+		InvokeRepeating("DisableTarget", RandomizedChecker, RandomizedChecker);
+		RandomizedChecker = ((!(AIscript.TankSpeed > 70f) && !AIscript.isLevel50Boss) ? Random.Range(0.4f, 0.6f) : Random.Range(0.2f, 0.3f));
+		InvokeRepeating("CheckTarget", RandomizedChecker, RandomizedChecker);
 		if (isRing1 || isCenter)
 		{
 			mineCheckRange = 5f;
@@ -74,7 +74,8 @@ public class EnemyDetection : MonoBehaviour
 
 	private void IgnoreBullets()
 	{
-		if (Random.Range(0, 100) < AIscript.NotSeeBulletChancePercentage)
+		int randomNumber = Random.Range(0, 100);
+		if (randomNumber < AIscript.NotSeeBulletChancePercentage)
 		{
 			ignoringBullets = true;
 			Bullets.Clear();
@@ -90,21 +91,21 @@ public class EnemyDetection : MonoBehaviour
 		if (pieces.Count > 0)
 		{
 			isTargeted = true;
-			List<Collider> list = new List<Collider>();
+			List<Collider> PiecesToRemove = new List<Collider>();
 			for (int i = 0; i < pieces.Count; i++)
 			{
 				if (pieces[i] == null)
 				{
-					list.Add(pieces[i]);
+					PiecesToRemove.Add(pieces[i]);
 				}
 				else if (!pieces[i].enabled)
 				{
-					list.Add(pieces[i]);
+					PiecesToRemove.Add(pieces[i]);
 				}
 			}
-			foreach (Collider item in list)
+			foreach (Collider remove in PiecesToRemove)
 			{
-				pieces.Remove(item);
+				pieces.Remove(remove);
 			}
 			if (pieces.Count > 0)
 			{
@@ -119,27 +120,28 @@ public class EnemyDetection : MonoBehaviour
 	{
 		if (AIscript.difficulty > 0 && GameMaster.instance.AmountMinesPlaced > 0)
 		{
-			LayerMask layerMask = (1 << LayerMask.NameToLayer("Other")) | (1 << LayerMask.NameToLayer("NoBounceWall"));
-			Collider[] array = Physics.OverlapSphere(base.transform.position, mineCheckRange, layerMask);
-			foreach (Collider collider in array)
+			LayerMask layersToCheck = (1 << LayerMask.NameToLayer("Other")) | (1 << LayerMask.NameToLayer("NoBounceWall"));
+			Collider[] objectsInRange = Physics.OverlapSphere(base.transform.position, mineCheckRange, layersToCheck);
+			Collider[] array = objectsInRange;
+			foreach (Collider col in array)
 			{
-				if (collider.tag == "Mine" && MY_ID != 9)
+				if (col.tag == "Mine" && MY_ID != 9)
 				{
-					MineScript component = collider.GetComponent<MineScript>();
-					if (component.active || component.MyPlacer == papaTank)
+					MineScript MS = col.GetComponent<MineScript>();
+					if (MS.active || MS.MyPlacer == papaTank)
 					{
 						MineClose = true;
-						DistToMine = Vector3.Distance(component.transform.position, base.transform.position);
+						DistToMine = Vector3.Distance(MS.transform.position, base.transform.position);
 						return true;
 					}
 				}
-				else if (collider.tag == "Solid")
+				else if (col.tag == "Solid")
 				{
-					ExplosiveBlock component2 = collider.GetComponent<ExplosiveBlock>();
-					if ((bool)component2 && component2.isFusing)
+					ExplosiveBlock EB = col.GetComponent<ExplosiveBlock>();
+					if ((bool)EB && EB.isFusing)
 					{
 						MineClose = true;
-						DistToMine = Vector3.Distance(component2.transform.position, base.transform.position);
+						DistToMine = Vector3.Distance(EB.transform.position, base.transform.position);
 						return true;
 					}
 				}
@@ -152,10 +154,11 @@ public class EnemyDetection : MonoBehaviour
 
 	private bool checkEnemies()
 	{
-		Collider[] array = Physics.OverlapSphere(base.transform.position, 3f);
-		foreach (Collider collider in array)
+		Collider[] objectsInRange = Physics.OverlapSphere(base.transform.position, 3f);
+		Collider[] array = objectsInRange;
+		foreach (Collider col in array)
 		{
-			if (collider.tag == "Enemy" || collider.tag == "Boss")
+			if (col.tag == "Enemy" || col.tag == "Boss")
 			{
 				if (papaTank.GetComponent<EnemyAI>().difficulty < 1)
 				{
@@ -214,18 +217,18 @@ public class EnemyDetection : MonoBehaviour
 			if (checkPieces(FloorPieces))
 			{
 				isTargeted = false;
-				List<Collider> list = new List<Collider>();
+				List<Collider> ToRemove = new List<Collider>();
 				for (int i = 0; i < FloorPieces.Count; i++)
 				{
 					if (FloorPieces[i] == null)
 					{
-						list.Add(FloorPieces[i]);
+						ToRemove.Add(FloorPieces[i]);
 					}
 				}
 				{
-					foreach (Collider item in list)
+					foreach (Collider Remove in ToRemove)
 					{
-						FloorPieces.Remove(item);
+						FloorPieces.Remove(Remove);
 					}
 					return;
 				}
@@ -287,10 +290,10 @@ public class EnemyDetection : MonoBehaviour
 			}
 			if (other.transform.tag == "Bullet" && !ignoringBullets)
 			{
-				EnemyBulletScript component = other.transform.GetComponent<EnemyBulletScript>();
-				if (component != null)
+				EnemyBulletScript EBS = other.transform.GetComponent<EnemyBulletScript>();
+				if (EBS != null)
 				{
-					if (!(component.papaTank == papaTank) || component.BounceAmount != 0)
+					if (!(EBS.papaTank == papaTank) || EBS.BounceAmount != 0)
 					{
 						Bullets.Add(other);
 					}
@@ -364,8 +367,9 @@ public class EnemyDetection : MonoBehaviour
 			isTargeted = false;
 			TargetDanger = 0;
 		}
-		_ = SolidPieces.Count;
-		_ = 0;
+		if (SolidPieces.Count > 0)
+		{
+		}
 		TargetDanger = 0;
 		isPreferred = false;
 		Bullets.Clear();

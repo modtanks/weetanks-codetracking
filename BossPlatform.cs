@@ -58,8 +58,8 @@ public class BossPlatform : MonoBehaviour
 			}
 			yield return new WaitForSeconds(3f);
 			ThroneAnimator.SetBool("OpenFlaps", value: false);
-			float seconds = Random.Range(4f, 14f);
-			yield return new WaitForSeconds(seconds);
+			float randomWaitingTime = Random.Range(4f, 14f);
+			yield return new WaitForSeconds(randomWaitingTime);
 		}
 		yield return new WaitForSeconds(1f);
 		StartCoroutine(MissileSpawning());
@@ -67,12 +67,12 @@ public class BossPlatform : MonoBehaviour
 
 	public void SpawnMissiles(int index)
 	{
-		GameObject obj = Object.Instantiate(Missile, MissileSpawnPoints[index % 2].transform.position, Quaternion.identity, null);
-		obj.GetComponent<RocketScript>().MyTeam = 2;
-		obj.GetComponent<RocketScript>().isHuntingEnemies = true;
-		obj.GetComponent<RocketScript>().Launch();
-		obj.GetComponent<RocketScript>().landingOffset = 1f;
-		obj.transform.localScale = new Vector3(1f, 1f, 1f);
+		GameObject missile = Object.Instantiate(Missile, MissileSpawnPoints[index % 2].transform.position, Quaternion.identity, null);
+		missile.GetComponent<RocketScript>().MyTeam = 2;
+		missile.GetComponent<RocketScript>().isHuntingEnemies = true;
+		missile.GetComponent<RocketScript>().Launch();
+		missile.GetComponent<RocketScript>().landingOffset = 1f;
+		missile.transform.localScale = new Vector3(1f, 1f, 1f);
 	}
 
 	private void Update()
@@ -84,9 +84,9 @@ public class BossPlatform : MonoBehaviour
 		if (PlatformHealth < 1)
 		{
 			GameObject[] platformObjects = PlatformObjects;
-			for (int i = 0; i < platformObjects.Length; i++)
+			foreach (GameObject platform2 in platformObjects)
 			{
-				platformObjects[i].SetActive(value: false);
+				platform2.SetActive(value: false);
 			}
 			lastCheckedHealth = PlatformHealth;
 			GetComponent<Collider>().enabled = false;
@@ -97,10 +97,10 @@ public class BossPlatform : MonoBehaviour
 		lastCheckedHealth = PlatformHealth;
 		if (PlatformHealth >= 10)
 		{
-			GameObject[] platformObjects = PlatformObjects;
-			for (int i = 0; i < platformObjects.Length; i++)
+			GameObject[] platformObjects2 = PlatformObjects;
+			foreach (GameObject platform in platformObjects2)
 			{
-				platformObjects[i].SetActive(value: true);
+				platform.SetActive(value: true);
 			}
 			PlatformObjects[1].SetActive(value: false);
 			PlatformObjects[2].SetActive(value: false);

@@ -9,9 +9,9 @@ public class PathfindingBlock : MonoBehaviour
 
 	public bool SolidInMe;
 
-	public bool SolidInMeIsCork;
+	public bool SolidInMeIsCork = false;
 
-	public bool ElectricInMe;
+	public bool ElectricInMe = false;
 
 	public int myLatestScore = -1;
 
@@ -21,13 +21,13 @@ public class PathfindingBlock : MonoBehaviour
 
 	public int AmountCalls = -1;
 
-	public int myID;
+	public int myID = 0;
 
-	public int GridID;
+	public int GridID = 0;
 
-	public bool SolidSouthOfMe;
+	public bool SolidSouthOfMe = false;
 
-	public bool SouthOnTop;
+	public bool SouthOnTop = false;
 
 	public PathGridPieceClass PGPC;
 
@@ -45,17 +45,17 @@ public class PathfindingBlock : MonoBehaviour
 		{
 			return;
 		}
-		List<GameObject> list = new List<GameObject>();
-		foreach (GameObject item in inMe)
+		List<GameObject> ToRemove = new List<GameObject>();
+		foreach (GameObject inObj in inMe)
 		{
-			if (item == null)
+			if (inObj == null)
 			{
-				list.Add(item);
+				ToRemove.Add(inObj);
 			}
-			else if (item.transform.tag == "Solid" || item.transform.tag == "ElectricPad")
+			else if (inObj.transform.tag == "Solid" || inObj.transform.tag == "ElectricPad")
 			{
 				SolidInMe = true;
-				if (item.gameObject.layer == LayerMask.NameToLayer("CorkWall"))
+				if (inObj.gameObject.layer == LayerMask.NameToLayer("CorkWall"))
 				{
 					SolidInMeIsCork = true;
 				}
@@ -65,27 +65,29 @@ public class PathfindingBlock : MonoBehaviour
 				}
 			}
 		}
-		foreach (GameObject item2 in list)
+		foreach (GameObject obj in ToRemove)
 		{
-			inMe.Remove(item2);
+			inMe.Remove(obj);
 		}
 		if (inMe.Count < 1)
 		{
 			SolidInMe = false;
 		}
-		_ = GameMaster.instance.GameHasStarted;
+		if (!GameMaster.instance.GameHasStarted)
+		{
+		}
 		if (!GameMaster.instance.AssassinTankAlive)
 		{
 			return;
 		}
-		LayerMask layerMask = (1 << LayerMask.NameToLayer("CorkWall")) | (1 << LayerMask.NameToLayer("Wall")) | (1 << LayerMask.NameToLayer("NoBounceWall"));
+		LayerMask LM = (1 << LayerMask.NameToLayer("CorkWall")) | (1 << LayerMask.NameToLayer("Wall")) | (1 << LayerMask.NameToLayer("NoBounceWall"));
 		Debug.DrawRay(base.transform.position, new Vector3(0f, 0f, -1f) * 1.5f, Color.red, 0.1f);
-		if (Physics.Raycast(base.transform.position, new Vector3(0f, 0f, -1f), out var hitInfo, 1.5f, layerMask))
+		if (Physics.Raycast(base.transform.position, new Vector3(0f, 0f, -1f), out var hit, 1.5f, LM))
 		{
-			if (hitInfo.transform.tag == "Solid" || hitInfo.transform.tag == "MapBorder")
+			if (hit.transform.tag == "Solid" || hit.transform.tag == "MapBorder")
 			{
 				SolidSouthOfMe = true;
-				if (Physics.Raycast(hitInfo.transform.position, new Vector3(0f, 1f, 0f), out hitInfo, 1.5f, layerMask))
+				if (Physics.Raycast(hit.transform.position, new Vector3(0f, 1f, 0f), out hit, 1.5f, LM))
 				{
 					SouthOnTop = true;
 				}

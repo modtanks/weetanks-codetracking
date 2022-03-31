@@ -33,13 +33,13 @@ public class EnemyBulletScript : MonoBehaviour
 
 	public GameObject bounceParticles;
 
-	public bool canHurt;
+	public bool canHurt = false;
 
-	public bool onlyPlayer;
+	public bool onlyPlayer = false;
 
-	public bool isExplosive;
+	public bool isExplosive = false;
 
-	public bool isElectric;
+	public bool isElectric = false;
 
 	public GameObject deathExplosion;
 
@@ -68,18 +68,18 @@ public class EnemyBulletScript : MonoBehaviour
 
 	private Rigidbody rb;
 
-	public bool nearWall;
+	public bool nearWall = false;
 
 	private LaserScript myLaser;
 
-	private bool hittingWall;
+	private bool hittingWall = false;
 
-	public bool isBossBullet;
+	public bool isBossBullet = false;
 
 	[Header("Electric Stuff")]
 	public AudioClip ElectricCharge;
 
-	public bool IsElectricCharged;
+	public bool IsElectricCharged = false;
 
 	public ParticleSystem SmokeBullet;
 
@@ -174,20 +174,21 @@ public class EnemyBulletScript : MonoBehaviour
 
 	private void AlertDetectionFields()
 	{
-		Collider[] array = Physics.OverlapSphere(base.transform.position, 1.5f);
-		foreach (Collider collider in array)
+		Collider[] objectsInRange = Physics.OverlapSphere(base.transform.position, 1.5f);
+		Collider[] array = objectsInRange;
+		foreach (Collider col in array)
 		{
-			if (!(collider.tag == "EnemyDetectionField"))
+			if (!(col.tag == "EnemyDetectionField"))
 			{
 				continue;
 			}
-			EnemyDetection component = collider.gameObject.GetComponent<EnemyDetection>();
-			if ((bool)component)
+			EnemyDetection ED = col.gameObject.GetComponent<EnemyDetection>();
+			if ((bool)ED)
 			{
-				Collider component2 = GetComponent<Collider>();
-				if (!component.Bullets.Contains(component2))
+				Collider myCollider = GetComponent<Collider>();
+				if (!ED.Bullets.Contains(myCollider))
 				{
-					component.Bullets.Add(component2);
+					ED.Bullets.Add(myCollider);
 				}
 			}
 		}
@@ -245,88 +246,93 @@ public class EnemyBulletScript : MonoBehaviour
 			if (!isEndingGame)
 			{
 				AreaDamageEnemies(base.transform.position, 3f, 1f);
-				CameraShake component = Camera.main.GetComponent<CameraShake>();
-				if ((bool)component)
+				CameraShake CS = Camera.main.GetComponent<CameraShake>();
+				if ((bool)CS)
 				{
-					component.StartCoroutine(component.Shake(0.1f, 0.1f));
+					CS.StartCoroutine(CS.Shake(0.1f, 0.1f));
 				}
 				DeadSound();
 			}
-			Object.Destroy(Object.Instantiate(deathExplosion, base.transform.position, Quaternion.identity).gameObject, 2f);
-			Transform transform = base.transform.Find("SmokeBullet");
-			if ((bool)transform)
+			GameObject poof = Object.Instantiate(deathExplosion, base.transform.position, Quaternion.identity);
+			Object.Destroy(poof.gameObject, 2f);
+			Transform PE2 = base.transform.Find("SmokeBullet");
+			if ((bool)PE2)
 			{
-				transform.GetComponent<ParticleSystem>().Stop();
-				transform.parent = null;
+				ParticleSystem PEsystem3 = PE2.GetComponent<ParticleSystem>();
+				PEsystem3.Stop();
+				PE2.parent = null;
 			}
-			if (transform != null)
+			if (PE2 != null)
 			{
-				Object.Destroy(transform.gameObject, 5f);
+				Object.Destroy(PE2.gameObject, 5f);
 			}
 			Object.Destroy(base.gameObject);
 			return;
 		}
-		GameObject gameObject = ((!IsElectricCharged) ? Object.Instantiate(poofParticles, base.transform.position, Quaternion.identity) : Object.Instantiate(poofParticlesElectro, base.transform.position, Quaternion.identity));
-		gameObject.GetComponent<ParticleSystem>().Play();
-		Object.Destroy(gameObject.gameObject, 3f);
+		GameObject poof2 = ((!IsElectricCharged) ? Object.Instantiate(poofParticles, base.transform.position, Quaternion.identity) : Object.Instantiate(poofParticlesElectro, base.transform.position, Quaternion.identity));
+		poof2.GetComponent<ParticleSystem>().Play();
+		Object.Destroy(poof2.gameObject, 3f);
 		if (!isEndingGame || (bool)GameMaster.instance.CM)
 		{
 			DeadSound();
 		}
-		Transform transform2 = base.transform.Find("SmokeBullet");
-		if ((bool)transform2)
+		Transform PE = base.transform.Find("SmokeBullet");
+		if ((bool)PE)
 		{
-			transform2.GetComponent<ParticleSystem>().Stop();
-			transform2.parent = null;
+			ParticleSystem PEsystem2 = PE.GetComponent<ParticleSystem>();
+			PEsystem2.Stop();
+			PE.parent = null;
 		}
-		Transform transform3 = base.transform.Find("Trail");
-		if ((bool)transform3)
+		Transform Trail = base.transform.Find("Trail");
+		if ((bool)Trail)
 		{
-			transform3.GetComponent<ParticleSystem>().Stop();
-			transform3.parent = null;
-			transform3.localScale = new Vector3(1f, 1f, 1f);
+			ParticleSystem PEsystem = Trail.GetComponent<ParticleSystem>();
+			PEsystem.Stop();
+			Trail.parent = null;
+			Trail.localScale = new Vector3(1f, 1f, 1f);
 		}
-		if (transform2 != null)
+		if (PE != null)
 		{
-			Object.Destroy(transform2.gameObject, 5f);
+			Object.Destroy(PE.gameObject, 5f);
 		}
 		Object.Destroy(base.gameObject);
 	}
 
 	private void AreaDamageEnemies(Vector3 location, float radius, float damage)
 	{
-		Collider[] array = Physics.OverlapSphere(location, radius);
-		foreach (Collider obj in array)
+		Collider[] objectsInRange = Physics.OverlapSphere(location, radius);
+		Collider[] array = objectsInRange;
+		foreach (Collider col in array)
 		{
-			HealthTanks component = obj.GetComponent<HealthTanks>();
-			LookAtMyDirection component2 = obj.GetComponent<LookAtMyDirection>();
-			EnemyBulletScript component3 = obj.GetComponent<EnemyBulletScript>();
-			MineScript component4 = obj.GetComponent<MineScript>();
-			DestroyableWall component5 = obj.GetComponent<DestroyableWall>();
-			WeeTurret component6 = obj.GetComponent<WeeTurret>();
-			if (component6 != null)
+			HealthTanks enemy = col.GetComponent<HealthTanks>();
+			LookAtMyDirection friendbullet = col.GetComponent<LookAtMyDirection>();
+			EnemyBulletScript enemybullet = col.GetComponent<EnemyBulletScript>();
+			MineScript mines = col.GetComponent<MineScript>();
+			DestroyableWall DestroyWall = col.GetComponent<DestroyableWall>();
+			WeeTurret WT = col.GetComponent<WeeTurret>();
+			if (WT != null)
 			{
-				component6.Health--;
+				WT.Health--;
 			}
-			if (component != null && !component.immuneToExplosion)
+			if (enemy != null && !enemy.immuneToExplosion)
 			{
-				component.DamageMe(1);
+				enemy.DamageMe(1);
 			}
-			if (component2 != null)
+			if (friendbullet != null)
 			{
-				component2.BounceAmount = 999;
+				friendbullet.BounceAmount = 999;
 			}
-			if (component3 != null && !component3.isElectric)
+			if (enemybullet != null && !enemybullet.isElectric)
 			{
-				component3.BounceAmount = 999;
+				enemybullet.BounceAmount = 999;
 			}
-			if (component4 != null)
+			if (mines != null)
 			{
-				component4.DetinationTime = 0f;
+				mines.DetinationTime = 0f;
 			}
-			if (component5 != null)
+			if (DestroyWall != null)
 			{
-				component5.StartCoroutine(component5.destroy());
+				DestroyWall.StartCoroutine(DestroyWall.destroy());
 			}
 		}
 	}
@@ -394,16 +400,16 @@ public class EnemyBulletScript : MonoBehaviour
 
 	private bool CheckBulletShotgun(Collision collision)
 	{
-		EnemyBulletScript component = collision.gameObject.GetComponent<EnemyBulletScript>();
-		LookAtMyDirection component2 = collision.gameObject.GetComponent<LookAtMyDirection>();
-		if (component != null)
+		EnemyBulletScript EBS = collision.gameObject.GetComponent<EnemyBulletScript>();
+		LookAtMyDirection LAMD = collision.gameObject.GetComponent<LookAtMyDirection>();
+		if (EBS != null)
 		{
-			if (component.papaTank == papaTank && component.BounceAmount == 0 && BounceAmount == 0)
+			if (EBS.papaTank == papaTank && EBS.BounceAmount == 0 && BounceAmount == 0)
 			{
 				IgnoreThatCollision(collision);
 				return true;
 			}
-			if (component.isElectric || isElectric)
+			if (EBS.isElectric || isElectric)
 			{
 				IgnoreThatCollision(collision);
 				return true;
@@ -411,11 +417,11 @@ public class EnemyBulletScript : MonoBehaviour
 		}
 		else
 		{
-			if (component2 != null && isElectric)
+			if (LAMD != null && isElectric)
 			{
 				if (papaScript.AIscript.isLevel70Boss)
 				{
-					component2.ChargeElectric();
+					LAMD.ChargeElectric();
 				}
 				IgnoreThatCollision(collision);
 				return true;
@@ -478,10 +484,10 @@ public class EnemyBulletScript : MonoBehaviour
 			}
 			else if (collision.gameObject.tag == "Turret")
 			{
-				WeeTurret component = collision.gameObject.GetComponent<WeeTurret>();
-				if (component != null)
+				WeeTurret WT = collision.gameObject.GetComponent<WeeTurret>();
+				if (WT != null)
 				{
-					component.Health--;
+					WT.Health--;
 					BounceAmount = 999;
 				}
 			}
@@ -493,52 +499,52 @@ public class EnemyBulletScript : MonoBehaviour
 				}
 				if (isElectric)
 				{
-					MoveTankScript component2 = collision.gameObject.GetComponent<MoveTankScript>();
-					if (component2 != null)
+					MoveTankScript movescript = collision.gameObject.GetComponent<MoveTankScript>();
+					if (movescript != null)
 					{
 						if (GameMaster.instance.CurrentMission == 69)
 						{
-							HealthTanks component3 = collision.gameObject.GetComponent<HealthTanks>();
-							if ((bool)component3)
+							HealthTanks HT = collision.gameObject.GetComponent<HealthTanks>();
+							if ((bool)HT)
 							{
-								component3.health--;
+								HT.health--;
 							}
 						}
 						else
 						{
-							component2.StunMe(3f);
+							movescript.StunMe(3f);
 						}
 					}
-					EnemyAI component4 = collision.gameObject.GetComponent<EnemyAI>();
-					if (component4 != null && !component4.isElectric)
+					EnemyAI enemy = collision.gameObject.GetComponent<EnemyAI>();
+					if (enemy != null && !enemy.isElectric)
 					{
 						if (GameMaster.instance.CurrentMission == 69)
 						{
-							HealthTanks component5 = collision.gameObject.GetComponent<HealthTanks>();
-							if ((bool)component5)
+							HealthTanks HT2 = collision.gameObject.GetComponent<HealthTanks>();
+							if ((bool)HT2)
 							{
-								component5.health--;
+								HT2.health--;
 							}
 						}
 						else
 						{
-							component2.StunMe(3f);
+							movescript.StunMe(3f);
 						}
 					}
 				}
 				else
 				{
-					EnemyAI component6 = collision.gameObject.GetComponent<EnemyAI>();
-					if (component6 != null && component6.isTransporting)
+					EnemyAI AIscript = collision.gameObject.GetComponent<EnemyAI>();
+					if (AIscript != null && AIscript.isTransporting)
 					{
 						return;
 					}
-					HealthTanks component7 = collision.gameObject.GetComponent<HealthTanks>();
-					if (GameMaster.instance.isZombieMode && component7.health > 1)
+					HealthTanks healthscript = collision.gameObject.GetComponent<HealthTanks>();
+					if (GameMaster.instance.isZombieMode && healthscript.health > 1)
 					{
-						SFXManager.instance.PlaySFX(component7.Buzz);
+						SFXManager.instance.PlaySFX(healthscript.Buzz);
 					}
-					component7.health--;
+					healthscript.health--;
 				}
 				BounceAmount = 999;
 			}
@@ -547,21 +553,21 @@ public class EnemyBulletScript : MonoBehaviour
 
 	public void Bounce(Vector3 collisionNormal, bool unexpectedBounce)
 	{
-		GameObject obj = Object.Instantiate(bounceParticles, base.transform.position, Quaternion.identity);
-		obj.GetComponent<ParticleSystem>().Play();
-		Object.Destroy(obj.gameObject, 3f);
-		_ = lastFrameVelocity.magnitude;
-		Vector3 velocity;
+		GameObject poof = Object.Instantiate(bounceParticles, base.transform.position, Quaternion.identity);
+		poof.GetComponent<ParticleSystem>().Play();
+		Object.Destroy(poof.gameObject, 3f);
+		float speed = lastFrameVelocity.magnitude;
+		Vector3 direction;
 		if (!unexpectedBounce)
 		{
-			velocity = newVelocity;
+			direction = newVelocity;
 			myLaser.WallGonnaBounceInTo = base.transform.gameObject;
 		}
 		else
 		{
-			velocity = Vector3.Reflect(lastFrameVelocity.normalized, collisionNormal);
+			direction = Vector3.Reflect(lastFrameVelocity.normalized, collisionNormal);
 		}
-		rb.velocity = velocity;
+		rb.velocity = direction;
 		lastFrameVelocity = rb.velocity;
 		lastAngularVelocity = rb.angularVelocity;
 		nearWall = false;
@@ -571,15 +577,15 @@ public class EnemyBulletScript : MonoBehaviour
 	{
 		if (IsElectricCharged)
 		{
-			int maxExclusive = WallHitElectro.Length;
-			int num = Random.Range(0, maxExclusive);
-			Play2DClipAtPoint(WallHitElectro[num]);
+			int lengthClips2 = WallHitElectro.Length;
+			int randomPick2 = Random.Range(0, lengthClips2);
+			Play2DClipAtPoint(WallHitElectro[randomPick2]);
 		}
 		else
 		{
-			int maxExclusive2 = WallHit.Length;
-			int num2 = Random.Range(0, maxExclusive2);
-			Play2DClipAtPoint(WallHit[num2]);
+			int lengthClips = WallHit.Length;
+			int randomPick = Random.Range(0, lengthClips);
+			Play2DClipAtPoint(WallHit[randomPick]);
 		}
 	}
 
@@ -587,26 +593,26 @@ public class EnemyBulletScript : MonoBehaviour
 	{
 		if (IsElectricCharged)
 		{
-			int maxExclusive = DeadHitElectric.Length;
-			int num = Random.Range(0, maxExclusive);
-			Play2DClipAtPoint(DeadHitElectric[num]);
+			int lengthClips2 = DeadHitElectric.Length;
+			int randomPick2 = Random.Range(0, lengthClips2);
+			Play2DClipAtPoint(DeadHitElectric[randomPick2]);
 		}
 		else
 		{
-			int maxExclusive2 = DeadHit.Length;
-			int num2 = Random.Range(0, maxExclusive2);
-			Play2DClipAtPoint(DeadHit[num2]);
+			int lengthClips = DeadHit.Length;
+			int randomPick = Random.Range(0, lengthClips);
+			Play2DClipAtPoint(DeadHit[randomPick]);
 		}
 	}
 
 	public void Play2DClipAtPoint(AudioClip clip)
 	{
-		GameObject obj = new GameObject("TempAudio");
-		AudioSource audioSource = obj.AddComponent<AudioSource>();
+		GameObject tempAudioSource = new GameObject("TempAudio");
+		AudioSource audioSource = tempAudioSource.AddComponent<AudioSource>();
 		audioSource.clip = clip;
 		audioSource.volume = 2f;
 		audioSource.spatialBlend = 0f;
 		audioSource.Play();
-		Object.Destroy(obj, clip.length);
+		Object.Destroy(tempAudioSource, clip.length);
 	}
 }

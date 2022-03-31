@@ -17,9 +17,9 @@ public class PlayerInputsMenu : MonoBehaviour
 
 	public bool CanPlayWithAI = true;
 
-	public int Scene;
+	public int Scene = 0;
 
-	public bool CallFromController;
+	public bool CallFromController = false;
 
 	public GameObject SetDifficultyController;
 
@@ -61,36 +61,36 @@ public class PlayerInputsMenu : MonoBehaviour
 
 	public void UpdateDropdown(int playerID)
 	{
-		string text = Dropdowns[playerID].captionText.text;
-		Debug.Log("value is now:" + text + CallFromController);
-		int num = 0;
-		if (text.Contains("AI"))
+		string selectedValue = Dropdowns[playerID].captionText.text;
+		Debug.Log("value is now:" + selectedValue + CallFromController);
+		int amountCompanions = 0;
+		if (selectedValue.Contains("AI"))
 		{
-			num++;
+			amountCompanions++;
 		}
-		if (!CallFromController && !text.Contains("Keyboard") && !text.Contains("AI"))
+		if (!CallFromController && !selectedValue.Contains("Keyboard") && !selectedValue.Contains("AI"))
 		{
-			for (int i = 0; i < Dropdowns.Length; i++)
+			for (int j = 0; j < Dropdowns.Length; j++)
 			{
-				if (i != playerID && Dropdowns[i].captionText.text == text)
+				if (j != playerID && Dropdowns[j].captionText.text == selectedValue)
 				{
-					Dropdowns[i].SetValueWithoutNotify(0);
+					Dropdowns[j].SetValueWithoutNotify(0);
 				}
 			}
 		}
-		for (int j = 0; j < Dropdowns.Length; j++)
+		for (int i = 0; i < Dropdowns.Length; i++)
 		{
-			if (Dropdowns[j].captionText.text.Contains("AI"))
+			if (Dropdowns[i].captionText.text.Contains("AI"))
 			{
-				OptionsMainMenu.instance.MenuCompanion[j] = true;
+				OptionsMainMenu.instance.MenuCompanion[i] = true;
 			}
 			else
 			{
-				OptionsMainMenu.instance.MenuCompanion[j] = false;
+				OptionsMainMenu.instance.MenuCompanion[i] = false;
 			}
 		}
 		OptionsMainMenu.instance.SaveNewData();
-		if (num > 1)
+		if (amountCompanions > 1)
 		{
 			CompanionNote.SetActive(value: true);
 		}
@@ -109,13 +109,13 @@ public class PlayerInputsMenu : MonoBehaviour
 		}
 		for (int i = 0; i < 4; i++)
 		{
-			int num = 0;
+			int amountCompanions = 0;
 			if (OptionsMainMenu.instance.MenuCompanion[i])
 			{
-				num++;
+				amountCompanions++;
 				Dropdowns[i].SetValueWithoutNotify(1);
 			}
-			if (num > 1)
+			if (amountCompanions > 1)
 			{
 				CompanionNote.SetActive(value: true);
 			}
@@ -128,54 +128,55 @@ public class PlayerInputsMenu : MonoBehaviour
 
 	public void SetControllers()
 	{
-		for (int i = 0; i < OptionsMainMenu.instance.AIcompanion.Length; i++)
+		for (int j = 0; j < OptionsMainMenu.instance.AIcompanion.Length; j++)
 		{
-			OptionsMainMenu.instance.AIcompanion[i] = false;
+			OptionsMainMenu.instance.AIcompanion[j] = false;
 		}
 		OptionsList.Clear();
 		OptionsListPlayerOne.Clear();
 		Controllers = ReInput.controllers.GetControllers(ControllerType.Joystick);
 		string[] controllerNames = ReInput.controllers.GetControllerNames(ControllerType.Joystick);
-		foreach (string text in controllerNames)
+		string[] array = controllerNames;
+		foreach (string name in array)
 		{
-			bool flag = false;
-			foreach (TMP_Dropdown.OptionData options in OptionsList)
+			bool ListContainsController = false;
+			foreach (TMP_Dropdown.OptionData Option in OptionsList)
 			{
-				if (options.text == text)
+				if (Option.text == name)
 				{
-					flag = true;
+					ListContainsController = true;
 				}
 			}
-			if (!flag)
+			if (!ListContainsController)
 			{
-				TMP_Dropdown.OptionData optionData = new TMP_Dropdown.OptionData();
-				optionData.text = text;
-				OptionsList.Add(optionData);
-				OptionsListPlayerOne.Add(optionData);
+				TMP_Dropdown.OptionData newOption = new TMP_Dropdown.OptionData();
+				newOption.text = name;
+				OptionsList.Add(newOption);
+				OptionsListPlayerOne.Add(newOption);
 			}
 		}
 		if (CanPlayWithAI)
 		{
-			TMP_Dropdown.OptionData optionData2 = new TMP_Dropdown.OptionData();
-			optionData2.text = "AI companion";
-			OptionsList.Add(optionData2);
+			TMP_Dropdown.OptionData newOption3 = new TMP_Dropdown.OptionData();
+			newOption3.text = "AI companion";
+			OptionsList.Add(newOption3);
 		}
-		TMP_Dropdown.OptionData optionData3 = new TMP_Dropdown.OptionData();
-		optionData3.text = "None";
-		OptionsList.Insert(0, optionData3);
-		for (int k = 0; k < Dropdowns.Length; k++)
+		TMP_Dropdown.OptionData newOption4 = new TMP_Dropdown.OptionData();
+		newOption4.text = "None";
+		OptionsList.Insert(0, newOption4);
+		for (int i = 0; i < Dropdowns.Length; i++)
 		{
-			Dropdowns[k].ClearOptions();
-			if (k == 0)
+			Dropdowns[i].ClearOptions();
+			if (i == 0)
 			{
-				TMP_Dropdown.OptionData optionData4 = new TMP_Dropdown.OptionData();
-				optionData4.text = "Mouse & Keyboard";
-				OptionsListPlayerOne.Insert(0, optionData4);
-				Dropdowns[k].AddOptions(OptionsListPlayerOne);
+				TMP_Dropdown.OptionData newOption2 = new TMP_Dropdown.OptionData();
+				newOption2.text = "Mouse & Keyboard";
+				OptionsListPlayerOne.Insert(0, newOption2);
+				Dropdowns[i].AddOptions(OptionsListPlayerOne);
 			}
 			else
 			{
-				Dropdowns[k].AddOptions(OptionsList);
+				Dropdowns[i].AddOptions(OptionsList);
 			}
 		}
 	}

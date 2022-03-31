@@ -40,10 +40,11 @@ public sealed class UIPointer : UIBehaviour
 	protected override void Awake()
 	{
 		base.Awake();
-		Graphic[] componentsInChildren = GetComponentsInChildren<Graphic>();
-		for (int i = 0; i < componentsInChildren.Length; i++)
+		Graphic[] graphics = GetComponentsInChildren<Graphic>();
+		Graphic[] array = graphics;
+		foreach (Graphic g in array)
 		{
-			componentsInChildren[i].raycastTarget = false;
+			g.raycastTarget = false;
 		}
 		if (_hideHardwarePointer)
 		{
@@ -80,14 +81,15 @@ public sealed class UIPointer : UIBehaviour
 	{
 		if (!(_canvas == null))
 		{
-			Camera cam = null;
+			Camera camera = null;
 			RenderMode renderMode = _canvas.renderMode;
-			if (renderMode != 0 && (uint)(renderMode - 1) <= 1u)
+			RenderMode renderMode2 = renderMode;
+			if (renderMode2 != 0 && (uint)(renderMode2 - 1) <= 1u)
 			{
-				cam = _canvas.worldCamera;
+				camera = _canvas.worldCamera;
 			}
-			RectTransformUtility.ScreenPointToLocalPointInRectangle(base.transform.parent as RectTransform, screenPosition, cam, out var localPoint);
-			base.transform.localPosition = new Vector3(localPoint.x, localPoint.y, base.transform.localPosition.z);
+			RectTransformUtility.ScreenPointToLocalPointInRectangle(base.transform.parent as RectTransform, screenPosition, camera, out var point);
+			base.transform.localPosition = new Vector3(point.x, point.y, base.transform.localPosition.z);
 		}
 	}
 

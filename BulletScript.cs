@@ -17,15 +17,15 @@ public class BulletScript : MonoBehaviour
 
 	private void Update()
 	{
-		Vector3 vector = target - base.transform.position;
-		float num = speed * Time.deltaTime;
-		if (vector.magnitude <= num)
+		Vector3 dir = target - base.transform.position;
+		float distanceThisFrame = speed * Time.deltaTime;
+		if (dir.magnitude <= distanceThisFrame)
 		{
 			HitTarget();
 		}
 		else
 		{
-			base.transform.Translate(vector.normalized * num, Space.World);
+			base.transform.Translate(dir.normalized * distanceThisFrame, Space.World);
 		}
 	}
 

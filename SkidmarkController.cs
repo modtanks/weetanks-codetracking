@@ -15,11 +15,11 @@ public class SkidmarkController : MonoBehaviour
 
 	private ParticleSystem PS;
 
-	private bool startLerping;
+	private bool startLerping = false;
 
-	private float LerpSpeed;
+	private float LerpSpeed = 0f;
 
-	private float passedTime;
+	private float passedTime = 0f;
 
 	public Rigidbody rbParent;
 

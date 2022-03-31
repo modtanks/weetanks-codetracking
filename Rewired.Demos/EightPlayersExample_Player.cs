@@ -7,7 +7,7 @@ namespace Rewired.Demos;
 [RequireComponent(typeof(CharacterController))]
 public class EightPlayersExample_Player : MonoBehaviour
 {
-	public int playerId;
+	public int playerId = 0;
 
 	public float moveSpeed = 3f;
 
@@ -65,7 +65,8 @@ public class EightPlayersExample_Player : MonoBehaviour
 		}
 		if (fire)
 		{
-			UnityEngine.Object.Instantiate(bulletPrefab, base.transform.position + base.transform.right, base.transform.rotation).GetComponent<Rigidbody>().AddForce(base.transform.right * bulletSpeed, ForceMode.VelocityChange);
+			GameObject bullet = UnityEngine.Object.Instantiate(bulletPrefab, base.transform.position + base.transform.right, base.transform.rotation);
+			bullet.GetComponent<Rigidbody>().AddForce(base.transform.right * bulletSpeed, ForceMode.VelocityChange);
 		}
 	}
 }

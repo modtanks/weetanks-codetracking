@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class triggerplate : MonoBehaviour
 {
-	public bool Triggered;
+	public bool Triggered = false;
 
-	public bool IsFinalBossTrigger;
+	public bool IsFinalBossTrigger = false;
 
 	public MissionHundredController MHC;
 
@@ -22,14 +22,14 @@ public class triggerplate : MonoBehaviour
 		}
 		SFXManager.instance.PlaySFX(MHC.WallsMovingDown, 2f, null);
 		GameObject[] blocksToMoveUp = MHC.BlocksToMoveUp;
-		foreach (GameObject value in blocksToMoveUp)
+		foreach (GameObject Block in blocksToMoveUp)
 		{
-			MHC.StartCoroutine("MoveBlockDown", value);
+			MHC.StartCoroutine("MoveBlockDown", Block);
 		}
-		blocksToMoveUp = MHC.BlocksToMoveDown;
-		foreach (GameObject value2 in blocksToMoveUp)
+		GameObject[] blocksToMoveDown = MHC.BlocksToMoveDown;
+		foreach (GameObject Block2 in blocksToMoveDown)
 		{
-			MHC.StartCoroutine("MoveBlockUp", value2);
+			MHC.StartCoroutine("MoveBlockUp", Block2);
 		}
 	}
 

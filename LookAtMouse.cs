@@ -10,7 +10,7 @@ public class LookAtMouse : MonoBehaviour
 
 	public MoveTankScript myController;
 
-	public bool isFPS;
+	public bool isFPS = false;
 
 	public HealthTanks HealthScript;
 
@@ -72,9 +72,8 @@ public class LookAtMouse : MonoBehaviour
 			}
 			else if (ReInput.players.GetPlayer(0).controllers.GetLastActiveController().type != ControllerType.Joystick && myController.playerId == 0)
 			{
-				if ((bool)mousescript)
+				if (!mousescript || prevInput == mousescript.mouseInput)
 				{
-					_ = prevInput == mousescript.mouseInput;
 				}
 				if (!OptionsMainMenu.instance.IsThirdPerson)
 				{
@@ -124,6 +123,8 @@ public class LookAtMouse : MonoBehaviour
 	{
 		targetRotation = Quaternion.Euler(0f, angle, 0f);
 		base.transform.rotation = Quaternion.Lerp(base.transform.rotation, targetRotation, Time.deltaTime * 12f);
-		_ = GameMaster.instance.inOnlineMode;
+		if (!GameMaster.instance.inOnlineMode)
+		{
+		}
 	}
 }

@@ -6,7 +6,7 @@ namespace Rewired.Demos;
 [RequireComponent(typeof(CharacterController))]
 public class PressAnyButtonToJoinExample_GamePlayer : MonoBehaviour
 {
-	public int playerId;
+	public int playerId = 0;
 
 	public float moveSpeed = 3f;
 
@@ -20,17 +20,7 @@ public class PressAnyButtonToJoinExample_GamePlayer : MonoBehaviour
 
 	private bool fire;
 
-	private Player player
-	{
-		get
-		{
-			if (!ReInput.isReady)
-			{
-				return null;
-			}
-			return ReInput.players.GetPlayer(playerId);
-		}
-	}
+	private Player player => ReInput.isReady ? ReInput.players.GetPlayer(playerId) : null;
 
 	private void OnEnable()
 	{
@@ -61,7 +51,8 @@ public class PressAnyButtonToJoinExample_GamePlayer : MonoBehaviour
 		}
 		if (fire)
 		{
-			Object.Instantiate(bulletPrefab, base.transform.position + base.transform.right, base.transform.rotation).GetComponent<Rigidbody>().AddForce(base.transform.right * bulletSpeed, ForceMode.VelocityChange);
+			GameObject bullet = Object.Instantiate(bulletPrefab, base.transform.position + base.transform.right, base.transform.rotation);
+			bullet.GetComponent<Rigidbody>().AddForce(base.transform.right * bulletSpeed, ForceMode.VelocityChange);
 		}
 	}
 }

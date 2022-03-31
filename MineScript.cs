@@ -17,9 +17,9 @@ public class MineScript : MonoBehaviour
 
 	public float ExplosionMaxInterval;
 
-	public bool startBlink;
+	public bool startBlink = false;
 
-	public bool active;
+	public bool active = false;
 
 	public int isMineByPlayer = -1;
 
@@ -45,7 +45,7 @@ public class MineScript : MonoBehaviour
 
 	public bool isTripMine;
 
-	public bool placedByEnemies;
+	public bool placedByEnemies = false;
 
 	public GameObject MyPlacer;
 
@@ -137,25 +137,25 @@ public class MineScript : MonoBehaviour
 			}
 		}
 		GameMaster.instance.AmountMinesPlaced--;
-		GameObject gameObject = null;
-		gameObject = (placedByEnemies ? ((!IsNuclear) ? Object.Instantiate(deathExplosion, base.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity) : Object.Instantiate(NukePoof, base.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity)) : (OptionsMainMenu.instance.AMselected.Contains(3) ? Object.Instantiate(deathExplosionParty, base.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity) : ((!IsNuclear) ? Object.Instantiate(deathExplosion, base.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity) : Object.Instantiate(NukePoof, base.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity))));
+		GameObject poof = null;
+		poof = (placedByEnemies ? ((!IsNuclear) ? Object.Instantiate(deathExplosion, base.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity) : Object.Instantiate(NukePoof, base.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity)) : (OptionsMainMenu.instance.AMselected.Contains(3) ? Object.Instantiate(deathExplosionParty, base.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity) : ((!IsNuclear) ? Object.Instantiate(deathExplosion, base.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity) : Object.Instantiate(NukePoof, base.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity))));
 		if (IsNuclear)
 		{
-			CameraShake component = Camera.main.GetComponent<CameraShake>();
-			if ((bool)component)
+			CameraShake CS = Camera.main.GetComponent<CameraShake>();
+			if ((bool)CS)
 			{
-				component.StartCoroutine(component.Shake(0.6f, 0.95f));
+				CS.StartCoroutine(CS.Shake(0.6f, 0.95f));
 			}
 		}
 		else
 		{
-			CameraShake component2 = Camera.main.GetComponent<CameraShake>();
-			if ((bool)component2)
+			CameraShake CS2 = Camera.main.GetComponent<CameraShake>();
+			if ((bool)CS2)
 			{
-				component2.StartCoroutine(component2.Shake(0.1f, 0.15f));
+				CS2.StartCoroutine(CS2.Shake(0.1f, 0.15f));
 			}
 		}
-		Object.Destroy(gameObject.gameObject, 4f);
+		Object.Destroy(poof.gameObject, 4f);
 		if (myPapa != null)
 		{
 			myPapa.minesPlaced--;
@@ -180,19 +180,20 @@ public class MineScript : MonoBehaviour
 		{
 			return;
 		}
-		Collider[] array = Physics.OverlapSphere(base.transform.position, 3f);
-		foreach (Collider obj in array)
+		Collider[] objectsInRange = Physics.OverlapSphere(base.transform.position, 3f);
+		Collider[] array = objectsInRange;
+		foreach (Collider col in array)
 		{
-			EnemyAI component = obj.GetComponent<EnemyAI>();
-			MoveTankScript component2 = obj.GetComponent<MoveTankScript>();
-			if ((bool)component)
+			EnemyAI EA = col.GetComponent<EnemyAI>();
+			MoveTankScript MTS = col.GetComponent<MoveTankScript>();
+			if ((bool)EA)
 			{
-				if (component.MyTeam != MineTeam || MineTeam == 0)
+				if (EA.MyTeam != MineTeam || MineTeam == 0)
 				{
 					DetinationTime = 1f;
 				}
 			}
-			else if ((bool)component2 && (component2.MyTeam != MineTeam || MineTeam == 0))
+			else if ((bool)MTS && (MTS.MyTeam != MineTeam || MineTeam == 0))
 			{
 				DetinationTime = 1f;
 			}
@@ -201,7 +202,9 @@ public class MineScript : MonoBehaviour
 
 	private void Blinking()
 	{
-		_ = placedByEnemies;
+		if (placedByEnemies)
+		{
+		}
 		if (startBlink)
 		{
 			if (rend.material.GetColor("_Color") == mineBlinking)
@@ -257,13 +260,14 @@ public class MineScript : MonoBehaviour
 
 	private void AreaDamageMission50(Vector3 location, float radius, float damage)
 	{
-		Collider[] array = Physics.OverlapSphere(location, radius);
-		for (int i = 0; i < array.Length; i++)
+		Collider[] objectsInRange = Physics.OverlapSphere(location, radius);
+		Collider[] array = objectsInRange;
+		foreach (Collider col in array)
 		{
-			DestroyableBlock component = array[i].GetComponent<DestroyableBlock>();
-			if (GameMaster.instance.CurrentMission == 49 && (bool)component)
+			DestroyableBlock DB = col.GetComponent<DestroyableBlock>();
+			if (GameMaster.instance.CurrentMission == 49 && (bool)DB)
 			{
-				component.blockHealth = 0;
+				DB.blockHealth = 0;
 			}
 		}
 	}
@@ -274,129 +278,128 @@ public class MineScript : MonoBehaviour
 		{
 			radius *= 3f;
 		}
-		Collider[] array = Physics.OverlapSphere(location, radius * 2f);
-		Collider[] array2 = Physics.OverlapSphere(location, radius);
-		bool flag = false;
-		bool flag2 = false;
-		Collider[] array3;
+		Collider[] objectsInRangeBIG = Physics.OverlapSphere(location, radius * 2f);
+		Collider[] objectsInRange = Physics.OverlapSphere(location, radius);
+		bool killedSelf = false;
+		bool killedEnemy = false;
 		if (IsNuclear)
 		{
-			array3 = array;
-			foreach (Collider obj in array3)
+			Collider[] array = objectsInRangeBIG;
+			foreach (Collider col in array)
 			{
-				PlayerBulletScript component = obj.GetComponent<PlayerBulletScript>();
-				EnemyBulletScript component2 = obj.GetComponent<EnemyBulletScript>();
-				MineScript component3 = obj.GetComponent<MineScript>();
-				DestroyableWall component4 = obj.GetComponent<DestroyableWall>();
-				obj.GetComponent<WeeTurret>();
-				ExplosiveBlock component5 = obj.GetComponent<ExplosiveBlock>();
-				BombSackScript component6 = obj.GetComponent<BombSackScript>();
-				if ((bool)component5)
+				PlayerBulletScript friendbullet = col.GetComponent<PlayerBulletScript>();
+				EnemyBulletScript enemybullet = col.GetComponent<EnemyBulletScript>();
+				MineScript mines = col.GetComponent<MineScript>();
+				DestroyableWall DestroyWall = col.GetComponent<DestroyableWall>();
+				WeeTurret WT = col.GetComponent<WeeTurret>();
+				ExplosiveBlock EB = col.GetComponent<ExplosiveBlock>();
+				BombSackScript BSS = col.GetComponent<BombSackScript>();
+				if ((bool)EB)
 				{
-					if (!component5.isExploding)
+					if (!EB.isExploding)
 					{
-						component5.StartCoroutine(component5.Death());
+						EB.StartCoroutine(EB.Death());
 					}
 				}
-				else if (component != null)
+				else if (friendbullet != null)
 				{
-					if (!component.isSilver)
+					if (!friendbullet.isSilver)
 					{
-						component.TimesBounced = 999;
+						friendbullet.TimesBounced = 999;
 					}
 				}
-				else if (component2 != null)
+				else if (enemybullet != null)
 				{
-					if (!component2.isElectric)
+					if (!enemybullet.isElectric)
 					{
-						component2.BounceAmount = 999;
+						enemybullet.BounceAmount = 999;
 					}
 				}
-				else if (component3 != null)
+				else if (mines != null)
 				{
-					component3.DetinationTime = 0f;
+					mines.DetinationTime = 0f;
 				}
-				else if (component4 != null)
+				else if (DestroyWall != null)
 				{
-					component4.StartCoroutine(component4.destroy());
+					DestroyWall.StartCoroutine(DestroyWall.destroy());
 				}
-				else if (component6 != null)
+				else if (BSS != null)
 				{
-					component6.FlyBack();
+					BSS.FlyBack();
 				}
 			}
 		}
-		array3 = array2;
-		foreach (Collider collider in array3)
+		Collider[] array2 = objectsInRange;
+		foreach (Collider col2 in array2)
 		{
-			HealthTanks component7 = collider.GetComponent<HealthTanks>();
-			PlayerBulletScript component8 = collider.GetComponent<PlayerBulletScript>();
-			EnemyBulletScript component9 = collider.GetComponent<EnemyBulletScript>();
-			MineScript component10 = collider.GetComponent<MineScript>();
-			DestroyableWall component11 = collider.GetComponent<DestroyableWall>();
-			WeeTurret component12 = collider.GetComponent<WeeTurret>();
-			ExplosiveBlock component13 = collider.GetComponent<ExplosiveBlock>();
-			BombSackScript component14 = collider.GetComponent<BombSackScript>();
-			if ((bool)component13)
+			HealthTanks enemy = col2.GetComponent<HealthTanks>();
+			PlayerBulletScript friendbullet2 = col2.GetComponent<PlayerBulletScript>();
+			EnemyBulletScript enemybullet2 = col2.GetComponent<EnemyBulletScript>();
+			MineScript mines2 = col2.GetComponent<MineScript>();
+			DestroyableWall DestroyWall2 = col2.GetComponent<DestroyableWall>();
+			WeeTurret WT2 = col2.GetComponent<WeeTurret>();
+			ExplosiveBlock EB2 = col2.GetComponent<ExplosiveBlock>();
+			BombSackScript BSS2 = col2.GetComponent<BombSackScript>();
+			if ((bool)EB2)
 			{
-				if (!component13.isExploding)
+				if (!EB2.isExploding)
 				{
-					component13.StartCoroutine(component13.Death());
+					EB2.StartCoroutine(EB2.Death());
 				}
 			}
-			else if (component12 != null)
+			else if (WT2 != null)
 			{
 				if (GameMaster.instance.GameHasStarted)
 				{
-					component12.Health--;
+					WT2.Health--;
 				}
 			}
-			else if (component7 != null)
+			else if (enemy != null)
 			{
-				if (component7.isMainTank)
+				if (enemy.isMainTank)
 				{
-					EnemyAI component15 = component7.GetComponent<EnemyAI>();
-					if ((bool)component15 && component15.IsCompanion && MyPlacer == component15.gameObject)
+					EnemyAI EA = enemy.GetComponent<EnemyAI>();
+					if ((bool)EA && EA.IsCompanion && MyPlacer == EA.gameObject)
 					{
 						return;
 					}
 				}
 				if (!placedByEnemies)
 				{
-					if (component7.isMainTank)
+					if (enemy.isMainTank)
 					{
-						flag = true;
-						if (flag2)
+						killedSelf = true;
+						if (killedEnemy)
 						{
 							AchievementsTracker.instance.completeAchievement(20);
 						}
 					}
 					else
 					{
-						flag2 = true;
+						killedEnemy = true;
 						AchievementsTracker.instance.completeAchievement(19);
-						if (flag)
+						if (killedSelf)
 						{
 							AchievementsTracker.instance.completeAchievement(20);
 						}
 					}
 				}
-				if (component7.immuneToExplosion)
+				if (enemy.immuneToExplosion)
 				{
 					continue;
 				}
-				if (GameMaster.instance.isZombieMode && component7.health > 0 && GameMaster.instance.GameHasStarted)
+				if (GameMaster.instance.isZombieMode && enemy.health > 0 && GameMaster.instance.GameHasStarted)
 				{
-					SFXManager.instance.PlaySFX(component7.Buzz);
+					SFXManager.instance.PlaySFX(enemy.Buzz);
 				}
-				int num = 0;
-				if (component7.ShieldFade != null)
+				int ShieldHealth = 0;
+				if (enemy.ShieldFade != null)
 				{
-					num = component7.ShieldFade.ShieldHealth;
+					ShieldHealth = enemy.ShieldFade.ShieldHealth;
 				}
-				if (component7.health == 1 && num < 1 && isMineByPlayer == 0 && !component7.isMainTank)
+				if (enemy.health == 1 && ShieldHealth < 1 && isMineByPlayer == 0 && !enemy.isMainTank)
 				{
-					Object.Instantiate(HitTextP1, collider.transform.position, Quaternion.identity);
+					GameObject hittag4 = Object.Instantiate(HitTextP1, col2.transform.position, Quaternion.identity);
 					if (GameMaster.instance != null)
 					{
 						SFXManager.instance.PlaySFX(KillExtra);
@@ -408,9 +411,9 @@ public class MineScript : MonoBehaviour
 						}
 					}
 				}
-				else if (component7.health == 1 && num < 1 && isMineByPlayer == 1 && !component7.isMainTank)
+				else if (enemy.health == 1 && ShieldHealth < 1 && isMineByPlayer == 1 && !enemy.isMainTank)
 				{
-					Object.Instantiate(HitTextP2, collider.transform.position, Quaternion.identity);
+					GameObject hittag3 = Object.Instantiate(HitTextP2, col2.transform.position, Quaternion.identity);
 					if (GameMaster.instance != null)
 					{
 						SFXManager.instance.PlaySFX(KillExtra);
@@ -422,9 +425,9 @@ public class MineScript : MonoBehaviour
 						}
 					}
 				}
-				else if (component7.health == 1 && num < 1 && isMineByPlayer == 2 && !component7.isMainTank)
+				else if (enemy.health == 1 && ShieldHealth < 1 && isMineByPlayer == 2 && !enemy.isMainTank)
 				{
-					Object.Instantiate(HitTextP3, collider.transform.position, Quaternion.identity);
+					GameObject hittag2 = Object.Instantiate(HitTextP3, col2.transform.position, Quaternion.identity);
 					if (GameMaster.instance != null)
 					{
 						SFXManager.instance.PlaySFX(KillExtra);
@@ -436,9 +439,9 @@ public class MineScript : MonoBehaviour
 						}
 					}
 				}
-				else if (component7.health == 1 && num < 1 && isMineByPlayer == 3 && !component7.isMainTank)
+				else if (enemy.health == 1 && ShieldHealth < 1 && isMineByPlayer == 3 && !enemy.isMainTank)
 				{
-					Object.Instantiate(HitTextP4, collider.transform.position, Quaternion.identity);
+					GameObject hittag = Object.Instantiate(HitTextP4, col2.transform.position, Quaternion.identity);
 					if (GameMaster.instance != null)
 					{
 						SFXManager.instance.PlaySFX(KillExtra);
@@ -452,57 +455,58 @@ public class MineScript : MonoBehaviour
 				}
 				if (GameMaster.instance.GameHasStarted)
 				{
-					if (num > 0)
+					if (ShieldHealth > 0)
 					{
-						component7.ShieldFade.ShieldHealth = 0;
+						enemy.ShieldFade.ShieldHealth = 0;
 					}
 					else
 					{
-						component7.DamageMe(1);
+						enemy.DamageMe(1);
 					}
 				}
 			}
-			else if (component8 != null)
+			else if (friendbullet2 != null)
 			{
-				if (!component8.isSilver)
+				if (!friendbullet2.isSilver)
 				{
-					component8.TimesBounced = 999;
+					friendbullet2.TimesBounced = 999;
 				}
 			}
-			else if (component9 != null)
+			else if (enemybullet2 != null)
 			{
-				if (!component9.isElectric)
+				if (!enemybullet2.isElectric)
 				{
-					component9.BounceAmount = 999;
+					enemybullet2.BounceAmount = 999;
 				}
 			}
-			else if (component10 != null)
+			else if (mines2 != null)
 			{
-				component10.DetinationTime = 0f;
+				mines2.DetinationTime = 0f;
 			}
-			else if (component11 != null)
+			else if (DestroyWall2 != null)
 			{
-				component11.StartCoroutine(component11.destroy());
+				DestroyWall2.StartCoroutine(DestroyWall2.destroy());
 			}
-			else if (component14 != null)
+			else if (BSS2 != null)
 			{
-				component14.FlyBack();
+				BSS2.FlyBack();
 			}
 		}
-		array3 = Physics.OverlapSphere(location, radius * 2.75f);
-		foreach (Collider collider2 in array3)
+		Collider[] bigobjectsInRange = Physics.OverlapSphere(location, radius * 2.75f);
+		Collider[] array3 = bigobjectsInRange;
+		foreach (Collider col3 in array3)
 		{
-			Rigidbody component16 = collider2.GetComponent<Rigidbody>();
-			if (component16 != null && (collider2.tag == "Player" || collider2.tag == "Enemy"))
+			Rigidbody rigi = col3.GetComponent<Rigidbody>();
+			if (rigi != null && (col3.tag == "Player" || col3.tag == "Enemy"))
 			{
-				float num2 = Vector3.Distance(component16.transform.position, base.transform.position);
-				float num3 = (radius * 2.75f - num2) * 2.2f;
-				Vector3 vector = component16.transform.position - base.transform.position;
-				if (num3 > 16f)
+				float distance = Vector3.Distance(rigi.transform.position, base.transform.position);
+				float force = (radius * 2.75f - distance) * 2.2f;
+				Vector3 direction = rigi.transform.position - base.transform.position;
+				if (force > 16f)
 				{
-					num3 = 16f;
+					force = 16f;
 				}
-				component16.AddForce(vector * num3, ForceMode.Impulse);
+				rigi.AddForce(direction * force, ForceMode.Impulse);
 			}
 		}
 	}
@@ -513,16 +517,16 @@ public class MineScript : MonoBehaviour
 		{
 			return;
 		}
-		PlayerBulletScript component = collision.transform.GetComponent<PlayerBulletScript>();
-		if (component != null)
+		PlayerBulletScript EBS = collision.transform.GetComponent<PlayerBulletScript>();
+		if (EBS != null)
 		{
-			if (component.isElectric)
+			if (EBS.isElectric)
 			{
 				return;
 			}
-			if (!component.isEnemyBullet)
+			if (!EBS.isEnemyBullet)
 			{
-				isMineByPlayer = component.ShotByPlayer;
+				isMineByPlayer = EBS.ShotByPlayer;
 			}
 		}
 		if (!isTripMine || !(collision.transform.tag == "Player"))

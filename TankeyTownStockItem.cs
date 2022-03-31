@@ -9,7 +9,7 @@ public class TankeyTownStockItem : ScriptableObject
 
 	public GameObject ItemObject;
 
-	public float ItemYoffset;
+	public float ItemYoffset = 0f;
 
 	public Texture ItemTexture;
 
@@ -33,5 +33,5 @@ public class TankeyTownStockItem : ScriptableObject
 
 	public int MapEditorPropID;
 
-	public float MapEditorYoffset;
+	public float MapEditorYoffset = 0f;
 }

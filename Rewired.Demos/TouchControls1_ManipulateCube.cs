@@ -9,7 +9,7 @@ public class TouchControls1_ManipulateCube : MonoBehaviour
 
 	public float moveSpeed = 1f;
 
-	private int currentColorIndex;
+	private int currentColorIndex = 0;
 
 	private Color[] colors = new Color[4]
 	{

@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class CloudController : MonoBehaviour
 {
-	public int CurrentState;
+	public int CurrentState = 0;
 
 	public ParticleSystem myPS;
 
@@ -13,11 +13,12 @@ public class CloudController : MonoBehaviour
 
 	public Material DarkFog;
 
-	private bool LowerScale;
+	private bool LowerScale = false;
 
 	private void Start()
 	{
-		myPS.GetComponent<ParticleSystemRenderer>().normalDirection = Random.Range(0, 1);
+		ParticleSystemRenderer PSR = myPS.GetComponent<ParticleSystemRenderer>();
+		PSR.normalDirection = Random.Range(0, 1);
 		InvokeRepeating("CheckList", Random.Range(2f, 3f), Random.Range(2f, 3f));
 	}
 
@@ -32,17 +33,17 @@ public class CloudController : MonoBehaviour
 
 	public void CheckList()
 	{
-		List<GameObject> list = new List<GameObject>();
+		List<GameObject> ToRemove = new List<GameObject>();
 		for (int i = 0; i < FriendliesInMe.Count; i++)
 		{
 			if (FriendliesInMe[i] == null)
 			{
-				list.Add(FriendliesInMe[i]);
+				ToRemove.Add(FriendliesInMe[i]);
 			}
 		}
-		foreach (GameObject item in list)
+		foreach (GameObject Remove in ToRemove)
 		{
-			FriendliesInMe.Remove(item);
+			FriendliesInMe.Remove(Remove);
 		}
 		if (FriendliesInMe.Count > 0 && CurrentState != 2)
 		{

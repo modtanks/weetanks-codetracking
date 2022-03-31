@@ -21,62 +21,64 @@ public static class UISelectionUtility
 		{
 			s_reusableAllSelectables = new Selectable[Selectable.allSelectableCount];
 		}
-		int num = Selectable.AllSelectablesNoAlloc(s_reusableAllSelectables);
-		IList<Selectable> list = s_reusableAllSelectables;
+		int selectableCount = Selectable.AllSelectablesNoAlloc(s_reusableAllSelectables);
+		IList<Selectable> allSelectables = s_reusableAllSelectables;
 		direction.Normalize();
-		Vector2 vector = direction;
-		Vector2 vector2 = UITools.GetPointOnRectEdge(rectTransform, vector);
-		bool flag = vector == Vector2.right * -1f || vector == Vector2.right;
-		float num2 = float.PositiveInfinity;
-		float num3 = float.PositiveInfinity;
-		Selectable selectable2 = null;
-		Selectable selectable3 = null;
-		Vector2 point = vector2 + vector * 999999f;
-		for (int i = 0; i < num; i++)
+		Vector2 localDir = direction;
+		Vector2 searchStartPos = UITools.GetPointOnRectEdge(rectTransform, localDir);
+		bool isHoriz = localDir == Vector2.right * -1f || localDir == Vector2.right;
+		float minCenterDistSqMag = float.PositiveInfinity;
+		float minDirectLineSqMag = float.PositiveInfinity;
+		Selectable bestCenterDistPick = null;
+		Selectable bestDirectLinePick = null;
+		Vector2 directLineCastEndPos = searchStartPos + localDir * 999999f;
+		for (int i = 0; i < selectableCount; i++)
 		{
-			Selectable selectable4 = list[i];
-			if (selectable4 == selectable || selectable4 == null || selectable4.navigation.mode == Navigation.Mode.None || (!selectable4.IsInteractable() && !ReflectionTools.GetPrivateField<Selectable, bool>(selectable4, "m_GroupsAllowInteraction")))
+			Selectable targetSelectable = allSelectables[i];
+			if (targetSelectable == selectable || targetSelectable == null || targetSelectable.navigation.mode == Navigation.Mode.None || (!targetSelectable.IsInteractable() && !ReflectionTools.GetPrivateField<Selectable, bool>(targetSelectable, "m_GroupsAllowInteraction")))
 			{
 				continue;
 			}
-			RectTransform rectTransform2 = selectable4.transform as RectTransform;
-			if (rectTransform2 == null)
+			RectTransform targetSelectableRectTransform = targetSelectable.transform as RectTransform;
+			if (targetSelectableRectTransform == null)
 			{
 				continue;
 			}
-			Rect rect = UITools.InvertY(UITools.TransformRectTo(rectTransform2, transform, rectTransform2.rect));
-			if (MathTools.LineIntersectsRect(vector2, point, rect, out var sqrMagnitude))
+			Rect targetSelecableRect = UITools.InvertY(UITools.TransformRectTo(targetSelectableRectTransform, transform, targetSelectableRectTransform.rect));
+			if (MathTools.LineIntersectsRect(searchStartPos, directLineCastEndPos, targetSelecableRect, out var directLineSqMag))
 			{
-				if (flag)
+				if (isHoriz)
 				{
-					sqrMagnitude *= 0.25f;
+					directLineSqMag *= 0.25f;
 				}
-				if (sqrMagnitude < num3)
+				if (directLineSqMag < minDirectLineSqMag)
 				{
-					num3 = sqrMagnitude;
-					selectable3 = selectable4;
+					minDirectLineSqMag = directLineSqMag;
+					bestDirectLinePick = targetSelectable;
 				}
 			}
-			Vector2 to = (Vector2)UnityTools.TransformPoint(rectTransform2, transform, rectTransform2.rect.center) - vector2;
-			if (!(Mathf.Abs(Vector2.Angle(vector, to)) > 75f))
+			Vector2 targetSelectableCenter = UnityTools.TransformPoint(targetSelectableRectTransform, transform, targetSelectableRectTransform.rect.center);
+			Vector2 searchPosToTargetSelectableCenter = targetSelectableCenter - searchStartPos;
+			float angle = Mathf.Abs(Vector2.Angle(localDir, searchPosToTargetSelectableCenter));
+			if (!(angle > 75f))
 			{
-				float sqrMagnitude2 = to.sqrMagnitude;
-				if (sqrMagnitude2 < num2)
+				float score = searchPosToTargetSelectableCenter.sqrMagnitude;
+				if (score < minCenterDistSqMag)
 				{
-					num2 = sqrMagnitude2;
-					selectable2 = selectable4;
+					minCenterDistSqMag = score;
+					bestCenterDistPick = targetSelectable;
 				}
 			}
 		}
-		if (selectable3 != null && selectable2 != null)
+		if (bestDirectLinePick != null && bestCenterDistPick != null)
 		{
-			if (num3 > num2)
+			if (minDirectLineSqMag > minCenterDistSqMag)
 			{
-				return selectable2;
+				return bestCenterDistPick;
 			}
-			return selectable3;
+			return bestDirectLinePick;
 		}
 		Array.Clear(s_reusableAllSelectables, 0, s_reusableAllSelectables.Length);
-		return selectable3 ?? selectable2;
+		return bestDirectLinePick ?? bestCenterDistPick;
 	}
 }

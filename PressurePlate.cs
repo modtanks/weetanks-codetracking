@@ -4,15 +4,15 @@ public class PressurePlate : MonoBehaviour
 {
 	public GameObject TheNextLevel;
 
-	public bool Triggered;
+	public bool Triggered = false;
 
 	public AudioClip StepOnSound;
 
 	public string missionName;
 
-	public bool isNightMission;
+	public bool isNightMission = false;
 
-	public bool isCustomTrainMission;
+	public bool isCustomTrainMission = false;
 
 	private void OnTriggerEnter(Collider other)
 	{

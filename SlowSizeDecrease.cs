@@ -9,7 +9,7 @@ public class SlowSizeDecrease : MonoBehaviour
 
 	public float TimeItTakes;
 
-	private bool isDecreasing;
+	private bool isDecreasing = false;
 
 	private void Start()
 	{

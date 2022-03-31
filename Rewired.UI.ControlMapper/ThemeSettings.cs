@@ -34,29 +34,29 @@ public class ThemeSettings : ScriptableObject
 		public virtual void Apply(Selectable item)
 		{
 			Selectable.Transition transition = _transition;
-			bool num = item.transition != transition;
+			bool transitionChanged = item.transition != transition;
 			item.transition = transition;
-			ICustomSelectable customSelectable = item as ICustomSelectable;
+			ICustomSelectable customSel = item as ICustomSelectable;
 			switch (transition)
 			{
 			case Selectable.Transition.ColorTint:
 			{
-				CustomColorBlock colors = _colors;
-				colors.fadeDuration = 0f;
-				item.colors = colors;
-				colors.fadeDuration = _colors.fadeDuration;
-				item.colors = colors;
-				if (customSelectable != null)
+				CustomColorBlock cb = _colors;
+				cb.fadeDuration = 0f;
+				item.colors = cb;
+				cb.fadeDuration = _colors.fadeDuration;
+				item.colors = cb;
+				if (customSel != null)
 				{
-					customSelectable.disabledHighlightedColor = colors.disabledHighlightedColor;
+					customSel.disabledHighlightedColor = cb.disabledHighlightedColor;
 				}
 				break;
 			}
 			case Selectable.Transition.SpriteSwap:
 				item.spriteState = _spriteState;
-				if (customSelectable != null)
+				if (customSel != null)
 				{
-					customSelectable.disabledHighlightedSprite = _spriteState.disabledHighlightedSprite;
+					customSel.disabledHighlightedSprite = _spriteState.disabledHighlightedSprite;
 				}
 				break;
 			case Selectable.Transition.Animation:
@@ -64,13 +64,13 @@ public class ThemeSettings : ScriptableObject
 				item.animationTriggers.highlightedTrigger = _animationTriggers.highlightedTrigger;
 				item.animationTriggers.normalTrigger = _animationTriggers.normalTrigger;
 				item.animationTriggers.pressedTrigger = _animationTriggers.pressedTrigger;
-				if (customSelectable != null)
+				if (customSel != null)
 				{
-					customSelectable.disabledHighlightedTrigger = _animationTriggers.disabledHighlightedTrigger;
+					customSel.disabledHighlightedTrigger = _animationTriggers.disabledHighlightedTrigger;
 				}
 				break;
 			}
-			if (num)
+			if (transitionChanged)
 			{
 				item.targetGraphic.CrossFadeColor(item.targetGraphic.color, 0f, ignoreTimeScale: true, useAlpha: true);
 			}
@@ -128,18 +128,18 @@ public class ThemeSettings : ScriptableObject
 			}
 			if (_fillImageSettings != null)
 			{
-				RectTransform fillRect = item.fillRect;
-				if (fillRect != null)
+				RectTransform rt = item.fillRect;
+				if (rt != null)
 				{
-					_fillImageSettings.CopyTo(fillRect.GetComponent<Image>());
+					_fillImageSettings.CopyTo(rt.GetComponent<Image>());
 				}
 			}
 			if (_backgroundImageSettings != null)
 			{
-				Transform transform = item.transform.Find("Background");
-				if (transform != null)
+				Transform t = item.transform.Find("Background");
+				if (t != null)
 				{
-					_backgroundImageSettings.CopyTo(transform.GetComponent<Image>());
+					_backgroundImageSettings.CopyTo(t.GetComponent<Image>());
 				}
 			}
 		}
@@ -609,7 +609,7 @@ public class ThemeSettings : ScriptableObject
 		private TMP_FontAsset _font;
 
 		[SerializeField]
-		private FontStyleOverride _style;
+		private FontStyleOverride _style = FontStyleOverride.Default;
 
 		[SerializeField]
 		private float _sizeMultiplier = 1f;
@@ -743,8 +743,28 @@ public class ThemeSettings : ScriptableObject
 	{
 		if (!(item == null))
 		{
-			SelectableSettings_Base selectableSettings_Base = ((item as Button != null) ? ((!(themeClass == "inputGridField")) ? _buttonSettings : _inputGridFieldSettings) : ((item as Scrollbar != null) ? _scrollbarSettings : ((item as Slider != null) ? ((SelectableSettings_Base)_sliderSettings) : ((SelectableSettings_Base)((!(item as Toggle != null)) ? _selectableSettings : ((!(themeClass == "button")) ? _selectableSettings : _buttonSettings))))));
-			selectableSettings_Base.Apply(item);
+			SelectableSettings_Base settings;
+			if (item as Button != null)
+			{
+				settings = ((!(themeClass == "inputGridField")) ? _buttonSettings : _inputGridFieldSettings);
+			}
+			else if (item as Scrollbar != null)
+			{
+				settings = _scrollbarSettings;
+			}
+			else if (item as Slider != null)
+			{
+				settings = _sliderSettings;
+			}
+			else if (item as Toggle != null)
+			{
+				settings = ((!(themeClass == "button")) ? _selectableSettings : _buttonSettings);
+			}
+			else
+			{
+				settings = _selectableSettings;
+			}
+			settings.Apply(item);
 		}
 	}
 
@@ -835,24 +855,24 @@ public class ThemeSettings : ScriptableObject
 	{
 		if (!(item == null))
 		{
-			TextSettings textSettings = ((themeClass == "button") ? _buttonTextSettings : ((!(themeClass == "inputGridField")) ? _textSettings : _inputGridFieldTextSettings));
-			if (textSettings.font != null)
+			TextSettings settings = ((themeClass == "button") ? _buttonTextSettings : ((!(themeClass == "inputGridField")) ? _textSettings : _inputGridFieldTextSettings));
+			if (settings.font != null)
 			{
-				item.font = textSettings.font;
+				item.font = settings.font;
 			}
-			item.color = textSettings.color;
-			item.lineSpacing = textSettings.lineSpacing;
-			if (textSettings.sizeMultiplier != 1f)
+			item.color = settings.color;
+			item.lineSpacing = settings.lineSpacing;
+			if (settings.sizeMultiplier != 1f)
 			{
-				item.fontSize = (int)(item.fontSize * textSettings.sizeMultiplier);
-				item.fontSizeMax = (int)(item.fontSizeMax * textSettings.sizeMultiplier);
-				item.fontSizeMin = (int)(item.fontSizeMin * textSettings.sizeMultiplier);
+				item.fontSize = (int)(item.fontSize * settings.sizeMultiplier);
+				item.fontSizeMax = (int)(item.fontSizeMax * settings.sizeMultiplier);
+				item.fontSizeMin = (int)(item.fontSizeMin * settings.sizeMultiplier);
 			}
-			item.characterSpacing = textSettings.chracterSpacing;
-			item.wordSpacing = textSettings.wordSpacing;
-			if (textSettings.style != 0)
+			item.characterSpacing = settings.chracterSpacing;
+			item.wordSpacing = settings.wordSpacing;
+			if (settings.style != 0)
 			{
-				item.fontStyle = GetFontStyle(textSettings.style);
+				item.fontStyle = GetFontStyle(settings.style);
 			}
 		}
 	}

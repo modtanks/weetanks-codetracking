@@ -29,7 +29,7 @@ public class SurvivalMaster : MonoBehaviour
 
 	public GameObject[] Levels;
 
-	public bool PlayerAlive;
+	public bool PlayerAlive = false;
 
 	public Animator canvasAnimator;
 
@@ -37,15 +37,15 @@ public class SurvivalMaster : MonoBehaviour
 
 	public MusicHandler musicScript;
 
-	public bool Player2Mode;
+	public bool Player2Mode = false;
 
-	public bool FriendlyFire;
+	public bool FriendlyFire = false;
 
 	public GameObject OptionsMainMenuBackup;
 
 	public GameObject Sun;
 
-	public bool GameHasStarted;
+	public bool GameHasStarted = false;
 
 	public GameObject[] SpawnPoints;
 
@@ -73,7 +73,7 @@ public class SurvivalMaster : MonoBehaviour
 
 	public int Player2Kills;
 
-	public bool isPlayingWithController;
+	public bool isPlayingWithController = false;
 
 	private static SurvivalMaster _instance;
 
@@ -83,7 +83,7 @@ public class SurvivalMaster : MonoBehaviour
 
 	public float controllerCheckTimerOG = 2f;
 
-	public int numberOfControllers;
+	public int numberOfControllers = 0;
 
 	public static SurvivalMaster instance => _instance;
 
@@ -129,46 +129,49 @@ public class SurvivalMaster : MonoBehaviour
 		Enemies = GameObject.FindGameObjectsWithTag("Enemy");
 		Bosses = GameObject.FindGameObjectsWithTag("Boss");
 		EnemyScripts = GameObject.FindGameObjectsWithTag("EnemyScripting");
-		GameObject[] array = Enemies.Concat(Bosses).Concat(EnemyScripts).Concat(Players)
+		GameObject[] all = Enemies.Concat(Bosses).Concat(EnemyScripts).Concat(Players)
 			.ToArray();
-		foreach (GameObject gameObject in array)
+		GameObject[] array = all;
+		foreach (GameObject enemy in array)
 		{
-			MonoBehaviour[] components = gameObject.GetComponents<MonoBehaviour>();
-			gameObject.GetComponents<EnemyTargetingSystem>();
-			MonoBehaviour[] array2 = components;
-			for (int j = 0; j < array2.Length; j++)
+			MonoBehaviour[] enemyscripts = enemy.GetComponents<MonoBehaviour>();
+			EnemyTargetingSystem[] targetscripts = enemy.GetComponents<EnemyTargetingSystem>();
+			MonoBehaviour[] array2 = enemyscripts;
+			foreach (MonoBehaviour script in array2)
 			{
-				array2[j].enabled = true;
+				script.enabled = true;
 			}
-			AudioSource[] components2 = gameObject.GetComponents<AudioSource>();
-			for (int j = 0; j < components2.Length; j++)
+			AudioSource[] sources2 = enemy.GetComponents<AudioSource>();
+			AudioSource[] array3 = sources2;
+			foreach (AudioSource source in array3)
 			{
-				components2[j].enabled = true;
+				source.enabled = true;
 			}
 		}
 	}
 
 	private IEnumerator Spawner()
 	{
-		float num = 0.5f - (float)(spawnAmount / 100);
-		if (num < 0.1f)
+		float waitTime = 0.5f - (float)(spawnAmount / 100);
+		if (waitTime < 0.1f)
 		{
 			yield return new WaitForSeconds(0.1f);
 		}
 		else
 		{
-			yield return new WaitForSeconds(num);
+			yield return new WaitForSeconds(waitTime);
 		}
 		if (spawned < spawnAmount && GameHasStarted)
 		{
-			int num2 = UnityEngine.Random.Range(0, SpawnPoints.Length);
-			if (UnityEngine.Random.Range(0, 4) == 2)
+			int chosenPoint = UnityEngine.Random.Range(0, SpawnPoints.Length);
+			int whichTank = UnityEngine.Random.Range(0, 4);
+			if (whichTank == 2)
 			{
-				UnityEngine.Object.Instantiate(Tank1, SpawnPoints[num2].transform.position, base.transform.rotation);
+				UnityEngine.Object.Instantiate(Tank1, SpawnPoints[chosenPoint].transform.position, base.transform.rotation);
 			}
 			else
 			{
-				UnityEngine.Object.Instantiate(Tank2, SpawnPoints[num2].transform.position, base.transform.rotation);
+				UnityEngine.Object.Instantiate(Tank2, SpawnPoints[chosenPoint].transform.position, base.transform.rotation);
 			}
 			spawned++;
 			amountEnemies++;
@@ -224,19 +227,22 @@ public class SurvivalMaster : MonoBehaviour
 		Enemies = GameObject.FindGameObjectsWithTag("Enemy");
 		Bosses = GameObject.FindGameObjectsWithTag("Boss");
 		EnemyScripts = GameObject.FindGameObjectsWithTag("EnemyScripting");
-		GameObject[] array = Enemies.Concat(Bosses).Concat(EnemyScripts).Concat(Players)
+		GameObject[] all = Enemies.Concat(Bosses).Concat(EnemyScripts).Concat(Players)
 			.ToArray();
-		foreach (GameObject gameObject in array)
+		GameObject[] array = all;
+		foreach (GameObject enemy in array)
 		{
-			MonoBehaviour[] components = gameObject.GetComponents<MonoBehaviour>();
-			for (int j = 0; j < components.Length; j++)
+			MonoBehaviour[] enemyscripts = enemy.GetComponents<MonoBehaviour>();
+			MonoBehaviour[] array2 = enemyscripts;
+			foreach (MonoBehaviour script in array2)
 			{
-				components[j].enabled = false;
+				script.enabled = false;
 			}
-			AudioSource[] components2 = gameObject.GetComponents<AudioSource>();
-			for (int j = 0; j < components2.Length; j++)
+			AudioSource[] sources2 = enemy.GetComponents<AudioSource>();
+			AudioSource[] array3 = sources2;
+			foreach (AudioSource source in array3)
 			{
-				components2[j].enabled = false;
+				source.enabled = false;
 			}
 		}
 	}
@@ -245,26 +251,26 @@ public class SurvivalMaster : MonoBehaviour
 	{
 		Array.Clear(currentControllers, 0, currentControllers.Length);
 		Array.Resize(ref currentControllers, Input.GetJoystickNames().Length);
-		int num = 0;
+		int amount = 0;
 		for (int i = 0; i < Input.GetJoystickNames().Length; i++)
 		{
 			currentControllers[i] = Input.GetJoystickNames()[i].ToLower();
 			if (currentControllers[i] == "controller (xbox 360 for windows)" || currentControllers[i] == "controller (xbox 360 wireless receiver for windows)" || currentControllers[i] == "controller (xbox one for windows)")
 			{
-				num++;
+				amount++;
 			}
 			else if (currentControllers[i] == "wireless controller")
 			{
-				num++;
+				amount++;
 			}
-			else
+			else if (!(currentControllers[i] == ""))
 			{
-				_ = currentControllers[i] == "";
 			}
 		}
-		numberOfControllers = num;
-		_ = numberOfControllers;
-		_ = 1;
+		numberOfControllers = amount;
+		if (numberOfControllers >= 1)
+		{
+		}
 	}
 
 	public void defeated()
@@ -281,12 +287,12 @@ public class SurvivalMaster : MonoBehaviour
 
 	public void Play2DClipAtPoint(AudioClip clip)
 	{
-		GameObject obj = new GameObject("TempAudio");
-		AudioSource audioSource = obj.AddComponent<AudioSource>();
+		GameObject tempAudioSource = new GameObject("TempAudio");
+		AudioSource audioSource = tempAudioSource.AddComponent<AudioSource>();
 		audioSource.clip = clip;
 		audioSource.volume = 1f;
 		audioSource.spatialBlend = 0f;
 		audioSource.Play();
-		UnityEngine.Object.Destroy(obj, clip.length);
+		UnityEngine.Object.Destroy(tempAudioSource, clip.length);
 	}
 }

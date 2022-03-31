@@ -3,15 +3,15 @@ using UnityEngine;
 
 public class ToolTipLoading : MonoBehaviour
 {
-	public bool ClassicCampaign;
+	public bool ClassicCampaign = false;
 
-	public bool PlayCustomCampaign;
+	public bool PlayCustomCampaign = false;
 
-	public bool CreateMap;
+	public bool CreateMap = false;
 
-	public bool Survival;
+	public bool Survival = false;
 
-	public int ContinueCheckpoint;
+	public int ContinueCheckpoint = 0;
 
 	[TextArea]
 	public string[] ClassicCampaignTexts;
@@ -37,44 +37,44 @@ public class ToolTipLoading : MonoBehaviour
 	{
 		if (ClassicCampaign)
 		{
-			int maxExclusive = ContinueCheckpoint + 10;
-			string text = "";
+			int index = ContinueCheckpoint + 10;
+			string text4 = "";
 			do
 			{
-				text = ClassicCampaignTexts[Random.Range(ContinueCheckpoint, maxExclusive)];
+				text4 = ClassicCampaignTexts[Random.Range(ContinueCheckpoint, index)];
 			}
-			while (text == "");
-			ToolTipText.text = LocalizationMaster.instance.GetText(text);
+			while (text4 == "");
+			ToolTipText.text = LocalizationMaster.instance.GetText(text4);
 		}
 		else if (PlayCustomCampaign)
-		{
-			string text2 = "";
-			do
-			{
-				text2 = PlayCustomCampaigns[Random.Range(0, PlayCustomCampaigns.Length)];
-			}
-			while (text2 == "");
-			ToolTipText.text = LocalizationMaster.instance.GetText(text2);
-		}
-		else if (CreateMap)
 		{
 			string text3 = "";
 			do
 			{
-				text3 = CreateMapEditor[Random.Range(0, CreateMapEditor.Length)];
+				text3 = PlayCustomCampaigns[Random.Range(0, PlayCustomCampaigns.Length)];
 			}
 			while (text3 == "");
 			ToolTipText.text = LocalizationMaster.instance.GetText(text3);
 		}
-		else if (Survival)
+		else if (CreateMap)
 		{
-			string text4 = "";
+			string text2 = "";
 			do
 			{
-				text4 = SurvivalTexts[Random.Range(0, SurvivalTexts.Length)];
+				text2 = CreateMapEditor[Random.Range(0, CreateMapEditor.Length)];
 			}
-			while (text4 == "");
-			ToolTipText.text = LocalizationMaster.instance.GetText(text4);
+			while (text2 == "");
+			ToolTipText.text = LocalizationMaster.instance.GetText(text2);
+		}
+		else if (Survival)
+		{
+			string text = "";
+			do
+			{
+				text = SurvivalTexts[Random.Range(0, SurvivalTexts.Length)];
+			}
+			while (text == "");
+			ToolTipText.text = LocalizationMaster.instance.GetText(text);
 		}
 	}
 }

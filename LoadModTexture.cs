@@ -10,9 +10,9 @@ public class LoadModTexture : MonoBehaviour
 
 	public string filename_normal;
 
-	public bool IsAudio;
+	public bool IsAudio = false;
 
-	public bool IsModded;
+	public bool IsModded = false;
 
 	private AudioClip AC;
 
@@ -22,7 +22,7 @@ public class LoadModTexture : MonoBehaviour
 		{
 			if (!UpdateAudio(".ogg", AudioType.OGGVORBIS) && !UpdateAudio(".wav", AudioType.WAV))
 			{
-				UpdateAudio(".mp3", AudioType.MPEG);
+				bool bababoey = !UpdateAudio(".mp3", AudioType.MPEG);
 			}
 		}
 		else
@@ -33,12 +33,12 @@ public class LoadModTexture : MonoBehaviour
 
 	private bool UpdateAudio(string extension, AudioType type)
 	{
-		string text = "";
-		text = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
-		text = text + "/My Games/Wee Tanks/mods/" + filename + extension;
-		if (File.Exists(text))
+		string savePath = "";
+		savePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
+		savePath = savePath + "/My Games/Wee Tanks/mods/" + filename + extension;
+		if (File.Exists(savePath))
 		{
-			StartCoroutine(LoadClip(text));
+			StartCoroutine(LoadClip(savePath));
 			return true;
 		}
 		return false;
@@ -100,46 +100,45 @@ public class LoadModTexture : MonoBehaviour
 			}
 			break;
 		}
-		if (!ApplyTexture(filename, 0, ".jpg"))
+		if (!ApplyTexture(filename, 0, ".jpg") && ApplyTexture(filename, 0, ".png"))
 		{
-			ApplyTexture(filename, 0, ".png");
 		}
 	}
 
 	public bool ApplyTexture(string filename, int type, string extension)
 	{
-		string text = "";
-		text = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
-		text = text + "/My Games/Wee Tanks/mods/" + filename + extension;
-		if (File.Exists(text))
+		string savePath = "";
+		savePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
+		savePath = savePath + "/My Games/Wee Tanks/mods/" + filename + extension;
+		if (File.Exists(savePath))
 		{
-			Texture2D texture2D = new Texture2D(2, 2);
-			byte[] data = File.ReadAllBytes(text);
-			texture2D.LoadImage(data);
-			if ((bool)texture2D)
+			Texture2D texture = new Texture2D(2, 2);
+			byte[] fileData = File.ReadAllBytes(savePath);
+			texture.LoadImage(fileData);
+			if ((bool)texture)
 			{
 				switch (filename)
 				{
 				case "wood_block_1":
-					GlobalAssets.instance.WoodenBlock_1 = texture2D;
+					GlobalAssets.instance.WoodenBlock_1 = texture;
 					break;
 				case "wood_block_2":
-					GlobalAssets.instance.WoodenBlock_2_half = texture2D;
+					GlobalAssets.instance.WoodenBlock_2_half = texture;
 					break;
 				case "wood_block_1_half":
-					GlobalAssets.instance.WoodenBlock_1_half = texture2D;
+					GlobalAssets.instance.WoodenBlock_1_half = texture;
 					break;
 				case "wood_block_2_half":
-					GlobalAssets.instance.WoodenBlock_2_half = texture2D;
+					GlobalAssets.instance.WoodenBlock_2_half = texture;
 					break;
 				case "stone_block":
-					GlobalAssets.instance.StoneBlock = texture2D;
+					GlobalAssets.instance.StoneBlock = texture;
 					break;
 				case "cork_block":
-					GlobalAssets.instance.CorkBlock = texture2D;
+					GlobalAssets.instance.CorkBlock = texture;
 					break;
 				}
-				SetTexture(texture2D);
+				SetTexture(texture);
 				return true;
 			}
 		}
@@ -150,6 +149,7 @@ public class LoadModTexture : MonoBehaviour
 	{
 		GetComponent<MeshRenderer>().material.SetTexture("_BumpMap", null);
 		GetComponent<MeshRenderer>().material.mainTexture = texture;
+		GetComponent<MeshRenderer>().material.mainTextureScale = new Vector2(1f, 1f);
 		IsModded = true;
 	}
 }

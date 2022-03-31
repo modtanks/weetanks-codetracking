@@ -31,8 +31,8 @@ public class SurvivalEvent : MonoBehaviour
 		{
 			return;
 		}
-		MoveTankScript component = other.GetComponent<MoveTankScript>();
-		if (component.isPlayer2 && Input.GetButtonDown("P2 Abutton"))
+		MoveTankScript whatPlayer = other.GetComponent<MoveTankScript>();
+		if (whatPlayer.isPlayer2 && Input.GetButtonDown("P2 Abutton"))
 		{
 			if (SurvivalMaster.instance.MoneyP2 >= (float)price)
 			{
@@ -40,11 +40,11 @@ public class SurvivalEvent : MonoBehaviour
 				return;
 			}
 			Debug.LogError("Cant buy door!");
-			GameObject obj = Object.Instantiate(NotEnoughMoneyPrefab, base.transform.position + new Vector3(6f, 0f, 0f), Quaternion.identity);
-			obj.transform.SetParent(Parent.transform);
-			obj.transform.rotation *= Quaternion.Euler(0f, 0f, 0f);
+			GameObject MoneyMsg2 = Object.Instantiate(NotEnoughMoneyPrefab, base.transform.position + new Vector3(6f, 0f, 0f), Quaternion.identity);
+			MoneyMsg2.transform.SetParent(Parent.transform);
+			MoneyMsg2.transform.rotation *= Quaternion.Euler(0f, 0f, 0f);
 		}
-		else if (!component.isPlayer2 && Input.GetButtonDown("P1Abutton"))
+		else if (!whatPlayer.isPlayer2 && Input.GetButtonDown("P1Abutton"))
 		{
 			if (SurvivalMaster.instance.MoneyP1 >= (float)price)
 			{
@@ -52,9 +52,9 @@ public class SurvivalEvent : MonoBehaviour
 				return;
 			}
 			Debug.LogError("Cant buy door!");
-			GameObject obj2 = Object.Instantiate(NotEnoughMoneyPrefab, base.transform.position + new Vector3(6f, 0f, 0f), Quaternion.identity);
-			obj2.transform.SetParent(Parent.transform);
-			obj2.transform.rotation *= Quaternion.Euler(0f, 0f, 0f);
+			GameObject MoneyMsg = Object.Instantiate(NotEnoughMoneyPrefab, base.transform.position + new Vector3(6f, 0f, 0f), Quaternion.identity);
+			MoneyMsg.transform.SetParent(Parent.transform);
+			MoneyMsg.transform.rotation *= Quaternion.Euler(0f, 0f, 0f);
 		}
 	}
 

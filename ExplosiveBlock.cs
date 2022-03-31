@@ -9,14 +9,15 @@ public class ExplosiveBlock : MonoBehaviour
 
 	public AudioClip FuseSound;
 
-	public bool isExploding;
+	public bool isExploding = false;
 
-	public bool isFusing;
+	public bool isFusing = false;
 
 	private void OnCollisionEnter(Collision collision)
 	{
 		Debug.Log("Collision!:" + collision.collider.name + collision.collider.tag);
-		if ((bool)collision.collider.GetComponent<PlayerBulletScript>() && !isFusing)
+		PlayerBulletScript PBS = collision.collider.GetComponent<PlayerBulletScript>();
+		if ((bool)PBS && !isFusing)
 		{
 			StartFusing();
 		}
@@ -24,9 +25,9 @@ public class ExplosiveBlock : MonoBehaviour
 
 	public void StartFusing()
 	{
-		Animator component = GetComponent<Animator>();
+		Animator myAnimator = GetComponent<Animator>();
 		SFXManager.instance.PlaySFX(FuseSound, 1f, null);
-		component.SetBool("InitiateDestroy", value: true);
+		myAnimator.SetBool("InitiateDestroy", value: true);
 		isFusing = true;
 	}
 
@@ -38,13 +39,13 @@ public class ExplosiveBlock : MonoBehaviour
 		{
 			AreaDamageEnemies(base.transform.position, 4.5f, 1f);
 		}
-		GameObject obj = Object.Instantiate(deathExplosion, base.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity);
-		CameraShake component = Camera.main.GetComponent<CameraShake>();
-		if ((bool)component)
+		GameObject poof = Object.Instantiate(deathExplosion, base.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity);
+		CameraShake CS = Camera.main.GetComponent<CameraShake>();
+		if ((bool)CS)
 		{
-			component.StartCoroutine(component.Shake(0.1f, 0.15f));
+			CS.StartCoroutine(CS.Shake(0.1f, 0.15f));
 		}
-		Object.Destroy(obj.gameObject, 4f);
+		Object.Destroy(poof.gameObject, 4f);
 		if (GameMaster.instance.GameHasStarted || GameMaster.instance.isZombieMode)
 		{
 			SFXManager.instance.PlaySFX(Deathsound, 1f, null);
@@ -54,78 +55,80 @@ public class ExplosiveBlock : MonoBehaviour
 
 	private void AreaDamageEnemies(Vector3 location, float radius, float damage)
 	{
-		Collider[] array = Physics.OverlapSphere(location, radius);
-		foreach (Collider obj in array)
+		Collider[] objectsInRange = Physics.OverlapSphere(location, radius);
+		Collider[] array = objectsInRange;
+		foreach (Collider col in array)
 		{
-			HealthTanks component = obj.GetComponent<HealthTanks>();
-			PlayerBulletScript component2 = obj.GetComponent<PlayerBulletScript>();
-			MineScript component3 = obj.GetComponent<MineScript>();
-			DestroyableWall component4 = obj.GetComponent<DestroyableWall>();
-			WeeTurret component5 = obj.GetComponent<WeeTurret>();
-			ExplosiveBlock component6 = obj.GetComponent<ExplosiveBlock>();
-			if ((bool)component6 && !component6.isExploding)
+			HealthTanks enemy = col.GetComponent<HealthTanks>();
+			PlayerBulletScript friendbullet = col.GetComponent<PlayerBulletScript>();
+			MineScript mines = col.GetComponent<MineScript>();
+			DestroyableWall DestroyWall = col.GetComponent<DestroyableWall>();
+			WeeTurret WT = col.GetComponent<WeeTurret>();
+			ExplosiveBlock EB = col.GetComponent<ExplosiveBlock>();
+			if ((bool)EB && !EB.isExploding)
 			{
-				component6.StartCoroutine(component6.Death());
+				EB.StartCoroutine(EB.Death());
 			}
-			if (component5 != null && GameMaster.instance.GameHasStarted)
+			if (WT != null && GameMaster.instance.GameHasStarted)
 			{
-				component5.Health--;
+				WT.Health--;
 			}
-			if (component != null && !component.immuneToExplosion)
+			if (enemy != null && !enemy.immuneToExplosion)
 			{
-				if (GameMaster.instance.isZombieMode && component.health > 1 && GameMaster.instance.GameHasStarted)
+				if (GameMaster.instance.isZombieMode && enemy.health > 1 && GameMaster.instance.GameHasStarted)
 				{
-					SFXManager.instance.PlaySFX(component.Buzz);
+					SFXManager.instance.PlaySFX(enemy.Buzz);
 				}
 				if (GameMaster.instance.GameHasStarted)
 				{
-					if (component.ShieldFade.ShieldHealth > 0)
+					if (enemy.ShieldFade.ShieldHealth > 0)
 					{
-						component.ShieldFade.ShieldHealth = 0;
+						enemy.ShieldFade.ShieldHealth = 0;
 					}
 					else
 					{
-						component.DamageMe(1);
+						enemy.DamageMe(1);
 					}
 				}
 			}
-			if (component2 != null)
+			if (friendbullet != null)
 			{
-				if (!component2.isSilver)
+				if (!friendbullet.isSilver)
 				{
-					component2.TimesBounced = 999;
+					friendbullet.TimesBounced = 999;
 				}
-				if (!component2.isElectric)
+				if (!friendbullet.isElectric)
 				{
-					component2.TimesBounced = 999;
+					friendbullet.TimesBounced = 999;
 				}
 			}
-			if (component3 != null)
+			if (mines != null)
 			{
-				component3.DetinationTime = 0f;
+				mines.DetinationTime = 0f;
 			}
-			if (component4 != null)
+			if (DestroyWall != null)
 			{
-				if (component4.IsStone)
+				if (DestroyWall.IsStone)
 				{
-					component4.StartCoroutine(component4.stonedestroy());
+					DestroyWall.StartCoroutine(DestroyWall.stonedestroy());
 				}
 				else
 				{
-					component4.StartCoroutine(component4.destroy());
+					DestroyWall.StartCoroutine(DestroyWall.destroy());
 				}
 			}
 		}
-		array = Physics.OverlapSphere(location, radius * 2f);
-		foreach (Collider collider in array)
+		Collider[] bigobjectsInRange = Physics.OverlapSphere(location, radius * 2f);
+		Collider[] array2 = bigobjectsInRange;
+		foreach (Collider col2 in array2)
 		{
-			Rigidbody component7 = collider.GetComponent<Rigidbody>();
-			if (component7 != null && (collider.tag == "Player" || collider.tag == "Enemy"))
+			Rigidbody rigi = col2.GetComponent<Rigidbody>();
+			if (rigi != null && (col2.tag == "Player" || col2.tag == "Enemy"))
 			{
-				float num = Vector3.Distance(component7.transform.position, base.transform.position);
-				float num2 = (radius * 2f - num) * 2f;
-				Vector3 vector = component7.transform.position - base.transform.position;
-				component7.AddForce(vector * num2, ForceMode.Impulse);
+				float distance = Vector3.Distance(rigi.transform.position, base.transform.position);
+				float force = (radius * 2f - distance) * 2f;
+				Vector3 direction = rigi.transform.position - base.transform.position;
+				rigi.AddForce(direction * force, ForceMode.Impulse);
 			}
 		}
 	}

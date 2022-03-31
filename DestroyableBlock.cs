@@ -10,19 +10,19 @@ public class DestroyableBlock : MonoBehaviour
 
 	public GameObject BrokenParticlePrefab;
 
-	public bool destroyed;
+	public bool destroyed = false;
 
 	public Texture2D[] WoodTextures;
 
-	private bool Resetted;
+	private bool Resetted = false;
 
-	private bool Resetted2;
+	private bool Resetted2 = false;
 
 	private void Start()
 	{
 		blockHealth = maxBlockHealth;
-		MeshRenderer component = GetComponent<MeshRenderer>();
-		mymat = component.material;
+		MeshRenderer myrend = GetComponent<MeshRenderer>();
+		mymat = myrend.material;
 	}
 
 	private void Update()
@@ -53,11 +53,11 @@ public class DestroyableBlock : MonoBehaviour
 			destroyed = true;
 			if (BrokenParticlePrefab != null)
 			{
-				GameObject obj = Object.Instantiate(BrokenParticlePrefab, base.transform.position + new Vector3(0f, 0.8f, 0f), Quaternion.identity);
-				obj.transform.Rotate(new Vector3(-90f, 0f, base.transform.eulerAngles.z));
-				obj.transform.parent = null;
-				obj.GetComponent<ParticleSystem>();
-				obj.GetComponentInChildren<ParticleSystem>();
+				GameObject particles = Object.Instantiate(BrokenParticlePrefab, base.transform.position + new Vector3(0f, 0.8f, 0f), Quaternion.identity);
+				particles.transform.Rotate(new Vector3(-90f, 0f, base.transform.eulerAngles.z));
+				particles.transform.parent = null;
+				ParticleSystem OneSystem = particles.GetComponent<ParticleSystem>();
+				ParticleSystem SmokeSystem = particles.GetComponentInChildren<ParticleSystem>();
 			}
 			GetComponent<BoxCollider>().enabled = false;
 			GetComponent<MeshRenderer>().enabled = false;

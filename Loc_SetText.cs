@@ -56,45 +56,45 @@ public class Loc_SetText : MonoBehaviour
 		LastKnown = LocalizationMaster.instance.CurrentLang;
 		if (TextList.Length != 0)
 		{
-			TMP_Dropdown component = GetComponent<TMP_Dropdown>();
-			if ((bool)component)
+			TMP_Dropdown Dropdown = GetComponent<TMP_Dropdown>();
+			if ((bool)Dropdown)
 			{
-				component.ClearOptions();
-				List<TMP_Dropdown.OptionData> list = new List<TMP_Dropdown.OptionData>();
+				Dropdown.ClearOptions();
+				List<TMP_Dropdown.OptionData> NewOptions = new List<TMP_Dropdown.OptionData>();
 				string[] textList = TextList;
-				foreach (string varName in textList)
+				foreach (string add in textList)
 				{
-					TMP_Dropdown.OptionData optionData = new TMP_Dropdown.OptionData();
-					optionData.text = LocalizationMaster.instance.GetText(varName);
-					list.Add(optionData);
+					TMP_Dropdown.OptionData newOption = new TMP_Dropdown.OptionData();
+					newOption.text = LocalizationMaster.instance.GetText(add);
+					NewOptions.Add(newOption);
 				}
-				component.AddOptions(list);
+				Dropdown.AddOptions(NewOptions);
 				return;
 			}
 		}
 		if (IsMapEditorInstructions)
 		{
-			string elementIdentifierName = ReInput.players.GetPlayer(0).controllers.maps.GetFirstButtonMapWithAction("Use", skipDisabledMaps: true).elementIdentifierName;
-			MyText.text = "Left click -> Add / Remove<br>Right click -> Rotate<br>" + elementIdentifierName + " -> Edit properties<br>Shift -> Straight lines<br>'+' -> Layer Up<br>'-' -> Layer Down<br>1...5 -> Select Layer<br>0 -> Toggle All Layers";
+			string key = ReInput.players.GetPlayer(0).controllers.maps.GetFirstButtonMapWithAction("Use", skipDisabledMaps: true).elementIdentifierName;
+			MyText.text = "Left click -> Add / Remove<br>Right click -> Rotate<br>" + key + " -> Edit properties<br>Shift -> Straight lines<br>'+' -> Layer Up<br>'-' -> Layer Down<br>1...5 -> Select Layer<br>0 -> Toggle All Layers";
 			return;
 		}
 		MyText.text = TextAddBefore + LocalizationMaster.instance.GetText(TextAssetID) + TextAddAfter;
 		AmountCharacters = MyText.text.Length;
-		int num = AmountCharacters - OriginalCharacters;
-		if (num > 2 && OriginalCharacters > 10)
+		int increase = AmountCharacters - OriginalCharacters;
+		if (increase > 2 && OriginalCharacters > 10)
 		{
-			float num2 = (float)num / (float)OriginalCharacters;
-			float num3 = 1f - num2 / 2f;
-			if (num3 < 0.1f)
+			float Percent = (float)increase / (float)OriginalCharacters;
+			float PercentageIncrease = 1f - Percent / 2f;
+			if (PercentageIncrease < 0.1f)
 			{
-				num3 = 0.1f;
+				PercentageIncrease = 0.1f;
 			}
-			float num4 = OriginalFontSize * num3;
-			if (num4 < OriginalFontSize / 1.6f)
+			float newSize = OriginalFontSize * PercentageIncrease;
+			if (newSize < OriginalFontSize / 1.6f)
 			{
-				num4 = OriginalFontSize / 1.6f;
+				newSize = OriginalFontSize / 1.6f;
 			}
-			MyText.fontSize = num4;
+			MyText.fontSize = newSize;
 		}
 		else
 		{

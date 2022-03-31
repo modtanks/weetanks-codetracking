@@ -5,7 +5,7 @@ public class PathfindingBlocksMaster : MonoBehaviour
 {
 	public List<PathfindingBlock> AllBlocks = new List<PathfindingBlock>();
 
-	public int MapSizeX;
+	public int MapSizeX = 0;
 
 	private static PathfindingBlocksMaster _instance;
 
@@ -25,97 +25,97 @@ public class PathfindingBlocksMaster : MonoBehaviour
 
 	public void FindAllBlocks()
 	{
-		int num = 0;
-		foreach (Transform item in base.transform)
+		int timer = 0;
+		foreach (Transform child in base.transform)
 		{
-			PathfindingBlock component = item.GetComponent<PathfindingBlock>();
-			if ((bool)component)
+			PathfindingBlock PB = child.GetComponent<PathfindingBlock>();
+			if ((bool)PB)
 			{
-				AllBlocks.Add(component);
-				component.GridID = num;
+				AllBlocks.Add(PB);
+				PB.GridID = timer;
 			}
-			num++;
+			timer++;
 		}
 	}
 
 	public PathfindingBlock FindBlock(int CallerID, int Direction)
 	{
-		PathfindingBlock result = null;
+		PathfindingBlock FoundPB = null;
 		switch (Direction)
 		{
 		case 0:
 		{
-			int num = CallerID - 1;
-			if (num > 0 && num < OptionsMainMenu.instance.MapSize && CallerID % (MapSizeX + 1) != 0)
+			int otherGridID = CallerID - 1;
+			if (otherGridID > 0 && otherGridID < OptionsMainMenu.instance.MapSize && CallerID % (MapSizeX + 1) != 0)
 			{
-				result = AllBlocks[num];
+				FoundPB = AllBlocks[otherGridID];
 			}
 			break;
 		}
 		case 1:
 		{
-			int num = CallerID - MapSizeX - 2;
-			if (num > 0 && num < OptionsMainMenu.instance.MapSize && CallerID % (MapSizeX + 1) != 0)
+			int otherGridID = CallerID - MapSizeX - 2;
+			if (otherGridID > 0 && otherGridID < OptionsMainMenu.instance.MapSize && CallerID % (MapSizeX + 1) != 0)
 			{
-				result = AllBlocks[num];
+				FoundPB = AllBlocks[otherGridID];
 			}
 			break;
 		}
 		case 2:
 		{
-			int num = CallerID - MapSizeX - 1;
-			if (num > 0 && num < OptionsMainMenu.instance.MapSize)
+			int otherGridID = CallerID - MapSizeX - 1;
+			if (otherGridID > 0 && otherGridID < OptionsMainMenu.instance.MapSize)
 			{
-				result = AllBlocks[num];
+				FoundPB = AllBlocks[otherGridID];
 			}
 			break;
 		}
 		case 3:
 		{
-			int num = CallerID - MapSizeX;
-			if (num > 0 && num < OptionsMainMenu.instance.MapSize && CallerID % (MapSizeX + 1) != MapSizeX)
+			int otherGridID = CallerID - MapSizeX;
+			if (otherGridID > 0 && otherGridID < OptionsMainMenu.instance.MapSize && CallerID % (MapSizeX + 1) != MapSizeX)
 			{
-				result = AllBlocks[num];
+				FoundPB = AllBlocks[otherGridID];
 			}
 			break;
 		}
 		case 4:
 		{
-			int num = CallerID + 1;
-			if (num > 0 && num < OptionsMainMenu.instance.MapSize && CallerID % (MapSizeX + 1) != MapSizeX)
+			int otherGridID = CallerID + 1;
+			if (otherGridID > 0 && otherGridID < OptionsMainMenu.instance.MapSize && CallerID % (MapSizeX + 1) != MapSizeX)
 			{
-				result = AllBlocks[num];
+				FoundPB = AllBlocks[otherGridID];
 			}
 			break;
 		}
 		case 5:
 		{
-			int num = CallerID + MapSizeX + 2;
-			if (num > 0 && num < OptionsMainMenu.instance.MapSize && CallerID % (MapSizeX + 1) != MapSizeX)
+			int otherGridID = CallerID + MapSizeX + 2;
+			if (otherGridID > 0 && otherGridID < OptionsMainMenu.instance.MapSize && CallerID % (MapSizeX + 1) != MapSizeX)
 			{
-				result = AllBlocks[num];
+				FoundPB = AllBlocks[otherGridID];
 			}
 			break;
 		}
 		case 6:
 		{
-			int num = CallerID + MapSizeX + 1;
-			if (num > 0 && num < OptionsMainMenu.instance.MapSize)
+			int otherGridID = CallerID + MapSizeX + 1;
+			if (otherGridID > 0 && otherGridID < OptionsMainMenu.instance.MapSize)
 			{
-				result = AllBlocks[num];
+				FoundPB = AllBlocks[otherGridID];
 			}
 			break;
 		}
 		case 7:
 		{
-			int num = CallerID + MapSizeX;
-			if (num > 0 && num < OptionsMainMenu.instance.MapSize && CallerID % (MapSizeX + 1) != 0)
+			int otherGridID = CallerID + MapSizeX;
+			if (otherGridID > 0 && otherGridID < OptionsMainMenu.instance.MapSize && CallerID % (MapSizeX + 1) != 0)
 			{
-				result = AllBlocks[num];
+				FoundPB = AllBlocks[otherGridID];
 			}
 			break;
 		}
 		}
-		return result;
+		return FoundPB;
 	}
 }

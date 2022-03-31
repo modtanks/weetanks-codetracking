@@ -12,18 +12,18 @@ public class PlayAnClip : MonoBehaviour
 
 	private void OnClip1()
 	{
-		int num = Random.Range(0, Clip1.Length);
-		Play2DClipAtPoint(Clip1[num], Volume);
+		int choose = Random.Range(0, Clip1.Length);
+		Play2DClipAtPoint(Clip1[choose], Volume);
 	}
 
 	public void Play2DClipAtPoint(AudioClip clip, float vol)
 	{
-		GameObject obj = new GameObject("TempAudio");
-		AudioSource audioSource = obj.AddComponent<AudioSource>();
+		GameObject tempAudioSource = new GameObject("TempAudio");
+		AudioSource audioSource = tempAudioSource.AddComponent<AudioSource>();
 		audioSource.clip = clip;
 		audioSource.volume = vol;
 		audioSource.spatialBlend = 0f;
 		audioSource.Play();
-		Object.Destroy(obj, clip.length);
+		Object.Destroy(tempAudioSource, clip.length);
 	}
 }

@@ -11,8 +11,8 @@ public class SetLivesIcons : MonoBehaviour
 
 	public void SetIcons()
 	{
-		int num = ((GameMaster.instance.Lives < 7) ? GameMaster.instance.Lives : 7);
-		for (int i = 0; i < num; i++)
+		int amount = ((GameMaster.instance.Lives < 7) ? GameMaster.instance.Lives : 7);
+		for (int i = 0; i < amount; i++)
 		{
 			if (!TanksIcons[i].GetBool("ShowLife"))
 			{
@@ -38,9 +38,9 @@ public class SetLivesIcons : MonoBehaviour
 	public void RemoveIcons()
 	{
 		Animator[] tanksIcons = TanksIcons;
-		for (int i = 0; i < tanksIcons.Length; i++)
+		foreach (Animator TankIcon in tanksIcons)
 		{
-			tanksIcons[i].SetBool("ShowLife", value: false);
+			TankIcon.SetBool("ShowLife", value: false);
 		}
 	}
 }
