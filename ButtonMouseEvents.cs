@@ -8,6 +8,14 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 {
 	public int Place = 0;
 
+	public bool IsRadioButton = false;
+
+	public bool TurnChildTextGreen = false;
+
+	public Color TextSelectedColor;
+
+	public Color TextNormalColor;
+
 	[Header("Textures, if you use RawImage")]
 	public Texture NotSelected;
 
@@ -67,6 +75,24 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 	public void DeselectButton()
 	{
 		SetSpriteTexture(NotSelected, NotSelected_sprite);
+		if (!IsRadioButton)
+		{
+			return;
+		}
+		CheckMarkImage.gameObject.SetActive(value: false);
+		IsEnabled = false;
+		if (!TurnChildTextGreen)
+		{
+			return;
+		}
+		foreach (Transform t in base.transform)
+		{
+			TextMeshProUGUI ChildText = t.GetComponent<TextMeshProUGUI>();
+			if ((bool)ChildText)
+			{
+				ChildText.color = TextNormalColor;
+			}
+		}
 	}
 
 	public void OnScroll()
@@ -142,10 +168,25 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 
 	public void OnSelect(BaseEventData eventData)
 	{
+		if (IsRadioButton && IsEnabled)
+		{
+			return;
+		}
 		if ((bool)Selected)
 		{
 			SetSpriteTexture(Selected, Selected_sprite);
 			StartCoroutine(AutoDeselectButton());
+		}
+		if (TurnChildTextGreen)
+		{
+			foreach (Transform t in base.transform)
+			{
+				TextMeshProUGUI ChildText = t.GetComponent<TextMeshProUGUI>();
+				if ((bool)ChildText)
+				{
+					ChildText.color = TextSelectedColor;
+				}
+			}
 		}
 		if ((bool)CheckMarkImage)
 		{

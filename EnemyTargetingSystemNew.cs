@@ -60,11 +60,11 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	public Transform[] rocketSlotLocations;
 
-	public int[] rocketSlots;
+	public List<int> rocketSlots;
 
 	public GameObject rocketPrefab;
 
-	public GameObject[] rockets;
+	public List<GameObject> rockets;
 
 	public float RocketAccuracy;
 
@@ -91,6 +91,8 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 	public bool isTeamRed;
 
 	public bool specialMove = false;
+
+	public bool LookingAtTarget = false;
 
 	public bool normalLockedIn = false;
 
@@ -148,6 +150,8 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	public int CustomShootSpeed = -1;
 
+	public TemporaryRotation RotateOnFire;
+
 	private bool ScriptDisabled = false;
 
 	private float SecretTimer = 0f;
@@ -157,6 +161,8 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 	public bool PlayerInsightRunning = false;
 
 	public bool DeflectingBullet = false;
+
+	public float RocketReloadSpeed = -1f;
 
 	public void SetLayerMasks()
 	{
@@ -245,7 +251,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		SetLayerMasks();
 		if (SR_running == 0 && AIscript.hasRockets)
 		{
-			for (int i = 0; i < rocketSlots.Length; i++)
+			for (int i = 0; i < rocketSlots.Count; i++)
 			{
 				if (rocketSlots[i] == 0)
 				{
@@ -465,6 +471,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 					}
 					else
 					{
+						LookingAtTarget = true;
 						normalLockedIn = true;
 						StartCoroutine(AutoUnlock());
 					}
@@ -479,6 +486,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 					}
 					if (Quaternion.Angle(base.transform.rotation, rotation) <= 0.6f)
 					{
+						LookingAtTarget = true;
 						normalLockedIn = true;
 						StartCoroutine(AutoUnlock());
 						base.transform.rotation = rotation;
@@ -665,6 +673,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 			HealthTanks currentTargetHealth = currentTarget.GetComponent<HealthTanks>();
 			if ((bool)currentTargetHealth && currentTargetHealth.dying)
 			{
+				LookingAtTarget = false;
 				TargetInSight = false;
 				currentTarget = null;
 				return;
@@ -695,6 +704,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 					{
 						TargetInSight = true;
 						currentTarget = Targets[0];
+						LookingAtTarget = false;
 						normalLockedIn = false;
 						return;
 					}
@@ -717,6 +727,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		}
 		else if (Targets.Count > 0)
 		{
+			LookingAtTarget = false;
 			if (!currentTarget)
 			{
 				TargetInSight = false;
@@ -724,6 +735,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 			GameObject Target = CheckTargetsIfInSight(myLayerMasks);
 			if ((bool)Target)
 			{
+				LookingAtTarget = false;
 				normalLockedIn = false;
 				specialMoveLockedIn = false;
 				TargetInSight = false;
@@ -952,6 +964,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 			return;
 		}
 		startingPosition = Vector3.zero;
+		rot *= Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
 		if (!DrawReflectionPattern(base.transform.position, rot * Vector3.forward, maxReflectionCount, CheckingForFriendlies: false))
 		{
 			rot *= Quaternion.Euler(0f, 2.8f, 0f);
@@ -1151,6 +1164,72 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		return false;
 	}
 
+	public void ShootAllBarrels()
+	{
+		int BulletsLeft = maxFiredBullets - firedBullets;
+		if (BulletsLeft <= 0)
+		{
+			return;
+		}
+		if (AmountShotgunShots > 0)
+		{
+			if (AmountShotgunShots == 1 && BulletsLeft >= 1)
+			{
+				firedBullets++;
+				FireTank(firePoint[0], bulletPrefab);
+			}
+			else if (AmountShotgunShots == 2 && BulletsLeft >= 2)
+			{
+				firedBullets += 2;
+				FireTank(firePoint[1], bulletPrefab);
+				FireTank(firePoint[2], bulletPrefab);
+			}
+			else if (AmountShotgunShots == 3 && BulletsLeft >= 3)
+			{
+				firedBullets += 3;
+				FireTank(firePoint[0], bulletPrefab);
+				FireTank(firePoint[1], bulletPrefab);
+				FireTank(firePoint[2], bulletPrefab);
+			}
+			else if (AmountShotgunShots == 4 && BulletsLeft >= 4)
+			{
+				firedBullets += 4;
+				FireTank(firePoint[1], bulletPrefab);
+				FireTank(firePoint[2], bulletPrefab);
+				FireTank(firePoint[3], bulletPrefab);
+				FireTank(firePoint[4], bulletPrefab);
+			}
+			else
+			{
+				if (AmountShotgunShots != 5 || BulletsLeft < 5)
+				{
+					return;
+				}
+				firedBullets += 5;
+				for (int i = 0; i < 5; i++)
+				{
+					if (i == 0)
+					{
+						FireTank(firePoint[i], bulletPrefab);
+					}
+					else
+					{
+						FireTank(firePoint[i], bulletPrefab);
+					}
+				}
+			}
+		}
+		else if (BulletsLeft >= firePoint.Length)
+		{
+			firedBullets += firePoint.Length;
+			Transform[] array = firePoint;
+			foreach (Transform point in array)
+			{
+				FireTank(point, bulletPrefab);
+			}
+		}
+	}
+
 	private IEnumerator ShootAtPlayer()
 	{
 		if (!CR_running)
@@ -1211,54 +1290,13 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 					StartCoroutine(ShootAtPlayer());
 					yield break;
 				}
-				firedBullets++;
-				if (AmountShotgunShots > 0)
-				{
-					if (AmountShotgunShots == 1)
-					{
-						FireTank(firePoint[0], bulletPrefab);
-					}
-					else if (AmountShotgunShots == 2)
-					{
-						FireTank(firePoint[1], bulletPrefab);
-						FireTank(firePoint[2], bulletPrefab);
-					}
-					else if (AmountShotgunShots == 3)
-					{
-						FireTank(firePoint[0], bulletPrefab);
-						FireTank(firePoint[1], bulletPrefab);
-						FireTank(firePoint[2], bulletPrefab);
-					}
-					else if (AmountShotgunShots == 4)
-					{
-						FireTank(firePoint[1], bulletPrefab);
-						FireTank(firePoint[2], bulletPrefab);
-						FireTank(firePoint[3], bulletPrefab);
-						FireTank(firePoint[4], bulletPrefab);
-					}
-					else
-					{
-						Transform[] array = firePoint;
-						foreach (Transform point in array)
-						{
-							FireTank(point, bulletPrefab);
-						}
-					}
-				}
-				else
-				{
-					Transform[] array2 = firePoint;
-					foreach (Transform point2 in array2)
-					{
-						FireTank(point2, bulletPrefab);
-					}
-				}
+				ShootAllBarrels();
 				DeflectingBullet = false;
 				specialMove = false;
 				normalLockedIn = false;
 				specialMoveLockedIn = false;
 			}
-			else if (TargetInSight && !specialMove && canShoot && normalLockedIn)
+			else if (TargetInSight && !specialMove && canShoot && LookingAtTarget)
 			{
 				if (CheckForEverything(reflections: (AIscript.amountOfBounces > 0) ? 1 : 0, checkAngle: base.transform.rotation, checkOffset: 0.6f, FriendliesCheck: true))
 				{
@@ -1286,51 +1324,10 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 							if (firedBullets >= maxFiredBullets)
 							{
 								yield return new WaitForSeconds(0.05f);
-								StartCoroutine("ShootAtPlayer", false);
+								StartCoroutine(ShootAtPlayer());
 								yield break;
 							}
-							firedBullets++;
-							if (AmountShotgunShots > 0)
-							{
-								if (AmountShotgunShots == 1)
-								{
-									FireTank(firePoint[0], bulletPrefab);
-								}
-								else if (AmountShotgunShots == 2)
-								{
-									FireTank(firePoint[1], bulletPrefab);
-									FireTank(firePoint[2], bulletPrefab);
-								}
-								else if (AmountShotgunShots == 3)
-								{
-									FireTank(firePoint[0], bulletPrefab);
-									FireTank(firePoint[1], bulletPrefab);
-									FireTank(firePoint[2], bulletPrefab);
-								}
-								else if (AmountShotgunShots == 4)
-								{
-									FireTank(firePoint[1], bulletPrefab);
-									FireTank(firePoint[2], bulletPrefab);
-									FireTank(firePoint[3], bulletPrefab);
-									FireTank(firePoint[4], bulletPrefab);
-								}
-								else
-								{
-									Transform[] array3 = firePoint;
-									foreach (Transform point6 in array3)
-									{
-										FireTank(point6, bulletPrefab);
-									}
-								}
-							}
-							else
-							{
-								Transform[] array4 = firePoint;
-								foreach (Transform point5 in array4)
-								{
-									FireTank(point5, bulletPrefab);
-								}
-							}
+							ShootAllBarrels();
 						}
 					}
 					else
@@ -1338,51 +1335,10 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 						if (firedBullets >= maxFiredBullets)
 						{
 							yield return new WaitForSeconds(0.05f);
-							StartCoroutine("ShootAtPlayer", false);
+							StartCoroutine(ShootAtPlayer());
 							yield break;
 						}
-						firedBullets++;
-						if (AmountShotgunShots > 0)
-						{
-							if (AmountShotgunShots == 1)
-							{
-								FireTank(firePoint[0], bulletPrefab);
-							}
-							else if (AmountShotgunShots == 2)
-							{
-								FireTank(firePoint[1], bulletPrefab);
-								FireTank(firePoint[2], bulletPrefab);
-							}
-							else if (AmountShotgunShots == 3)
-							{
-								FireTank(firePoint[0], bulletPrefab);
-								FireTank(firePoint[1], bulletPrefab);
-								FireTank(firePoint[2], bulletPrefab);
-							}
-							else if (AmountShotgunShots == 4)
-							{
-								FireTank(firePoint[1], bulletPrefab);
-								FireTank(firePoint[2], bulletPrefab);
-								FireTank(firePoint[3], bulletPrefab);
-								FireTank(firePoint[4], bulletPrefab);
-							}
-							else
-							{
-								Transform[] array5 = firePoint;
-								foreach (Transform point4 in array5)
-								{
-									FireTank(point4, bulletPrefab);
-								}
-							}
-						}
-						else
-						{
-							Transform[] array6 = firePoint;
-							foreach (Transform point3 in array6)
-							{
-								FireTank(point3, bulletPrefab);
-							}
-						}
+						ShootAllBarrels();
 					}
 				}
 			}
@@ -1440,6 +1396,16 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		return false;
 	}
 
+	public void AddRocket(int index)
+	{
+		GameObject newRocket = Object.Instantiate(rocketPrefab, rocketSlotLocations[index]);
+		newRocket.GetComponent<RocketScript>().isHuntingEnemies = isHuntingEnemies;
+		newRocket.GetComponent<RocketScript>().papaTank = AIscript.gameObject;
+		newRocket.GetComponent<RocketScript>().MyTeam = AIscript.MyTeam;
+		rockets[index] = newRocket;
+		newRocket.transform.parent = rocketSlotLocations[index];
+	}
+
 	private IEnumerator ShootRockets()
 	{
 		if (SR_running > 1 || !AIscript.hasRockets)
@@ -1447,7 +1413,11 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 			yield break;
 		}
 		float RandomizedWaitingTime2 = Random.Range(2f, 2.5f);
-		if (OptionsMainMenu.instance.currentDifficulty == 1)
+		if (RocketReloadSpeed > 0f)
+		{
+			RandomizedWaitingTime2 = RocketReloadSpeed;
+		}
+		else if (OptionsMainMenu.instance.currentDifficulty == 1)
 		{
 			RandomizedWaitingTime2 = Random.Range(1.5f, 2f);
 		}
@@ -1464,18 +1434,21 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		{
 			yield break;
 		}
-		for (int i = 0; i < rocketSlots.Length; i++)
+		for (int i = 0; i < rocketSlots.Count; i++)
 		{
 			if (rocketSlots[i] == 0 && canReloadRockets)
 			{
 				rocketSlots[i] = 1;
-				GameObject newRocket = Object.Instantiate(rocketPrefab, rocketSlotLocations[i]);
-				newRocket.GetComponent<RocketScript>().isHuntingEnemies = isHuntingEnemies;
-				newRocket.GetComponent<RocketScript>().papaTank = AIscript.gameObject;
-				newRocket.GetComponent<RocketScript>().MyTeam = AIscript.MyTeam;
-				rockets[i] = newRocket;
-				newRocket.transform.parent = rocketSlotLocations[i];
-				if (i + 1 < rocketSlots.Length)
+				AddRocket(i);
+				if (i + 1 >= rocketSlots.Count)
+				{
+					continue;
+				}
+				if (RocketReloadSpeed > 0f)
+				{
+					RandomizedWaitingTime2 = RocketReloadSpeed;
+				}
+				else
 				{
 					RandomizedWaitingTime2 = Random.Range(0.4f, 0.9f);
 					if (OptionsMainMenu.instance.currentDifficulty == 1)
@@ -1490,8 +1463,8 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 					{
 						RandomizedWaitingTime2 = Random.Range(0.1f, 0.6f);
 					}
-					yield return new WaitForSeconds(RandomizedWaitingTime2);
 				}
+				yield return new WaitForSeconds(RandomizedWaitingTime2);
 			}
 			else
 			{
@@ -1505,20 +1478,27 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				rockets[i].GetComponent<RocketScript>().Launch();
 				rocketSlots[i] = 0;
 				rockets[i] = null;
-				if (i + 1 < rocketSlots.Length)
+				if (i + 1 < rocketSlots.Count)
 				{
-					RandomizedWaitingTime2 = Random.Range(0.4f, 0.9f);
-					if (OptionsMainMenu.instance.currentDifficulty == 1)
+					if (RocketReloadSpeed > 0f)
 					{
-						RandomizedWaitingTime2 = Random.Range(0.3f, 0.8f);
+						RandomizedWaitingTime2 = RocketReloadSpeed;
 					}
-					else if (OptionsMainMenu.instance.currentDifficulty == 2)
+					else
 					{
-						RandomizedWaitingTime2 = Random.Range(0.2f, 0.7f);
-					}
-					else if (OptionsMainMenu.instance.currentDifficulty == 3)
-					{
-						RandomizedWaitingTime2 = Random.Range(0.1f, 0.6f);
+						RandomizedWaitingTime2 = Random.Range(0.4f, 0.9f);
+						if (OptionsMainMenu.instance.currentDifficulty == 1)
+						{
+							RandomizedWaitingTime2 = Random.Range(0.3f, 0.8f);
+						}
+						else if (OptionsMainMenu.instance.currentDifficulty == 2)
+						{
+							RandomizedWaitingTime2 = Random.Range(0.2f, 0.7f);
+						}
+						else if (OptionsMainMenu.instance.currentDifficulty == 3)
+						{
+							RandomizedWaitingTime2 = Random.Range(0.1f, 0.6f);
+						}
 					}
 					yield return new WaitForSeconds(RandomizedWaitingTime2);
 				}
@@ -1535,7 +1515,11 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 	private IEnumerator reloadRocketsTimer()
 	{
 		float RandomizedWaitingTime = Random.Range(4f, 5f);
-		if (OptionsMainMenu.instance.currentDifficulty == 1)
+		if (RocketReloadSpeed > 0f)
+		{
+			RandomizedWaitingTime = RocketReloadSpeed;
+		}
+		else if (OptionsMainMenu.instance.currentDifficulty == 1)
 		{
 			RandomizedWaitingTime = Random.Range(3.5f, 4f);
 		}
@@ -1575,6 +1559,10 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		if (AIscript.HTscript.IsCustom)
 		{
 			ShootCountdown = AIscript.ShootSpeed;
+		}
+		if ((bool)RotateOnFire)
+		{
+			RotateOnFire.RotateFor(0.5f);
 		}
 		DeflectingBullet = false;
 		if (!firepoint)

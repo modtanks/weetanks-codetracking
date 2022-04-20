@@ -89,7 +89,7 @@ public class BombSackScript : MonoBehaviour
 			HealthTanks HT = collision.gameObject.GetComponent<HealthTanks>();
 			if ((bool)HT)
 			{
-				HT.DamageMe(50);
+				HT.DamageMe(2);
 			}
 		}
 	}

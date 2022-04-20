@@ -45,6 +45,12 @@ public class GlobalAssets : MonoBehaviour
 
 		public AudioClip MineExplosion;
 
+		public AudioClip TankDie;
+
+		public AudioClip TankDieLostGame;
+
+		public AudioClip BossDie;
+
 		public List<AudioClip> NormalBulletShootSound = new List<AudioClip>();
 
 		public List<AudioClip> RocketBulletShootSound = new List<AudioClip>();
@@ -103,6 +109,8 @@ public class GlobalAssets : MonoBehaviour
 		GetAudioMod("shoot_sound_", 1);
 		GetAudioMod("mine_place", 0);
 		GetAudioMod("mine_explosion", 0);
+		GetAudioMod("tank_die", 0);
+		GetAudioMod("tank_die_last", 0);
 		Debug.LogError("SHOOT SOUNDS SET");
 	}
 
@@ -170,6 +178,14 @@ public class GlobalAssets : MonoBehaviour
 		else if (filename.Contains("mine_explosion"))
 		{
 			AudioDB.MineExplosion = AC;
+		}
+		else if (filename.Contains("tank_die"))
+		{
+			AudioDB.TankDie = AC;
+		}
+		else if (filename.Contains("tank_die_last"))
+		{
+			AudioDB.TankDieLostGame = AC;
 		}
 	}
 

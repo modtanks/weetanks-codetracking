@@ -231,7 +231,20 @@ public class PlaneScript : MonoBehaviour
 				CanDropBombs = false;
 				LayerMask LM2 = 1 << LayerMask.NameToLayer("TeleportBlock");
 				Debug.DrawRay(base.transform.position, -Vector3.up * 25f, Color.red, 3f);
-				if (Physics.Raycast(base.transform.position, -Vector3.up, out var _, 25f, LM2))
+				RaycastHit RH2;
+				if ((bool)ZombieTankSpawner.instance)
+				{
+					float distToPlayer = Vector3.Distance(base.transform.position, TargetLocation);
+					if (distToPlayer < 14f)
+					{
+						CanDropBombs = true;
+					}
+					else
+					{
+						CanDropBombs = false;
+					}
+				}
+				else if (Physics.Raycast(base.transform.position, -Vector3.up, out RH2, 25f, LM2))
 				{
 					CanDropBombs = true;
 				}

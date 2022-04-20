@@ -9,6 +9,8 @@ public class AccountMenuHandler : MonoBehaviour
 
 	public GameObject LobbyButton;
 
+	public GameObject SetNewAccountPasswordButton;
+
 	public GameObject[] SignedInObjects;
 
 	public GameObject[] SignedOutObjects;
@@ -36,6 +38,14 @@ public class AccountMenuHandler : MonoBehaviour
 			foreach (GameObject obj4 in signedOutObjects)
 			{
 				obj4.SetActive(value: false);
+			}
+			if (AccountMaster.instance.CanSetNewPassword)
+			{
+				SetNewAccountPasswordButton.SetActive(value: true);
+			}
+			else
+			{
+				SetNewAccountPasswordButton.SetActive(value: false);
 			}
 			BackButton.Place = 4;
 			CurrentlySignedInAs.gameObject.SetActive(value: true);

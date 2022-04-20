@@ -263,7 +263,7 @@ public class MissionHundredController : MonoBehaviour
 	{
 		float RandomWaitingTime = Random.Range(10f, 30f);
 		yield return new WaitForSeconds(RandomWaitingTime);
-		if ((KTS.IsInBattle || KTS.IsInFinalBattle) && TimeInBattle > 10f && OptionsMainMenu.instance.currentDifficulty > 0)
+		if ((KTS.IsInBattle || KTS.IsInFinalBattle) && TimeInBattle > 10f && KTS.HT.health > 0 && OptionsMainMenu.instance.currentDifficulty > 0)
 		{
 			Vector3 Location = GameMaster.instance.GetValidLocation(CheckForDist: false, 0f, Vector3.zero, TargetPlayer: true);
 			if (Location != Vector3.zero)

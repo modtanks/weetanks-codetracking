@@ -150,6 +150,11 @@ public class LoadModTexture : MonoBehaviour
 		GetComponent<MeshRenderer>().material.SetTexture("_BumpMap", null);
 		GetComponent<MeshRenderer>().material.mainTexture = texture;
 		GetComponent<MeshRenderer>().material.mainTextureScale = new Vector2(1f, 1f);
+		AOcreation AO = GetComponent<AOcreation>();
+		if (AO != null)
+		{
+			base.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+		}
 		IsModded = true;
 	}
 }

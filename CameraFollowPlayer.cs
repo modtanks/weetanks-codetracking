@@ -67,7 +67,10 @@ public class CameraFollowPlayer : MonoBehaviour
 		if (GameMaster.instance.Players.Count == 1)
 		{
 			DesiredScale = zoomedInScale;
-			SetPos(GameMaster.instance.Players[0].transform.position);
+			if (GameMaster.instance.Players[0] != null)
+			{
+				SetPos(GameMaster.instance.Players[0].transform.position);
+			}
 		}
 		else if (GameMaster.instance.Players.Count == 2)
 		{

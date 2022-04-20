@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
@@ -19,6 +20,30 @@ public static class SavingMapEditorData
 			Debug.LogError(savePath);
 			return false;
 		}
+		FileStream stream = new FileStream(savePath, FileMode.Create);
+		MapEditorData data = new MapEditorData(GM, MEM);
+		formatter.Serialize(stream, data);
+		Debug.LogError("File saved at " + savePath);
+		stream.Close();
+		return true;
+	}
+
+	public static bool AutoSaveMap(GameMaster GM, MapEditorMaster MEM)
+	{
+		BinaryFormatter formatter = new BinaryFormatter();
+		string filename = "autosave_" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
+		string savePath = Application.persistentDataPath + "/autosaves/" + filename + ".campaign";
+		savePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
+		string folder = savePath + "/My Games/Wee Tanks/autosaves";
+		savePath = savePath + "/My Games/Wee Tanks/autosaves/" + filename + ".campaign";
+		foreach (FileInfo fi in (from x in new DirectoryInfo(folder).GetFiles()
+			orderby x.LastWriteTime descending
+			select x).Skip(49))
+		{
+			fi.Delete();
+		}
+		FileInfo file = new FileInfo(savePath);
+		file.Directory.Create();
 		FileStream stream = new FileStream(savePath, FileMode.Create);
 		MapEditorData data = new MapEditorData(GM, MEM);
 		formatter.Serialize(stream, data);

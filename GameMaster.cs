@@ -1399,8 +1399,9 @@ public class GameMaster : MonoBehaviour
 			{
 				MEP.isPlayerFour = true;
 			}
-			MEP.myRend = MEP.transform.Find("Cube.003").GetComponent<MeshRenderer>();
-			MEP.OriginalBodyColor = MEP.myRend.materials[0].color;
+			Renderer[] array = (MEP.myRends = new MeshRenderer[1]);
+			MEP.myRends[0] = MEP.transform.Find("Cube.003").GetComponent<MeshRenderer>();
+			MEP.OriginalBodyColor = MEP.myRends[0].materials[0].color;
 			MEP.TeamNumber = HisMEGP.MyTeamNumber;
 		}
 		Debug.Log("Destroying player: " + Players[playerIndex].transform.parent.gameObject.name);

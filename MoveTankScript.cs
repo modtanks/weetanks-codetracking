@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using QFSW.QC;
 using Rewired;
 using UnityEngine;
 
@@ -118,6 +119,11 @@ public class MoveTankScript : MonoBehaviour
 	private bool canHonkIt = true;
 
 	public float offset = 0f;
+
+	[Command("SetPlayerSpeed", Platform.AllPlatforms, MonoTargetType.Single)]
+	public void SetPlayerSpeed(int speed)
+	{
+	}
 
 	private void OnEnable()
 	{

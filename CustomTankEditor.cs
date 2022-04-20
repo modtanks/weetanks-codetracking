@@ -14,6 +14,16 @@ public class CustomTankEditor : MonoBehaviour
 
 	public GameObject FilesMenu;
 
+	public GameObject FiringMenu1;
+
+	public GameObject FiringMenu2;
+
+	public GameObject CustomTankImageRockets;
+
+	public ButtonMouseEvents FiringMenu1Button;
+
+	public ButtonMouseEvents FiringMenu2Button;
+
 	public TextMeshProUGUI MessageText;
 
 	public TMP_Dropdown FilesDropdown;
@@ -37,11 +47,26 @@ public class CustomTankEditor : MonoBehaviour
 		ReplaceMenu.SetActive(value: false);
 		FilesMenu.SetActive(value: false);
 		ButtonsMenu.SetActive(value: true);
+		CustomTankImageRockets.SetActive(value: false);
 	}
 
 	public void ShowLoadTankStats()
 	{
 		LoadTankStatsButton.SetActive(value: true);
+	}
+
+	public void EnableFiringMenu1()
+	{
+		FiringMenu2Button.DeselectButton();
+		FiringMenu1.SetActive(value: true);
+		FiringMenu2.SetActive(value: false);
+	}
+
+	public void EnableFiringMenu2()
+	{
+		FiringMenu1Button.DeselectButton();
+		FiringMenu1.SetActive(value: false);
+		FiringMenu2.SetActive(value: true);
 	}
 
 	public void OnLoadTank()

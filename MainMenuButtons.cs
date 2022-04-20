@@ -123,8 +123,6 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 
 	public bool IsToMenuCreateAccount;
 
-	public bool IsToMenuSignIn;
-
 	public bool IsSignOut;
 
 	public bool IsOpenCampaignsMenu;
@@ -144,6 +142,8 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 	public bool IsToTankeyTown;
 
 	public bool IsOnlineButton;
+
+	public bool IsSetNewPassword;
 
 	[Header("Options - Gameplay")]
 	public bool IsFriendlyFire;
@@ -453,6 +453,18 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 
 	private IEnumerator DelayLoadButton()
 	{
+		yield return new WaitForSeconds(2f);
+		LoadButton();
+		if (IsOnlineButton)
+		{
+			StartCoroutine(OnlineButtonLoad());
+		}
+	}
+
+	private IEnumerator OnlineButtonLoad()
+	{
+		yield return new WaitForSeconds(2f);
+		LoadButton();
 		yield return new WaitForSeconds(2f);
 		LoadButton();
 	}
@@ -847,18 +859,24 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 
 	public void PointerClick()
 	{
-		if (canBeSelected && !RightClicked)
+		if (!canBeSelected)
 		{
-			if ((bool)NMC)
-			{
-				NMC.doButton(this);
-			}
-			else
-			{
-				PMS.doButton(this);
-			}
-			SFXManager.instance.PlaySFX(GlobalAssets.instance.AudioDB.MenuClick);
+			return;
 		}
+		if (RightClicked)
+		{
+			RightClicked = false;
+			return;
+		}
+		if ((bool)NMC)
+		{
+			NMC.doButton(this);
+		}
+		else
+		{
+			PMS.doButton(this);
+		}
+		SFXManager.instance.PlaySFX(GlobalAssets.instance.AudioDB.MenuClick);
 	}
 
 	private IEnumerator PlayMarkerSound()

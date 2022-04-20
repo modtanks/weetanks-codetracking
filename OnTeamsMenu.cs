@@ -79,7 +79,6 @@ public class OnTeamsMenu : MonoBehaviour
 
 	public void OnCloseMenu()
 	{
-		Debug.Log("Exiting Teams menu!");
 		MapEditorMaster.instance.OnTeamsMenu = false;
 		PointOnMe = false;
 		IsOpen = false;

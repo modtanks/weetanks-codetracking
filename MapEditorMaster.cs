@@ -191,7 +191,11 @@ public class MapEditorMaster : MonoBehaviour
 
 	private float maxScalePointsBoosted = 10f;
 
-	public RawImage CustomTankOverlay;
+	public MeshRenderer[] CustomTankExampleRenderers;
+
+	public GameObject CustomTankExampleRocketHolder;
+
+	public GameObject[] CustomTankExampleRockets;
 
 	public Image CustomTankMaterialSource;
 
@@ -212,6 +216,8 @@ public class MapEditorMaster : MonoBehaviour
 	public bool[] TeamColorEnabled;
 
 	[Header("Custom Tank input fields")]
+	public CustomTankEditor CTE;
+
 	public Slider TankSpeedField;
 
 	public Slider FireSpeedField;
@@ -303,6 +309,12 @@ public class MapEditorMaster : MonoBehaviour
 
 	public ButtonMouseEvents CanTeleport;
 
+	public ButtonMouseEvents CanAirMissiles;
+
+	public Slider AirMissileReloadSpeed;
+
+	public Slider AirMissileCapacity;
+
 	public TextMeshProUGUI OnCursorText;
 
 	public GameObject TeamsCursorMenu;
@@ -353,6 +365,8 @@ public class MapEditorMaster : MonoBehaviour
 
 	public List<GameObject> SpawnedCustomTankUI = new List<GameObject>();
 
+	public TMP_Dropdown MapEditorDifficultyList;
+
 	public static MapEditorMaster instance => _instance;
 
 	private void Awake()
@@ -384,6 +398,8 @@ public class MapEditorMaster : MonoBehaviour
 
 	private void Start()
 	{
+		MapEditorDifficultyList.SetValueWithoutNotify(OptionsMainMenu.instance.currentDifficulty);
+		MapEditorDifficultyList.value = OptionsMainMenu.instance.currentDifficulty;
 		if ((bool)AccountMaster.instance && AccountMaster.instance.isSignedIn)
 		{
 			AccountMaster.instance.StartCoroutine(AccountMaster.instance.GetCloudInventory());
@@ -439,24 +455,26 @@ public class MapEditorMaster : MonoBehaviour
 		{
 			StartCoroutine(LateStart());
 		}
+		StartCoroutine(AutoSaveProject());
+	}
+
+	private IEnumerator AutoSaveProject()
+	{
+		yield return new WaitForSeconds(60f);
+		if (SavingMapEditorData.AutoSaveMap(GameMaster.instance, instance))
+		{
+			Debug.Log("AUTO SAVE COMPLETED!");
+			ShowPositiveMessage("Auto save completed!");
+		}
+		else
+		{
+			Debug.Log("AUTO SAVE FAILED");
+		}
+		StartCoroutine(AutoSaveProject());
 	}
 
 	private IEnumerator LateStart()
 	{
-		TankSpeedField.minValue = minTankSpeed;
-		FireSpeedField.minValue = minFireSpeed;
-		AmountBouncesField.minValue = minBounces;
-		AmountBulletsField.minValue = minBullets;
-		AmountBulletsField.maxValue = maxBullets;
-		MineLaySpeedField.minValue = minMineSpeed;
-		TurnHeadSlider.minValue = minTurnHead;
-		AccuracySlider.minValue = minAccuracy;
-		TankSpeedField.maxValue = maxTankSpeed;
-		FireSpeedField.maxValue = maxFireSpeed;
-		AmountBouncesField.maxValue = maxBounces;
-		MineLaySpeedField.maxValue = maxMineSpeed;
-		TurnHeadSlider.maxValue = maxTurnHead;
-		AccuracySlider.maxValue = maxAccuracy;
 		StartLivesSlider.value = StartingLives;
 		for (int j = 0; j < TeamColorsToggles.Length; j++)
 		{
@@ -465,6 +483,8 @@ public class MapEditorMaster : MonoBehaviour
 		Menus[8].transform.position += new Vector3(0f, -3000f, 0f);
 		TankeyTownItemsButton.gameObject.SetActive(value: false);
 		yield return new WaitForSeconds(0.25f);
+		MapEditorDifficultyList.SetValueWithoutNotify(OptionsMainMenu.instance.currentDifficulty);
+		MapEditorDifficultyList.value = OptionsMainMenu.instance.currentDifficulty;
 		UpdateMembus();
 		int AmountOfItems = 0;
 		if (AccountMaster.instance.Inventory.InventoryItems != null && AccountMaster.instance.Inventory.InventoryItems.Length != 0)
@@ -540,6 +560,17 @@ public class MapEditorMaster : MonoBehaviour
 		MusicList.value = CustomTankDatas[customNumber].CustomMusic;
 		CustomTankInputName.text = CustomTankDatas[customNumber].CustomTankName;
 		BulletSpeedSlider.value = CustomTankDatas[customNumber].CustomBulletSpeed;
+		AirMissileCapacity.value = CustomTankDatas[customNumber].CustomMissileCapacity;
+		AirMissileReloadSpeed.value = CustomTankDatas[customNumber].CustomMissileReloadSpeed;
+		CanAirMissiles.IsEnabled = CustomTankDatas[customNumber].CanShootAirMissiles;
+		if (!CanAirMissiles.IsEnabled)
+		{
+			CTE.CustomTankImageRockets.SetActive(value: false);
+		}
+		else
+		{
+			CTE.CustomTankImageRockets.SetActive(value: true);
+		}
 	}
 
 	private IEnumerator ResetClickSound()
@@ -570,7 +601,7 @@ public class MapEditorMaster : MonoBehaviour
 		}
 		if ((bool)MenuAddCustomTankButton)
 		{
-			if (CustomTankDatas.Count >= 20)
+			if (CustomTankDatas.Count >= 40)
 			{
 				MenuAddCustomTankButton.SetActive(value: false);
 			}
@@ -707,6 +738,25 @@ public class MapEditorMaster : MonoBehaviour
 				ArmouredSlider.transform.parent.gameObject.SetActive(value: false);
 				CustomTankDatas[SelectedCustomTank].CustomArmoured = false;
 			}
+			CustomTankDatas[SelectedCustomTank].CanShootAirMissiles = CanAirMissiles.IsEnabled;
+			CustomTankDatas[SelectedCustomTank].CustomMissileReloadSpeed = AirMissileReloadSpeed.value;
+			CustomTankDatas[SelectedCustomTank].CustomMissileCapacity = Mathf.RoundToInt(AirMissileCapacity.value);
+			if (!CanAirMissiles.IsEnabled)
+			{
+				CustomTankExampleRocketHolder.SetActive(value: false);
+			}
+			else
+			{
+				CustomTankExampleRocketHolder.SetActive(value: true);
+				for (int k = 0; k < 4; k++)
+				{
+					CustomTankExampleRockets[k].SetActive(value: false);
+				}
+				for (int l = 0; l < CustomTankDatas[SelectedCustomTank].CustomMissileCapacity; l++)
+				{
+					CustomTankExampleRockets[l].SetActive(value: true);
+				}
+			}
 			CustomTankDatas[SelectedCustomTank].CustomTankName = CustomTankInputName.text;
 			CustomTankDatas[SelectedCustomTank].CustomMusic = MusicList.value;
 			CustomTankDatas[SelectedCustomTank].CustomInvisibility = InvisibilityToggle.IsEnabled;
@@ -804,8 +854,23 @@ public class MapEditorMaster : MonoBehaviour
 			{
 				CustomTankDatas[SelectedCustomTank].CustomAccuracy = maxAccuracy;
 			}
-			CustomTankOverlay.color = CustomTankMaterialSource.material.GetColor("_Color1");
-			CustomTankDatas[SelectedCustomTank].CustomTankColor.Color = CustomTankOverlay.color;
+			for (int j = 0; j < CustomTankExampleRenderers.Length; j++)
+			{
+				if (j == 0)
+				{
+					Material[] mats2 = CustomTankExampleRenderers[j].materials;
+					mats2[1].color = CustomTankMaterialSource.material.GetColor("_Color1");
+					mats2[2].color = CustomTankMaterialSource.material.GetColor("_Color1");
+					CustomTankExampleRenderers[j].materials = mats2;
+				}
+				else
+				{
+					Material[] mats = CustomTankExampleRenderers[j].materials;
+					mats[0].color = CustomTankMaterialSource.material.GetColor("_Color1");
+					CustomTankExampleRenderers[j].materials = mats;
+				}
+			}
+			CustomTankDatas[SelectedCustomTank].CustomTankColor.Color = CustomTankMaterialSource.material.GetColor("_Color1");
 			if (CustomMaterial[SelectedCustomTank].GetColor("_Color") != CustomTankDatas[SelectedCustomTank].CustomTankColor.Color)
 			{
 				CustomMaterial[SelectedCustomTank].SetColor("_Color", CustomTankDatas[SelectedCustomTank].CustomTankColor.Color);
@@ -836,16 +901,6 @@ public class MapEditorMaster : MonoBehaviour
 
 	public void ShowCustomTank(int customtank)
 	{
-		if (customtank == 1 && GameMaster.instance.maxMissionReached < 31 && !OptionsMainMenu.instance.AMselected.Contains(60))
-		{
-			ShowErrorMessage("ERROR: Need to have reached checkpoint 30");
-			return;
-		}
-		if (customtank == 2 && GameMaster.instance.maxMissionReached < 51 && !OptionsMainMenu.instance.AMselected.Contains(60))
-		{
-			ShowErrorMessage("ERROR: Need to have reached checkpoint 50");
-			return;
-		}
 		canChangeValues = false;
 		StartCoroutine(ChangeBack());
 		CustomTankScript.PropID = 19 + customtank;
@@ -883,8 +938,23 @@ public class MapEditorMaster : MonoBehaviour
 		ActivateView(2);
 		MenuCurrent = 2;
 		CustomTankMaterialSource.material.SetColor("_Color1", CustomMaterial[customtank].color);
-		CustomTankOverlay.color = CustomTankMaterialSource.material.GetColor("_Color1");
-		CustomTankDatas[customtank].CustomTankColor.Color = CustomTankOverlay.color;
+		for (int i = 0; i < CustomTankExampleRenderers.Length; i++)
+		{
+			if (i == 0)
+			{
+				Material[] mats2 = CustomTankExampleRenderers[i].materials;
+				mats2[1].color = CustomTankMaterialSource.material.GetColor("_Color1");
+				mats2[2].color = CustomTankMaterialSource.material.GetColor("_Color1");
+				CustomTankExampleRenderers[i].materials = mats2;
+			}
+			else
+			{
+				Material[] mats = CustomTankExampleRenderers[i].materials;
+				mats[0].color = CustomTankMaterialSource.material.GetColor("_Color1");
+				CustomTankExampleRenderers[i].materials = mats;
+			}
+		}
+		CustomTankDatas[SelectedCustomTank].CustomTankColor.Color = CustomTankMaterialSource.material.GetColor("_Color1");
 	}
 
 	public void ChangeSlider(int ID)
@@ -959,6 +1029,16 @@ public class MapEditorMaster : MonoBehaviour
 		else if (ShowIDSlider == 11)
 		{
 			OnCursorText.text = CustomTankDatas[SelectedCustomTank].CustomBulletSpeed.ToString();
+			OnCursorText.transform.gameObject.SetActive(value: true);
+		}
+		else if (ShowIDSlider == 12)
+		{
+			OnCursorText.text = CustomTankDatas[SelectedCustomTank].CustomMissileCapacity.ToString();
+			OnCursorText.transform.gameObject.SetActive(value: true);
+		}
+		else if (ShowIDSlider == 13)
+		{
+			OnCursorText.text = CustomTankDatas[SelectedCustomTank].CustomMissileReloadSpeed.ToString();
 			OnCursorText.transform.gameObject.SetActive(value: true);
 		}
 		else if (ShowIDSlider == 50)
@@ -1167,6 +1247,7 @@ public class MapEditorMaster : MonoBehaviour
 			{
 				Material M2 = new Material(Shader.Find("Standard"));
 				M2.color = CustomTankDatas[j].CustomTankColor.Color;
+				M2.name = "CustomTank";
 				CustomMaterial.Add(M2);
 			}
 		}
@@ -1467,6 +1548,7 @@ public class MapEditorMaster : MonoBehaviour
 	public void NewCustomTank()
 	{
 		Material M = new Material(Shader.Find("Standard"));
+		M.name = "CustomTank";
 		CustomMaterial.Add(M);
 		CustomTankData NewCustomTank = new CustomTankData();
 		NewCustomTank.UniqueTankID = RandomStringGenerator(12);
@@ -2001,6 +2083,7 @@ public class MapEditorMaster : MonoBehaviour
 
 	public void StartTest()
 	{
+		OptionsMainMenu.instance.currentDifficulty = MapEditorDifficultyList.value;
 		SaveCurrentProps();
 		GameMaster.instance.DisableGame();
 		EditingCanvas.SetActive(value: false);

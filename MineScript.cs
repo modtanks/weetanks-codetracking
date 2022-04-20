@@ -528,10 +528,14 @@ public class MineScript : MonoBehaviour
 			{
 				isMineByPlayer = EBS.ShotByPlayer;
 			}
+			if (EBS.IsAirBullet)
+			{
+				return;
+			}
 		}
 		if (!isTripMine || !(collision.transform.tag == "Player"))
 		{
-			Debug.LogError("poof..." + collision.name);
+			Debug.LogWarning("poof..." + collision.name);
 			DetinationTime = 0f;
 		}
 	}

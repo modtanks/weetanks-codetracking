@@ -85,6 +85,9 @@ public class EnemyBulletScript : MonoBehaviour
 
 	public GameObject ElectricState;
 
+	[HideInInspector]
+	public bool IsSideBullet = false;
+
 	private void Awake()
 	{
 		if (_direction != Vector3.zero)
@@ -237,7 +240,7 @@ public class EnemyBulletScript : MonoBehaviour
 
 	public void BulletDeath(bool isEndingGame)
 	{
-		if (papaScript != null)
+		if (papaScript != null && !IsSideBullet)
 		{
 			papaScript.firedBullets--;
 		}

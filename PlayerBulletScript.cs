@@ -85,6 +85,8 @@ public class PlayerBulletScript : MonoBehaviour
 
 	public bool isBossBullet = false;
 
+	public bool IsAirBullet = false;
+
 	public GameObject ElectricState;
 
 	public GameObject papaTank;
@@ -115,6 +117,9 @@ public class PlayerBulletScript : MonoBehaviour
 
 	public bool isSilver = false;
 
+	[HideInInspector]
+	public bool IsSideBullet = false;
+
 	[Header("Custom Bullets")]
 	public GameObject Dart;
 
@@ -132,9 +137,19 @@ public class PlayerBulletScript : MonoBehaviour
 
 	public bool LookAtPointSet = false;
 
+	public float MaxTimeFlying = 30f;
+
+	public bool IsAirPushed = false;
+
 	private bool isEnding = false;
 
 	public List<Collider> CollidersIgnoring = new List<Collider>();
+
+	public float TurningTimeLeft = 0f;
+
+	private Vector3 TurnTowardsPoint;
+
+	private Vector3 InitialDirection;
 
 	private bool CanBounce = true;
 
@@ -350,6 +365,10 @@ public class PlayerBulletScript : MonoBehaviour
 
 	private void DrawReflectionPattern(Vector3 position, Vector3 direction, bool isDistanceTest)
 	{
+		if (isEnding)
+		{
+			return;
+		}
 		DestroyOnImpact = false;
 		Vector3 startingPosition = position;
 		Ray ray = new Ray(position, direction);
@@ -389,11 +408,19 @@ public class PlayerBulletScript : MonoBehaviour
 
 	private void Update()
 	{
+		if (isEnding)
+		{
+			return;
+		}
 		TimeFlying += Time.deltaTime;
 		CurrentSpeed = rb.velocity.magnitude;
 		if (GameMaster.instance.inMapEditor && !GameMaster.instance.GameHasStarted)
 		{
 			End(isEndingGame: true);
+		}
+		if (TimeFlying > MaxTimeFlying)
+		{
+			End(isEndingGame: false);
 		}
 		if (MapEditorMaster.instance != null && MapEditorMaster.instance.inPlayingMode && !GameMaster.instance.GameHasStarted)
 		{
@@ -425,6 +452,10 @@ public class PlayerBulletScript : MonoBehaviour
 
 	private void FixedUpdate()
 	{
+		if (isEnding)
+		{
+			return;
+		}
 		if (LookAtPointSet)
 		{
 			Vector3 newvector = (upcomingPosition - beforePosition).normalized * BulletSpeed;
@@ -439,6 +470,7 @@ public class PlayerBulletScript : MonoBehaviour
 			_ = StartingVelocity;
 			if (true)
 			{
+				Debug.LogWarning("no starting velocity");
 				rb.velocity = StartingVelocity;
 			}
 			else if ((bool)WallGonnaBounceInTo)
@@ -449,11 +481,24 @@ public class PlayerBulletScript : MonoBehaviour
 		lastPosition = base.transform.position;
 		if (rb.velocity != Vector3.zero)
 		{
-			base.transform.rotation = Quaternion.LookRotation(rb.velocity, base.transform.up);
-			base.transform.rotation *= Quaternion.Euler(-90f, 0f, 0f);
+			if (TurningTimeLeft > 0f)
+			{
+				TurningTimeLeft -= Time.deltaTime;
+				Vector3 newDirection = (upcomingPosition = Vector3.Lerp(InitialDirection, TurnTowardsPoint, 1f - TurningTimeLeft));
+				Vector3 newvector2 = (upcomingPosition - beforePosition).normalized * BulletSpeed;
+				rb.velocity = newvector2;
+				base.transform.rotation = Quaternion.LookRotation(rb.velocity, base.transform.up);
+				base.transform.rotation *= Quaternion.Euler(-90f, 0f, 0f);
+			}
+			else
+			{
+				base.transform.rotation = Quaternion.LookRotation(rb.velocity, base.transform.up);
+				base.transform.rotation *= Quaternion.Euler(-90f, 0f, 0f);
+			}
 		}
 		if (WallGonnaBounceInTo == null)
 		{
+			Debug.LogWarning("casting a new laser");
 			CastLaser(rb.velocity);
 		}
 	}
@@ -527,9 +572,12 @@ public class PlayerBulletScript : MonoBehaviour
 		}
 		else
 		{
-			GameObject poof2 = ((!IsElectricCharged) ? Object.Instantiate(poofParticles, base.transform.position, Quaternion.identity) : Object.Instantiate(poofParticlesElectro, base.transform.position, Quaternion.identity));
-			poof2.GetComponent<ParticleSystem>().Play();
-			Object.Destroy(poof2.gameObject, 3f);
+			if ((bool)poofParticles)
+			{
+				GameObject poof2 = ((!IsElectricCharged) ? Object.Instantiate(poofParticles, base.transform.position, Quaternion.identity) : Object.Instantiate(poofParticlesElectro, base.transform.position, Quaternion.identity));
+				poof2.GetComponent<ParticleSystem>().Play();
+				Object.Destroy(poof2.gameObject, 3f);
+			}
 			DeadSound();
 			if (!isEnemyBullet)
 			{
@@ -564,13 +612,13 @@ public class PlayerBulletScript : MonoBehaviour
 
 	private void DeadSound()
 	{
-		if (IsElectricCharged)
+		if (IsElectricCharged && DeadHitElectric.Length != 0)
 		{
 			int lengthClips2 = DeadHitElectric.Length;
 			int randomPick2 = Random.Range(0, lengthClips2);
 			SFXManager.instance.PlaySFX(DeadHitElectric[randomPick2], 1f, null);
 		}
-		else
+		else if (DeadHit.Length != 0)
 		{
 			int lengthClips = DeadHit.Length;
 			int randomPick = Random.Range(0, lengthClips);
@@ -614,13 +662,26 @@ public class PlayerBulletScript : MonoBehaviour
 	private void OnCollision(Collision collision)
 	{
 		MyPreviousColliders.Add(collision.gameObject);
+		if (collision.gameObject.tag == "Floor" && !isExplosive)
+		{
+			IgnoreThatCollision(collision);
+			return;
+		}
 		if (collision.gameObject.tag == "Bullet" && !isExplosive && !isSilver)
 		{
 			PlayerBulletScript PBS = collision.gameObject.GetComponent<PlayerBulletScript>();
-			if (PBS != null && PBS.papaTank == papaTank && PBS.TimesBounced == 0 && TimesBounced == 0)
+			if (PBS != null)
 			{
-				IgnoreThatCollision(collision);
-				return;
+				if (PBS.papaTank == papaTank && PBS.TimesBounced == 0 && TimesBounced == 0 && !IsAirPushed)
+				{
+					IgnoreThatCollision(collision);
+					return;
+				}
+				if (PBS.IsAirBullet)
+				{
+					IgnoreThatCollision(collision);
+					return;
+				}
 			}
 		}
 		if (WallGonnaBounceInTo == null)
@@ -631,11 +692,23 @@ public class PlayerBulletScript : MonoBehaviour
 			}
 			if (collision.gameObject.tag != "Enemy" && collision.gameObject.tag != "Player" && collision.gameObject.tag != "Boss")
 			{
+				Debug.LogWarning("No target error stay");
 				End(isEndingGame: false);
 				return;
 			}
 		}
 		StartCoroutine(WallImpact(collision));
+	}
+
+	public void TurnTowardsDirection(Vector3 direction)
+	{
+		Debug.Log("SETTING TURN TOWARDS!");
+		if (TurningTimeLeft <= 0f)
+		{
+			InitialDirection = rb.velocity;
+			TurnTowardsPoint = direction;
+			TurningTimeLeft = 1f;
+		}
 	}
 
 	private bool CheckBullet(Collision collision)
@@ -651,7 +724,7 @@ public class PlayerBulletScript : MonoBehaviour
 				}
 				return true;
 			}
-			if (PBS.papaTank == papaTank && TimesBounced == 0 && PBS.TimesBounced == 0)
+			if (PBS.papaTank == papaTank && TimesBounced == 0 && PBS.TimesBounced == 0 && !IsAirPushed && !PBS.IsAirPushed)
 			{
 				return true;
 			}
@@ -666,6 +739,15 @@ public class PlayerBulletScript : MonoBehaviour
 			}
 			if (isElectric)
 			{
+				IgnoreThatCollision(collision);
+				return true;
+			}
+			if (IsAirBullet && !PBS.isExplosive)
+			{
+				PBS.IsAirPushed = true;
+				Vector3 direction = upcomingPosition - base.transform.position;
+				PBS.TurnTowardsDirection(direction);
+				PBS.ResetIgnoredColliders();
 				IgnoreThatCollision(collision);
 				return true;
 			}
@@ -826,7 +908,7 @@ public class PlayerBulletScript : MonoBehaviour
 				{
 					if (TankScript != null)
 					{
-						if (movetank == TankScript.tankMovingScript && TimesBounced > 0)
+						if (movetank == TankScript.tankMovingScript && (TimesBounced > 0 || IsAirPushed))
 						{
 							HitTank(collision);
 							yield break;
@@ -842,7 +924,7 @@ public class PlayerBulletScript : MonoBehaviour
 				}
 				if ((bool)TankScript)
 				{
-					if (movetank == TankScript.tankMovingScript && TimesBounced > 0)
+					if (movetank == TankScript.tankMovingScript && (TimesBounced > 0 || IsAirPushed))
 					{
 						HitTank(collision);
 						yield break;
@@ -1020,7 +1102,7 @@ public class PlayerBulletScript : MonoBehaviour
 			{
 				yield break;
 			}
-			if (TimesBounced == 0 && collision.gameObject == papaTank.gameObject)
+			if (TimesBounced == 0 && collision.gameObject == papaTank.gameObject && !IsAirPushed)
 			{
 				IgnoreThatCollision(collision);
 				yield break;
@@ -1121,6 +1203,23 @@ public class PlayerBulletScript : MonoBehaviour
 				}
 			}
 		}
+		else if (IsAirBullet)
+		{
+			Rigidbody rigi = collision.gameObject.GetComponent<Rigidbody>();
+			if ((bool)rigi)
+			{
+				Vector3 direction = rigi.transform.position - base.transform.position;
+				float force = 20f - TimeFlying * 8f;
+				if (force > 1f)
+				{
+					rigi.AddForce(direction * force, ForceMode.Impulse);
+				}
+				else
+				{
+					End(isEndingGame: false);
+				}
+			}
+		}
 		else
 		{
 			EnemyAI AIscript = collision.gameObject.GetComponent<EnemyAI>();
@@ -1138,6 +1237,22 @@ public class PlayerBulletScript : MonoBehaviour
 		TimesBounced = 999;
 	}
 
+	public void ResetIgnoredColliders()
+	{
+		if (CollidersIgnoring.Count <= 0)
+		{
+			return;
+		}
+		foreach (Collider c in CollidersIgnoring)
+		{
+			if (c != null)
+			{
+				Physics.IgnoreCollision(GetComponent<Collider>(), c, ignore: false);
+			}
+		}
+		CollidersIgnoring.Clear();
+	}
+
 	public void Bounce()
 	{
 		if (TimesBounced < MaxBounces)
@@ -1149,17 +1264,7 @@ public class PlayerBulletScript : MonoBehaviour
 			AchievementsTracker.instance.HasMissed = true;
 		}
 		TimesBounced++;
-		if (CollidersIgnoring.Count > 0)
-		{
-			foreach (Collider c in CollidersIgnoring)
-			{
-				if (c != null)
-				{
-					Physics.IgnoreCollision(GetComponent<Collider>(), c, ignore: false);
-				}
-			}
-			CollidersIgnoring.Clear();
-		}
+		ResetIgnoredColliders();
 		GameObject poof = Object.Instantiate(bounceParticles, base.transform.position, Quaternion.identity);
 		poof.GetComponent<ParticleSystem>().Play();
 		Object.Destroy(poof.gameObject, 3f);

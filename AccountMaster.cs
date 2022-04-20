@@ -29,6 +29,8 @@ public class AccountMaster : MonoBehaviour
 
 	public int LobbyID;
 
+	public bool CanSetNewPassword = false;
+
 	public ProgressDataOnline PDO;
 
 	public GameObject MarblesNotification;
@@ -412,98 +414,64 @@ public class AccountMaster : MonoBehaviour
 
 	public IEnumerator CreateAccountViaSteam(string url, string steamusername, ulong steamuserid, bool IsSignIn)
 	{
-		UnityWebRequest keyRequest = UnityWebRequest.Get("https://weetanks.com/create_ip_key.php");
-		yield return keyRequest.SendWebRequest();
-		if (keyRequest.isNetworkError)
+		WWWForm form = new WWWForm();
+		form.AddField("username", steamusername);
+		form.AddField("steamuserid", steamuserid.ToString());
+		form.AddField("userData", JsonUtility.ToJson(GameMaster.instance.CurrentData));
+		UnityWebRequest uwr = UnityWebRequest.Post(url, form);
+		uwr.SetRequestHeader("Access-Control-Allow-Credentials", "true");
+		uwr.SetRequestHeader("Access-Control-Allow-Headers", "Accept, Content-Type, X-Access-Token, X-Application-Name, X-Request-Sent-Time");
+		uwr.SetRequestHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
+		uwr.SetRequestHeader("Access-Control-Allow-Origin", "*");
+		uwr.chunkedTransfer = false;
+		yield return uwr.SendWebRequest();
+		if (uwr.isNetworkError)
 		{
-			Debug.Log("Error While Sending: " + keyRequest.error);
+			Debug.Log("Error While Sending: " + uwr.error);
+			yield break;
 		}
-		else
+		Debug.Log("Received: " + uwr.downloadHandler.text);
+		if (uwr.downloadHandler.text.Contains("FAILED"))
 		{
-			if (keyRequest.downloadHandler.text == "WAIT")
-			{
-				yield break;
-			}
-			string receivedKey = keyRequest.downloadHandler.text;
-			WWWForm form = new WWWForm();
-			form.AddField("username", steamusername);
-			form.AddField("steamuserid", steamuserid.ToString());
-			form.AddField("authKey", receivedKey);
-			form.AddField("userData", JsonUtility.ToJson(GameMaster.instance.CurrentData));
-			UnityWebRequest uwr = UnityWebRequest.Post(url, form);
-			uwr.SetRequestHeader("Access-Control-Allow-Credentials", "true");
-			uwr.SetRequestHeader("Access-Control-Allow-Headers", "Accept, Content-Type, X-Access-Token, X-Application-Name, X-Request-Sent-Time");
-			uwr.SetRequestHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
-			uwr.SetRequestHeader("Access-Control-Allow-Origin", "*");
-			uwr.chunkedTransfer = false;
-			yield return uwr.SendWebRequest();
-			if (uwr.isNetworkError)
-			{
-				Debug.Log("Error While Sending: " + uwr.error);
-				yield break;
-			}
-			Debug.Log("Received: " + uwr.downloadHandler.text);
-			if (uwr.downloadHandler.text.Contains("FAILED"))
-			{
-				GameMaster.instance.CurrentData.marbles = 0;
-				GameMaster.instance.CurrentData.accountname = null;
-				isSignedIn = false;
-				SignOut(manual: false);
-				yield break;
-			}
-			if (uwr.downloadHandler.text.Contains("EXISTS"))
-			{
-				GameMaster.instance.CurrentData.marbles = 0;
-				GameMaster.instance.CurrentData.accountname = null;
-				isSignedIn = false;
-				yield break;
-			}
-			isSignedIn = true;
-			string[] splitArray = uwr.downloadHandler.text.Split(char.Parse("/"));
-			SteamUserID = steamuserid;
-			UserID = splitArray[1];
-			GameMaster.instance.AccountID = int.Parse(splitArray[1]);
-			Key = splitArray[0];
-			Username = splitArray[2];
-			isSignedIn = true;
-			SaveCredentials();
-			if (splitArray.Length > 3 && splitArray[3] != null)
-			{
-				AssignData(splitArray[3]);
-			}
+			GameMaster.instance.CurrentData.marbles = 0;
+			GameMaster.instance.CurrentData.accountname = null;
+			isSignedIn = false;
+			SignOut(manual: false);
+			yield break;
 		}
+		if (uwr.downloadHandler.text.Contains("EXISTS"))
+		{
+			GameMaster.instance.CurrentData.marbles = 0;
+			GameMaster.instance.CurrentData.accountname = null;
+			isSignedIn = false;
+			yield break;
+		}
+		Debug.Log("signed in correctly!");
+		isSignedIn = true;
+		string[] splitArray = uwr.downloadHandler.text.Split(char.Parse("/"));
+		SteamUserID = steamuserid;
+		UserID = splitArray[1];
+		GameMaster.instance.AccountID = int.Parse(splitArray[1]);
+		Key = splitArray[0];
+		Username = splitArray[2];
+		isSignedIn = true;
+		SaveCredentials();
+		if (splitArray.Length > 3 && splitArray[3] != null)
+		{
+			AssignData(splitArray[3]);
+		}
+		StartCoroutine(CanSetPasswordCheck());
 	}
 
 	public IEnumerator TransferAccountToSteam(string url)
 	{
 		NewMenuControl NMC = GameObject.Find("CanvasMover").transform.GetChild(0).gameObject.GetComponent<NewMenuControl>();
-		UnityWebRequest keyRequest = UnityWebRequest.Get("https://weetanks.com/create_ip_key.php");
-		yield return keyRequest.SendWebRequest();
-		if (keyRequest.isNetworkError)
-		{
-			Debug.Log("Error While Sending: " + keyRequest.error);
-			if ((bool)NMC)
-			{
-				NMC.StartCoroutine(NMC.FailedTransferSteam(null));
-			}
-			yield break;
-		}
-		if (keyRequest.downloadHandler.text == "WAIT")
-		{
-			if ((bool)NMC)
-			{
-				NMC.StartCoroutine(NMC.FailedTransferSteam(null));
-			}
-			yield break;
-		}
-		string receivedKey = keyRequest.downloadHandler.text;
 		WWWForm form = new WWWForm();
 		form.AddField("username", Username);
 		form.AddField("steamusername", SteamTest.instance.username);
 		form.AddField("userid", UserID);
 		form.AddField("key", Key);
 		form.AddField("steamuserid", SteamTest.instance.SteamAccountID.ToString());
-		form.AddField("authKey", receivedKey);
 		UnityWebRequest uwr = UnityWebRequest.Post(url, form);
 		uwr.SetRequestHeader("Access-Control-Allow-Credentials", "true");
 		uwr.SetRequestHeader("Access-Control-Allow-Headers", "Accept, Content-Type, X-Access-Token, X-Application-Name, X-Request-Sent-Time");
@@ -534,6 +502,14 @@ public class AccountMaster : MonoBehaviour
 			if ((bool)NMC)
 			{
 				NMC.StartCoroutine(NMC.FailedTransferSteam(null));
+			}
+			yield break;
+		}
+		if (uwr.downloadHandler.text.Contains("overwritten"))
+		{
+			if ((bool)NMC)
+			{
+				NMC.StartCoroutine(NMC.SuccesTransferSteam());
 			}
 			yield break;
 		}
@@ -578,27 +554,35 @@ public class AccountMaster : MonoBehaviour
 		}
 	}
 
+	public IEnumerator CanSetPasswordCheck()
+	{
+		WWWForm form = new WWWForm();
+		form.AddField("key", Key);
+		form.AddField("userid", UserID);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/can_update_password.php", form);
+		uwr.chunkedTransfer = false;
+		yield return uwr.SendWebRequest();
+		if (uwr.isNetworkError)
+		{
+			Debug.Log("Error While Sending: " + uwr.error);
+			yield break;
+		}
+		Debug.Log("Received: " + uwr.downloadHandler.text);
+		if (uwr.downloadHandler.text.Contains("approved"))
+		{
+			CanSetNewPassword = true;
+		}
+		else
+		{
+			CanSetNewPassword = false;
+		}
+	}
+
 	public IEnumerator LoadCloudData()
 	{
-		UnityWebRequest keyRequest = UnityWebRequest.Get("https://weetanks.com/create_ip_key.php");
-		yield return keyRequest.SendWebRequest();
-		if (keyRequest.isNetworkError)
-		{
-			Debug.Log("Error While Sending: " + keyRequest.error);
-			SignOut(manual: false);
-			yield break;
-		}
-		if (keyRequest.downloadHandler.text == "WAIT")
-		{
-			Debug.Log("TOO FAST ");
-			SignOut(manual: false);
-			yield break;
-		}
-		string receivedKey = keyRequest.downloadHandler.text;
 		WWWForm form = new WWWForm();
 		form.AddField("key", Key);
 		Debug.Log("ITS:" + Key);
-		form.AddField("authKey", receivedKey);
 		form.AddField("userid", UserID);
 		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/check_account.php", form);
 		uwr.chunkedTransfer = false;
@@ -610,14 +594,17 @@ public class AccountMaster : MonoBehaviour
 		else
 		{
 			Debug.Log("Received: " + uwr.downloadHandler.text);
-			if (!(uwr.downloadHandler.text == "FAILED"))
+			if (!uwr.downloadHandler.text.Contains("FAILED"))
 			{
 				if (uwr.downloadHandler.text.Contains("killed"))
 				{
+					Debug.Log("loaded cloud data!");
+					StartCoroutine(CanSetPasswordCheck());
 					AssignData(uwr.downloadHandler.text);
 				}
 				else
 				{
+					Debug.Log("no cloud data.. creating new!");
 					PDO = new ProgressDataOnline();
 					SaveNewCloudData(PDO);
 				}
@@ -723,28 +710,10 @@ public class AccountMaster : MonoBehaviour
 
 	public IEnumerator BuyTankeyTownItem(TankeyTownStock StandItem)
 	{
-		UnityWebRequest keyRequest = UnityWebRequest.Get("https://weetanks.com/create_ip_key.php");
-		yield return keyRequest.SendWebRequest();
-		if (keyRequest.isNetworkError)
-		{
-			Debug.Log("Error While Sending: " + keyRequest.error);
-			SignOut(manual: false);
-			ConnectedStand.TransactionFailed();
-			yield break;
-		}
-		if (keyRequest.downloadHandler.text == "WAIT")
-		{
-			Debug.Log("TOO FAST ");
-			SignOut(manual: false);
-			ConnectedStand.TransactionFailed();
-			yield break;
-		}
-		string receivedKey = keyRequest.downloadHandler.text;
 		WWWForm form = new WWWForm();
 		form.AddField("key", Key);
 		Debug.Log("ITS:" + Key);
 		form.AddField("userid", UserID);
-		form.AddField("authKey", receivedKey);
 		form.AddField("shopid", StandItem.ItemShopID);
 		form.AddField("itemid", StandItem.ItemID);
 		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/buy_item.php", form);

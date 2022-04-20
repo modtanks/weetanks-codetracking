@@ -50,4 +50,10 @@ public class CustomTankData
 	public string UniqueTankID;
 
 	public int CustomBulletSpeed = 7;
+
+	public bool CanShootAirMissiles = false;
+
+	public int CustomMissileCapacity = 1;
+
+	public float CustomMissileReloadSpeed;
 }

@@ -22,14 +22,14 @@ public class SFXManager : MonoBehaviour
 
 	public void PlaySFX(AudioClip sound)
 	{
-		GameObject gameObject = new GameObject("SFXTemporary");
-		gameObject.transform.tag = "Temp";
-		AudioSource audioSource = gameObject.AddComponent<AudioSource>();
+		GameObject soundObject = new GameObject("SFXTemporary");
+		soundObject.transform.tag = "Temp";
+		AudioSource audioSource = base.gameObject.AddComponent<AudioSource>();
 		audioSource.clip = sound;
 		audioSource.volume = (float)OptionsMainMenu.instance.masterVolumeLvl / 10f * (float)OptionsMainMenu.instance.sfxVolumeLvl / 10f;
 		audioSource.spatialBlend = 0f;
 		audioSource.Play();
-		Object.Destroy(gameObject, sound.length);
+		Object.Destroy(soundObject, sound.length);
 	}
 
 	public void PlaySFX(AudioClip[] sound)
@@ -37,14 +37,14 @@ public class SFXManager : MonoBehaviour
 		_ = sound.Length;
 		if (0 == 0 && sound.Length >= 1)
 		{
-			GameObject gameObject = new GameObject("SFXTemporary");
-			gameObject.transform.tag = "Temp";
-			AudioSource audioSource = gameObject.AddComponent<AudioSource>();
+			GameObject soundObject = new GameObject("SFXTemporary");
+			soundObject.transform.tag = "Temp";
+			AudioSource audioSource = soundObject.AddComponent<AudioSource>();
 			audioSource.clip = sound[Random.Range(0, sound.Length)];
 			audioSource.volume = (float)OptionsMainMenu.instance.masterVolumeLvl / 10f * (float)OptionsMainMenu.instance.sfxVolumeLvl / 10f;
 			audioSource.spatialBlend = 0f;
 			audioSource.Play();
-			Object.Destroy(gameObject, audioSource.clip.length);
+			Object.Destroy(soundObject, audioSource.clip.length);
 		}
 	}
 
@@ -66,19 +66,19 @@ public class SFXManager : MonoBehaviour
 
 	public void PlaySFX(AudioClip sound, float volume)
 	{
-		GameObject gameObject = new GameObject("SFXTemporary");
-		AudioSource audioSource = gameObject.AddComponent<AudioSource>();
+		GameObject soundObject = new GameObject("SFXTemporary");
+		AudioSource audioSource = soundObject.AddComponent<AudioSource>();
 		audioSource.clip = sound;
 		audioSource.volume = (float)OptionsMainMenu.instance.masterVolumeLvl / 10f * (float)OptionsMainMenu.instance.sfxVolumeLvl / 10f;
 		audioSource.spatialBlend = 0f;
 		audioSource.Play();
-		Object.Destroy(gameObject, sound.length);
+		Object.Destroy(soundObject, sound.length);
 	}
 
 	public void PlaySFX(AudioClip sound, float volume, AudioMixerGroup Mixer)
 	{
-		GameObject gameObject = new GameObject("SFXTemporary");
-		AudioSource audioSource = gameObject.AddComponent<AudioSource>();
+		GameObject soundObject = new GameObject("SFXTemporary");
+		AudioSource audioSource = soundObject.AddComponent<AudioSource>();
 		if (Mixer != null)
 		{
 			audioSource.outputAudioMixerGroup = Mixer;
@@ -87,6 +87,6 @@ public class SFXManager : MonoBehaviour
 		audioSource.volume = (float)OptionsMainMenu.instance.masterVolumeLvl / 10f * (float)OptionsMainMenu.instance.sfxVolumeLvl / 10f;
 		audioSource.spatialBlend = 0f;
 		audioSource.Play();
-		Object.Destroy(gameObject, sound.length);
+		Object.Destroy(soundObject, sound.length);
 	}
 }

@@ -65,11 +65,17 @@ public class NewMenuControl : MonoBehaviour
 
 	public TMP_InputField Login_PasswordInput;
 
+	public TMP_InputField NewPassword_PasswordInput;
+
+	public TMP_InputField NewPassword_PasswordInputCheck;
+
 	public TextMeshProUGUI CenterText;
 
 	public TextMeshProUGUI SignInNotificationText;
 
 	public TextMeshProUGUI CreateAccountNotificationText;
+
+	public TextMeshProUGUI SetNewPasswordNotificationText;
 
 	public GameObject OnlineMapPrefab;
 
@@ -700,7 +706,6 @@ public class NewMenuControl : MonoBehaviour
 	public IEnumerator doing()
 	{
 		CanDoSomething = false;
-		SFXManager.instance.PlaySFX(MarkerSound, 0.8f);
 		yield return new WaitForSeconds(0.2f);
 		CanDoSomething = true;
 	}
@@ -806,6 +811,43 @@ public class NewMenuControl : MonoBehaviour
 		UpdateMenuSignedInText();
 	}
 
+	public IEnumerator SetNewPassword(string password)
+	{
+		CenterText.text = "Setting password...";
+		CenterText.gameObject.SetActive(value: true);
+		Menus[currentMenu].SetActive(value: false);
+		WWWForm form = new WWWForm();
+		form.AddField("key", AccountMaster.instance.Key);
+		form.AddField("userid", AccountMaster.instance.UserID);
+		form.AddField("password", password);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/set_new_password.php", form);
+		uwr.chunkedTransfer = false;
+		yield return uwr.SendWebRequest();
+		if (uwr.isNetworkError)
+		{
+			Debug.Log("Error While Sending: " + uwr.error);
+			yield break;
+		}
+		Debug.Log("Received: " + uwr.downloadHandler.text);
+		if (uwr.downloadHandler.text.Contains("done"))
+		{
+			CenterText.text = "Password set!";
+			CenterText.gameObject.SetActive(value: true);
+			yield return new WaitForSeconds(2f);
+			CenterText.gameObject.SetActive(value: false);
+			enableMenu(18);
+			AccountMaster.instance.CanSetNewPassword = false;
+		}
+		else
+		{
+			CenterText.text = "Failed!";
+			CenterText.gameObject.SetActive(value: true);
+			yield return new WaitForSeconds(2f);
+			CenterText.gameObject.SetActive(value: false);
+			enableMenu(18);
+		}
+	}
+
 	private IEnumerator CreateAccount(string url, string username, string password)
 	{
 		UnityWebRequest keyRequest = UnityWebRequest.Get("https://weetanks.com/create_ip_key.php");
@@ -880,27 +922,9 @@ public class NewMenuControl : MonoBehaviour
 
 	private IEnumerator SignIn(string url, string username, string password)
 	{
-		UnityWebRequest keyRequest = UnityWebRequest.Get("https://weetanks.com/create_ip_key.php");
-		yield return keyRequest.SendWebRequest();
-		if (keyRequest.isNetworkError)
-		{
-			CreateAccountNotificationText.gameObject.SetActive(value: true);
-			CreateAccountNotificationText.text = "Network error";
-			Debug.Log("Error While Sending: " + keyRequest.error);
-			yield break;
-		}
-		if (keyRequest.downloadHandler.text == "WAIT")
-		{
-			CreateAccountNotificationText.gameObject.SetActive(value: true);
-			CreateAccountNotificationText.text = "Please wait before request";
-			yield break;
-		}
-		string receivedKey = keyRequest.downloadHandler.text;
-		Debug.Log("GOT KEY REQUEST: " + keyRequest.downloadHandler.text);
 		WWWForm form = new WWWForm();
 		form.AddField("username", username);
 		form.AddField("password", password);
-		form.AddField("authKey", receivedKey);
 		form.AddField("fromGame", "true");
 		if (GameMaster.instance.CurrentData.marbles == 0)
 		{
@@ -946,7 +970,7 @@ public class NewMenuControl : MonoBehaviour
 				AccountMaster.instance.Key = splitArray[0];
 				AccountMaster.instance.Username = Login_AccountNameInput.text;
 				AccountMaster.instance.isSignedIn = true;
-				AccountMaster.instance.SteamUserID = 0uL;
+				AccountMaster.instance.SteamUserID = ulong.Parse(splitArray[3]);
 				AccountMaster.instance.SaveCredentials();
 				yield return new WaitForSeconds(1f);
 				int marbles = int.Parse(splitArray[2]);
@@ -968,301 +992,6 @@ public class NewMenuControl : MonoBehaviour
 		Menus[currentMenu].SetActive(value: true);
 	}
 
-	private IEnumerator GetLobbyInfo()
-	{
-		if (!prevRequestIsHere)
-		{
-			yield break;
-		}
-		prevRequestIsHere = false;
-		WWWForm form = new WWWForm();
-		form.AddField("username", AccountMaster.instance.Username);
-		form.AddField("userid", AccountMaster.instance.UserID);
-		form.AddField("key", AccountMaster.instance.Key);
-		form.AddField("lobbyid", AccountMaster.instance.LobbyID);
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/get_lobby_info.php", form);
-		uwr.chunkedTransfer = false;
-		yield return uwr.SendWebRequest();
-		prevRequestIsHere = true;
-		if (uwr.isNetworkError)
-		{
-			Debug.Log("Error While Sending: " + uwr.error);
-			yield break;
-		}
-		Debug.Log("Received: " + uwr.downloadHandler.text);
-		if (uwr.downloadHandler.text.Contains("FAILED"))
-		{
-			yield return new WaitForSeconds(waitingTimeBetweenRequests);
-			StartCoroutine(GetLobbyInfo());
-		}
-		else if (uwr.downloadHandler.text.Contains("NO_PLAYER_2"))
-		{
-			Player2LobbyText.text = "Awaiting player 2..";
-			yield return new WaitForSeconds(waitingTimeBetweenRequests);
-			StartCoroutine(GetLobbyInfo());
-		}
-		else if (uwr.downloadHandler.text.Contains("STARTED"))
-		{
-			if (!LobbyMaster.instance.LobbyStarted)
-			{
-				StartCoroutine(LoadYourAsyncScene(6));
-			}
-		}
-		else if (uwr.downloadHandler.text.Contains("STOPPED"))
-		{
-			CenterText.text = "Lobby stopped!";
-			CenterText.gameObject.SetActive(value: true);
-			AccountMaster.instance.LobbyID = 0;
-			AccountMaster.instance.LobbyCode = null;
-			yield return new WaitForSeconds(waitingTimeBetweenRequests);
-			CenterText.gameObject.SetActive(value: false);
-			currentMenu = 18;
-			Menus[currentMenu].SetActive(value: true);
-			SignInNotificationText.gameObject.SetActive(value: false);
-		}
-		else
-		{
-			if (LobbyMaster.instance.MyPlayerID == 1)
-			{
-				LobbyMaster.instance.Player1Name = uwr.downloadHandler.text;
-				LobbyMaster.instance.Player2Name = AccountMaster.instance.Username;
-			}
-			else
-			{
-				LobbyMaster.instance.Player2Name = uwr.downloadHandler.text;
-				LobbyMaster.instance.Player1Name = AccountMaster.instance.Username;
-			}
-			Player1LobbyText.text = ((LobbyMaster.instance.Player1Name.Length > 2) ? LobbyMaster.instance.Player1Name : "Awaiting player 1..");
-			Player2LobbyText.text = ((LobbyMaster.instance.Player2Name.Length > 2) ? LobbyMaster.instance.Player2Name : "Awaiting player 2..");
-			yield return new WaitForSeconds(waitingTimeBetweenRequests);
-			StartCoroutine(GetLobbyInfo());
-		}
-	}
-
-	private IEnumerator LeaveLobby()
-	{
-		UnityWebRequest keyRequest = UnityWebRequest.Get("https://weetanks.com/create_ip_key.php");
-		yield return keyRequest.SendWebRequest();
-		if (keyRequest.isNetworkError)
-		{
-			Debug.Log("Error While Sending: " + keyRequest.error);
-			yield break;
-		}
-		if (keyRequest.downloadHandler.text == "WAIT")
-		{
-			CreateAccountNotificationText.gameObject.SetActive(value: true);
-			CreateAccountNotificationText.text = "Please wait before request";
-			yield break;
-		}
-		string receivedKey = keyRequest.downloadHandler.text;
-		WWWForm form = new WWWForm();
-		form.AddField("username", AccountMaster.instance.Username);
-		form.AddField("userid", AccountMaster.instance.UserID);
-		form.AddField("key", AccountMaster.instance.Key);
-		form.AddField("lobbyid", AccountMaster.instance.LobbyID);
-		form.AddField("action", 2);
-		form.AddField("authKey", receivedKey);
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/send_lobby_data.php", form);
-		uwr.chunkedTransfer = false;
-		CenterText.text = "Stopping lobby...";
-		CenterText.gameObject.SetActive(value: true);
-		Menus[currentMenu].SetActive(value: false);
-		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
-		{
-			Debug.Log("Error While Sending: " + uwr.error);
-		}
-		else
-		{
-			Debug.Log("Received: " + uwr.downloadHandler.text);
-			if (!uwr.downloadHandler.text.Contains("FAILED"))
-			{
-				CenterText.text = "Lobby stopped!";
-				CenterText.gameObject.SetActive(value: true);
-				AccountMaster.instance.LobbyID = 0;
-				AccountMaster.instance.LobbyCode = null;
-				yield return new WaitForSeconds(1f);
-				CenterText.gameObject.SetActive(value: false);
-				currentMenu = 18;
-				Menus[currentMenu].SetActive(value: true);
-				SignInNotificationText.gameObject.SetActive(value: false);
-			}
-		}
-		CenterText.gameObject.SetActive(value: false);
-		Menus[currentMenu].SetActive(value: true);
-	}
-
-	private IEnumerator JoinLobby()
-	{
-		UnityWebRequest keyRequest = UnityWebRequest.Get("https://weetanks.com/create_ip_key.php");
-		yield return keyRequest.SendWebRequest();
-		if (keyRequest.isNetworkError)
-		{
-			Debug.Log("Error While Sending: " + keyRequest.error);
-			yield break;
-		}
-		if (keyRequest.downloadHandler.text.Contains("WAIT"))
-		{
-			CreateAccountNotificationText.gameObject.SetActive(value: true);
-			CreateAccountNotificationText.text = "Please wait before request";
-			yield break;
-		}
-		string receivedKey = keyRequest.downloadHandler.text;
-		WWWForm form = new WWWForm();
-		form.AddField("username", AccountMaster.instance.Username);
-		form.AddField("userid", AccountMaster.instance.UserID);
-		form.AddField("key", AccountMaster.instance.Key);
-		form.AddField("lobbyCODE", Lobby_Code.text);
-		Debug.Log(Lobby_Code.text);
-		form.AddField("action", 1);
-		form.AddField("authKey", receivedKey);
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/create_lobby_data.php", form);
-		uwr.chunkedTransfer = false;
-		CenterText.text = "Joining lobby...";
-		CenterText.gameObject.SetActive(value: true);
-		Menus[currentMenu].SetActive(value: false);
-		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
-		{
-			Debug.Log("Error While Sending: " + uwr.error);
-		}
-		else
-		{
-			Debug.Log("Received: " + uwr.downloadHandler.text);
-			if (!uwr.downloadHandler.text.Contains("FAILED"))
-			{
-				CenterText.text = "Lobby joined!";
-				CenterText.gameObject.SetActive(value: true);
-				LobbyMaster.instance.MyPlayerID = 1;
-				AccountMaster.instance.LobbyID = int.Parse(uwr.downloadHandler.text);
-				LobbyCodeText.text = "";
-				StartLobbyGameButton.SetActive(value: false);
-				StartLobbyGameButtonSlider.SetActive(value: false);
-				yield return new WaitForSeconds(1f);
-				CenterText.gameObject.SetActive(value: false);
-				currentMenu = 23;
-				Menus[currentMenu].SetActive(value: true);
-				SignInNotificationText.gameObject.SetActive(value: false);
-				StartCoroutine(GetLobbyInfo());
-			}
-		}
-		CenterText.gameObject.SetActive(value: false);
-		Menus[currentMenu].SetActive(value: true);
-	}
-
-	private IEnumerator StartLobby()
-	{
-		UnityWebRequest keyRequest = UnityWebRequest.Get("https://weetanks.com/create_ip_key.php");
-		yield return keyRequest.SendWebRequest();
-		if (keyRequest.isNetworkError)
-		{
-			Debug.Log("Error While Sending: " + keyRequest.error);
-			yield break;
-		}
-		if (keyRequest.downloadHandler.text == "WAIT")
-		{
-			CreateAccountNotificationText.gameObject.SetActive(value: true);
-			CreateAccountNotificationText.text = "Please wait before request";
-			yield break;
-		}
-		string receivedKey = keyRequest.downloadHandler.text;
-		WWWForm form = new WWWForm();
-		form.AddField("username", AccountMaster.instance.Username);
-		form.AddField("userid", AccountMaster.instance.UserID);
-		form.AddField("key", AccountMaster.instance.Key);
-		form.AddField("lobbyCODE", Lobby_Code.text);
-		form.AddField("lobbyid", AccountMaster.instance.LobbyID);
-		form.AddField("action", 0);
-		form.AddField("authKey", receivedKey);
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/send_lobby_data.php", form);
-		uwr.chunkedTransfer = false;
-		CenterText.text = "Starting lobby...";
-		CenterText.gameObject.SetActive(value: true);
-		Menus[currentMenu].SetActive(value: false);
-		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
-		{
-			Debug.Log("Error While Sending: " + uwr.error);
-		}
-		else
-		{
-			Debug.Log("Received: " + uwr.downloadHandler.text);
-			if (!uwr.downloadHandler.text.Contains("FAILED"))
-			{
-				CenterText.text = "Lobby started!";
-				CenterText.gameObject.SetActive(value: true);
-				LobbyCodeText.text = "";
-				StartLobbyGameButton.SetActive(value: false);
-				StartLobbyGameButtonSlider.SetActive(value: false);
-				yield return new WaitForSeconds(1f);
-				StartCoroutine(LoadYourAsyncScene(6));
-			}
-		}
-		CenterText.gameObject.SetActive(value: false);
-		Menus[currentMenu].SetActive(value: true);
-	}
-
-	private IEnumerator CreateLobby()
-	{
-		UnityWebRequest keyRequest = UnityWebRequest.Get("https://weetanks.com/create_ip_key.php");
-		yield return keyRequest.SendWebRequest();
-		if (keyRequest.isNetworkError)
-		{
-			Debug.Log("Error While Sending: " + keyRequest.error);
-			yield break;
-		}
-		if (keyRequest.downloadHandler.text == "WAIT")
-		{
-			CreateAccountNotificationText.gameObject.SetActive(value: true);
-			CreateAccountNotificationText.text = "Please wait before request";
-			yield break;
-		}
-		string receivedKey = keyRequest.downloadHandler.text;
-		WWWForm form = new WWWForm();
-		form.AddField("username", AccountMaster.instance.Username);
-		form.AddField("userid", AccountMaster.instance.UserID);
-		form.AddField("key", AccountMaster.instance.Key);
-		form.AddField("action", 0);
-		form.AddField("authKey", receivedKey);
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/create_lobby_data.php", form);
-		uwr.chunkedTransfer = false;
-		CenterText.text = "Creating lobby...";
-		CenterText.gameObject.SetActive(value: true);
-		Menus[currentMenu].SetActive(value: false);
-		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
-		{
-			Debug.Log("Error While Sending: " + uwr.error);
-		}
-		else
-		{
-			Debug.Log("Received: " + uwr.downloadHandler.text);
-			if (!(uwr.downloadHandler.text == "FAILED"))
-			{
-				string[] splitArray = uwr.downloadHandler.text.Split(char.Parse("/"));
-				CenterText.text = "Lobby created!";
-				CenterText.gameObject.SetActive(value: true);
-				LobbyMaster.instance.MyPlayerID = 0;
-				LobbyMaster.instance.Player1Name = AccountMaster.instance.Username;
-				LobbyCodeText.text = "Lobby code: " + splitArray[1];
-				Player1LobbyText.text = LobbyMaster.instance.Player1Name;
-				Player2LobbyText.text = "Awaiting player 2...";
-				AccountMaster.instance.LobbyID = int.Parse(splitArray[0]);
-				AccountMaster.instance.LobbyCode = splitArray[1];
-				StartLobbyGameButton.SetActive(value: true);
-				StartLobbyGameButtonSlider.SetActive(value: true);
-				yield return new WaitForSeconds(1f);
-				CenterText.gameObject.SetActive(value: false);
-				currentMenu = 23;
-				Menus[currentMenu].SetActive(value: true);
-				SignInNotificationText.gameObject.SetActive(value: false);
-				StartCoroutine(GetLobbyInfo());
-			}
-		}
-		CenterText.gameObject.SetActive(value: false);
-		Menus[currentMenu].SetActive(value: true);
-	}
-
 	public void UploadCampaign(int ID)
 	{
 	}
@@ -1276,6 +1005,15 @@ public class NewMenuControl : MonoBehaviour
 		if (custommessage != null)
 		{
 			TransferAccountText.text = custommessage;
+			if (custommessage.Contains("already"))
+			{
+				TransferAccountText.text = custommessage + " Would you like to overwrite?";
+				TransferButtons[0].SetActive(value: true);
+				TransferButtons[1].SetActive(value: true);
+				TransferButtons[2].SetActive(value: true);
+				TransferButtons[2].GetComponent<TextMeshProUGUI>().text = "NOTE: If you have no password set for the old account, the data will be lost.";
+				yield break;
+			}
 		}
 		else
 		{
@@ -1296,7 +1034,7 @@ public class NewMenuControl : MonoBehaviour
 
 	public void doButton(MainMenuButtons MMB)
 	{
-		if (MMB == null)
+		if (MMB == null || !CanDoSomething)
 		{
 			return;
 		}
@@ -1320,48 +1058,47 @@ public class NewMenuControl : MonoBehaviour
 			if (Create_AccountNameInput.text.Length < 3)
 			{
 				CreateAccountNotificationText.gameObject.SetActive(value: true);
-				CreateAccountNotificationText.text = "Name has to be atleast 3 long";
-				Debug.LogError("Name has to be atleast 3 long");
+				CreateAccountNotificationText.text = "Error: Name has to be atleast 3 long";
+				return;
 			}
-			else if (Create_PasswordInput.text.Length < 6)
+			string passwordCheck = PasswordCheck(Create_PasswordInput.text, Create_PasswordInputCheck.text);
+			if (passwordCheck.Contains("Error"))
 			{
 				CreateAccountNotificationText.gameObject.SetActive(value: true);
-				CreateAccountNotificationText.text = "Password has to be at least 6 long";
+				CreateAccountNotificationText.text = passwordCheck;
+				return;
 			}
-			else if (Create_PasswordInput.text.Contains("/") || Create_PasswordInput.text.Contains("$") || Create_PasswordInput.text.Contains("{") || Create_PasswordInput.text.Contains("}") || Create_PasswordInput.text.Contains(",") || Create_PasswordInput.text.Contains(".") || Create_PasswordInput.text.Contains("'"))
-			{
-				CreateAccountNotificationText.gameObject.SetActive(value: true);
-				CreateAccountNotificationText.text = "Name has invalid characters";
-			}
-			else if (Create_PasswordInput.text != Create_PasswordInputCheck.text)
-			{
-				CreateAccountNotificationText.gameObject.SetActive(value: true);
-				CreateAccountNotificationText.text = "Passwords not the same";
-				Debug.LogError("Check not positive");
-			}
-			else
-			{
-				Debug.LogError("Creating account");
-				StartCoroutine(CreateAccount("https://www.weetanks.com/create_account.php", Create_AccountNameInput.text, Create_PasswordInput.text));
-			}
+			Debug.LogError("Creating account");
+			StartCoroutine(CreateAccount("https://www.weetanks.com/create_account.php", Create_AccountNameInput.text, Create_PasswordInput.text));
 		}
-		else if (MMB.IsSignIn)
+		else if (MMB.IsSignIn && CanDoSomething)
 		{
+			TransferButtons[2].GetComponent<TextMeshProUGUI>().text = "NOTE: Wee Tanks will auto detect your Steam account, and sync your data";
 			if (Login_AccountNameInput.text.Length < 3)
 			{
 				SignInNotificationText.gameObject.SetActive(value: true);
 				SignInNotificationText.text = "Error: Name has to be at least 3 long";
+				return;
 			}
-			else if (Login_PasswordInput.text.Length < 5)
+			if (Login_PasswordInput.text.Length < 5)
 			{
 				SignInNotificationText.gameObject.SetActive(value: true);
 				SignInNotificationText.text = "Error: Password has to be at least 6 long";
+				return;
 			}
-			else
+			Debug.LogError("Loggin in account");
+			StartCoroutine(SignIn("https://www.weetanks.com/signin_account.php", Login_AccountNameInput.text, Login_PasswordInput.text));
+		}
+		else if (MMB.IsSetNewPassword && AccountMaster.instance.CanSetNewPassword)
+		{
+			string passwordCheck2 = PasswordCheck(NewPassword_PasswordInput.text, NewPassword_PasswordInputCheck.text);
+			if (passwordCheck2.Contains("Error"))
 			{
-				Debug.LogError("Loggin in account");
-				StartCoroutine(SignIn("https://www.weetanks.com/signin_account.php", Login_AccountNameInput.text, Login_PasswordInput.text));
+				SetNewPasswordNotificationText.gameObject.SetActive(value: true);
+				SetNewPasswordNotificationText.text = passwordCheck2;
+				return;
 			}
+			StartCoroutine(SetNewPassword(NewPassword_PasswordInput.text));
 		}
 		else if (MMB.IsSignOut)
 		{
@@ -1371,456 +1108,396 @@ public class NewMenuControl : MonoBehaviour
 		{
 			deselectButton(MMB);
 			enableMenu(21);
-			StartCoroutine(doing());
 		}
 		else if (MMB.IsOptions)
 		{
 			deselectButton(MMB);
 			enableMenu(1);
-			StartCoroutine(doing());
 		}
 		else if (MMB.IsStats)
 		{
 			deselectButton(MMB);
 			enableMenu(7);
-			StartCoroutine(doing());
-		}
-		else if (MMB.IsCredits)
-		{
-			Debug.LogWarning("CREDITS TIME!");
-			deselectButton(MMB);
-			StartCoroutine(LoadYourAsyncScene(5));
-		}
-		else if (MMB.IsContinueClassicCampaign)
-		{
-			deselectButton(MMB);
-			enableMenu(3);
-			StartCoroutine(doing());
-		}
-		else if (MMB.IsClassicCampaign)
-		{
-			deselectButton(MMB);
-			enableMenu(2);
-			StartCoroutine(doing());
-			MMB.Selected = false;
-		}
-		else if (MMB.IsNewClassicCampaign)
-		{
-			Temp_MMB = MMB;
-			Temp_scene = 1;
-			Temp_startingLevel = 0;
-			PIM.CanPlayWithAI = true;
-			PIM.SetControllers();
-			PIM.LoadData();
-			deselectButton(MMB);
-			enableMenu(25);
-			PIM.DisableDifficultySetter();
-			StartCoroutine(doing());
-			MMB.Selected = false;
-		}
-		else if (MMB.IsAcceptTransferAccount)
-		{
-			if (AccountMaster.instance.isSignedIn)
-			{
-				GameObject[] transferButtons = TransferButtons;
-				foreach (GameObject button in transferButtons)
-				{
-					button.SetActive(value: false);
-				}
-				TransferAccountText.text = "transferring...";
-				AccountMaster.instance.StartCoroutine(AccountMaster.instance.TransferAccountToSteam("https://www.weetanks.com/transfer_to_steam_account.php"));
-			}
-		}
-		else if (MMB.IsGoToLobbyMenu)
-		{
-			deselectButton(MMB);
-			enableMenu(22);
-			StartCoroutine(doing());
-			MMB.Selected = false;
-		}
-		else if (MMB.IsCreateLobby)
-		{
-			if (AccountMaster.instance.isSignedIn)
-			{
-				StartCoroutine(CreateLobby());
-			}
-		}
-		else if (MMB.IsJoinLobby)
-		{
-			if (AccountMaster.instance.isSignedIn)
-			{
-				StartCoroutine(JoinLobby());
-			}
-		}
-		else if (MMB.IsStartLobby)
-		{
-			if (AccountMaster.instance.isSignedIn)
-			{
-				StartCoroutine(StartLobby());
-			}
-		}
-		else if (MMB.IsLeaveLobby)
-		{
-			StartCoroutine(LeaveLobby());
-		}
-		else if (MMB.IsDifficultyDown)
-		{
-			OptionsMainMenu.instance.ChangeDifficulty(-1);
-			UpdateDifficultyText();
-		}
-		else if (MMB.IsDifficultyUp)
-		{
-			OptionsMainMenu.instance.ChangeDifficulty(1);
-			UpdateDifficultyText();
-		}
-		else if (MMB.IsMapEditor)
-		{
-			deselectButton(MMB);
-			enableMenu(9);
-			StartCoroutine(doing());
-			MMB.Selected = false;
-		}
-		else if (MMB.IsSelectPlayerController)
-		{
-			Debug.Log("Value is now at : " + PIM.Dropdowns[MMB.PlayerNumber].value);
-			if (PIM.Dropdowns[MMB.PlayerNumber].value < PIM.Dropdowns[MMB.PlayerNumber].options.Count - 1)
-			{
-				PIM.Dropdowns[MMB.PlayerNumber].value = ++PIM.Dropdowns[MMB.PlayerNumber].value;
-			}
-			else
-			{
-				PIM.Dropdowns[MMB.PlayerNumber].value = 0;
-			}
-			PIM.Dropdowns[MMB.PlayerNumber].RefreshShownValue();
-		}
-		else if (MMB.IsRefreshButton)
-		{
-			if (currentMenu == 25)
-			{
-				PIM.SetControllers();
-				return;
-			}
-			GetMapFiles();
-			deselectButton(MMB);
-			StartCoroutine(doing());
-			MMB.Selected = false;
-		}
-		else if (MMB.IsUnlockables)
-		{
-			if (!AccountMaster.instance.isSignedIn)
-			{
-				StartCoroutine(DisplayExtrasNotification("You need to be signed in"));
-				return;
-			}
-			deselectButton(MMB);
-			enableMenu(13);
-			StartCoroutine(doing());
-			MMB.Selected = false;
-		}
-		else if (MMB.IsAchievements)
-		{
-			if (!AccountMaster.instance.isSignedIn)
-			{
-				StartCoroutine(DisplayExtrasNotification("You need to be signed in"));
-				return;
-			}
-			deselectButton(MMB);
-			enableMenu(14);
-			StartCoroutine(doing());
-			MMB.Selected = false;
-		}
-		else if (MMB.IsStatistics)
-		{
-			if (!AccountMaster.instance.isSignedIn)
-			{
-				StartCoroutine(DisplayExtrasNotification("You need to be signed in"));
-				return;
-			}
-			deselectButton(MMB);
-			enableMenu(15);
-			StartCoroutine(doing());
-			MMB.Selected = false;
-		}
-		else if (MMB.IsBack)
-		{
-			deselectButton(MMB);
-			enableMenu(0);
-			StartCoroutine(doing());
-		}
-		else if (MMB.IsBackPrevMenu)
-		{
-			deselectButton(MMB);
-			enableMenu(PreviousMenu);
-			StartCoroutine(doing());
-		}
-		else if (MMB.IsBackCustomMenu)
-		{
-			deselectButton(MMB);
-			enableMenu(MMB.menuNumber);
-			StartCoroutine(doing());
-		}
-		else if (MMB.IsExit)
-		{
-			Debug.LogError("buh bye");
-			Application.Quit();
-		}
-		else if (MMB.IsVideo && !OptionsMainMenu.instance.inAndroid)
-		{
-			deselectButton(MMB);
-			enableMenu(4);
-			StartCoroutine(doing());
-		}
-		else if (MMB.IsGamePlay)
-		{
-			deselectButton(MMB);
-			enableMenu(5);
-			StartCoroutine(doing());
-		}
-		else if (MMB.IsControls)
-		{
-			ControlMapper CM = GameObject.Find("ControlMapper").GetComponent<ControlMapper>();
-			if ((bool)CM)
-			{
-				CM.Open();
-			}
-		}
-		else if (MMB.IsAudio)
-		{
-			deselectButton(MMB);
-			enableMenu(6);
-			StartCoroutine(doing());
-		}
-		else if (MMB.IsBack2Menu)
-		{
-			deselectButton(MMB);
-			enableMenu(1);
-			StartCoroutine(doing());
-		}
-		else if (MMB.IsExtraLivesDown)
-		{
-			PlayMenuChangeSound();
-			TextMeshProUGUI Amountlives = GameObject.Find("AmountLives").GetComponent<TextMeshProUGUI>();
-			if (OptionsMainMenu.instance.ExtraLives > 0)
-			{
-				OptionsMainMenu.instance.ExtraLives--;
-				Amountlives.text = OptionsMainMenu.instance.ExtraLives.ToString();
-			}
-		}
-		else if (MMB.IsExtraLivesUp)
-		{
-			PlayMenuChangeSound();
-			TextMeshProUGUI Amountlives2 = GameObject.Find("AmountLives").GetComponent<TextMeshProUGUI>();
-			if (OptionsMainMenu.instance.ExtraLives < 9)
-			{
-				OptionsMainMenu.instance.ExtraLives++;
-				Amountlives2.text = OptionsMainMenu.instance.ExtraLives.ToString();
-			}
-		}
-		else if (MMB.IsGraphicsDown)
-		{
-			PlayMenuChangeSound();
-			OptionsMainMenu.instance.ChangeGraphics(-1);
-			SetGraphicsText();
-		}
-		else if (MMB.IsGraphicsUp)
-		{
-			PlayMenuChangeSound();
-			OptionsMainMenu.instance.ChangeGraphics(1);
-			SetGraphicsText();
-		}
-		else if (MMB.IsResolutionDown)
-		{
-			PlayMenuChangeSound();
-			OptionsMainMenu.instance.ChangeResolution(-1, OptionsMainMenu.instance.isFullscreen);
-			SetResolutionText();
-		}
-		else if (MMB.IsResolutionUp)
-		{
-			PlayMenuChangeSound();
-			OptionsMainMenu.instance.ChangeResolution(1, OptionsMainMenu.instance.isFullscreen);
-			SetResolutionText();
-		}
-		else if (MMB.IsFPSDown)
-		{
-			PlayMenuChangeSound();
-			OptionsMainMenu.instance.ChangeFPS(-1);
-			SetFPSText();
-		}
-		else if (MMB.IsFPSUp)
-		{
-			PlayMenuChangeSound();
-			OptionsMainMenu.instance.ChangeFPS(1);
-			SetFPSText();
-		}
-		else if (MMB.IsFullscreen)
-		{
-			PlayMenuChangeSound();
-			OptionsMainMenu.instance.ChangeFullscreen();
-			SetResolutionText();
-		}
-		else if (MMB.IsVsync)
-		{
-			PlayMenuChangeSound();
-			OptionsMainMenu.instance.Vsync();
-		}
-		else if (MMB.IsPlayMap)
-		{
-			MapLoading = false;
-			deselectButton(MMB);
-			enableMenu(10);
-			StartCoroutine(doing());
-		}
-		else if (MMB.IsCreateMap)
-		{
-			deselectButton(MMB);
-			enableMenu(16);
-			StartCoroutine(doing());
-		}
-		else if (MMB.IsSmallMap)
-		{
-			OptionsMainMenu.instance.MapEditorMapName = null;
-			OptionsMainMenu.instance.MapSize = 180;
-			TTL.CreateMap = true;
-			StartCoroutine(LoadYourAsyncScene(3));
-		}
-		else if (MMB.IsNormalMap)
-		{
-			OptionsMainMenu.instance.MapEditorMapName = null;
-			OptionsMainMenu.instance.MapSize = 285;
-			TTL.CreateMap = true;
-			StartCoroutine(LoadYourAsyncScene(3));
-		}
-		else if (MMB.IsBigMap)
-		{
-			OptionsMainMenu.instance.MapEditorMapName = null;
-			OptionsMainMenu.instance.MapSize = 374;
-			TTL.CreateMap = true;
-			StartCoroutine(LoadYourAsyncScene(3));
-		}
-		else if (MMB.IsLargeMap)
-		{
-			OptionsMainMenu.instance.MapEditorMapName = null;
-			OptionsMainMenu.instance.MapSize = 475;
-			TTL.CreateMap = true;
-			StartCoroutine(LoadYourAsyncScene(3));
-		}
-		else if (MMB.IsLoadMap)
-		{
-			MapLoading = true;
-			deselectButton(MMB);
-			enableMenu(10);
-			StartCoroutine(doing());
-		}
-		else if (MMB.IsToTankeyTown)
-		{
-			TutorialMaster.instance.ShowTutorial("Tankey town has been disabled for now!");
-			SFXManager.instance.PlaySFX(errorSound);
-		}
-		else if (MMB.IsSurvivalMode)
-		{
-			deselectButton(MMB);
-			enableMenu(8);
-			StartCoroutine(doing());
-		}
-		else if (MMB.IsSurvivalMap)
-		{
-			if (!MMB.canBeSelected)
-			{
-				SFXManager.instance.PlaySFX(errorSound);
-				return;
-			}
-			Temp_MMB = MMB;
-			Temp_scene = 2;
-			Temp_startingLevel = MMB.SurvivalMapNumber;
-			PIM.CanPlayWithAI = false;
-			PIM.SetControllers();
-			deselectButton(MMB);
-			enableMenu(25);
-			PIM.DisableDifficultySetter();
-			StartCoroutine(doing());
-		}
-		else if (MMB.IsContinue && MMB.canBeSelected)
-		{
-			Temp_MMB = MMB;
-			Temp_scene = 1;
-			Temp_startingLevel = MMB.ContinueLevel;
-			PIM.CanPlayWithAI = true;
-			PIM.SetControllers();
-			PIM.LoadData();
-			PIM.DisableDifficultySetter();
-			deselectButton(MMB);
-			enableMenu(25);
-			StartCoroutine(doing());
 		}
 		else
 		{
-			if (!MMB.StartMatchButton)
+			if (MMB.IsCredits)
 			{
+				Debug.LogWarning("CREDITS TIME!");
+				deselectButton(MMB);
+				StartCoroutine(LoadYourAsyncScene(5));
 				return;
 			}
-			Debug.Log("Starting Match..");
-			for (int i = 0; i < 4; i++)
+			if (MMB.IsContinueClassicCampaign)
 			{
-				bool SetController = false;
-				for (int j = 0; j < ReInput.controllers.GetControllers(ControllerType.Joystick).Length; j++)
-				{
-					if (PIM.Dropdowns[i].captionText.text == ReInput.controllers.GetController(ControllerType.Joystick, j).name)
-					{
-						Debug.Log("FOUND ONE!!!: " + ReInput.controllers.GetController(ControllerType.Joystick, j).name);
-						ReInput.players.GetPlayer(i).controllers.AddController(ReInput.controllers.GetController(ControllerType.Joystick, j), removeFromOtherPlayers: true);
-						SetController = true;
-						OptionsMainMenu.instance.PlayerJoined[i] = true;
-					}
-				}
-				if (!SetController)
-				{
-					if (i == 0)
-					{
-						ReInput.players.GetPlayer(i).controllers.ClearAllControllers();
-						ReInput.players.GetPlayer(i).controllers.AddController(ReInput.controllers.GetController(ControllerType.Keyboard, 0), removeFromOtherPlayers: true);
-						ReInput.players.GetPlayer(i).controllers.AddController(ReInput.controllers.GetController(ControllerType.Mouse, 0), removeFromOtherPlayers: true);
-						OptionsMainMenu.instance.PlayerJoined[i] = true;
-					}
-					else if (PIM.Dropdowns[i].captionText.text.Contains("AI"))
-					{
-						OptionsMainMenu.instance.AIcompanion[i] = true;
-						OptionsMainMenu.instance.PlayerJoined[i] = false;
-					}
-					else
-					{
-						OptionsMainMenu.instance.PlayerJoined[i] = false;
-					}
-				}
+				deselectButton(MMB);
+				enableMenu(3);
 			}
-			Debug.Log("Controllers set..");
-			if (Temp_scene == 100)
+			else if (MMB.IsClassicCampaign)
 			{
-				OnMapStart();
+				deselectButton(MMB);
+				enableMenu(2);
+				MMB.Selected = false;
 			}
-			else if (Temp_scene == 1)
+			else if (MMB.IsNewClassicCampaign)
 			{
-				Debug.Log("Starting game scene 1");
+				Temp_MMB = MMB;
+				Temp_scene = 1;
+				Temp_startingLevel = 0;
 				PIM.CanPlayWithAI = true;
-				if (Temp_startingLevel == 0 && Temp_scene == 1)
+				PIM.SetControllers();
+				PIM.LoadData();
+				deselectButton(MMB);
+				enableMenu(25);
+				PIM.DisableDifficultySetter();
+				MMB.Selected = false;
+			}
+			else if (MMB.IsAcceptTransferAccount)
+			{
+				if (TransferAccountText.text.Contains("overwrite"))
 				{
-					OptionsMainMenu.instance.StartLevel = 0;
-					StartCoroutine(LoadYourAsyncScene(1));
-					TTL.ContinueCheckpoint = 0;
-					TTL.ClassicCampaign = true;
+					GameObject[] transferButtons = TransferButtons;
+					foreach (GameObject button in transferButtons)
+					{
+						button.SetActive(value: false);
+					}
+					TransferAccountText.text = "setting new account data...";
+					AccountMaster.instance.StartCoroutine(AccountMaster.instance.TransferAccountToSteam("https://www.weetanks.com/overwrite_to_steam_account.php"));
+				}
+				else if (AccountMaster.instance.isSignedIn)
+				{
+					GameObject[] transferButtons2 = TransferButtons;
+					foreach (GameObject button2 in transferButtons2)
+					{
+						button2.SetActive(value: false);
+					}
+					TransferAccountText.text = "transferring...";
+					AccountMaster.instance.StartCoroutine(AccountMaster.instance.TransferAccountToSteam("https://www.weetanks.com/transfer_to_steam_account.php"));
+				}
+			}
+			else if (MMB.IsDifficultyDown)
+			{
+				OptionsMainMenu.instance.ChangeDifficulty(-1);
+				UpdateDifficultyText();
+			}
+			else if (MMB.IsDifficultyUp)
+			{
+				OptionsMainMenu.instance.ChangeDifficulty(1);
+				UpdateDifficultyText();
+			}
+			else if (MMB.IsMapEditor)
+			{
+				deselectButton(MMB);
+				enableMenu(9);
+				MMB.Selected = false;
+			}
+			else if (MMB.IsSelectPlayerController)
+			{
+				Debug.Log("Value is now at : " + PIM.Dropdowns[MMB.PlayerNumber].value);
+				if (PIM.Dropdowns[MMB.PlayerNumber].value < PIM.Dropdowns[MMB.PlayerNumber].options.Count - 1)
+				{
+					PIM.Dropdowns[MMB.PlayerNumber].value = ++PIM.Dropdowns[MMB.PlayerNumber].value;
 				}
 				else
 				{
-					Debug.Log("Starting game scene 1 0");
-					LoadLevel(Temp_scene, Temp_MMB, Temp_startingLevel);
+					PIM.Dropdowns[MMB.PlayerNumber].value = 0;
+				}
+				PIM.Dropdowns[MMB.PlayerNumber].RefreshShownValue();
+			}
+			else if (MMB.IsRefreshButton)
+			{
+				if (currentMenu == 25)
+				{
+					PIM.SetControllers();
+					return;
+				}
+				GetMapFiles();
+				deselectButton(MMB);
+				MMB.Selected = false;
+			}
+			else if (MMB.IsUnlockables)
+			{
+				if (!AccountMaster.instance.isSignedIn)
+				{
+					StartCoroutine(DisplayExtrasNotification("You need to be signed in"));
+					return;
+				}
+				deselectButton(MMB);
+				enableMenu(13);
+				MMB.Selected = false;
+			}
+			else if (MMB.IsAchievements)
+			{
+				if (!AccountMaster.instance.isSignedIn)
+				{
+					StartCoroutine(DisplayExtrasNotification("You need to be signed in"));
+					return;
+				}
+				deselectButton(MMB);
+				enableMenu(14);
+				MMB.Selected = false;
+			}
+			else if (MMB.IsStatistics)
+			{
+				if (!AccountMaster.instance.isSignedIn)
+				{
+					StartCoroutine(DisplayExtrasNotification("You need to be signed in"));
+					return;
+				}
+				deselectButton(MMB);
+				enableMenu(15);
+				MMB.Selected = false;
+			}
+			else if (MMB.IsBack)
+			{
+				deselectButton(MMB);
+				enableMenu(0);
+			}
+			else if (MMB.IsBackPrevMenu)
+			{
+				deselectButton(MMB);
+				enableMenu(PreviousMenu);
+			}
+			else if (MMB.IsBackCustomMenu)
+			{
+				deselectButton(MMB);
+				enableMenu(MMB.menuNumber);
+			}
+			else if (MMB.IsExit)
+			{
+				Debug.LogError("buh bye");
+				Application.Quit();
+			}
+			else if (MMB.IsVideo && !OptionsMainMenu.instance.inAndroid)
+			{
+				deselectButton(MMB);
+				enableMenu(4);
+			}
+			else if (MMB.IsGamePlay)
+			{
+				deselectButton(MMB);
+				enableMenu(5);
+			}
+			else if (MMB.IsControls)
+			{
+				ControlMapper CM = GameObject.Find("ControlMapper").GetComponent<ControlMapper>();
+				if ((bool)CM)
+				{
+					CM.Open();
 				}
 			}
-			else if (Temp_scene == 2)
+			else if (MMB.IsAudio)
 			{
-				Debug.Log("Starting game scene 2");
-				PIM.CanPlayWithAI = false;
-				LoadLevel(Temp_scene, Temp_MMB, Temp_startingLevel);
+				deselectButton(MMB);
+				enableMenu(6);
+			}
+			else if (MMB.IsBack2Menu)
+			{
+				deselectButton(MMB);
+				enableMenu(1);
+			}
+			else if (MMB.IsGraphicsDown)
+			{
+				PlayMenuChangeSound();
+				OptionsMainMenu.instance.ChangeGraphics(-1);
+				SetGraphicsText();
+			}
+			else if (MMB.IsGraphicsUp)
+			{
+				PlayMenuChangeSound();
+				OptionsMainMenu.instance.ChangeGraphics(1);
+				SetGraphicsText();
+			}
+			else if (MMB.IsResolutionDown)
+			{
+				PlayMenuChangeSound();
+				OptionsMainMenu.instance.ChangeResolution(-1, OptionsMainMenu.instance.isFullscreen);
+				SetResolutionText();
+			}
+			else if (MMB.IsResolutionUp)
+			{
+				PlayMenuChangeSound();
+				OptionsMainMenu.instance.ChangeResolution(1, OptionsMainMenu.instance.isFullscreen);
+				SetResolutionText();
+			}
+			else if (MMB.IsFPSDown)
+			{
+				PlayMenuChangeSound();
+				OptionsMainMenu.instance.ChangeFPS(-1);
+				SetFPSText();
+			}
+			else if (MMB.IsFPSUp)
+			{
+				PlayMenuChangeSound();
+				OptionsMainMenu.instance.ChangeFPS(1);
+				SetFPSText();
+			}
+			else if (MMB.IsFullscreen)
+			{
+				PlayMenuChangeSound();
+				OptionsMainMenu.instance.ChangeFullscreen();
+				SetResolutionText();
+			}
+			else if (MMB.IsVsync)
+			{
+				PlayMenuChangeSound();
+				OptionsMainMenu.instance.Vsync();
+			}
+			else if (MMB.IsPlayMap)
+			{
+				MapLoading = false;
+				deselectButton(MMB);
+				enableMenu(10);
+			}
+			else if (MMB.IsCreateMap)
+			{
+				deselectButton(MMB);
+				enableMenu(16);
+			}
+			else if (MMB.IsSmallMap)
+			{
+				OptionsMainMenu.instance.MapEditorMapName = null;
+				OptionsMainMenu.instance.MapSize = 180;
+				TTL.CreateMap = true;
+				StartCoroutine(LoadYourAsyncScene(3));
+			}
+			else if (MMB.IsNormalMap)
+			{
+				OptionsMainMenu.instance.MapEditorMapName = null;
+				OptionsMainMenu.instance.MapSize = 285;
+				TTL.CreateMap = true;
+				StartCoroutine(LoadYourAsyncScene(3));
+			}
+			else if (MMB.IsBigMap)
+			{
+				OptionsMainMenu.instance.MapEditorMapName = null;
+				OptionsMainMenu.instance.MapSize = 374;
+				TTL.CreateMap = true;
+				StartCoroutine(LoadYourAsyncScene(3));
+			}
+			else if (MMB.IsLargeMap)
+			{
+				OptionsMainMenu.instance.MapEditorMapName = null;
+				OptionsMainMenu.instance.MapSize = 475;
+				TTL.CreateMap = true;
+				StartCoroutine(LoadYourAsyncScene(3));
+			}
+			else if (MMB.IsLoadMap)
+			{
+				MapLoading = true;
+				deselectButton(MMB);
+				enableMenu(10);
+			}
+			else
+			{
+				if (MMB.IsToTankeyTown)
+				{
+					TutorialMaster.instance.ShowTutorial("Tankey town has been disabled for now!");
+					SFXManager.instance.PlaySFX(errorSound);
+					return;
+				}
+				if (MMB.IsSurvivalMode)
+				{
+					deselectButton(MMB);
+					enableMenu(8);
+				}
+				else if (MMB.IsSurvivalMap)
+				{
+					if (!MMB.canBeSelected)
+					{
+						SFXManager.instance.PlaySFX(errorSound);
+						return;
+					}
+					Temp_MMB = MMB;
+					Temp_scene = 2;
+					Temp_startingLevel = MMB.SurvivalMapNumber;
+					PIM.CanPlayWithAI = false;
+					PIM.SetControllers();
+					deselectButton(MMB);
+					enableMenu(25);
+					PIM.DisableDifficultySetter();
+				}
+				else if (MMB.IsContinue && MMB.canBeSelected)
+				{
+					Temp_MMB = MMB;
+					Temp_scene = 1;
+					Temp_startingLevel = MMB.ContinueLevel;
+					PIM.CanPlayWithAI = true;
+					PIM.SetControllers();
+					PIM.LoadData();
+					PIM.DisableDifficultySetter();
+					deselectButton(MMB);
+					enableMenu(25);
+				}
+				else if (MMB.StartMatchButton)
+				{
+					Debug.Log("Starting Match..");
+					for (int i = 0; i < 4; i++)
+					{
+						bool SetController = false;
+						for (int j = 0; j < ReInput.controllers.GetControllers(ControllerType.Joystick).Length; j++)
+						{
+							if (PIM.Dropdowns[i].captionText.text == ReInput.controllers.GetController(ControllerType.Joystick, j).name)
+							{
+								Debug.Log("FOUND ONE!!!: " + ReInput.controllers.GetController(ControllerType.Joystick, j).name);
+								ReInput.players.GetPlayer(i).controllers.AddController(ReInput.controllers.GetController(ControllerType.Joystick, j), removeFromOtherPlayers: true);
+								SetController = true;
+								OptionsMainMenu.instance.PlayerJoined[i] = true;
+							}
+						}
+						if (!SetController)
+						{
+							if (i == 0)
+							{
+								ReInput.players.GetPlayer(i).controllers.ClearAllControllers();
+								ReInput.players.GetPlayer(i).controllers.AddController(ReInput.controllers.GetController(ControllerType.Keyboard, 0), removeFromOtherPlayers: true);
+								ReInput.players.GetPlayer(i).controllers.AddController(ReInput.controllers.GetController(ControllerType.Mouse, 0), removeFromOtherPlayers: true);
+								OptionsMainMenu.instance.PlayerJoined[i] = true;
+							}
+							else if (PIM.Dropdowns[i].captionText.text.Contains("AI"))
+							{
+								OptionsMainMenu.instance.AIcompanion[i] = true;
+								OptionsMainMenu.instance.PlayerJoined[i] = false;
+							}
+							else
+							{
+								OptionsMainMenu.instance.PlayerJoined[i] = false;
+							}
+						}
+					}
+					Debug.Log("Controllers set..");
+					if (Temp_scene == 100)
+					{
+						OnMapStart();
+						return;
+					}
+					if (Temp_scene == 1)
+					{
+						Debug.Log("Starting game scene 1");
+						PIM.CanPlayWithAI = true;
+						if (Temp_startingLevel == 0 && Temp_scene == 1)
+						{
+							OptionsMainMenu.instance.StartLevel = 0;
+							StartCoroutine(LoadYourAsyncScene(1));
+							TTL.ContinueCheckpoint = 0;
+							TTL.ClassicCampaign = true;
+						}
+						else
+						{
+							Debug.Log("Starting game scene 1 0");
+							LoadLevel(Temp_scene, Temp_MMB, Temp_startingLevel);
+						}
+					}
+					else if (Temp_scene == 2)
+					{
+						Debug.Log("Starting game scene 2");
+						PIM.CanPlayWithAI = false;
+						LoadLevel(Temp_scene, Temp_MMB, Temp_startingLevel);
+					}
+				}
 			}
 		}
+		StartCoroutine(doing());
 	}
 
 	private void PlayMenuChangeSound()
@@ -2052,5 +1729,22 @@ public class NewMenuControl : MonoBehaviour
 		{
 			SetGraphicsText();
 		}
+	}
+
+	public string PasswordCheck(string one, string two)
+	{
+		if (one.Length < 6)
+		{
+			return "Error: has to be at least 6 long";
+		}
+		if (one.Contains("/") || one.Contains("$") || one.Contains("{") || one.Contains("}") || one.Contains(",") || one.Contains(".") || one.Contains("'"))
+		{
+			return "Error: invalid characters";
+		}
+		if (one != two)
+		{
+			return "Error: Passwords not the same";
+		}
+		return "jippie";
 	}
 }

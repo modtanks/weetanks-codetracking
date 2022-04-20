@@ -124,6 +124,8 @@ public class OptionsMainMenu : MonoBehaviour
 
 	public bool IsThirdPerson = false;
 
+	public bool HasCheated = false;
+
 	private bool showCursor = true;
 
 	public static OptionsMainMenu instance => _instance;
@@ -256,6 +258,7 @@ public class OptionsMainMenu : MonoBehaviour
 
 	private void FixedUpdate()
 	{
+		Debug.developerConsoleVisible = false;
 	}
 
 	public void Vsync()

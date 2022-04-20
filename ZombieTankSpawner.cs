@@ -47,6 +47,12 @@ public class ZombieTankSpawner : MonoBehaviour
 	public int[] UpgradedBuildSpeeds;
 
 	[Header("Game Setup")]
+	public PlaneScript BomberPlane;
+
+	public AudioClip AirRaid;
+
+	public Light[] Lights;
+
 	public GameObject[] SpawnPoints;
 
 	public GameObject[] Tanks;
@@ -121,6 +127,7 @@ public class ZombieTankSpawner : MonoBehaviour
 
 	private void Start()
 	{
+		StartCoroutine(InitiateAirRaid());
 		int amount = 0;
 		foreach (bool item in GameMaster.instance.PlayerJoined)
 		{
@@ -198,6 +205,62 @@ public class ZombieTankSpawner : MonoBehaviour
 			StartCoroutine("Timer");
 		}
 		StartCoroutine(Spawner());
+	}
+
+	private IEnumerator InitiateAirRaid()
+	{
+		float RandomWaitingTime = Random.Range(30f, 80f);
+		yield return new WaitForSeconds(RandomWaitingTime);
+		if (Wave >= 38 && GameMaster.instance.GameHasStarted)
+		{
+			Vector3 Location = Vector3.zero;
+			if (GameMaster.instance.Players[0] != null)
+			{
+				Location = GameMaster.instance.Players[0].transform.position;
+			}
+			else if (GameMaster.instance.Players[1] != null)
+			{
+				Location = GameMaster.instance.Players[1].transform.position;
+			}
+			else if (GameMaster.instance.Players[2] != null)
+			{
+				Location = GameMaster.instance.Players[2].transform.position;
+			}
+			else if (GameMaster.instance.Players[3] != null)
+			{
+				Location = GameMaster.instance.Players[3].transform.position;
+			}
+			BomberPlane.TargetLocation = new Vector3(Location.x, 10f, Location.z);
+			BomberPlane.StartFlyToTB(-1, -1);
+			SFXManager.instance.PlaySFX(AirRaid);
+			Light[] lights = Lights;
+			foreach (Light L in lights)
+			{
+				StartCoroutine(AirRaidLight(L));
+			}
+		}
+		yield return new WaitForSeconds(8f);
+		StartCoroutine(InitiateAirRaid());
+	}
+
+	private IEnumerator AirRaidLight(Light L)
+	{
+		float t2 = 0f;
+		Color OG = L.color;
+		while (t2 < 1f)
+		{
+			t2 += Time.deltaTime;
+			L.color = Color.Lerp(OG, Color.red, t2);
+			yield return null;
+		}
+		yield return new WaitForSeconds(4f);
+		t2 = 0f;
+		while (t2 < 1f)
+		{
+			t2 += Time.deltaTime;
+			L.color = Color.Lerp(Color.red, OG, t2);
+			yield return null;
+		}
 	}
 
 	private void SpawnTank(GameObject tankPrefab, int type)

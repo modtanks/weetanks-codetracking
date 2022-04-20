@@ -56,6 +56,9 @@
     <Reference Include="NavMeshComponents">
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Wee Tanks\Wee Tanks_Data\Managed\NavMeshComponents.dll</HintPath>
     </Reference>
+    <Reference Include="QFSW.QC">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Wee Tanks\Wee Tanks_Data\Managed\QFSW.QC.dll</HintPath>
+    </Reference>
     <Reference Include="com.rlabrecque.steamworks.net">
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Wee Tanks\Wee Tanks_Data\Managed\com.rlabrecque.steamworks.net.dll</HintPath>
     </Reference>

@@ -105,8 +105,12 @@ public class NightLevelEnabler : MonoBehaviour
 					}
 					float minDistToPlayer = 30f;
 					float closestPos = 999999f;
-					for (int i = 0; i < GameMaster.instance.PlayerJoined.Count; i++)
+					for (int i = 0; i < GameMaster.instance.Players.Count; i++)
 					{
+						if (GameMaster.instance.Players[i] == null)
+						{
+							continue;
+						}
 						float Playerdist = Vector3.Distance(base.transform.position, GameMaster.instance.Players[i].transform.position);
 						if (Playerdist < closestPos)
 						{

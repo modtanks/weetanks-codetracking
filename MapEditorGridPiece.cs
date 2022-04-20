@@ -539,7 +539,7 @@ public class MapEditorGridPiece : MonoBehaviour
 		}
 	}
 
-	private void SetCustomMaterial(MapEditorProp MEP)
+	public void SetCustomMaterial(MapEditorProp MEP)
 	{
 		if (myPropID[IDlayer] == 19 || (myPropID[IDlayer] >= 100 && myPropID[IDlayer] < 120))
 		{

@@ -46,10 +46,12 @@ public class TankCustoms : MonoBehaviour
 		}
 		if (AMselNumber > -1)
 		{
+			myIndex = -1;
 			for (int i = 0; i < OptionsMainMenu.instance.FullBodySkins.Length; i++)
 			{
 				if (OptionsMainMenu.instance.FullBodySkins[i].AMselectedID == AMselNumber)
 				{
+					myIndex = i;
 				}
 			}
 			if (myIndex > -1)
@@ -58,7 +60,10 @@ public class TankCustoms : MonoBehaviour
 				SetSkin(OptionsMainMenu.instance.FullBodySkins[myIndex]);
 			}
 		}
-		CheckForSkin();
+		if (myIndex == -1)
+		{
+			CheckForSkin();
+		}
 	}
 
 	private void CheckForSkin()

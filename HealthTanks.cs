@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using QFSW.QC;
 using UnityEngine;
 
 public class HealthTanks : MonoBehaviour
@@ -79,6 +80,18 @@ public class HealthTanks : MonoBehaviour
 	private float TimeAlive = 0f;
 
 	private bool isDestroying = false;
+
+	[Command("SetPlayerHealth", Platform.AllPlatforms, MonoTargetType.Single)]
+	public void SetPlayerHealth(int playerId, int Amount)
+	{
+		if (isMainTank)
+		{
+			MoveTankScript MTS = GetComponent<MoveTankScript>();
+			if ((bool)MTS && MTS.playerId != playerId)
+			{
+			}
+		}
+	}
 
 	private void Start()
 	{
@@ -619,7 +632,7 @@ public class HealthTanks : MonoBehaviour
 		SkidMarkCreator.Stop();
 		float tracksRemoveTime = ((OptionsMainMenu.instance.currentGraphicSettings == 0) ? 15f : ((OptionsMainMenu.instance.currentGraphicSettings == 1) ? 30f : ((OptionsMainMenu.instance.currentGraphicSettings == 2) ? 60f : ((OptionsMainMenu.instance.currentGraphicSettings == 3) ? 120f : ((OptionsMainMenu.instance.currentGraphicSettings == 4) ? 240f : 300f)))));
 		Object.Destroy(SkidMarkCreator, tracksRemoveTime);
-		SFXManager.instance.PlaySFX(Deathsound);
+		SFXManager.instance.PlaySFX(GlobalAssets.instance.AudioDB.TankDie);
 		Collider[] bigobjectsInRange = Physics.OverlapSphere(base.transform.position, 4f);
 		Collider[] array = bigobjectsInRange;
 		foreach (Collider col in array)
@@ -736,7 +749,7 @@ public class HealthTanks : MonoBehaviour
 		SkidMarkCreator.Stop();
 		float tracksRemoveTime = ((OptionsMainMenu.instance.currentGraphicSettings == 0) ? 15f : ((OptionsMainMenu.instance.currentGraphicSettings == 1) ? 30f : ((OptionsMainMenu.instance.currentGraphicSettings == 2) ? 60f : ((OptionsMainMenu.instance.currentGraphicSettings == 3) ? 120f : ((OptionsMainMenu.instance.currentGraphicSettings == 4) ? 240f : 300f)))));
 		Object.Destroy(SkidMarkCreator, tracksRemoveTime);
-		SFXManager.instance.PlaySFX(Deathsound);
+		SFXManager.instance.PlaySFX(GlobalAssets.instance.AudioDB.TankDie);
 		CameraShake CS = Camera.main.GetComponent<CameraShake>();
 		if ((bool)CS)
 		{
@@ -947,11 +960,11 @@ public class HealthTanks : MonoBehaviour
 			{
 				if (GameMaster.instance.Lives > 1)
 				{
-					SFXManager.instance.PlaySFX(DeathsoundLastAlive);
+					SFXManager.instance.PlaySFX(GlobalAssets.instance.AudioDB.TankDieLostGame);
 				}
 				else
 				{
-					SFXManager.instance.PlaySFX(GameOverSound);
+					SFXManager.instance.PlaySFX(GlobalAssets.instance.AudioDB.TankDie);
 				}
 				GameMaster.instance.AmountGoodTanks--;
 				GameMaster.instance.OnlyCompanionLeft = false;
@@ -964,7 +977,7 @@ public class HealthTanks : MonoBehaviour
 				}
 				if (GameMaster.instance.CM == null)
 				{
-					SFXManager.instance.PlaySFX(Deathsound);
+					SFXManager.instance.PlaySFX(GlobalAssets.instance.AudioDB.TankDie);
 				}
 				GameMaster.instance.AmountGoodTanks--;
 			}
@@ -1063,11 +1076,11 @@ public class HealthTanks : MonoBehaviour
 			MTS.Upgrades[3] = 0;
 		}
 		deathcross.transform.parent = null;
-		if (GameMaster.instance.CurrentMission == 99 && GameMaster.instance.Players.Count < 2)
+		if (GameMaster.instance.CurrentMission >= 99 && GameMaster.instance.Players.Count < 2)
 		{
 			if (MissionHundredController.instance != null && (bool)MissionHundredController.instance.KTS)
 			{
-				HealthTanks HT = MissionHundredController.instance.KTS.GetComponent<HealthTanks>();
+				HealthTanks HT = MissionHundredController.instance.KTS.HT;
 				if ((bool)HT && HT.health <= 11 && OptionsMainMenu.instance.AM[26] != 1)
 				{
 					AchievementsTracker.instance.completeAchievement(26);

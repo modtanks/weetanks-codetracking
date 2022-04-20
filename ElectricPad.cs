@@ -61,6 +61,10 @@ public class ElectricPad : MonoBehaviour
 				LightUp();
 			}
 		}
+		if (!GameMaster.instance.NightLevels.Contains(GameMaster.instance.CurrentMission))
+		{
+			intensityEmission = 1f;
+		}
 	}
 
 	private void LightUp()

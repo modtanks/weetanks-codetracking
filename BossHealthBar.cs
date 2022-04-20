@@ -113,15 +113,15 @@ public class BossHealthBar : MonoBehaviour
 			else if (latestKnownMission > -1)
 			{
 				rt[latestKnownMission].sizeDelta = new Vector2(0f, rt[latestKnownMission].sizeDelta.y);
-				latestKnownMission = -1;
 				StartCoroutine(disableBar(latestKnownMission));
+				latestKnownMission = -1;
 			}
 		}
 		else if (latestKnownMission > -1)
 		{
 			rt[latestKnownMission].sizeDelta = new Vector2(0f, rt[latestKnownMission].sizeDelta.y);
-			latestKnownMission = -1;
 			StartCoroutine(disableBar(latestKnownMission));
+			latestKnownMission = -1;
 		}
 		if (GameMaster.instance.Bosses.Length < 1)
 		{
