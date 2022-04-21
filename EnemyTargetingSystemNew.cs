@@ -1402,6 +1402,17 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		newRocket.GetComponent<RocketScript>().isHuntingEnemies = isHuntingEnemies;
 		newRocket.GetComponent<RocketScript>().papaTank = AIscript.gameObject;
 		newRocket.GetComponent<RocketScript>().MyTeam = AIscript.MyTeam;
+		if (AIscript.isInvisible)
+		{
+			foreach (Transform T in newRocket.transform)
+			{
+				T.gameObject.SetActive(value: false);
+				foreach (Transform TR in T)
+				{
+					TR.gameObject.SetActive(value: false);
+				}
+			}
+		}
 		rockets[index] = newRocket;
 		newRocket.transform.parent = rocketSlotLocations[index];
 	}
@@ -1446,7 +1457,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				}
 				if (RocketReloadSpeed > 0f)
 				{
-					RandomizedWaitingTime2 = RocketReloadSpeed;
+					RandomizedWaitingTime2 = RocketReloadSpeed / 2f;
 				}
 				else
 				{
@@ -1482,7 +1493,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				{
 					if (RocketReloadSpeed > 0f)
 					{
-						RandomizedWaitingTime2 = RocketReloadSpeed;
+						RandomizedWaitingTime2 = RocketReloadSpeed / 2f;
 					}
 					else
 					{

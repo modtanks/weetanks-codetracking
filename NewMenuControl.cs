@@ -540,6 +540,7 @@ public class NewMenuControl : MonoBehaviour
 			AssignInventory();
 		}
 		UpdateMenuSignedInText();
+		SetGraphicsText();
 	}
 
 	private void AssignInventory()
@@ -1547,6 +1548,7 @@ public class NewMenuControl : MonoBehaviour
 
 	public void SetGraphicsText()
 	{
+		Debug.LogError(OptionsMainMenu.instance.currentGraphicSettings);
 		Graphics_list.SetValueWithoutNotify(OptionsMainMenu.instance.currentGraphicSettings);
 	}
 

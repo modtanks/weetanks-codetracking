@@ -251,14 +251,7 @@ public class MapEditorGridPiece : MonoBehaviour
 		if (!RunOnceSinceTesting)
 		{
 			RunOnceSinceTesting = true;
-			Color tempColor = notSelectedColor;
-			notSelectedColor = OriginalNotSelectedColor;
-			if (myPropID[IDlayer] > 3 && myPropID[IDlayer] < 40)
-			{
-				notSelectedColor = tempColor;
-				notSelectedColor = TeamColors[myMEP[IDlayer].TeamNumber];
-				myRend.material.color = notSelectedColor;
-			}
+			SetGridPieceColor();
 		}
 		if (MapEditorMaster.instance.SelectedParticles != null && FieldSelected && myMEP[0] != null)
 		{
@@ -268,14 +261,7 @@ public class MapEditorGridPiece : MonoBehaviour
 		IDlayer = MapEditorMaster.instance.CurrentLayer;
 		if (lastKnownLayer != IDlayer)
 		{
-			Color tempColor2 = notSelectedColor;
-			notSelectedColor = OriginalNotSelectedColor;
-			if (myPropID[IDlayer] > 3 && myPropID[IDlayer] < 40)
-			{
-				notSelectedColor = tempColor2;
-				notSelectedColor = TeamColors[myMEP[IDlayer].TeamNumber];
-				myRend.material.color = notSelectedColor;
-			}
+			SetGridPieceColor();
 			lastKnownLayer = IDlayer;
 			if (MapEditorMaster.instance.ShowAllLayers)
 			{
@@ -517,14 +503,11 @@ public class MapEditorGridPiece : MonoBehaviour
 				myRend.material.color = OriginalNotSelectedColor;
 			}
 		}
-		else
+		else if (myMEP[IDlayer] != null && myRend != null)
 		{
-			if (!(myMEP[IDlayer] != null) || !(myRend != null))
-			{
-				return;
-			}
 			if (myMEP[IDlayer].isEnemyTank || myMEP[IDlayer].isPlayerOne || myMEP[IDlayer].isPlayerTwo || myMEP[IDlayer].isPlayerThree || myMEP[IDlayer].isPlayerFour)
 			{
+				Debug.Log("setting color grid to :" + myMEP[IDlayer].TeamNumber, base.gameObject);
 				if (myMEP[IDlayer].TeamNumber > -1)
 				{
 					myRend.material.color = TeamColors[myMEP[IDlayer].TeamNumber];
@@ -536,6 +519,11 @@ public class MapEditorGridPiece : MonoBehaviour
 				myRend.material.color = OriginalNotSelectedColor;
 				notSelectedColor = OriginalNotSelectedColor;
 			}
+		}
+		else if (myRend != null)
+		{
+			myRend.material.color = OriginalNotSelectedColor;
+			notSelectedColor = OriginalNotSelectedColor;
 		}
 	}
 

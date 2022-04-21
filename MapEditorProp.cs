@@ -80,15 +80,15 @@ public class MapEditorProp : MonoBehaviour
 		if (myCustomMaterial != null)
 		{
 			Renderer[] array = myRends;
-			for (int n = 0; n < array.Length; n++)
+			for (int num = 0; num < array.Length; num++)
 			{
-				MeshRenderer obj = (MeshRenderer)array[n];
-				for (int k = 0; k < obj.sharedMaterials.Length; k++)
+				MeshRenderer obj = (MeshRenderer)array[num];
+				for (int l = 0; l < obj.sharedMaterials.Length; l++)
 				{
-					if (obj.sharedMaterials[k].name.Contains("CustomTank"))
+					if (obj.sharedMaterials[l].name.Contains("CustomTank"))
 					{
 						Material[] sharedMaterialsCopy = obj.sharedMaterials;
-						sharedMaterialsCopy[k] = myCustomMaterial;
+						sharedMaterialsCopy[l] = myCustomMaterial;
 						obj.sharedMaterials = sharedMaterialsCopy;
 					}
 				}
@@ -100,17 +100,30 @@ public class MapEditorProp : MonoBehaviour
 		}
 		if (reset)
 		{
+			for (int k = 0; k < myRends.Length; k++)
+			{
+				if (!(myRends[k] == null))
+				{
+					Material[] mats3 = myRends[k].materials;
+					for (int j2 = 0; j2 < mats3.Length; j2++)
+					{
+						mats3[j2].DisableKeyword("_EMISSION");
+					}
+					myRends[k].materials = mats3;
+				}
+			}
+			return;
+		}
+		if (CanBeColored)
+		{
 			for (int j = 0; j < myRends.Length; j++)
 			{
-				if (!(myRends[j] == null))
+				Material[] mats2 = myRends[j].materials;
+				for (int n = 0; n < mats2.Length; n++)
 				{
-					Material[] mats2 = myRends[j].materials;
-					for (int m = 0; m < mats2.Length; m++)
-					{
-						mats2[m].DisableKeyword("_EMISSION");
-					}
-					myRends[j].materials = mats2;
+					mats2[n].SetColor("_Color", clr);
 				}
+				myRends[j].materials = mats2;
 			}
 			return;
 		}
@@ -119,10 +132,10 @@ public class MapEditorProp : MonoBehaviour
 			if (!(myRends[i] == null))
 			{
 				Material[] mats = myRends[i].materials;
-				for (int l = 0; l < mats.Length; l++)
+				for (int m = 0; m < mats.Length; m++)
 				{
-					mats[l].EnableKeyword("_EMISSION");
-					mats[l].SetColor("_EmissionColor", clr);
+					mats[m].EnableKeyword("_EMISSION");
+					mats[m].SetColor("_EmissionColor", clr);
 				}
 				myRends[i].materials = mats;
 			}
@@ -653,6 +666,11 @@ public class MapEditorProp : MonoBehaviour
 		if (myEnemyAI != null)
 		{
 			myEnemyAI.MyTeam = TeamNumber;
+			if (myRends[0].materials[0].color != MapEditorMaster.instance.TeamColors[TeamNumber] || LatestKnownColorState != MapEditorMaster.instance.TeamColorEnabled[TeamNumber])
+			{
+				LatestKnownColorState = MapEditorMaster.instance.TeamColorEnabled[TeamNumber];
+				SetTankBodyColor();
+			}
 		}
 		else if ((bool)MTS && MTS.MyTeam != TeamNumber)
 		{

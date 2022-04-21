@@ -1122,7 +1122,14 @@ public class PlayerBulletScript : MonoBehaviour
 			}
 			else if (AIscript.MyTeam == MyTeam && MyTeam != 0 && !OptionsMainMenu.instance.FriendlyFire && AIscript.gameObject != papaTank.gameObject)
 			{
-				TimesBounced = 999;
+				if (IsAirBullet)
+				{
+					HitTank(collision);
+				}
+				else
+				{
+					TimesBounced = 999;
+				}
 			}
 			else if (AIscript.MyTeam != MyTeam)
 			{

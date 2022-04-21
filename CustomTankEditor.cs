@@ -233,6 +233,9 @@ public class CustomTankEditor : MonoBehaviour
 	{
 		MapEditorMaster.instance.CustomTankDatas.Remove(MapEditorMaster.instance.CustomTankDatas[MapEditorMaster.instance.SelectedCustomTank]);
 		MapEditorMaster.instance.CustomMaterial.Remove(MapEditorMaster.instance.CustomMaterial[MapEditorMaster.instance.SelectedCustomTank]);
+		MapEditorMaster.instance.SelectedPropUITextureMenu = 0;
+		MapEditorMaster.instance.SelectedProp = -1;
+		MapEditorMaster.instance.SelectedPropUITexture.transform.position = new Vector3(-9999f, -9999f, -9999f);
 		MapEditorMaster.instance.ShowMenu(4);
 	}
 }

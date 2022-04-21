@@ -1394,7 +1394,7 @@ public class MapEditorMaster : MonoBehaviour
 					{
 						playerFourPlaced[myClass.missionNumber]++;
 					}
-					else if (myClass.propID[i] > 5 && myClass.propID[i] < 40)
+					else if ((myClass.propID[i] > 5 && myClass.propID[i] < 40) || myClass.propID[i] == 1001 || myClass.propID[i] == 1003)
 					{
 						enemyTanksPlaced[myClass.missionNumber]++;
 					}
@@ -2121,7 +2121,7 @@ public class MapEditorMaster : MonoBehaviour
 		ErrorField.text = Message;
 		if (!ErrorFieldMessage.GetBool("ShowMessage"))
 		{
-			GetComponent<AudioSource>().PlayOneShot(ErrorSound);
+			SFXManager.instance.PlaySFX(ErrorSound);
 		}
 		ErrorFieldMessage.SetBool("ShowMessage", value: true);
 		ErrorFieldMessage.SetBool("ShowGoodMessage", value: false);

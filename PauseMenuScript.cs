@@ -192,21 +192,12 @@ public class PauseMenuScript : MonoBehaviour
 				obj.SetActive(value: false);
 			}
 		}
-		if (!OptionsMainMenu.instance.isFullscreen)
-		{
-			Fullscreentext.text = "( )";
-		}
-		else
-		{
-			Fullscreentext.text = "(x)";
-		}
 		if (GameMaster.instance.inMapEditor && MapEditorMaster.instance.signedName != "")
 		{
 			SigningTheMap.SetActive(value: false);
 		}
-		MusicVolumetext.text = OptionsMainMenu.instance.musicVolumeLvl.ToString();
-		MasterVolumetext.text = OptionsMainMenu.instance.masterVolumeLvl.ToString();
-		SFXVolumetext.text = OptionsMainMenu.instance.sfxVolumeLvl.ToString();
+		Fullscreen_toggle.IsEnabled = OptionsMainMenu.instance.isFullscreen;
+		vsync_toggle.IsEnabled = OptionsMainMenu.instance.vsync;
 		if (OptionsMainMenu.instance.inAndroid)
 		{
 			VideoOptionstext.color = Color.gray;
@@ -845,6 +836,7 @@ public class PauseMenuScript : MonoBehaviour
 			}
 			CG2.alpha = 1f;
 		}
+		SetGraphicsText();
 	}
 
 	public IEnumerator LoadYourAsyncScene(int lvlNumber)
@@ -896,6 +888,11 @@ public class PauseMenuScript : MonoBehaviour
 			GameMaster.instance.musicScript.MusicSource.Play();
 			GameMaster.instance.musicScript.paused = false;
 			pausedMusicScript = false;
+		}
+		ControlMapper CM = GameObject.Find("ControlMapper").GetComponent<ControlMapper>();
+		if ((bool)CM)
+		{
+			CM.Close(save: true);
 		}
 		myCanvas.enabled = false;
 		GameMaster.instance.GameHasPaused = false;

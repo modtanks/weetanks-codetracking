@@ -95,10 +95,18 @@ public class ShieldScript : MonoBehaviour
 
 	private void OnTriggerEnter(Collider other)
 	{
-		if (ShieldHealth > 0 && other.tag == "Bullet")
+		if (ShieldHealth <= 0 || !(other.tag == "Bullet"))
 		{
-			PlayerBulletScript PBS = other.GetComponent<PlayerBulletScript>();
-			if ((bool)PBS && (!(PBS.EnemyTankScript != null) || PBS.TimesBounced != 0 || !(PBS.EnemyTankScript.AIscript == base.transform.parent.GetComponent<EnemyAI>())) && (!(PBS.TankScript != null) || PBS.TimesBounced != 0 || !(PBS.TankScript.tankMovingScript == base.transform.parent.GetComponent<MoveTankScript>())) && (!(PBS.EnemyTankScript != null) || PBS.TimesBounced != 0 || !(PBS.EnemyTankScript.AIscript == base.transform.parent.GetComponent<EnemyAI>())))
+			return;
+		}
+		PlayerBulletScript PBS = other.GetComponent<PlayerBulletScript>();
+		if ((bool)PBS)
+		{
+			if (PBS.IsAirBullet)
+			{
+				PBS.TimesBounced = 99999;
+			}
+			else if ((!(PBS.EnemyTankScript != null) || PBS.TimesBounced != 0 || !(PBS.EnemyTankScript.AIscript == base.transform.parent.GetComponent<EnemyAI>())) && (!(PBS.TankScript != null) || PBS.TimesBounced != 0 || !(PBS.TankScript.tankMovingScript == base.transform.parent.GetComponent<MoveTankScript>())) && (!(PBS.EnemyTankScript != null) || PBS.TimesBounced != 0 || !(PBS.EnemyTankScript.AIscript == base.transform.parent.GetComponent<EnemyAI>())))
 			{
 				PBS.TimesBounced = 99999;
 				StartFade();

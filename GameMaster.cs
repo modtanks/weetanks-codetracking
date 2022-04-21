@@ -1450,6 +1450,21 @@ public class GameMaster : MonoBehaviour
 		SetPlayerPosition("Main_Tank_Prop(Clone)", "Second_Tank_Prop(Clone)", "Third_Tank_Prop(Clone)", "Fourth_Tank_Prop(Clone)");
 		UpdatePlayerToAI();
 		FindPlayers();
+		Enemies = new List<GameObject>(GameObject.FindGameObjectsWithTag("Enemy"));
+		foreach (GameObject Enemy in Enemies)
+		{
+			Debug.Log("ENEMY FOUND");
+			MapEditorProp MEP = Enemy.GetComponent<MapEditorProp>();
+			if ((bool)MEP)
+			{
+				Debug.Log("Merp");
+				if (MEP.MyDifficultySpawn > OptionsMainMenu.instance.currentDifficulty)
+				{
+					Debug.Log("Bye bye");
+					Enemy.transform.parent.transform.gameObject.SetActive(value: false);
+				}
+			}
+		}
 		levelIsLoaded = true;
 		BreakableBlocksLocations.Clear();
 		BreakableHalfBlocksLocations.Clear();

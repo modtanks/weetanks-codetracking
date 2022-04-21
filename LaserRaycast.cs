@@ -35,6 +35,11 @@ public class LaserRaycast : MonoBehaviour
 
 	private void Update()
 	{
+		if ((bool)GameMaster.instance && (bool)MapEditorMaster.instance && !MapEditorMaster.instance.inPlayingMode && !GameMaster.instance.GameHasStarted)
+		{
+			myLine.enabled = false;
+			return;
+		}
 		if ((bool)MTS && MTS.playerId == 0)
 		{
 			if (ReInput.players.GetPlayer(0).controllers.GetLastActiveController().type == ControllerType.Joystick)
