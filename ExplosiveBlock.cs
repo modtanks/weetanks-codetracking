@@ -13,11 +13,20 @@ public class ExplosiveBlock : MonoBehaviour
 
 	public bool isFusing = false;
 
+	public ParticleSystem FuseSystem;
+
 	private void OnCollisionEnter(Collision collision)
 	{
 		Debug.Log("Collision!:" + collision.collider.name + collision.collider.tag);
 		PlayerBulletScript PBS = collision.collider.GetComponent<PlayerBulletScript>();
-		if ((bool)PBS && !isFusing)
+		if (PBS.IsAirBullet)
+		{
+			isFusing = false;
+			Animator myAnimator = GetComponent<Animator>();
+			myAnimator.speed = 0f;
+			FuseSystem.Stop();
+		}
+		else if ((bool)PBS && !isFusing)
 		{
 			StartFusing();
 		}
@@ -25,9 +34,11 @@ public class ExplosiveBlock : MonoBehaviour
 
 	public void StartFusing()
 	{
+		FuseSystem.Play();
 		Animator myAnimator = GetComponent<Animator>();
 		SFXManager.instance.PlaySFX(FuseSound, 1f, null);
 		myAnimator.SetBool("InitiateDestroy", value: true);
+		myAnimator.speed = 1f;
 		isFusing = true;
 	}
 

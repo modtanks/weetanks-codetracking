@@ -429,7 +429,7 @@ public class EnemyAI : MonoBehaviour
 				TankSpeed = Mathf.Round(TankSpeed * 1.25f * 100f) / 100f;
 			}
 			OriginalTankSpeed = TankSpeed;
-			ShootSpeed /= 1.5f;
+			ShootSpeed /= 1.25f;
 			OriginalShootSpeed = ShootSpeed;
 		}
 		couldMove = CanMove;

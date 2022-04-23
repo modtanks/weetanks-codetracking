@@ -13,12 +13,6 @@ public class HealthTanks : MonoBehaviour
 
 	public int amountRevivesLeft = 1;
 
-	public AudioClip Deathsound;
-
-	public AudioClip DeathsoundLastAlive;
-
-	public AudioClip GameOverSound;
-
 	public AudioClip Buzz;
 
 	public GameObject deathExplosion;
@@ -836,6 +830,14 @@ public class HealthTanks : MonoBehaviour
 				{
 					poofPS2.material = bodyM[2];
 				}
+			}
+		}
+		else if (foundChild)
+		{
+			poofPS.material.color = bodyM[0].color;
+			if ((bool)poofPS2)
+			{
+				poofPS2.material.color = bodyM[0].color;
 			}
 		}
 		Object.Destroy(poof.gameObject, 5f);

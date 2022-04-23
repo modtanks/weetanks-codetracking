@@ -398,8 +398,11 @@ public class MapEditorMaster : MonoBehaviour
 
 	private void Start()
 	{
-		MapEditorDifficultyList.SetValueWithoutNotify(OptionsMainMenu.instance.currentDifficulty);
-		MapEditorDifficultyList.value = OptionsMainMenu.instance.currentDifficulty;
+		if ((bool)MapEditorDifficultyList)
+		{
+			MapEditorDifficultyList.SetValueWithoutNotify(OptionsMainMenu.instance.currentDifficulty);
+			MapEditorDifficultyList.value = OptionsMainMenu.instance.currentDifficulty;
+		}
 		if ((bool)AccountMaster.instance && AccountMaster.instance.isSignedIn)
 		{
 			AccountMaster.instance.StartCoroutine(AccountMaster.instance.GetCloudInventory());
@@ -1758,6 +1761,7 @@ public class MapEditorMaster : MonoBehaviour
 	{
 		if (NoBordersMissions.Contains(missionNumber))
 		{
+			Debug.Log("CONTAINED : " + missionNumber);
 			GameObject[] mapBorders = MapBorders;
 			foreach (GameObject border2 in mapBorders)
 			{
@@ -1769,6 +1773,7 @@ public class MapEditorMaster : MonoBehaviour
 			}
 			return;
 		}
+		Debug.Log("Showing bordars ");
 		GameObject[] mapBorders2 = MapBorders;
 		foreach (GameObject border in mapBorders2)
 		{

@@ -895,6 +895,15 @@ public class PauseMenuScript : MonoBehaviour
 			CM.Close(save: true);
 		}
 		myCanvas.enabled = false;
+		Canvas[] ChildCanvas = GetComponentsInChildren<Canvas>();
+		Canvas[] array = ChildCanvas;
+		foreach (Canvas C in array)
+		{
+			if (C.name == "Dropdown List")
+			{
+				C.enabled = false;
+			}
+		}
 		GameMaster.instance.GameHasPaused = false;
 		Time.timeScale = 1f;
 	}

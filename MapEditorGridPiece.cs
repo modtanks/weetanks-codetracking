@@ -378,7 +378,7 @@ public class MapEditorGridPiece : MonoBehaviour
 			MapEditorMaster.instance.ShowErrorMessage("ERROR: No Block Below!");
 			return;
 		}
-		if ((MapEditorMaster.instance.SelectedProp > 5 && MapEditorMaster.instance.SelectedProp < 40 && MapEditorMaster.instance.SelectedProp != 28 && MapEditorMaster.instance.SelectedProp != 29) || (MapEditorMaster.instance.SelectedProp >= 100 && MapEditorMaster.instance.SelectedProp < 120))
+		if ((MapEditorMaster.instance.SelectedProp > 5 && MapEditorMaster.instance.SelectedProp < 40 && MapEditorMaster.instance.SelectedProp != 28 && MapEditorMaster.instance.SelectedProp != 29) || (MapEditorMaster.instance.SelectedProp >= 100 && MapEditorMaster.instance.SelectedProp < 120) || MapEditorMaster.instance.SelectedProp == 1000 || MapEditorMaster.instance.SelectedProp == 2003)
 		{
 			if (MapEditorMaster.instance.enemyTanksPlaced[GameMaster.instance.CurrentMission] >= MapEditorMaster.instance.maxEnemyTanks)
 			{

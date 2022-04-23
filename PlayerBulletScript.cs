@@ -470,7 +470,6 @@ public class PlayerBulletScript : MonoBehaviour
 			_ = StartingVelocity;
 			if (true)
 			{
-				Debug.LogWarning("no starting velocity");
 				rb.velocity = StartingVelocity;
 			}
 			else if ((bool)WallGonnaBounceInTo)
@@ -498,7 +497,6 @@ public class PlayerBulletScript : MonoBehaviour
 		}
 		if (WallGonnaBounceInTo == null)
 		{
-			Debug.LogWarning("casting a new laser");
 			CastLaser(rb.velocity);
 		}
 	}
