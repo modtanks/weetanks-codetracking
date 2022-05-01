@@ -7,9 +7,9 @@ public class MapEditorData
 {
 	public int missionAmount;
 
-	public int PID;
+	public int PID = 0;
 
-	public int isPublished;
+	public int isPublished = 0;
 
 	public List<int> nightMissions = new List<int>();
 
@@ -27,7 +27,7 @@ public class MapEditorData
 
 	public bool[] TeamColorsShowing;
 
-	public int difficulty;
+	public int difficulty = 0;
 
 	public List<CustomTankData> CTD = new List<CustomTankData>();
 
@@ -95,19 +95,19 @@ public class MapEditorData
 		missionAmount = MEM.Levels.Count;
 		nightMissions = GM.NightLevels;
 		missionNames = GM.MissionNames;
-		List<MapPiecesClass> list = new List<MapPiecesClass>();
+		List<MapPiecesClass> NewList = new List<MapPiecesClass>();
 		MissionMessages.Clear();
 		for (int i = 0; i < MEM.Levels.Count; i++)
 		{
 			for (int j = 0; j < OptionsMainMenu.instance.MapSize; j++)
 			{
 				MEM.Levels[i].MissionDataProps[j].missionNumber = i;
-				list.Add(MEM.Levels[i].MissionDataProps[j]);
+				NewList.Add(MEM.Levels[i].MissionDataProps[j]);
 			}
 			MissionMessages.Add(MEM.Levels[i].MissionMessage);
 			Debug.Log(MEM.Levels[i].MissionMessage);
 		}
-		MissionDataProps = list;
+		MissionDataProps = NewList;
 		campaignName = MEM.campaignName;
 		signedName = MEM.signedName;
 		StartingLives = MEM.StartingLives;

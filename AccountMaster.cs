@@ -15,21 +15,21 @@ public class AccountMaster : MonoBehaviour
 
 	public ulong SteamUserID;
 
-	public bool isSignedIn;
+	public bool isSignedIn = false;
 
-	public bool hasDoneSignInCheck;
+	public bool hasDoneSignInCheck = false;
 
-	public int TimePlayed;
+	public int TimePlayed = 0;
 
 	private static AccountMaster _instance;
 
-	public bool isInLobby;
+	public bool isInLobby = false;
 
 	public string LobbyCode;
 
 	public int LobbyID;
 
-	public bool CanSetNewPassword;
+	public bool CanSetNewPassword = false;
 
 	public ProgressDataOnline PDO;
 
@@ -39,13 +39,13 @@ public class AccountMaster : MonoBehaviour
 
 	public PlayerInventory Inventory = new PlayerInventory();
 
-	public bool IsDoingTransaction;
+	public bool IsDoingTransaction = false;
 
 	public string PreviousCode;
 
-	private bool SetTime;
+	private bool SetTime = false;
 
-	private bool isSaving;
+	private bool isSaving = false;
 
 	public ShopStand ConnectedStand;
 
@@ -115,22 +115,22 @@ public class AccountMaster : MonoBehaviour
 
 	public void ShowMarbleNotification(int amount)
 	{
-		GameObject gameObject = Object.Instantiate(MarblesNotification);
-		if (!gameObject)
+		GameObject Notification = Object.Instantiate(MarblesNotification);
+		if (!Notification)
 		{
 			return;
 		}
-		TextMeshProUGUI component = gameObject.transform.GetChild(0).Find("AMOUNT").GetComponent<TextMeshProUGUI>();
-		Object.Destroy(gameObject, 2.75f);
-		if ((bool)component)
+		TextMeshProUGUI text = Notification.transform.GetChild(0).Find("AMOUNT").GetComponent<TextMeshProUGUI>();
+		Object.Destroy(Notification, 2.75f);
+		if ((bool)text)
 		{
 			if (amount > 1)
 			{
-				component.text = "You got " + amount + " marbles!";
+				text.text = "You got " + amount + " marbles!";
 			}
 			else
 			{
-				component.text = "You got " + amount + " marble!";
+				text.text = "You got " + amount + " marble!";
 			}
 		}
 	}
@@ -147,16 +147,16 @@ public class AccountMaster : MonoBehaviour
 
 	public IEnumerator SaveSpeedrunData(int level, int difficulty)
 	{
-		WWWForm wWWForm = new WWWForm();
-		wWWForm.AddField("key", Key);
-		wWWForm.AddField("userid", UserID);
-		wWWForm.AddField("username", Username);
+		WWWForm form = new WWWForm();
+		form.AddField("key", Key);
+		form.AddField("userid", UserID);
+		form.AddField("username", Username);
 		PDO.accountid = int.Parse(UserID);
 		PDO.accountname = Username;
-		wWWForm.AddField("sT", Mathf.RoundToInt(GameMaster.instance.counter * 1000f));
-		wWWForm.AddField("Lv", level);
-		wWWForm.AddField("dF", difficulty);
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_stats.php", wWWForm);
+		form.AddField("sT", Mathf.RoundToInt(GameMaster.instance.counter * 1000f));
+		form.AddField("Lv", level);
+		form.AddField("dF", difficulty);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_stats.php", form);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
@@ -189,17 +189,17 @@ public class AccountMaster : MonoBehaviour
 		{
 			yield break;
 		}
-		WWWForm wWWForm = new WWWForm();
-		wWWForm.AddField("key", Key);
-		wWWForm.AddField("userid", UserID);
-		wWWForm.AddField("username", Username);
-		wWWForm.AddField("code", code);
-		wWWForm.AddField("difficulty", OptionsMainMenu.instance.currentDifficulty);
+		WWWForm form = new WWWForm();
+		form.AddField("key", Key);
+		form.AddField("userid", UserID);
+		form.AddField("username", Username);
+		form.AddField("code", code);
+		form.AddField("difficulty", OptionsMainMenu.instance.currentDifficulty);
 		if (PreviousCode != null)
 		{
-			wWWForm.AddField("prev", PreviousCode);
+			form.AddField("prev", PreviousCode);
 		}
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_log.php", wWWForm);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_log.php", form);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		Debug.Log("sending status..!.333");
@@ -216,10 +216,11 @@ public class AccountMaster : MonoBehaviour
 			yield break;
 		}
 		PreviousCode = uwr.downloadHandler.text;
-		int num = int.Parse(uwr.downloadHandler.text.Split(char.Parse("/"))[1]);
-		if (num > 0)
+		string[] splitArray = uwr.downloadHandler.text.Split(char.Parse("/"));
+		int NewMarbles = int.Parse(splitArray[1]);
+		if (NewMarbles > 0)
 		{
-			ShowMarbleNotification(num);
+			ShowMarbleNotification(NewMarbles);
 		}
 	}
 
@@ -235,49 +236,49 @@ public class AccountMaster : MonoBehaviour
 		{
 			yield break;
 		}
-		WWWForm wWWForm = new WWWForm();
-		wWWForm.AddField("key", Key);
-		wWWForm.AddField("userid", UserID);
-		wWWForm.AddField("username", Username);
-		wWWForm.AddField("pT", TimePlayed);
+		WWWForm form = new WWWForm();
+		form.AddField("key", Key);
+		form.AddField("userid", UserID);
+		form.AddField("username", Username);
+		form.AddField("pT", TimePlayed);
 		switch (type)
 		{
 		case 0:
-			wWWForm.AddField("kT", amount);
+			form.AddField("kT", amount);
 			break;
 		case 1:
-			wWWForm.AddField("gW", 1);
+			form.AddField("gW", 1);
 			break;
 		case 2:
-			wWWForm.AddField("gL", 1);
+			form.AddField("gL", 1);
 			break;
 		case 3:
-			wWWForm.AddField("A", amount);
+			form.AddField("A", amount);
 			break;
 		case 4:
-			wWWForm.AddField("A_U", amount);
+			form.AddField("A_U", amount);
 			if (secondary_amount > 0)
 			{
-				wWWForm.AddField("A_R", secondary_amount);
+				form.AddField("A_R", secondary_amount);
 			}
 			break;
 		case 5:
-			wWWForm.AddField("M", amount);
+			form.AddField("M", amount);
 			break;
 		case 6:
-			wWWForm.AddField("W", amount);
-			wWWForm.AddField("Lv", GameMaster.instance.CurrentMission);
+			form.AddField("W", amount);
+			form.AddField("Lv", GameMaster.instance.CurrentMission);
 			break;
 		case 7:
-			wWWForm.AddField("dF", OptionsMainMenu.instance.currentDifficulty);
-			wWWForm.AddField("cP", GameMaster.instance.CurrentMission + 1);
+			form.AddField("dF", OptionsMainMenu.instance.currentDifficulty);
+			form.AddField("cP", GameMaster.instance.CurrentMission + 1);
 			break;
 		}
 		if (bounceKill)
 		{
-			wWWForm.AddField("kB", 1);
+			form.AddField("kB", 1);
 		}
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_stats_b.php", wWWForm);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_stats_b.php", form);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
@@ -297,14 +298,14 @@ public class AccountMaster : MonoBehaviour
 
 	public IEnumerator SaveNewCloudData(ProgressDataOnline newPDO)
 	{
-		WWWForm wWWForm = new WWWForm();
-		wWWForm.AddField("key", Key);
-		wWWForm.AddField("userid", UserID);
-		wWWForm.AddField("username", Username);
+		WWWForm form = new WWWForm();
+		form.AddField("key", Key);
+		form.AddField("userid", UserID);
+		form.AddField("username", Username);
 		newPDO.accountid = int.Parse(UserID);
 		newPDO.accountname = Username;
-		wWWForm.AddField("NewSaveData", JsonUtility.ToJson(newPDO));
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_stats.php", wWWForm);
+		form.AddField("NewSaveData", JsonUtility.ToJson(newPDO));
+		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_stats.php", form);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
@@ -335,21 +336,21 @@ public class AccountMaster : MonoBehaviour
 		GameMaster.instance.AccountID = 0;
 		if (manual)
 		{
-			string path = Application.persistentDataPath + "/tank_progress.tnk";
-			if (File.Exists(path) && manual)
+			string savePath = Application.persistentDataPath + "/tank_progress.tnk";
+			if (File.Exists(savePath) && manual)
 			{
 				SavingData.SaveData(GameMaster.instance, "tank_progress_backup");
-				File.Delete(path);
+				File.Delete(savePath);
 			}
 			GameMaster.instance.CurrentData = new ProgressDataOnline();
 			PDO = new ProgressDataOnline();
-			for (int i = 0; i < OptionsMainMenu.instance.AM.Length; i++)
+			for (int j = 0; j < OptionsMainMenu.instance.AM.Length; j++)
 			{
-				OptionsMainMenu.instance.AM[i] = 5;
+				OptionsMainMenu.instance.AM[j] = 5;
 			}
-			for (int j = 0; j < OptionsMainMenu.instance.AMselected.Count; j++)
+			for (int i = 0; i < OptionsMainMenu.instance.AMselected.Count; i++)
 			{
-				OptionsMainMenu.instance.AMselected[j] = 0;
+				OptionsMainMenu.instance.AMselected[i] = 0;
 			}
 			GameMaster.instance.ResetData();
 		}
@@ -357,8 +358,8 @@ public class AccountMaster : MonoBehaviour
 
 	public void LoadCredentials()
 	{
-		string path = Application.persistentDataPath + "/user_credentials.tnk";
-		if (!File.Exists(path))
+		string savePath = Application.persistentDataPath + "/user_credentials.tnk";
+		if (!File.Exists(savePath))
 		{
 			if (ST.SteamAccountID > 1000)
 			{
@@ -371,30 +372,30 @@ public class AccountMaster : MonoBehaviour
 			}
 			return;
 		}
-		BinaryFormatter binaryFormatter = new BinaryFormatter();
-		FileStream fileStream = new FileStream(path, FileMode.Open);
-		UserCredentials userCredentials = binaryFormatter.Deserialize(fileStream) as UserCredentials;
-		fileStream.Close();
-		if (userCredentials == null)
+		BinaryFormatter formatter = new BinaryFormatter();
+		FileStream stream = new FileStream(savePath, FileMode.Open);
+		UserCredentials UC = formatter.Deserialize(stream) as UserCredentials;
+		stream.Close();
+		if (UC == null)
 		{
 			return;
 		}
-		if (userCredentials.hash != SystemInfo.deviceUniqueIdentifier)
+		if (UC.hash != SystemInfo.deviceUniqueIdentifier)
 		{
 			SignOut(manual: false);
 			return;
 		}
-		if (ST.SteamAccountID > 1000 && userCredentials.steamid > 1000 && ST.SteamAccountID == userCredentials.steamid)
+		if (ST.SteamAccountID > 1000 && UC.steamid > 1000 && ST.SteamAccountID == UC.steamid)
 		{
 			Debug.Log("creating new account steam, or logging in?");
 			StartCoroutine(CreateAccountViaSteam("https://www.weetanks.com/create_steam_account.php", ST.username, ST.SteamAccountID, IsSignIn: true));
 			return;
 		}
-		Username = userCredentials.name;
-		Key = userCredentials.key;
-		Debug.Log("LOADING:" + userCredentials.key);
-		UserID = userCredentials.id;
-		if (userCredentials.key == "" || userCredentials.key == null)
+		Username = UC.name;
+		Key = UC.key;
+		Debug.Log("LOADING:" + UC.key);
+		UserID = UC.id;
+		if (UC.key == "" || UC.key == null)
 		{
 			Debug.Log("EM<PTY KEY: " + ST.SteamAccountID);
 			if (ST.SteamAccountID > 1000)
@@ -405,19 +406,19 @@ public class AccountMaster : MonoBehaviour
 			}
 		}
 		StartCoroutine(LoadCloudData());
-		if (userCredentials.steamid > 1000)
+		if (UC.steamid > 1000)
 		{
-			SteamUserID = userCredentials.steamid;
+			SteamUserID = UC.steamid;
 		}
 	}
 
 	public IEnumerator CreateAccountViaSteam(string url, string steamusername, ulong steamuserid, bool IsSignIn)
 	{
-		WWWForm wWWForm = new WWWForm();
-		wWWForm.AddField("username", steamusername);
-		wWWForm.AddField("steamuserid", steamuserid.ToString());
-		wWWForm.AddField("userData", JsonUtility.ToJson(GameMaster.instance.CurrentData));
-		UnityWebRequest uwr = UnityWebRequest.Post(url, wWWForm);
+		WWWForm form = new WWWForm();
+		form.AddField("username", steamusername);
+		form.AddField("steamuserid", steamuserid.ToString());
+		form.AddField("userData", JsonUtility.ToJson(GameMaster.instance.CurrentData));
+		UnityWebRequest uwr = UnityWebRequest.Post(url, form);
 		uwr.SetRequestHeader("Access-Control-Allow-Credentials", "true");
 		uwr.SetRequestHeader("Access-Control-Allow-Headers", "Accept, Content-Type, X-Access-Token, X-Application-Name, X-Request-Sent-Time");
 		uwr.SetRequestHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
@@ -447,17 +448,17 @@ public class AccountMaster : MonoBehaviour
 		}
 		Debug.Log("signed in correctly!");
 		isSignedIn = true;
-		string[] array = uwr.downloadHandler.text.Split(char.Parse("/"));
+		string[] splitArray = uwr.downloadHandler.text.Split(char.Parse("/"));
 		SteamUserID = steamuserid;
-		UserID = array[1];
-		GameMaster.instance.AccountID = int.Parse(array[1]);
-		Key = array[0];
-		Username = array[2];
+		UserID = splitArray[1];
+		GameMaster.instance.AccountID = int.Parse(splitArray[1]);
+		Key = splitArray[0];
+		Username = splitArray[2];
 		isSignedIn = true;
 		SaveCredentials();
-		if (array.Length > 3 && array[3] != null)
+		if (splitArray.Length > 3 && splitArray[3] != null)
 		{
-			AssignData(array[3]);
+			AssignData(splitArray[3]);
 		}
 		StartCoroutine(CanSetPasswordCheck());
 	}
@@ -465,13 +466,13 @@ public class AccountMaster : MonoBehaviour
 	public IEnumerator TransferAccountToSteam(string url)
 	{
 		NewMenuControl NMC = GameObject.Find("CanvasMover").transform.GetChild(0).gameObject.GetComponent<NewMenuControl>();
-		WWWForm wWWForm = new WWWForm();
-		wWWForm.AddField("username", Username);
-		wWWForm.AddField("steamusername", SteamTest.instance.username);
-		wWWForm.AddField("userid", UserID);
-		wWWForm.AddField("key", Key);
-		wWWForm.AddField("steamuserid", SteamTest.instance.SteamAccountID.ToString());
-		UnityWebRequest uwr = UnityWebRequest.Post(url, wWWForm);
+		WWWForm form = new WWWForm();
+		form.AddField("username", Username);
+		form.AddField("steamusername", SteamTest.instance.username);
+		form.AddField("userid", UserID);
+		form.AddField("key", Key);
+		form.AddField("steamuserid", SteamTest.instance.SteamAccountID.ToString());
+		UnityWebRequest uwr = UnityWebRequest.Post(url, form);
 		uwr.SetRequestHeader("Access-Control-Allow-Credentials", "true");
 		uwr.SetRequestHeader("Access-Control-Allow-Headers", "Accept, Content-Type, X-Access-Token, X-Application-Name, X-Request-Sent-Time");
 		uwr.SetRequestHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
@@ -517,12 +518,12 @@ public class AccountMaster : MonoBehaviour
 			if ((bool)NMC)
 			{
 				isSignedIn = true;
-				string[] array = uwr.downloadHandler.text.Split(char.Parse("/"));
+				string[] splitArray2 = uwr.downloadHandler.text.Split(char.Parse("/"));
 				SteamUserID = SteamTest.instance.SteamAccountID;
 				SaveCredentials();
-				if (array.Length > 3 && array[3] != null)
+				if (splitArray2.Length > 3 && splitArray2[3] != null)
 				{
-					AssignData(array[3]);
+					AssignData(splitArray2[3]);
 				}
 				if ((bool)NMC)
 				{
@@ -532,20 +533,20 @@ public class AccountMaster : MonoBehaviour
 			yield break;
 		}
 		isSignedIn = true;
-		string[] array2 = uwr.downloadHandler.text.Split(char.Parse("/"));
+		string[] splitArray = uwr.downloadHandler.text.Split(char.Parse("/"));
 		SteamUserID = SteamTest.instance.SteamAccountID;
-		UserID = array2[1];
-		GameMaster.instance.AccountID = int.Parse(array2[1]);
-		if (array2[0] != "null")
+		UserID = splitArray[1];
+		GameMaster.instance.AccountID = int.Parse(splitArray[1]);
+		if (splitArray[0] != "null")
 		{
-			Key = array2[0];
+			Key = splitArray[0];
 		}
-		Username = array2[2];
+		Username = splitArray[2];
 		isSignedIn = true;
 		SaveCredentials();
-		if (array2.Length > 3 && array2[3] != null)
+		if (splitArray.Length > 3 && splitArray[3] != null)
 		{
-			AssignData(array2[3]);
+			AssignData(splitArray[3]);
 		}
 		if ((bool)NMC)
 		{
@@ -555,10 +556,42 @@ public class AccountMaster : MonoBehaviour
 
 	public IEnumerator CanSetPasswordCheck()
 	{
-		WWWForm wWWForm = new WWWForm();
-		wWWForm.AddField("key", Key);
-		wWWForm.AddField("userid", UserID);
-		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/can_update_password.php", wWWForm);
+		WWWForm form = new WWWForm();
+		form.AddField("key", Key);
+		form.AddField("userid", UserID);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/can_update_password.php", form);
+		uwr.chunkedTransfer = false;
+		yield return uwr.SendWebRequest();
+		if (uwr.isNetworkError)
+		{
+			Debug.Log("Error While Sending: " + uwr.error);
+		}
+		else
+		{
+			Debug.Log("Received: " + uwr.downloadHandler.text);
+			if (uwr.downloadHandler.text.Contains("approved"))
+			{
+				CanSetNewPassword = true;
+			}
+			else
+			{
+				CanSetNewPassword = false;
+			}
+		}
+		StartCoroutine(GetAchievementsCheck());
+	}
+
+	private IEnumerator GetAchievementsCheck()
+	{
+		WWWForm form = new WWWForm();
+		form.AddField("key", Key);
+		form.AddField("userid", UserID);
+		if (SteamTest.instance.SteamAccountID < 10000)
+		{
+			yield break;
+		}
+		form.AddField("steamid", SteamTest.instance.SteamAccountID.ToString());
+		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/can_get_steam_achievements.php", form);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
@@ -567,23 +600,28 @@ public class AccountMaster : MonoBehaviour
 			yield break;
 		}
 		Debug.Log("Received: " + uwr.downloadHandler.text);
-		if (uwr.downloadHandler.text.Contains("approved"))
+		if (!uwr.downloadHandler.text.Contains("/"))
 		{
-			CanSetNewPassword = true;
+			yield break;
 		}
-		else
+		string[] splitArray = uwr.downloadHandler.text.Split(char.Parse("/"));
+		for (int i = 0; i < splitArray.Length; i++)
 		{
-			CanSetNewPassword = false;
+			int ToUnlock = int.Parse(splitArray[i]);
+			if (ToUnlock == 1)
+			{
+				SteamTest.instance.GetAchievement(i);
+			}
 		}
 	}
 
 	public IEnumerator LoadCloudData()
 	{
-		WWWForm wWWForm = new WWWForm();
-		wWWForm.AddField("key", Key);
+		WWWForm form = new WWWForm();
+		form.AddField("key", Key);
 		Debug.Log("ITS:" + Key);
-		wWWForm.AddField("userid", UserID);
-		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/check_account.php", wWWForm);
+		form.AddField("userid", UserID);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/check_account.php", form);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
@@ -610,10 +648,10 @@ public class AccountMaster : MonoBehaviour
 				isSignedIn = true;
 				if (SteamUserID < 1000 && ST.SteamAccountID > 1000)
 				{
-					NewMenuControl component = GameObject.Find("CanvasMover").transform.GetChild(0).gameObject.GetComponent<NewMenuControl>();
-					if ((bool)component)
+					NewMenuControl NMC = GameObject.Find("CanvasMover").transform.GetChild(0).gameObject.GetComponent<NewMenuControl>();
+					if ((bool)NMC)
 					{
-						component.EnableTransferMenu();
+						NMC.EnableTransferMenu();
 					}
 				}
 				yield break;
@@ -625,11 +663,11 @@ public class AccountMaster : MonoBehaviour
 
 	public IEnumerator GetCloudInventory()
 	{
-		WWWForm wWWForm = new WWWForm();
-		wWWForm.AddField("key", Key);
+		WWWForm form = new WWWForm();
+		form.AddField("key", Key);
 		Debug.Log("ITS:" + Key);
-		wWWForm.AddField("userid", UserID);
-		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/get_inventory.php", wWWForm);
+		form.AddField("userid", UserID);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/get_inventory.php", form);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
@@ -699,22 +737,23 @@ public class AccountMaster : MonoBehaviour
 
 	public void SaveCredentials()
 	{
-		BinaryFormatter binaryFormatter = new BinaryFormatter();
-		FileStream fileStream = new FileStream(Application.persistentDataPath + "/user_credentials.tnk", FileMode.Create);
-		UserCredentials graph = new UserCredentials(this);
-		binaryFormatter.Serialize(fileStream, graph);
-		fileStream.Close();
+		BinaryFormatter formatter = new BinaryFormatter();
+		string savePath = Application.persistentDataPath + "/user_credentials.tnk";
+		FileStream stream = new FileStream(savePath, FileMode.Create);
+		UserCredentials UC = new UserCredentials(this);
+		formatter.Serialize(stream, UC);
+		stream.Close();
 	}
 
 	public IEnumerator BuyTankeyTownItem(TankeyTownStock StandItem)
 	{
-		WWWForm wWWForm = new WWWForm();
-		wWWForm.AddField("key", Key);
+		WWWForm form = new WWWForm();
+		form.AddField("key", Key);
 		Debug.Log("ITS:" + Key);
-		wWWForm.AddField("userid", UserID);
-		wWWForm.AddField("shopid", StandItem.ItemShopID);
-		wWWForm.AddField("itemid", StandItem.ItemID);
-		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/buy_item.php", wWWForm);
+		form.AddField("userid", UserID);
+		form.AddField("shopid", StandItem.ItemShopID);
+		form.AddField("itemid", StandItem.ItemID);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/buy_item.php", form);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
@@ -740,9 +779,9 @@ public class AccountMaster : MonoBehaviour
 		else
 		{
 			ConnectedStand.TransactionSucces();
-			string[] array = uwr.downloadHandler.text.Split(char.Parse("/"));
-			Inventory = JsonUtility.FromJson<PlayerInventory>("{\"InventoryItems\":" + array[0] + "}");
-			PDO.marbles = int.Parse(array[1]);
+			string[] splitArray = uwr.downloadHandler.text.Split(char.Parse("/"));
+			Inventory = JsonUtility.FromJson<PlayerInventory>("{\"InventoryItems\":" + splitArray[0] + "}");
+			PDO.marbles = int.Parse(splitArray[1]);
 			if ((bool)TankeyTownMaster.instance)
 			{
 				TankeyTownMaster.instance.MarblesText.text = PDO.marbles.ToString();

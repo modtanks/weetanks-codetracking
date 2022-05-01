@@ -20,7 +20,7 @@ public class TutorialMaster : MonoBehaviour
 
 	public string message;
 
-	public bool IsShowingTutorial;
+	public bool IsShowingTutorial = false;
 
 	public static TutorialMaster instance => _instance;
 
@@ -58,11 +58,7 @@ public class TutorialMaster : MonoBehaviour
 
 	private float easeInOutQuint(float x)
 	{
-		if (!((double)x < 0.5))
-		{
-			return 1f - Mathf.Pow(-2f * x + 2f, 3f) / 2f;
-		}
-		return 4f * x * x * x;
+		return ((double)x < 0.5) ? (4f * x * x * x) : (1f - Mathf.Pow(-2f * x + 2f, 3f) / 2f);
 	}
 
 	public IEnumerator Inscend()
@@ -91,8 +87,8 @@ public class TutorialMaster : MonoBehaviour
 
 	private IEnumerator HideTutorialAgain()
 	{
-		float seconds = 4f + Box.sizeDelta.x / 250f;
-		yield return new WaitForSeconds(seconds);
+		float WaitTime = 4f + Box.sizeDelta.x / 250f;
+		yield return new WaitForSeconds(WaitTime);
 		myAnimator.SetBool("ShowTutorial", value: false);
 		IsShowingTutorial = false;
 	}

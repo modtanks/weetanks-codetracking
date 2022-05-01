@@ -7,7 +7,7 @@ namespace Rewired.Demos;
 public class PlayerMouseSpriteExample : MonoBehaviour
 {
 	[Tooltip("The Player that will control the mouse")]
-	public int playerId;
+	public int playerId = 0;
 
 	[Tooltip("The Rewired Action used for the mouse horizontal axis.")]
 	public string horizontalAction = "MouseX";
@@ -101,16 +101,16 @@ public class PlayerMouseSpriteExample : MonoBehaviour
 
 	private void CreateClickEffect(Color color)
 	{
-		GameObject obj = UnityEngine.Object.Instantiate(clickEffectPrefab);
-		obj.transform.localScale = new Vector3(spriteScale, spriteScale, spriteScale);
-		obj.transform.position = Camera.main.ScreenToWorldPoint(new Vector3(mouse.screenPosition.x, mouse.screenPosition.y, distanceFromCamera));
-		obj.GetComponentInChildren<SpriteRenderer>().color = color;
-		UnityEngine.Object.Destroy(obj, 0.5f);
+		GameObject go = UnityEngine.Object.Instantiate(clickEffectPrefab);
+		go.transform.localScale = new Vector3(spriteScale, spriteScale, spriteScale);
+		go.transform.position = Camera.main.ScreenToWorldPoint(new Vector3(mouse.screenPosition.x, mouse.screenPosition.y, distanceFromCamera));
+		go.GetComponentInChildren<SpriteRenderer>().color = color;
+		UnityEngine.Object.Destroy(go, 0.5f);
 	}
 
 	private void OnScreenPositionChanged(Vector2 position)
 	{
-		Vector3 position2 = Camera.main.ScreenToWorldPoint(new Vector3(position.x, position.y, distanceFromCamera));
-		pointer.transform.position = position2;
+		Vector3 worldPos = Camera.main.ScreenToWorldPoint(new Vector3(position.x, position.y, distanceFromCamera));
+		pointer.transform.position = worldPos;
 	}
 }

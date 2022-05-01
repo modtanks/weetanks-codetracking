@@ -24,13 +24,12 @@ public class CheatCodes : MonoBehaviour
 
 	private void Update()
 	{
-		string inputString;
 		if (Input.anyKeyDown)
 		{
-			inputString = Input.inputString;
-			foreach (char c in inputString)
+			string inputString = Input.inputString;
+			foreach (char c2 in inputString)
 			{
-				if (c == '\n' || c == '\r')
+				if (c2 == '\n' || c2 == '\r')
 				{
 					Play2DClipAtPoint(CheckSound);
 				}
@@ -44,11 +43,11 @@ public class CheatCodes : MonoBehaviour
 		{
 			return;
 		}
-		inputString = Input.inputString;
-		for (int i = 0; i < inputString.Length; i++)
+		string inputString2 = Input.inputString;
+		for (int j = 0; j < inputString2.Length; j++)
 		{
-			char c2 = inputString[i];
-			if (c2 == '\n' || c2 == '\r')
+			char c = inputString2[j];
+			if (c == '\n' || c == '\r')
 			{
 				if (tempEnter.Length > 0)
 				{
@@ -58,17 +57,17 @@ public class CheatCodes : MonoBehaviour
 			}
 			else
 			{
-				tempEnter += c2;
+				tempEnter += c;
 			}
 		}
 	}
 
 	private IEnumerator PostRequest(string url, string cheatcode)
 	{
-		WWWForm wWWForm = new WWWForm();
-		wWWForm.AddField("cheatCode", cheatcode);
-		wWWForm.AddField("fromGame", "true");
-		UnityWebRequest uwr = UnityWebRequest.Post(url, wWWForm);
+		WWWForm form = new WWWForm();
+		form.AddField("cheatCode", cheatcode);
+		form.AddField("fromGame", "true");
+		UnityWebRequest uwr = UnityWebRequest.Post(url, form);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
@@ -79,13 +78,13 @@ public class CheatCodes : MonoBehaviour
 		Debug.Log("Received: " + uwr.downloadHandler.text);
 		if (uwr.downloadHandler.text != "false")
 		{
-			int num = int.Parse(uwr.downloadHandler.text);
-			if (OptionsMainMenu.instance.AM[num] != 1)
+			int ID = int.Parse(uwr.downloadHandler.text);
+			if (OptionsMainMenu.instance.AM[ID] != 1)
 			{
-				OptionsMainMenu.instance.AM[num] = 1;
+				OptionsMainMenu.instance.AM[ID] = 1;
 				OptionsMainMenu.instance.SaveNewData();
-				AccountMaster.instance.PDO.AM[num] = 1;
-				AccountMaster.instance.SaveCloudData(3, num, 0, bounceKill: false);
+				AccountMaster.instance.PDO.AM[ID] = 1;
+				AccountMaster.instance.SaveCloudData(3, ID, 0, bounceKill: false);
 				Play2DClipAtPoint(UnlockedSound);
 			}
 		}
@@ -97,13 +96,13 @@ public class CheatCodes : MonoBehaviour
 
 	public void Play2DClipAtPoint(AudioClip clip)
 	{
-		GameObject obj = new GameObject("TempAudio");
-		AudioSource audioSource = obj.AddComponent<AudioSource>();
+		GameObject tempAudioSource = new GameObject("TempAudio");
+		AudioSource audioSource = tempAudioSource.AddComponent<AudioSource>();
 		audioSource.clip = clip;
 		audioSource.ignoreListenerVolume = true;
 		audioSource.volume = 1f * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
 		audioSource.spatialBlend = 0f;
 		audioSource.Play();
-		Object.Destroy(obj, clip.length);
+		Object.Destroy(tempAudioSource, clip.length);
 	}
 }

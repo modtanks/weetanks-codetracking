@@ -8,7 +8,7 @@ public class RaycastBullet : MonoBehaviour
 
 	public int checkDistance = 30;
 
-	public bool isTrain;
+	public bool isTrain = false;
 
 	private Rigidbody rb;
 
@@ -17,8 +17,8 @@ public class RaycastBullet : MonoBehaviour
 	private void Start()
 	{
 		rb = GetComponent<Rigidbody>();
-		float num = UnityEngine.Random.Range(0.1f, 0.2f);
-		InvokeRepeating("CheckObjects", num, num);
+		float randomCheckTime = UnityEngine.Random.Range(0.1f, 0.2f);
+		InvokeRepeating("CheckObjects", randomCheckTime, randomCheckTime);
 		PBS = GetComponent<PlayerBulletScript>();
 	}
 
@@ -30,55 +30,57 @@ public class RaycastBullet : MonoBehaviour
 			DrawReflectionPattern(base.transform.position, rb.velocity, lastCheck: false);
 			return;
 		}
-		Vector3 vector = raycastObject.transform.TransformDirection(Vector3.forward);
-		Debug.DrawRay(raycastObject.transform.position, vector * checkDistance, Color.cyan, 0.3f);
-		RaycastHit[] array = (from h in Physics.RaycastAll(raycastObject.transform.position, vector, checkDistance)
+		Vector3 fwd = raycastObject.transform.TransformDirection(Vector3.forward);
+		Debug.DrawRay(raycastObject.transform.position, fwd * checkDistance, Color.cyan, 0.3f);
+		RaycastHit[] allhits = (from h in Physics.RaycastAll(raycastObject.transform.position, fwd, checkDistance)
 			orderby h.distance
 			select h).ToArray();
-		for (int i = 0; i < array.Length; i++)
+		for (int i = 0; i < allhits.Length; i++)
 		{
-			RaycastHit col = array[i];
-			if (col.transform.tag == "Solid" || col.transform.tag == "MapBorder")
+			RaycastHit hit = allhits[i];
+			if (hit.transform.tag == "Solid" || hit.transform.tag == "MapBorder")
 			{
 				break;
 			}
-			DoHit(col, 0, Vector3.zero);
+			DoHit(hit, 0, Vector3.zero);
 		}
 	}
 
 	private void DrawReflectionPattern(Vector3 position, Vector3 direction, bool lastCheck)
 	{
-		Vector3 vector = position;
+		Vector3 startingPosition = position;
 		if (lastCheck)
 		{
 			checkDistance = 12;
 		}
-		LayerMask layerMask = ~((1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("OneWayBlock")) | (1 << LayerMask.NameToLayer("EnemyBorder")));
-		RaycastHit[] array = (from h in Physics.RaycastAll(vector, direction, checkDistance, layerMask)
+		LayerMask ignoreLayer = ~((1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("OneWayBlock")) | (1 << LayerMask.NameToLayer("EnemyBorder")));
+		RaycastHit[] allhits = (from h in Physics.RaycastAll(startingPosition, direction, checkDistance, ignoreLayer)
 			orderby h.distance
 			select h).ToArray();
-		for (int i = 0; i < array.Length; i++)
+		for (int i = 0; i < allhits.Length; i++)
 		{
-			RaycastHit col = array[i];
-			if (col.transform.tag == "Solid" || col.transform.tag == "MapBorder")
+			RaycastHit hit = allhits[i];
+			if (hit.transform.tag == "Solid" || hit.transform.tag == "MapBorder")
 			{
-				position = col.point;
+				position = hit.point;
 				if (!lastCheck)
 				{
-					direction = Vector3.Reflect(direction.normalized, col.normal);
+					direction = Vector3.Reflect(direction.normalized, hit.normal);
 				}
 				break;
 			}
 			if (lastCheck)
 			{
-				DoHit(col, 0, Vector3.zero);
+				DoHit(hit, 0, Vector3.zero);
 			}
 			else
 			{
-				DoHit(col, 1, Vector3.zero);
+				DoHit(hit, 1, Vector3.zero);
 			}
 		}
-		_ = vector == position;
+		if (startingPosition == position)
+		{
+		}
 		if (PBS.TimesBounced < PBS.MaxBounces && !lastCheck)
 		{
 			DrawReflectionPattern(position, direction, lastCheck: true);
@@ -89,52 +91,52 @@ public class RaycastBullet : MonoBehaviour
 	{
 		if (col.collider.tag == "EnemyDetectionField")
 		{
-			EnemyDetection component = col.transform.GetComponent<EnemyDetection>();
-			if (!(component != null))
+			EnemyDetection ED = col.transform.GetComponent<EnemyDetection>();
+			if (!(ED != null))
 			{
 				return;
 			}
-			PlayerBulletScript component2 = GetComponent<PlayerBulletScript>();
-			if (component2 != null)
+			PlayerBulletScript PBS = GetComponent<PlayerBulletScript>();
+			if (PBS != null)
 			{
-				if (component2.isEnemyBullet)
+				if (PBS.isEnemyBullet)
 				{
-					if (component2.papaTank == component.papaTank && component2.TimesBounced > 0)
+					if (PBS.papaTank == ED.papaTank && PBS.TimesBounced > 0)
 					{
-						TargetED(component);
+						TargetED(ED);
 					}
-					else if (component2.papaTank != component.papaTank)
+					else if (PBS.papaTank != ED.papaTank)
 					{
-						TargetED(component);
+						TargetED(ED);
 					}
 				}
-				else if (component2.EnemyTankScript != null)
+				else if (PBS.EnemyTankScript != null)
 				{
-					if (component2.EnemyTankScript.AIscript.gameObject == component.papaTank && component2.TimesBounced > 0)
+					if (PBS.EnemyTankScript.AIscript.gameObject == ED.papaTank && PBS.TimesBounced > 0)
 					{
-						TargetED(component);
+						TargetED(ED);
 					}
-					else if (component2.EnemyTankScript.AIscript.gameObject != component.papaTank)
+					else if (PBS.EnemyTankScript.AIscript.gameObject != ED.papaTank)
 					{
-						TargetED(component);
+						TargetED(ED);
 					}
 				}
 				else
 				{
-					TargetED(component);
+					TargetED(ED);
 				}
 			}
 			else
 			{
-				TargetED(component);
+				TargetED(ED);
 			}
 		}
 		else if (col.collider.tag == "Enemy")
 		{
-			EnemyAI component3 = col.collider.GetComponent<EnemyAI>();
-			if (component3 != null && (bool)component3.Ring0Detection)
+			EnemyAI EA = col.collider.GetComponent<EnemyAI>();
+			if (EA != null && (bool)EA.Ring0Detection)
 			{
-				TargetED(component3.Ring0Detection);
+				TargetED(EA.Ring0Detection);
 			}
 		}
 	}
@@ -145,43 +147,43 @@ public class RaycastBullet : MonoBehaviour
 		{
 			return;
 		}
-		bool flag = false;
-		PlayerBulletScript component = GetComponent<PlayerBulletScript>();
-		if ((bool)component && component.ShotByPlayer != 1)
+		bool shotByOtherPlayer = false;
+		PlayerBulletScript PBS = GetComponent<PlayerBulletScript>();
+		if ((bool)PBS && PBS.ShotByPlayer != 1)
 		{
-			flag = true;
+			shotByOtherPlayer = true;
 		}
-		EnemyAI component2 = ED.papaTank.GetComponent<EnemyAI>();
-		if (ED.papaTank.transform.tag == "Player" && !OptionsMainMenu.instance.FriendlyFire && flag && component2.MyTeam == component.MyTeam && component2.MyTeam != 0)
+		EnemyAI hisAI = ED.papaTank.GetComponent<EnemyAI>();
+		if (ED.papaTank.transform.tag == "Player" && !OptionsMainMenu.instance.FriendlyFire && shotByOtherPlayer && hisAI.MyTeam == PBS.MyTeam && hisAI.MyTeam != 0)
 		{
 			return;
 		}
 		ED.isTargeted = true;
-		float num = Vector3.Distance(base.transform.position, ED.transform.position);
-		ED.TargetDanger = Mathf.RoundToInt(Math.Abs(32f - num));
-		if (ED.isCenter && component2 != null && !component2.IncomingBullets.Contains(base.gameObject))
+		float dist = Vector3.Distance(base.transform.position, ED.transform.position);
+		ED.TargetDanger = Mathf.RoundToInt(Math.Abs(32f - dist));
+		if (ED.isCenter && hisAI != null && !hisAI.IncomingBullets.Contains(base.gameObject))
 		{
-			component2.IncomingBullets.Add(base.gameObject);
+			hisAI.IncomingBullets.Add(base.gameObject);
 		}
-		Collider component3 = base.gameObject.GetComponent<Collider>();
-		if (ED.Bullets.Contains(component3))
+		Collider BulletCollider = base.gameObject.GetComponent<Collider>();
+		if (ED.Bullets.Contains(BulletCollider))
 		{
 			return;
 		}
-		ED.Bullets.Add(component3);
+		ED.Bullets.Add(BulletCollider);
 		if (ED.isRing1)
 		{
 			int lowerID = ((ED.ID == 0) ? 15 : (ED.ID - 1));
 			int higerID = ((ED.ID != 15) ? (ED.ID + 1) : 0);
-			EnemyDetection enemyDetection = ED.AIscript.Ring1Detection.Find((EnemyDetection x) => x.ID == lowerID);
-			EnemyDetection enemyDetection2 = ED.AIscript.Ring1Detection.Find((EnemyDetection x) => x.ID == higerID);
-			if ((bool)enemyDetection && !enemyDetection.Bullets.Contains(component3))
+			EnemyDetection ED2 = ED.AIscript.Ring1Detection.Find((EnemyDetection x) => x.ID == lowerID);
+			EnemyDetection ED3 = ED.AIscript.Ring1Detection.Find((EnemyDetection x) => x.ID == higerID);
+			if ((bool)ED2 && !ED2.Bullets.Contains(BulletCollider))
 			{
-				enemyDetection.Bullets.Add(component3);
+				ED2.Bullets.Add(BulletCollider);
 			}
-			if ((bool)enemyDetection2 && !enemyDetection2.Bullets.Contains(component3))
+			if ((bool)ED3 && !ED3.Bullets.Contains(BulletCollider))
 			{
-				enemyDetection2.Bullets.Add(component3);
+				ED3.Bullets.Add(BulletCollider);
 			}
 		}
 	}

@@ -4,7 +4,7 @@ public class SetMusicSettings : MonoBehaviour
 {
 	public float OGvolume;
 
-	public bool disableThis;
+	public bool disableThis = false;
 
 	private void Start()
 	{

@@ -11,15 +11,15 @@ public class OptionsMainMenu : MonoBehaviour
 	public Dictionary<string, KeyCode> keys = new Dictionary<string, KeyCode>();
 
 	[Header("Options")]
-	public bool StartPlayer2Mode;
+	public bool StartPlayer2Mode = false;
 
-	public bool FriendlyFire;
+	public bool FriendlyFire = false;
 
-	public int ExtraLives;
+	public int ExtraLives = 0;
 
-	public bool AimAssist;
+	public bool AimAssist = false;
 
-	public bool MarkedTanks;
+	public bool MarkedTanks = false;
 
 	public bool[] AIcompanion;
 
@@ -27,15 +27,15 @@ public class OptionsMainMenu : MonoBehaviour
 
 	public bool[] MenuCompanion = new bool[5];
 
-	public bool SnowMode;
+	public bool SnowMode = false;
 
-	public bool demoMode;
+	public bool demoMode = false;
 
-	public bool vsync;
+	public bool vsync = false;
 
-	public bool showxraybullets;
+	public bool showxraybullets = false;
 
-	public int StartLevel;
+	public int StartLevel = 0;
 
 	public int currentGraphicSettings = 5;
 
@@ -76,13 +76,13 @@ public class OptionsMainMenu : MonoBehaviour
 
 	public List<UnlockableScript> AMUS = new List<UnlockableScript>();
 
-	public int WaveReached;
+	public int WaveReached = 0;
 
 	public string MapEditorMapName = "";
 
 	public string CurrentVersion = "v0.7.6a";
 
-	public bool IsDemo;
+	public bool IsDemo = false;
 
 	public bool inAndroid;
 
@@ -98,11 +98,11 @@ public class OptionsMainMenu : MonoBehaviour
 
 	public int[] CustomCursorTexturesAMIDs;
 
-	public CursorMode cursorMode;
+	public CursorMode cursorMode = CursorMode.Auto;
 
 	public Vector2 hotSpot = Vector2.zero;
 
-	public bool autoCenterHotSpot;
+	public bool autoCenterHotSpot = false;
 
 	public Vector2 hotSpotCustom = Vector2.zero;
 
@@ -114,7 +114,7 @@ public class OptionsMainMenu : MonoBehaviour
 
 	public UnlockableItem[] UIs;
 
-	public int CompletedCustomCampaigns;
+	public int CompletedCustomCampaigns = 0;
 
 	public int[] ResolutionX;
 
@@ -122,9 +122,9 @@ public class OptionsMainMenu : MonoBehaviour
 
 	public bool[] MapEditorTankMessagesReceived;
 
-	public bool IsThirdPerson;
+	public bool IsThirdPerson = false;
 
-	public bool HasCheated;
+	public bool HasCheated = false;
 
 	private bool showCursor = true;
 
@@ -140,28 +140,28 @@ public class OptionsMainMenu : MonoBehaviour
 		_instance = this;
 		if (SavingData.ExistSettingsData())
 		{
-			SettingsData settingsData = SavingData.LoadSettingsData();
-			musicVolumeLvl = settingsData.musicVolLevel;
-			sfxVolumeLvl = settingsData.sfxVolLevel;
-			masterVolumeLvl = settingsData.masterVolLevel;
-			currentGraphicSettings = settingsData.graphicsSettings;
-			currentResolutionSettings = settingsData.resolution;
-			Debug.Log("LOADED RESOLTUION: " + settingsData.resolution);
-			currentFPSSettings = settingsData.fps;
-			FriendlyFire = settingsData.friendlyFire;
-			isFullscreen = settingsData.Fullscreen;
-			currentDifficulty = settingsData.difficultySetting;
-			vsync = settingsData.vsync;
-			UIsetting = settingsData.UIsettings;
-			if (settingsData.MapEditorTankMessagesReceived != null)
+			SettingsData data = SavingData.LoadSettingsData();
+			musicVolumeLvl = data.musicVolLevel;
+			sfxVolumeLvl = data.sfxVolLevel;
+			masterVolumeLvl = data.masterVolLevel;
+			currentGraphicSettings = data.graphicsSettings;
+			currentResolutionSettings = data.resolution;
+			Debug.Log("LOADED RESOLTUION: " + data.resolution);
+			currentFPSSettings = data.fps;
+			FriendlyFire = data.friendlyFire;
+			isFullscreen = data.Fullscreen;
+			currentDifficulty = data.difficultySetting;
+			vsync = data.vsync;
+			UIsetting = data.UIsettings;
+			if (data.MapEditorTankMessagesReceived != null)
 			{
-				MapEditorTankMessagesReceived = settingsData.MapEditorTankMessagesReceived;
+				MapEditorTankMessagesReceived = data.MapEditorTankMessagesReceived;
 			}
-			if (settingsData.SnowyMode)
+			if (data.SnowyMode)
 			{
 				if (DateTime.Now.Month == 12)
 				{
-					SnowMode = settingsData.SnowyMode;
+					SnowMode = data.SnowyMode;
 				}
 				else
 				{
@@ -172,21 +172,20 @@ public class OptionsMainMenu : MonoBehaviour
 			{
 				SnowMode = false;
 			}
-			CompletedCustomCampaigns = settingsData.CompletedCustomCampaigns;
-			MarkedTanks = settingsData.MarkedTanks;
-			if (settingsData.keys != null)
+			CompletedCustomCampaigns = data.CompletedCustomCampaigns;
+			MarkedTanks = data.MarkedTanks;
+			if (data.keys == null || data.keys.ContainsKey("hudKey"))
 			{
-				settingsData.keys.ContainsKey("hudKey");
 			}
-			if (settingsData.xraybullets)
+			if (data.xraybullets)
 			{
-				showxraybullets = settingsData.xraybullets;
+				showxraybullets = data.xraybullets;
 			}
-			if (settingsData.AIactived != null && settingsData.AIactived.Length > 1)
+			if (data.AIactived != null && data.AIactived.Length > 1)
 			{
-				MenuCompanion = settingsData.AIactived;
+				MenuCompanion = data.AIactived;
 			}
-			LocalizationMaster.instance.CurrentLang = settingsData.LangSetting;
+			LocalizationMaster.instance.CurrentLang = data.LangSetting;
 			Debug.LogWarning("Settings-Data loaded from save file");
 		}
 		else
@@ -419,11 +418,11 @@ public class OptionsMainMenu : MonoBehaviour
 			{
 				hotSpotAuto = new Vector2((float)cursorTexture.width * 0.5f, (float)cursorTexture.height * 0.5f);
 			}
-			_ = hotSpotAuto;
+			Vector2 hotSpot = hotSpotAuto;
 		}
 		else
 		{
-			_ = hotSpotCustom;
+			Vector2 hotSpot = hotSpotCustom;
 		}
 		if (currentDifficulty == 0 && ExtraLives != 2)
 		{

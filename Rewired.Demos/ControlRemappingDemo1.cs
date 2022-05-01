@@ -200,13 +200,13 @@ public class ControlRemappingDemo1 : MonoBehaviour
 		{
 			if (_enabled)
 			{
-				bool flag = GUI.enabled;
+				bool origGuiEnabled = GUI.enabled;
 				GUI.enabled = true;
 				GUILayout.Window(windowProperties.windowId, windowProperties.rect, drawWindowFunction, windowProperties.title);
 				GUI.FocusWindow(windowProperties.windowId);
-				if (GUI.enabled != flag)
+				if (GUI.enabled != origGuiEnabled)
 				{
-					GUI.enabled = flag;
+					GUI.enabled = origGuiEnabled;
 				}
 			}
 		}
@@ -218,7 +218,7 @@ public class ControlRemappingDemo1 : MonoBehaviour
 
 		public void DrawConfirmButton(string title)
 		{
-			bool flag = GUI.enabled;
+			bool origGUIEnabled = GUI.enabled;
 			if (busy)
 			{
 				GUI.enabled = false;
@@ -227,9 +227,9 @@ public class ControlRemappingDemo1 : MonoBehaviour
 			{
 				Confirm(UserResponse.Confirm);
 			}
-			if (GUI.enabled != flag)
+			if (GUI.enabled != origGUIEnabled)
 			{
-				GUI.enabled = flag;
+				GUI.enabled = origGUIEnabled;
 			}
 		}
 
@@ -240,7 +240,7 @@ public class ControlRemappingDemo1 : MonoBehaviour
 
 		public void DrawConfirmButton(UserResponse response, string title)
 		{
-			bool flag = GUI.enabled;
+			bool origGUIEnabled = GUI.enabled;
 			if (busy)
 			{
 				GUI.enabled = false;
@@ -249,9 +249,9 @@ public class ControlRemappingDemo1 : MonoBehaviour
 			{
 				Confirm(response);
 			}
-			if (GUI.enabled != flag)
+			if (GUI.enabled != origGUIEnabled)
 			{
-				GUI.enabled = flag;
+				GUI.enabled = origGUIEnabled;
 			}
 		}
 
@@ -262,7 +262,7 @@ public class ControlRemappingDemo1 : MonoBehaviour
 
 		public void DrawCancelButton(string title)
 		{
-			bool flag = GUI.enabled;
+			bool origGUIEnabled = GUI.enabled;
 			if (busy)
 			{
 				GUI.enabled = false;
@@ -271,9 +271,9 @@ public class ControlRemappingDemo1 : MonoBehaviour
 			{
 				Cancel();
 			}
-			if (GUI.enabled != flag)
+			if (GUI.enabled != origGUIEnabled)
 			{
-				GUI.enabled = flag;
+				GUI.enabled = origGUIEnabled;
 			}
 		}
 
@@ -367,9 +367,9 @@ public class ControlRemappingDemo1 : MonoBehaviour
 		{
 			get
 			{
-				int result = uidCounter;
+				int id = uidCounter;
 				uidCounter++;
-				return result;
+				return id;
 			}
 		}
 
@@ -659,8 +659,8 @@ public class ControlRemappingDemo1 : MonoBehaviour
 
 	private void DrawInitialScreen()
 	{
-		ActionElementMap firstElementMapWithAction = ReInput.players.GetSystemPlayer().controllers.maps.GetFirstElementMapWithAction("Menu", skipDisabledMaps: true);
-		GUIContent content = ((firstElementMapWithAction == null) ? new GUIContent("There is no element assigned to open the menu!") : new GUIContent("Press " + firstElementMapWithAction.elementIdentifierName + " to open the menu."));
+		ActionElementMap map = ReInput.players.GetSystemPlayer().controllers.maps.GetFirstElementMapWithAction("Menu", skipDisabledMaps: true);
+		GUIContent content = ((map == null) ? new GUIContent("There is no element assigned to open the menu!") : new GUIContent("Press " + map.elementIdentifierName + " to open the menu."));
 		GUILayout.BeginArea(GetScreenCenteredRect(300f, 50f));
 		GUILayout.Box(content, style_centeredBox, GUILayout.ExpandHeight(expand: true), GUILayout.ExpandWidth(expand: true));
 		GUILayout.EndArea();
@@ -672,7 +672,8 @@ public class ControlRemappingDemo1 : MonoBehaviour
 		{
 			GUI.enabled = pageGUIState;
 		}
-		GUILayout.BeginArea(new Rect(((float)Screen.width - (float)Screen.width * 0.9f) * 0.5f, ((float)Screen.height - (float)Screen.height * 0.9f) * 0.5f, (float)Screen.width * 0.9f, (float)Screen.height * 0.9f));
+		Rect screenRect = new Rect(((float)Screen.width - (float)Screen.width * 0.9f) * 0.5f, ((float)Screen.height - (float)Screen.height * 0.9f) * 0.5f, (float)Screen.width * 0.9f, (float)Screen.height * 0.9f);
+		GUILayout.BeginArea(screenRect);
 		DrawPlayerSelector();
 		DrawJoystickSelector();
 		DrawMouseAssignment();
@@ -701,9 +702,9 @@ public class ControlRemappingDemo1 : MonoBehaviour
 			{
 				selectedPlayer = player;
 			}
-			bool flag = ((player == selectedPlayer) ? true : false);
-			bool flag2 = GUILayout.Toggle(flag, (player.descriptiveName != string.Empty) ? player.descriptiveName : player.name, "Button", GUILayout.ExpandWidth(expand: false));
-			if (flag2 != flag && flag2)
+			bool prevValue = ((player == selectedPlayer) ? true : false);
+			bool value = GUILayout.Toggle(prevValue, (player.descriptiveName != string.Empty) ? player.descriptiveName : player.name, "Button", GUILayout.ExpandWidth(expand: false));
+			if (value != prevValue && value)
 			{
 				selectedPlayer = player;
 				selectedController.Clear();
@@ -715,7 +716,7 @@ public class ControlRemappingDemo1 : MonoBehaviour
 
 	private void DrawMouseAssignment()
 	{
-		bool flag = GUI.enabled;
+		bool origGuiEnabled = GUI.enabled;
 		if (selectedPlayer == null)
 		{
 			GUI.enabled = false;
@@ -723,11 +724,11 @@ public class ControlRemappingDemo1 : MonoBehaviour
 		GUILayout.Space(15f);
 		GUILayout.Label("Assign Mouse:");
 		GUILayout.BeginHorizontal();
-		bool flag2 = ((selectedPlayer != null && selectedPlayer.controllers.hasMouse) ? true : false);
-		bool flag3 = GUILayout.Toggle(flag2, "Assign Mouse", "Button", GUILayout.ExpandWidth(expand: false));
-		if (flag3 != flag2)
+		bool prevValue = ((selectedPlayer != null && selectedPlayer.controllers.hasMouse) ? true : false);
+		bool value = GUILayout.Toggle(prevValue, "Assign Mouse", "Button", GUILayout.ExpandWidth(expand: false));
+		if (value != prevValue)
 		{
-			if (flag3)
+			if (value)
 			{
 				selectedPlayer.controllers.hasMouse = true;
 				foreach (Player player in ReInput.players.Players)
@@ -744,15 +745,15 @@ public class ControlRemappingDemo1 : MonoBehaviour
 			}
 		}
 		GUILayout.EndHorizontal();
-		if (GUI.enabled != flag)
+		if (GUI.enabled != origGuiEnabled)
 		{
-			GUI.enabled = flag;
+			GUI.enabled = origGuiEnabled;
 		}
 	}
 
 	private void DrawJoystickSelector()
 	{
-		bool flag = GUI.enabled;
+		bool origGuiEnabled = GUI.enabled;
 		if (selectedPlayer == null)
 		{
 			GUI.enabled = false;
@@ -760,9 +761,9 @@ public class ControlRemappingDemo1 : MonoBehaviour
 		GUILayout.Space(15f);
 		GUILayout.Label("Assign Joysticks:");
 		GUILayout.BeginHorizontal();
-		bool flag2 = ((selectedPlayer == null || selectedPlayer.controllers.joystickCount == 0) ? true : false);
-		bool flag3 = GUILayout.Toggle(flag2, "None", "Button", GUILayout.ExpandWidth(expand: false));
-		if (flag3 != flag2)
+		bool prevValue = ((selectedPlayer == null || selectedPlayer.controllers.joystickCount == 0) ? true : false);
+		bool value = GUILayout.Toggle(prevValue, "None", "Button", GUILayout.ExpandWidth(expand: false));
+		if (value != prevValue)
 		{
 			selectedPlayer.controllers.ClearControllersOfType(ControllerType.Joystick);
 			ControllerSelectionChanged();
@@ -771,18 +772,18 @@ public class ControlRemappingDemo1 : MonoBehaviour
 		{
 			foreach (Joystick joystick in ReInput.controllers.Joysticks)
 			{
-				flag2 = selectedPlayer.controllers.ContainsController(joystick);
-				flag3 = GUILayout.Toggle(flag2, joystick.name, "Button", GUILayout.ExpandWidth(expand: false));
-				if (flag3 != flag2)
+				prevValue = selectedPlayer.controllers.ContainsController(joystick);
+				value = GUILayout.Toggle(prevValue, joystick.name, "Button", GUILayout.ExpandWidth(expand: false));
+				if (value != prevValue)
 				{
-					EnqueueAction(new JoystickAssignmentChange(selectedPlayer.id, joystick.id, flag3));
+					EnqueueAction(new JoystickAssignmentChange(selectedPlayer.id, joystick.id, value));
 				}
 			}
 		}
 		GUILayout.EndHorizontal();
-		if (GUI.enabled != flag)
+		if (GUI.enabled != origGuiEnabled)
 		{
-			GUI.enabled = flag;
+			GUI.enabled = origGuiEnabled;
 		}
 	}
 
@@ -792,7 +793,7 @@ public class ControlRemappingDemo1 : MonoBehaviour
 		{
 			return;
 		}
-		bool flag = GUI.enabled;
+		bool origGuiEnabled = GUI.enabled;
 		GUILayout.Space(15f);
 		GUILayout.Label("Controller to Map:");
 		GUILayout.BeginHorizontal();
@@ -801,8 +802,9 @@ public class ControlRemappingDemo1 : MonoBehaviour
 			selectedController.Set(0, ControllerType.Keyboard);
 			ControllerSelectionChanged();
 		}
-		bool flag2 = selectedController.type == ControllerType.Keyboard;
-		if (GUILayout.Toggle(flag2, "Keyboard", "Button", GUILayout.ExpandWidth(expand: false)) != flag2)
+		bool prevValue = selectedController.type == ControllerType.Keyboard;
+		bool value = GUILayout.Toggle(prevValue, "Keyboard", "Button", GUILayout.ExpandWidth(expand: false));
+		if (value != prevValue)
 		{
 			selectedController.Set(0, ControllerType.Keyboard);
 			ControllerSelectionChanged();
@@ -811,29 +813,31 @@ public class ControlRemappingDemo1 : MonoBehaviour
 		{
 			GUI.enabled = false;
 		}
-		flag2 = selectedController.type == ControllerType.Mouse;
-		if (GUILayout.Toggle(flag2, "Mouse", "Button", GUILayout.ExpandWidth(expand: false)) != flag2)
+		prevValue = selectedController.type == ControllerType.Mouse;
+		value = GUILayout.Toggle(prevValue, "Mouse", "Button", GUILayout.ExpandWidth(expand: false));
+		if (value != prevValue)
 		{
 			selectedController.Set(0, ControllerType.Mouse);
 			ControllerSelectionChanged();
 		}
-		if (GUI.enabled != flag)
+		if (GUI.enabled != origGuiEnabled)
 		{
-			GUI.enabled = flag;
+			GUI.enabled = origGuiEnabled;
 		}
-		foreach (Joystick joystick in selectedPlayer.controllers.Joysticks)
+		foreach (Joystick i in selectedPlayer.controllers.Joysticks)
 		{
-			flag2 = selectedController.type == ControllerType.Joystick && selectedController.id == joystick.id;
-			if (GUILayout.Toggle(flag2, joystick.name, "Button", GUILayout.ExpandWidth(expand: false)) != flag2)
+			prevValue = selectedController.type == ControllerType.Joystick && selectedController.id == i.id;
+			value = GUILayout.Toggle(prevValue, i.name, "Button", GUILayout.ExpandWidth(expand: false));
+			if (value != prevValue)
 			{
-				selectedController.Set(joystick.id, ControllerType.Joystick);
+				selectedController.Set(i.id, ControllerType.Joystick);
 				ControllerSelectionChanged();
 			}
 		}
 		GUILayout.EndHorizontal();
-		if (GUI.enabled != flag)
+		if (GUI.enabled != origGuiEnabled)
 		{
-			GUI.enabled = flag;
+			GUI.enabled = origGuiEnabled;
 		}
 	}
 
@@ -843,16 +847,16 @@ public class ControlRemappingDemo1 : MonoBehaviour
 		{
 			return;
 		}
-		bool flag = GUI.enabled;
+		bool origGuiEnabled = GUI.enabled;
 		GUILayout.Space(10f);
 		Controller controller = (selectedController.hasSelection ? selectedPlayer.controllers.GetController(selectedController.type, selectedController.id) : null);
 		if (controller == null || selectedController.type != ControllerType.Joystick)
 		{
 			GUI.enabled = false;
 			GUILayout.Button("Select a controller to calibrate", GUILayout.ExpandWidth(expand: false));
-			if (GUI.enabled != flag)
+			if (GUI.enabled != origGuiEnabled)
 			{
-				GUI.enabled = flag;
+				GUI.enabled = origGuiEnabled;
 			}
 		}
 		else if (GUILayout.Button("Calibrate " + controller.name, GUILayout.ExpandWidth(expand: false)) && controller is Joystick joystick)
@@ -863,9 +867,9 @@ public class ControlRemappingDemo1 : MonoBehaviour
 				EnqueueAction(new Calibration(selectedPlayer, joystick, calibrationMap));
 			}
 		}
-		if (GUI.enabled != flag)
+		if (GUI.enabled != origGuiEnabled)
 		{
-			GUI.enabled = flag;
+			GUI.enabled = origGuiEnabled;
 		}
 	}
 
@@ -875,36 +879,37 @@ public class ControlRemappingDemo1 : MonoBehaviour
 		{
 			return;
 		}
-		bool flag = GUI.enabled;
+		bool origGuiEnabled = GUI.enabled;
 		GUILayout.Space(15f);
 		GUILayout.Label("Categories:");
 		GUILayout.BeginHorizontal();
-		foreach (InputMapCategory userAssignableMapCategory in ReInput.mapping.UserAssignableMapCategories)
+		foreach (InputMapCategory category in ReInput.mapping.UserAssignableMapCategories)
 		{
-			if (!selectedPlayer.controllers.maps.ContainsMapInCategory(selectedController.type, userAssignableMapCategory.id))
+			if (!selectedPlayer.controllers.maps.ContainsMapInCategory(selectedController.type, category.id))
 			{
 				GUI.enabled = false;
 			}
 			else if (selectedMapCategoryId < 0)
 			{
-				selectedMapCategoryId = userAssignableMapCategory.id;
-				selectedMap = selectedPlayer.controllers.maps.GetFirstMapInCategory(selectedController.type, selectedController.id, userAssignableMapCategory.id);
+				selectedMapCategoryId = category.id;
+				selectedMap = selectedPlayer.controllers.maps.GetFirstMapInCategory(selectedController.type, selectedController.id, category.id);
 			}
-			bool flag2 = ((userAssignableMapCategory.id == selectedMapCategoryId) ? true : false);
-			if (GUILayout.Toggle(flag2, (userAssignableMapCategory.descriptiveName != string.Empty) ? userAssignableMapCategory.descriptiveName : userAssignableMapCategory.name, "Button", GUILayout.ExpandWidth(expand: false)) != flag2)
+			bool prevValue = ((category.id == selectedMapCategoryId) ? true : false);
+			bool value = GUILayout.Toggle(prevValue, (category.descriptiveName != string.Empty) ? category.descriptiveName : category.name, "Button", GUILayout.ExpandWidth(expand: false));
+			if (value != prevValue)
 			{
-				selectedMapCategoryId = userAssignableMapCategory.id;
-				selectedMap = selectedPlayer.controllers.maps.GetFirstMapInCategory(selectedController.type, selectedController.id, userAssignableMapCategory.id);
+				selectedMapCategoryId = category.id;
+				selectedMap = selectedPlayer.controllers.maps.GetFirstMapInCategory(selectedController.type, selectedController.id, category.id);
 			}
-			if (GUI.enabled != flag)
+			if (GUI.enabled != origGuiEnabled)
 			{
-				GUI.enabled = flag;
+				GUI.enabled = origGuiEnabled;
 			}
 		}
 		GUILayout.EndHorizontal();
-		if (GUI.enabled != flag)
+		if (GUI.enabled != origGuiEnabled)
 		{
-			GUI.enabled = flag;
+			GUI.enabled = origGuiEnabled;
 		}
 	}
 
@@ -914,7 +919,7 @@ public class ControlRemappingDemo1 : MonoBehaviour
 		{
 			return;
 		}
-		bool flag = GUI.enabled;
+		bool origGuiEnabled = GUI.enabled;
 		if (selectedMap == null)
 		{
 			return;
@@ -931,74 +936,74 @@ public class ControlRemappingDemo1 : MonoBehaviour
 		{
 			return;
 		}
-		float width = 150f;
-		foreach (InputAction item in ReInput.mapping.ActionsInCategory(actionCategory.id))
+		float labelWidth = 150f;
+		foreach (InputAction action in ReInput.mapping.ActionsInCategory(actionCategory.id))
 		{
-			string text = ((item.descriptiveName != string.Empty) ? item.descriptiveName : item.name);
-			if (item.type == InputActionType.Button)
+			string name = ((action.descriptiveName != string.Empty) ? action.descriptiveName : action.name);
+			if (action.type == InputActionType.Button)
 			{
 				GUILayout.BeginHorizontal();
-				GUILayout.Label(text, GUILayout.Width(width));
-				DrawAddActionMapButton(selectedPlayer.id, item, AxisRange.Positive, selectedController, selectedMap);
-				foreach (ActionElementMap allMap in selectedMap.AllMaps)
+				GUILayout.Label(name, GUILayout.Width(labelWidth));
+				DrawAddActionMapButton(selectedPlayer.id, action, AxisRange.Positive, selectedController, selectedMap);
+				foreach (ActionElementMap elementMap4 in selectedMap.AllMaps)
 				{
-					if (allMap.actionId == item.id)
+					if (elementMap4.actionId == action.id)
 					{
-						DrawActionAssignmentButton(selectedPlayer.id, item, AxisRange.Positive, selectedController, selectedMap, allMap);
+						DrawActionAssignmentButton(selectedPlayer.id, action, AxisRange.Positive, selectedController, selectedMap, elementMap4);
 					}
 				}
 				GUILayout.EndHorizontal();
 			}
 			else
 			{
-				if (item.type != 0)
+				if (action.type != 0)
 				{
 					continue;
 				}
 				if (selectedController.type != 0)
 				{
 					GUILayout.BeginHorizontal();
-					GUILayout.Label(text, GUILayout.Width(width));
-					DrawAddActionMapButton(selectedPlayer.id, item, AxisRange.Full, selectedController, selectedMap);
-					foreach (ActionElementMap allMap2 in selectedMap.AllMaps)
+					GUILayout.Label(name, GUILayout.Width(labelWidth));
+					DrawAddActionMapButton(selectedPlayer.id, action, AxisRange.Full, selectedController, selectedMap);
+					foreach (ActionElementMap elementMap3 in selectedMap.AllMaps)
 					{
-						if (allMap2.actionId == item.id && allMap2.elementType != ControllerElementType.Button && allMap2.axisType != AxisType.Split)
+						if (elementMap3.actionId == action.id && elementMap3.elementType != ControllerElementType.Button && elementMap3.axisType != AxisType.Split)
 						{
-							DrawActionAssignmentButton(selectedPlayer.id, item, AxisRange.Full, selectedController, selectedMap, allMap2);
-							DrawInvertButton(selectedPlayer.id, item, Pole.Positive, selectedController, selectedMap, allMap2);
+							DrawActionAssignmentButton(selectedPlayer.id, action, AxisRange.Full, selectedController, selectedMap, elementMap3);
+							DrawInvertButton(selectedPlayer.id, action, Pole.Positive, selectedController, selectedMap, elementMap3);
 						}
 					}
 					GUILayout.EndHorizontal();
 				}
-				string text2 = ((item.positiveDescriptiveName != string.Empty) ? item.positiveDescriptiveName : (item.descriptiveName + " +"));
+				string positiveName = ((action.positiveDescriptiveName != string.Empty) ? action.positiveDescriptiveName : (action.descriptiveName + " +"));
 				GUILayout.BeginHorizontal();
-				GUILayout.Label(text2, GUILayout.Width(width));
-				DrawAddActionMapButton(selectedPlayer.id, item, AxisRange.Positive, selectedController, selectedMap);
-				foreach (ActionElementMap allMap3 in selectedMap.AllMaps)
+				GUILayout.Label(positiveName, GUILayout.Width(labelWidth));
+				DrawAddActionMapButton(selectedPlayer.id, action, AxisRange.Positive, selectedController, selectedMap);
+				foreach (ActionElementMap elementMap2 in selectedMap.AllMaps)
 				{
-					if (allMap3.actionId == item.id && allMap3.axisContribution == Pole.Positive && allMap3.axisType != AxisType.Normal)
+					if (elementMap2.actionId == action.id && elementMap2.axisContribution == Pole.Positive && elementMap2.axisType != AxisType.Normal)
 					{
-						DrawActionAssignmentButton(selectedPlayer.id, item, AxisRange.Positive, selectedController, selectedMap, allMap3);
+						DrawActionAssignmentButton(selectedPlayer.id, action, AxisRange.Positive, selectedController, selectedMap, elementMap2);
 					}
 				}
 				GUILayout.EndHorizontal();
-				string text3 = ((item.negativeDescriptiveName != string.Empty) ? item.negativeDescriptiveName : (item.descriptiveName + " -"));
+				string negativeName = ((action.negativeDescriptiveName != string.Empty) ? action.negativeDescriptiveName : (action.descriptiveName + " -"));
 				GUILayout.BeginHorizontal();
-				GUILayout.Label(text3, GUILayout.Width(width));
-				DrawAddActionMapButton(selectedPlayer.id, item, AxisRange.Negative, selectedController, selectedMap);
-				foreach (ActionElementMap allMap4 in selectedMap.AllMaps)
+				GUILayout.Label(negativeName, GUILayout.Width(labelWidth));
+				DrawAddActionMapButton(selectedPlayer.id, action, AxisRange.Negative, selectedController, selectedMap);
+				foreach (ActionElementMap elementMap in selectedMap.AllMaps)
 				{
-					if (allMap4.actionId == item.id && allMap4.axisContribution == Pole.Negative && allMap4.axisType != AxisType.Normal)
+					if (elementMap.actionId == action.id && elementMap.axisContribution == Pole.Negative && elementMap.axisType != AxisType.Normal)
 					{
-						DrawActionAssignmentButton(selectedPlayer.id, item, AxisRange.Negative, selectedController, selectedMap, allMap4);
+						DrawActionAssignmentButton(selectedPlayer.id, action, AxisRange.Negative, selectedController, selectedMap, elementMap);
 					}
 				}
 				GUILayout.EndHorizontal();
 			}
 		}
-		if (GUI.enabled != flag)
+		if (GUI.enabled != origGuiEnabled)
 		{
-			GUI.enabled = flag;
+			GUI.enabled = origGuiEnabled;
 		}
 	}
 
@@ -1021,11 +1026,11 @@ public class ControlRemappingDemo1 : MonoBehaviour
 
 	private void DrawInvertButton(int playerId, InputAction action, Pole actionAxisContribution, ControllerSelection controller, ControllerMap controllerMap, ActionElementMap elementMap)
 	{
-		bool invert = elementMap.invert;
-		bool flag = GUILayout.Toggle(invert, "Invert", GUILayout.ExpandWidth(expand: false));
-		if (flag != invert)
+		bool value = elementMap.invert;
+		bool newValue = GUILayout.Toggle(value, "Invert", GUILayout.ExpandWidth(expand: false));
+		if (newValue != value)
 		{
-			elementMap.invert = flag;
+			elementMap.invert = newValue;
 		}
 		GUILayout.Space(10f);
 	}
@@ -1088,17 +1093,17 @@ public class ControlRemappingDemo1 : MonoBehaviour
 		GUILayout.Space(5f);
 		GUILayout.Label(message, style_wordWrap);
 		GUILayout.FlexibleSpace();
-		if (!(actionQueue.Peek() is ElementAssignmentChange elementAssignmentChange))
+		if (!(actionQueue.Peek() is ElementAssignmentChange entry))
 		{
 			dialog.Cancel();
 			return;
 		}
-		float num;
+		float time;
 		if (!dialog.busy)
 		{
 			if (startListening && inputMapper.status == InputMapper.Status.Idle)
 			{
-				inputMapper.Start(elementAssignmentChange.context);
+				inputMapper.Start(entry.context);
 				startListening = false;
 			}
 			if (conflictFoundEventData != null)
@@ -1106,8 +1111,8 @@ public class ControlRemappingDemo1 : MonoBehaviour
 				dialog.Confirm();
 				return;
 			}
-			num = inputMapper.timeRemaining;
-			if (num == 0f)
+			time = inputMapper.timeRemaining;
+			if (time == 0f)
 			{
 				dialog.Cancel();
 				return;
@@ -1115,9 +1120,9 @@ public class ControlRemappingDemo1 : MonoBehaviour
 		}
 		else
 		{
-			num = inputMapper.options.timeout;
+			time = inputMapper.options.timeout;
 		}
-		GUILayout.Label("Assignment will be canceled in " + (int)Mathf.Ceil(num) + "...", style_wordWrap);
+		GUILayout.Label("Assignment will be canceled in " + (int)Mathf.Ceil(time) + "...", style_wordWrap);
 	}
 
 	private void DrawElementAssignmentProtectedConflictWindow(string title, string message)
@@ -1183,20 +1188,20 @@ public class ControlRemappingDemo1 : MonoBehaviour
 		{
 			return;
 		}
-		if (!(actionQueue.Peek() is FallbackJoystickIdentification fallbackJoystickIdentification))
+		if (!(actionQueue.Peek() is FallbackJoystickIdentification entry))
 		{
 			dialog.Cancel();
 			return;
 		}
 		GUILayout.Space(5f);
 		GUILayout.Label(message, style_wordWrap);
-		GUILayout.Label("Press any button or axis on \"" + fallbackJoystickIdentification.joystickName + "\" now.", style_wordWrap);
+		GUILayout.Label("Press any button or axis on \"" + entry.joystickName + "\" now.", style_wordWrap);
 		GUILayout.FlexibleSpace();
 		if (GUILayout.Button("Skip"))
 		{
 			dialog.Cancel();
 		}
-		else if (!dialog.busy && ReInput.controllers.SetUnityJoystickIdFromAnyButtonOrAxisPress(fallbackJoystickIdentification.joystickId, 0.8f, positiveAxesOnly: false))
+		else if (!dialog.busy && ReInput.controllers.SetUnityJoystickIdFromAnyButtonOrAxisPress(entry.joystickId, 0.8f, positiveAxesOnly: false))
 		{
 			dialog.Confirm();
 		}
@@ -1208,7 +1213,7 @@ public class ControlRemappingDemo1 : MonoBehaviour
 		{
 			return;
 		}
-		if (!(actionQueue.Peek() is Calibration calibration))
+		if (!(actionQueue.Peek() is Calibration entry))
 		{
 			dialog.Cancel();
 			return;
@@ -1217,86 +1222,86 @@ public class ControlRemappingDemo1 : MonoBehaviour
 		GUILayout.Label(message, style_wordWrap);
 		GUILayout.Space(20f);
 		GUILayout.BeginHorizontal();
-		bool flag = GUI.enabled;
+		bool origGUIEnabled = GUI.enabled;
 		GUILayout.BeginVertical(GUILayout.Width(200f));
 		calibrateScrollPos = GUILayout.BeginScrollView(calibrateScrollPos);
-		if (calibration.recording)
+		if (entry.recording)
 		{
 			GUI.enabled = false;
 		}
-		IList<ControllerElementIdentifier> axisElementIdentifiers = calibration.joystick.AxisElementIdentifiers;
-		for (int i = 0; i < axisElementIdentifiers.Count; i++)
+		IList<ControllerElementIdentifier> axisIdentifiers = entry.joystick.AxisElementIdentifiers;
+		for (int i = 0; i < axisIdentifiers.Count; i++)
 		{
-			ControllerElementIdentifier controllerElementIdentifier = axisElementIdentifiers[i];
-			bool flag2 = calibration.selectedElementIdentifierId == controllerElementIdentifier.id;
-			bool flag3 = GUILayout.Toggle(flag2, controllerElementIdentifier.name, "Button", GUILayout.ExpandWidth(expand: false));
-			if (flag2 != flag3)
+			ControllerElementIdentifier identifier = axisIdentifiers[i];
+			bool isSelected = entry.selectedElementIdentifierId == identifier.id;
+			bool newValue = GUILayout.Toggle(isSelected, identifier.name, "Button", GUILayout.ExpandWidth(expand: false));
+			if (isSelected != newValue)
 			{
-				calibration.selectedElementIdentifierId = controllerElementIdentifier.id;
+				entry.selectedElementIdentifierId = identifier.id;
 			}
 		}
-		if (GUI.enabled != flag)
+		if (GUI.enabled != origGUIEnabled)
 		{
-			GUI.enabled = flag;
+			GUI.enabled = origGUIEnabled;
 		}
 		GUILayout.EndScrollView();
 		GUILayout.EndVertical();
 		GUILayout.BeginVertical(GUILayout.Width(200f));
-		if (calibration.selectedElementIdentifierId >= 0)
+		if (entry.selectedElementIdentifierId >= 0)
 		{
-			float axisRawById = calibration.joystick.GetAxisRawById(calibration.selectedElementIdentifierId);
-			GUILayout.Label("Raw Value: " + axisRawById);
-			int axisIndexById = calibration.joystick.GetAxisIndexById(calibration.selectedElementIdentifierId);
-			AxisCalibration axis = calibration.calibrationMap.GetAxis(axisIndexById);
-			GUILayout.Label("Calibrated Value: " + calibration.joystick.GetAxisById(calibration.selectedElementIdentifierId));
+			float axisValue = entry.joystick.GetAxisRawById(entry.selectedElementIdentifierId);
+			GUILayout.Label("Raw Value: " + axisValue);
+			int axisIndex = entry.joystick.GetAxisIndexById(entry.selectedElementIdentifierId);
+			AxisCalibration axis = entry.calibrationMap.GetAxis(axisIndex);
+			GUILayout.Label("Calibrated Value: " + entry.joystick.GetAxisById(entry.selectedElementIdentifierId));
 			GUILayout.Label("Zero: " + axis.calibratedZero);
 			GUILayout.Label("Min: " + axis.calibratedMin);
 			GUILayout.Label("Max: " + axis.calibratedMax);
 			GUILayout.Label("Dead Zone: " + axis.deadZone);
 			GUILayout.Space(15f);
-			bool flag4 = GUILayout.Toggle(axis.enabled, "Enabled", "Button", GUILayout.ExpandWidth(expand: false));
-			if (axis.enabled != flag4)
+			bool newEnabled = GUILayout.Toggle(axis.enabled, "Enabled", "Button", GUILayout.ExpandWidth(expand: false));
+			if (axis.enabled != newEnabled)
 			{
-				axis.enabled = flag4;
+				axis.enabled = newEnabled;
 			}
 			GUILayout.Space(10f);
-			bool flag5 = GUILayout.Toggle(calibration.recording, "Record Min/Max", "Button", GUILayout.ExpandWidth(expand: false));
-			if (flag5 != calibration.recording)
+			bool newRecording = GUILayout.Toggle(entry.recording, "Record Min/Max", "Button", GUILayout.ExpandWidth(expand: false));
+			if (newRecording != entry.recording)
 			{
-				if (flag5)
+				if (newRecording)
 				{
 					axis.calibratedMax = 0f;
 					axis.calibratedMin = 0f;
 				}
-				calibration.recording = flag5;
+				entry.recording = newRecording;
 			}
-			if (calibration.recording)
+			if (entry.recording)
 			{
-				axis.calibratedMin = Mathf.Min(axis.calibratedMin, axisRawById, axis.calibratedMin);
-				axis.calibratedMax = Mathf.Max(axis.calibratedMax, axisRawById, axis.calibratedMax);
+				axis.calibratedMin = Mathf.Min(axis.calibratedMin, axisValue, axis.calibratedMin);
+				axis.calibratedMax = Mathf.Max(axis.calibratedMax, axisValue, axis.calibratedMax);
 				GUI.enabled = false;
 			}
 			if (GUILayout.Button("Set Zero", GUILayout.ExpandWidth(expand: false)))
 			{
-				axis.calibratedZero = axisRawById;
+				axis.calibratedZero = axisValue;
 			}
 			if (GUILayout.Button("Set Dead Zone", GUILayout.ExpandWidth(expand: false)))
 			{
-				axis.deadZone = axisRawById;
+				axis.deadZone = axisValue;
 			}
-			bool flag6 = GUILayout.Toggle(axis.invert, "Invert", "Button", GUILayout.ExpandWidth(expand: false));
-			if (axis.invert != flag6)
+			bool newInvert = GUILayout.Toggle(axis.invert, "Invert", "Button", GUILayout.ExpandWidth(expand: false));
+			if (axis.invert != newInvert)
 			{
-				axis.invert = flag6;
+				axis.invert = newInvert;
 			}
 			GUILayout.Space(10f);
 			if (GUILayout.Button("Reset", GUILayout.ExpandWidth(expand: false)))
 			{
 				axis.Reset();
 			}
-			if (GUI.enabled != flag)
+			if (GUI.enabled != origGUIEnabled)
 			{
-				GUI.enabled = flag;
+				GUI.enabled = origGUIEnabled;
 			}
 		}
 		else
@@ -1306,7 +1311,7 @@ public class ControlRemappingDemo1 : MonoBehaviour
 		GUILayout.EndVertical();
 		GUILayout.EndHorizontal();
 		GUILayout.FlexibleSpace();
-		if (calibration.recording)
+		if (entry.recording)
 		{
 			GUI.enabled = false;
 		}
@@ -1315,28 +1320,29 @@ public class ControlRemappingDemo1 : MonoBehaviour
 			calibrateScrollPos = default(Vector2);
 			dialog.Confirm();
 		}
-		if (GUI.enabled != flag)
+		if (GUI.enabled != origGUIEnabled)
 		{
-			GUI.enabled = flag;
+			GUI.enabled = origGUIEnabled;
 		}
 	}
 
 	private void DialogResultCallback(int queueActionId, UserResponse response)
 	{
-		foreach (QueueEntry item in actionQueue)
+		foreach (QueueEntry entry in actionQueue)
 		{
-			if (item.id == queueActionId)
+			if (entry.id != queueActionId)
 			{
-				if (response != UserResponse.Cancel)
-				{
-					item.Confirm(response);
-				}
-				else
-				{
-					item.Cancel();
-				}
-				break;
+				continue;
 			}
+			if (response != UserResponse.Cancel)
+			{
+				entry.Confirm(response);
+			}
+			else
+			{
+				entry.Cancel();
+			}
+			break;
 		}
 	}
 
@@ -1364,28 +1370,27 @@ public class ControlRemappingDemo1 : MonoBehaviour
 		while (actionQueue.Count > 0)
 		{
 			QueueEntry queueEntry = actionQueue.Peek();
-			bool flag = false;
+			bool goNext = false;
 			switch (queueEntry.queueActionType)
 			{
 			case QueueActionType.JoystickAssignment:
-				flag = ProcessJoystickAssignmentChange((JoystickAssignmentChange)queueEntry);
+				goNext = ProcessJoystickAssignmentChange((JoystickAssignmentChange)queueEntry);
 				break;
 			case QueueActionType.ElementAssignment:
-				flag = ProcessElementAssignmentChange((ElementAssignmentChange)queueEntry);
+				goNext = ProcessElementAssignmentChange((ElementAssignmentChange)queueEntry);
 				break;
 			case QueueActionType.FallbackJoystickIdentification:
-				flag = ProcessFallbackJoystickIdentification((FallbackJoystickIdentification)queueEntry);
+				goNext = ProcessFallbackJoystickIdentification((FallbackJoystickIdentification)queueEntry);
 				break;
 			case QueueActionType.Calibrate:
-				flag = ProcessCalibration((Calibration)queueEntry);
+				goNext = ProcessCalibration((Calibration)queueEntry);
 				break;
 			}
-			if (flag)
+			if (!goNext)
 			{
-				actionQueue.Dequeue();
-				continue;
+				break;
 			}
-			break;
+			actionQueue.Dequeue();
 		}
 	}
 
@@ -1452,16 +1457,16 @@ public class ControlRemappingDemo1 : MonoBehaviour
 		}
 		if (entry.state == QueueEntry.State.Canceled)
 		{
-			ElementAssignmentChange elementAssignmentChange = new ElementAssignmentChange(entry);
-			elementAssignmentChange.changeType = ElementAssignmentChangeType.Remove;
-			actionQueue.Enqueue(elementAssignmentChange);
+			ElementAssignmentChange newEntry = new ElementAssignmentChange(entry);
+			newEntry.changeType = ElementAssignmentChangeType.Remove;
+			actionQueue.Enqueue(newEntry);
 			return true;
 		}
 		if (entry.state == QueueEntry.State.Confirmed)
 		{
-			ElementAssignmentChange elementAssignmentChange2 = new ElementAssignmentChange(entry);
-			elementAssignmentChange2.changeType = ElementAssignmentChangeType.Replace;
-			actionQueue.Enqueue(elementAssignmentChange2);
+			ElementAssignmentChange newEntry2 = new ElementAssignmentChange(entry);
+			newEntry2.changeType = ElementAssignmentChangeType.Replace;
+			actionQueue.Enqueue(newEntry2);
 			return true;
 		}
 		dialog.StartModal(entry.id, DialogHelper.DialogType.AssignElement, new WindowProperties
@@ -1514,29 +1519,29 @@ public class ControlRemappingDemo1 : MonoBehaviour
 			}
 			if (conflictFoundEventData != null)
 			{
-				ElementAssignmentChange elementAssignmentChange = new ElementAssignmentChange(entry);
-				elementAssignmentChange.changeType = ElementAssignmentChangeType.ConflictCheck;
-				actionQueue.Enqueue(elementAssignmentChange);
+				ElementAssignmentChange newEntry = new ElementAssignmentChange(entry);
+				newEntry.changeType = ElementAssignmentChangeType.ConflictCheck;
+				actionQueue.Enqueue(newEntry);
 			}
 			return true;
 		}
-		string text;
+		string message;
 		if (entry.context.controllerMap.controllerType != 0)
 		{
-			text = ((entry.context.controllerMap.controllerType != ControllerType.Mouse) ? "Press any button or axis to assign it to this action." : "Press any mouse button or axis to assign it to this action.\n\nTo assign mouse movement axes, move the mouse quickly in the direction you want mapped to the action. Slow movements will be ignored.");
+			message = ((entry.context.controllerMap.controllerType != ControllerType.Mouse) ? "Press any button or axis to assign it to this action." : "Press any mouse button or axis to assign it to this action.\n\nTo assign mouse movement axes, move the mouse quickly in the direction you want mapped to the action. Slow movements will be ignored.");
 		}
 		else
 		{
-			text = ((Application.platform != 0 && Application.platform != RuntimePlatform.OSXPlayer) ? "Press any key to assign it to this action. You may also use the modifier keys Control, Alt, and Shift. If you wish to assign a modifier key itself to this action, press and hold the key for 1 second." : "Press any key to assign it to this action. You may also use the modifier keys Command, Control, Alt, and Shift. If you wish to assign a modifier key itself to this action, press and hold the key for 1 second.");
+			message = ((Application.platform != 0 && Application.platform != RuntimePlatform.OSXPlayer) ? "Press any key to assign it to this action. You may also use the modifier keys Control, Alt, and Shift. If you wish to assign a modifier key itself to this action, press and hold the key for 1 second." : "Press any key to assign it to this action. You may also use the modifier keys Command, Control, Alt, and Shift. If you wish to assign a modifier key itself to this action, press and hold the key for 1 second.");
 			if (Application.isEditor)
 			{
-				text += "\n\nNOTE: Some modifier key combinations will not work in the Unity Editor, but they will work in a game build.";
+				message += "\n\nNOTE: Some modifier key combinations will not work in the Unity Editor, but they will work in a game build.";
 			}
 		}
 		dialog.StartModal(entry.id, DialogHelper.DialogType.AssignElement, new WindowProperties
 		{
 			title = "Assign",
-			message = text,
+			message = message,
 			rect = GetScreenCenteredRect(250f, 200f),
 			windowDrawDelegate = DrawElementAssignmentWindow
 		}, DialogResultCallback);
@@ -1576,22 +1581,22 @@ public class ControlRemappingDemo1 : MonoBehaviour
 		}
 		if (conflictFoundEventData.isProtected)
 		{
-			string message = conflictFoundEventData.assignment.elementDisplayName + " is already in use and is protected from reassignment. You cannot remove the protected assignment, but you can still assign the action to this element. If you do so, the element will trigger multiple actions when activated.";
+			string message2 = conflictFoundEventData.assignment.elementDisplayName + " is already in use and is protected from reassignment. You cannot remove the protected assignment, but you can still assign the action to this element. If you do so, the element will trigger multiple actions when activated.";
 			dialog.StartModal(entry.id, DialogHelper.DialogType.AssignElement, new WindowProperties
 			{
 				title = "Assignment Conflict",
-				message = message,
+				message = message2,
 				rect = GetScreenCenteredRect(250f, 200f),
 				windowDrawDelegate = DrawElementAssignmentProtectedConflictWindow
 			}, DialogResultCallback);
 		}
 		else
 		{
-			string message2 = conflictFoundEventData.assignment.elementDisplayName + " is already in use. You may replace the other conflicting assignments, add this assignment anyway which will leave multiple actions assigned to this element, or cancel this assignment.";
+			string message = conflictFoundEventData.assignment.elementDisplayName + " is already in use. You may replace the other conflicting assignments, add this assignment anyway which will leave multiple actions assigned to this element, or cancel this assignment.";
 			dialog.StartModal(entry.id, DialogHelper.DialogType.AssignElement, new WindowProperties
 			{
 				title = "Assignment Conflict",
-				message = message2,
+				message = message,
 				rect = GetScreenCenteredRect(250f, 200f),
 				windowDrawDelegate = DrawElementAssignmentNormalConflictWindow
 			}, DialogResultCallback);
@@ -1709,11 +1714,11 @@ public class ControlRemappingDemo1 : MonoBehaviour
 	{
 		if (ReInput.controllers.IsControllerAssigned(args.controllerType, args.controllerId))
 		{
-			foreach (Player allPlayer in ReInput.players.AllPlayers)
+			foreach (Player player in ReInput.players.AllPlayers)
 			{
-				if (allPlayer.controllers.ContainsController(args.controllerType, args.controllerId))
+				if (player.controllers.ContainsController(args.controllerType, args.controllerId))
 				{
-					ReInput.userDataStore.LoadControllerData(allPlayer.id, args.controllerType, args.controllerId);
+					ReInput.userDataStore.LoadControllerData(player.id, args.controllerType, args.controllerId);
 				}
 			}
 		}
@@ -1739,11 +1744,11 @@ public class ControlRemappingDemo1 : MonoBehaviour
 		}
 		if (ReInput.controllers.IsControllerAssigned(args.controllerType, args.controllerId))
 		{
-			foreach (Player allPlayer in ReInput.players.AllPlayers)
+			foreach (Player player in ReInput.players.AllPlayers)
 			{
-				if (allPlayer.controllers.ContainsController(args.controllerType, args.controllerId))
+				if (player.controllers.ContainsController(args.controllerType, args.controllerId))
 				{
-					ReInput.userDataStore.SaveControllerData(allPlayer.id, args.controllerType, args.controllerId);
+					ReInput.userDataStore.SaveControllerData(player.id, args.controllerType, args.controllerId);
 				}
 			}
 			return;

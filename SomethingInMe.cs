@@ -19,15 +19,15 @@ public class SomethingInMe : MonoBehaviour
 
 	public Collider CollToPrevent;
 
-	private bool placed;
+	private bool placed = false;
 
 	private void Start()
 	{
 		InvokeRepeating("ResetColliders", 3f, 3f);
 		Renderer[] turretRenders = TurretRenders;
-		for (int i = 0; i < turretRenders.Length; i++)
+		foreach (Renderer r in turretRenders)
 		{
-			turretRenders[i].material = TurretSkinData.TurretMaterial;
+			r.material = TurretSkinData.TurretMaterial;
 		}
 		OGRend = TurretSkinData.TurretMaterial.color;
 		SetMaterial(Available, backToNormal: false);
@@ -35,17 +35,17 @@ public class SomethingInMe : MonoBehaviour
 
 	private void ResetColliders()
 	{
-		List<Collider> list = new List<Collider>();
-		foreach (Collider item in CollidersInMe)
+		List<Collider> toRemove = new List<Collider>();
+		foreach (Collider coll2 in CollidersInMe)
 		{
-			if (item == null)
+			if (coll2 == null)
 			{
-				list.Add(item);
+				toRemove.Add(coll2);
 			}
 		}
-		foreach (Collider item2 in list)
+		foreach (Collider coll in toRemove)
 		{
-			CollidersInMe.Remove(item2);
+			CollidersInMe.Remove(coll);
 		}
 	}
 
@@ -87,17 +87,17 @@ public class SomethingInMe : MonoBehaviour
 		if (backToNormal)
 		{
 			Renderer[] turretRenders = TurretRenders;
-			for (int i = 0; i < turretRenders.Length; i++)
+			foreach (Renderer r2 in turretRenders)
 			{
-				turretRenders[i].material.color = OGRend;
+				r2.material.color = OGRend;
 			}
 		}
 		else
 		{
-			Renderer[] turretRenders = TurretRenders;
-			for (int i = 0; i < turretRenders.Length; i++)
+			Renderer[] turretRenders2 = TurretRenders;
+			foreach (Renderer r in turretRenders2)
 			{
-				turretRenders[i].material.color = clr;
+				r.material.color = clr;
 			}
 		}
 	}

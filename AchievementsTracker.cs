@@ -4,31 +4,31 @@ public class AchievementsTracker : MonoBehaviour
 {
 	private static AchievementsTracker _instance;
 
-	private bool resetted;
+	private bool resetted = false;
 
 	public AudioClip AchievementCompleted;
 
-	public bool StartedFromBegin;
+	public bool StartedFromBegin = false;
 
-	public bool Moved;
+	public bool Moved = false;
 
-	public bool KilledWithoutBounce;
+	public bool KilledWithoutBounce = false;
 
-	public bool HasShooted;
+	public bool HasShooted = false;
 
-	public bool HasShootedThisRound;
+	public bool HasShootedThisRound = false;
 
-	public bool HasShotBoss;
+	public bool HasShotBoss = false;
 
-	public bool HasMissed;
+	public bool HasMissed = false;
 
-	public bool BoughtUpgrade;
+	public bool BoughtUpgrade = false;
 
-	public bool HasBeenHit;
+	public bool HasBeenHit = false;
 
-	public bool GaryKilled;
+	public bool GaryKilled = false;
 
-	public bool HasBeenStunnedByBoss;
+	public bool HasBeenStunnedByBoss = false;
 
 	public GameObject AchievementNotification;
 
@@ -38,7 +38,7 @@ public class AchievementsTracker : MonoBehaviour
 
 	public string[] UnlockedMessage;
 
-	public int selectedDifficulty;
+	public int selectedDifficulty = 0;
 
 	public static AchievementsTracker instance => _instance;
 
@@ -69,15 +69,15 @@ public class AchievementsTracker : MonoBehaviour
 		{
 			AchievementNotificationParent = GameObject.FindGameObjectWithTag("AchievementNotificationParent");
 		}
-		bool flag = false;
+		bool failed = false;
 		for (int i = 0; i < 34; i++)
 		{
 			if (OptionsMainMenu.instance.AM[i] != 1 && i != 14)
 			{
-				flag = true;
+				failed = true;
 			}
 		}
-		if (!flag && OptionsMainMenu.instance.AM[14] != 1)
+		if (!failed && OptionsMainMenu.instance.AM[14] != 1)
 		{
 			completeAlwaysAchievement(14);
 		}
@@ -209,27 +209,27 @@ public class AchievementsTracker : MonoBehaviour
 		{
 			return;
 		}
-		GameObject gameObject = Object.Instantiate(AchievementNotification);
-		GameObject[] array = GameObject.FindGameObjectsWithTag("Firework");
+		GameObject Notification = Object.Instantiate(AchievementNotification);
+		GameObject[] Fireworks = GameObject.FindGameObjectsWithTag("Firework");
 		GameMaster.instance.NAS.extraWait = 2f;
 		GameMaster.instance.NAS.ResetExtraWait();
-		GameObject[] array2 = array;
-		for (int i = 0; i < array2.Length; i++)
+		GameObject[] array = Fireworks;
+		foreach (GameObject Firework in array)
 		{
-			AchievementFireWork component = array2[i].GetComponent<AchievementFireWork>();
-			if ((bool)component)
+			AchievementFireWork AFW = Firework.GetComponent<AchievementFireWork>();
+			if ((bool)AFW)
 			{
-				component.NewAchievement();
+				AFW.NewAchievement();
 			}
 		}
-		gameObject.transform.parent = AchievementNotificationParent.transform;
-		gameObject.transform.localPosition = new Vector3(0f, -350f, 0f);
-		AchievementItemScript component2 = gameObject.GetComponent<AchievementItemScript>();
+		Notification.transform.parent = AchievementNotificationParent.transform;
+		Notification.transform.localPosition = new Vector3(0f, -350f, 0f);
+		AchievementItemScript AIS = Notification.GetComponent<AchievementItemScript>();
 		SFXManager.instance.PlaySFX(AchievementCompleted, 1f, null);
-		if ((bool)component2)
+		if ((bool)AIS)
 		{
-			component2.message = UnlockedMessage[count];
-			component2.AMID = count;
+			AIS.message = UnlockedMessage[count];
+			AIS.AMID = count;
 		}
 	}
 
@@ -238,45 +238,44 @@ public class AchievementsTracker : MonoBehaviour
 		if (GameMaster.instance.PlayerModeWithAI[1] == 1 || GameMaster.instance.PlayerModeWithAI[2] == 1 || GameMaster.instance.PlayerModeWithAI[3] == 1 || GameMaster.instance.inMapEditor || GameMaster.instance.isZombieMode)
 		{
 			Debug.Log("Achievement " + ID);
+			return;
 		}
-		else
+		SteamTest.instance.GetAchievement(ID);
+		if (OptionsMainMenu.instance.AM[ID] == 1)
 		{
-			if (OptionsMainMenu.instance.AM[ID] == 1)
+			return;
+		}
+		Debug.Log("COMPLETING: " + ID);
+		OptionsMainMenu.instance.AM[ID] = 1;
+		OptionsMainMenu.instance.SaveNewData();
+		AccountMaster.instance.SaveCloudData(3, ID, 0, bounceKill: false);
+		GameObject Notification = Object.Instantiate(AchievementNotification);
+		GameObject[] Fireworks = GameObject.FindGameObjectsWithTag("Firework");
+		if ((bool)GameMaster.instance.NAS)
+		{
+			GameMaster.instance.NAS.extraWait = 2f;
+			GameMaster.instance.NAS.ResetExtraWait();
+		}
+		GameObject[] array = Fireworks;
+		foreach (GameObject Firework in array)
+		{
+			AchievementFireWork AFW = Firework.GetComponent<AchievementFireWork>();
+			if ((bool)AFW)
 			{
-				return;
+				AFW.NewAchievement();
 			}
-			Debug.Log("COMPLETING: " + ID);
-			OptionsMainMenu.instance.AM[ID] = 1;
-			OptionsMainMenu.instance.SaveNewData();
-			AccountMaster.instance.SaveCloudData(3, ID, 0, bounceKill: false);
-			GameObject gameObject = Object.Instantiate(AchievementNotification);
-			GameObject[] array = GameObject.FindGameObjectsWithTag("Firework");
-			if ((bool)GameMaster.instance.NAS)
-			{
-				GameMaster.instance.NAS.extraWait = 2f;
-				GameMaster.instance.NAS.ResetExtraWait();
-			}
-			GameObject[] array2 = array;
-			for (int i = 0; i < array2.Length; i++)
-			{
-				AchievementFireWork component = array2[i].GetComponent<AchievementFireWork>();
-				if ((bool)component)
-				{
-					component.NewAchievement();
-				}
-			}
-			gameObject.transform.parent = AchievementNotificationParent.transform;
-			gameObject.transform.localPosition = new Vector3(0f, -350f, 0f);
-			AchievementItemScript component2 = gameObject.GetComponent<AchievementItemScript>();
-			SFXManager.instance.PlaySFX(AchievementCompleted, 1f, null);
-			if (AccountMaster.instance.isSignedIn)
-			{
-				AccountMaster.instance.IncreaseMarbles(OptionsMainMenu.instance.AM_marbles[ID]);
-			}
-			if ((bool)component2)
-			{
-				component2.AMID = ID;
-			}
+		}
+		Notification.transform.parent = AchievementNotificationParent.transform;
+		Notification.transform.localPosition = new Vector3(0f, -350f, 0f);
+		AchievementItemScript AIS = Notification.GetComponent<AchievementItemScript>();
+		SFXManager.instance.PlaySFX(AchievementCompleted, 1f, null);
+		if (AccountMaster.instance.isSignedIn)
+		{
+			AccountMaster.instance.IncreaseMarbles(OptionsMainMenu.instance.AM_marbles[ID]);
+		}
+		if ((bool)AIS)
+		{
+			AIS.AMID = ID;
 		}
 	}
 
@@ -285,38 +284,37 @@ public class AchievementsTracker : MonoBehaviour
 		if (GameMaster.instance.inMapEditor || GameMaster.instance.isZombieMode)
 		{
 			Debug.Log("AI.. Achievement " + ID);
+			return;
 		}
-		else
+		SteamTest.instance.GetAchievement(ID);
+		if (OptionsMainMenu.instance.AM[ID] == 1 || !AccountMaster.instance.isSignedIn)
 		{
-			if (OptionsMainMenu.instance.AM[ID] == 1 || !AccountMaster.instance.isSignedIn)
+			return;
+		}
+		Debug.Log("AI COMPLETING: " + ID);
+		AccountMaster.instance.SaveCloudData(3, ID, 0, bounceKill: false);
+		OptionsMainMenu.instance.AM[ID] = 1;
+		OptionsMainMenu.instance.SaveNewData();
+		GameObject Notification = Object.Instantiate(AchievementNotification);
+		GameObject[] Fireworks = GameObject.FindGameObjectsWithTag("Firework");
+		GameMaster.instance.NAS.extraWait = 2f;
+		GameMaster.instance.NAS.ResetExtraWait();
+		GameObject[] array = Fireworks;
+		foreach (GameObject Firework in array)
+		{
+			AchievementFireWork AFW = Firework.GetComponent<AchievementFireWork>();
+			if ((bool)AFW)
 			{
-				return;
+				AFW.NewAchievement();
 			}
-			Debug.Log("AI COMPLETING: " + ID);
-			AccountMaster.instance.SaveCloudData(3, ID, 0, bounceKill: false);
-			OptionsMainMenu.instance.AM[ID] = 1;
-			OptionsMainMenu.instance.SaveNewData();
-			GameObject gameObject = Object.Instantiate(AchievementNotification);
-			GameObject[] array = GameObject.FindGameObjectsWithTag("Firework");
-			GameMaster.instance.NAS.extraWait = 2f;
-			GameMaster.instance.NAS.ResetExtraWait();
-			GameObject[] array2 = array;
-			for (int i = 0; i < array2.Length; i++)
-			{
-				AchievementFireWork component = array2[i].GetComponent<AchievementFireWork>();
-				if ((bool)component)
-				{
-					component.NewAchievement();
-				}
-			}
-			gameObject.transform.parent = AchievementNotificationParent.transform;
-			gameObject.transform.localPosition = new Vector3(0f, -350f, 0f);
-			AchievementItemScript component2 = gameObject.GetComponent<AchievementItemScript>();
-			SFXManager.instance.PlaySFX(AchievementCompleted, 1f, null);
-			if ((bool)component2)
-			{
-				component2.AMID = ID;
-			}
+		}
+		Notification.transform.parent = AchievementNotificationParent.transform;
+		Notification.transform.localPosition = new Vector3(0f, -350f, 0f);
+		AchievementItemScript AIS = Notification.GetComponent<AchievementItemScript>();
+		SFXManager.instance.PlaySFX(AchievementCompleted, 1f, null);
+		if ((bool)AIS)
+		{
+			AIS.AMID = ID;
 		}
 	}
 
@@ -325,27 +323,30 @@ public class AchievementsTracker : MonoBehaviour
 		if (GameMaster.instance.PlayerModeWithAI[1] == 1)
 		{
 			Debug.Log("Other Achievement " + ID);
+			return;
 		}
-		else if (OptionsMainMenu.instance.AM[ID] != 1 && AccountMaster.instance.isSignedIn)
+		SteamTest.instance.GetAchievement(ID);
+		if (OptionsMainMenu.instance.AM[ID] != 1 && AccountMaster.instance.isSignedIn)
 		{
 			Debug.Log("OTHER COMPLETING: " + ID);
 			AccountMaster.instance.SaveCloudData(3, ID, 0, bounceKill: false);
 			OptionsMainMenu.instance.AM[ID] = 1;
-			GameObject obj = Object.Instantiate(AchievementNotification);
-			obj.transform.parent = AchievementNotificationParent.transform;
-			obj.transform.localPosition = new Vector3(0f, -350f, 0f);
+			GameObject Notification = Object.Instantiate(AchievementNotification);
+			Notification.transform.parent = AchievementNotificationParent.transform;
+			Notification.transform.localPosition = new Vector3(0f, -350f, 0f);
 			SFXManager.instance.PlaySFX(AchievementCompleted, 1f, null);
-			AchievementItemScript component = obj.GetComponent<AchievementItemScript>();
-			if ((bool)component)
+			AchievementItemScript AIS = Notification.GetComponent<AchievementItemScript>();
+			if ((bool)AIS)
 			{
 				Debug.Log("SETTINGS ID!!" + ID);
-				component.AMID = ID;
+				AIS.AMID = ID;
 			}
 		}
 	}
 
 	public void completeAlwaysAchievement(int ID)
 	{
+		SteamTest.instance.GetAchievement(ID);
 		if (OptionsMainMenu.instance.AM[ID] == 1)
 		{
 			return;
@@ -355,15 +356,15 @@ public class AchievementsTracker : MonoBehaviour
 		{
 			AccountMaster.instance.SaveCloudData(3, ID, 0, bounceKill: false);
 			OptionsMainMenu.instance.AM[ID] = 1;
-			GameObject obj = Object.Instantiate(AchievementNotification);
-			obj.transform.parent = AchievementNotificationParent.transform;
-			obj.transform.localPosition = new Vector3(0f, -350f, 0f);
+			GameObject Notification = Object.Instantiate(AchievementNotification);
+			Notification.transform.parent = AchievementNotificationParent.transform;
+			Notification.transform.localPosition = new Vector3(0f, -350f, 0f);
 			SFXManager.instance.PlaySFX(AchievementCompleted, 1f, null);
-			AchievementItemScript component = obj.GetComponent<AchievementItemScript>();
-			if ((bool)component)
+			AchievementItemScript AIS = Notification.GetComponent<AchievementItemScript>();
+			if ((bool)AIS)
 			{
 				Debug.Log("SETTINGS ID!!" + ID);
-				component.AMID = ID;
+				AIS.AMID = ID;
 			}
 		}
 	}

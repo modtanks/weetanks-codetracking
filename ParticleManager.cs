@@ -6,13 +6,13 @@ public class ParticleManager : MonoBehaviour
 	[Header("Limits")]
 	public int MaxTNTExplosions = 8;
 
-	private int CurrentTNTExplosions;
+	private int CurrentTNTExplosions = 0;
 
 	public List<GameObject> TNTExplosions;
 
 	private static ParticleManager _instance;
 
-	private int AllowAnyways;
+	private int AllowAnyways = 0;
 
 	public int AllowAfter = 4;
 
@@ -32,11 +32,11 @@ public class ParticleManager : MonoBehaviour
 
 	private void CleanUpLists()
 	{
-		for (int num = TNTExplosions.Count - 1; num >= 0; num--)
+		for (int i = TNTExplosions.Count - 1; i >= 0; i--)
 		{
-			if (TNTExplosions[num] == null)
+			if (TNTExplosions[i] == null)
 			{
-				TNTExplosions.RemoveAt(num);
+				TNTExplosions.RemoveAt(i);
 				CurrentTNTExplosions--;
 			}
 		}

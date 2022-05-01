@@ -19,19 +19,19 @@ public class VaultScript : MonoBehaviour
 	private void GetMarblesState()
 	{
 		GameObject[] marblePiles = MarblePiles;
-		int i;
-		for (i = 0; i < marblePiles.Length; i++)
+		foreach (GameObject Pile in marblePiles)
 		{
-			marblePiles[i].SetActive(value: false);
+			Pile.SetActive(value: false);
 		}
-		i = AccountMaster.instance.PDO.marbles;
-		if (i < 2000)
+		int marbles = AccountMaster.instance.PDO.marbles;
+		int num = marbles;
+		if (num < 2000)
 		{
-			if (i < 100)
+			if (num < 100)
 			{
-				if (i >= 25)
+				if (num >= 25)
 				{
-					if (i < 50)
+					if (num < 50)
 					{
 						MarblePiles[1].SetActive(value: true);
 					}
@@ -45,9 +45,9 @@ public class VaultScript : MonoBehaviour
 					MarblePiles[0].SetActive(value: true);
 				}
 			}
-			else if (i < 500)
+			else if (num < 500)
 			{
-				if (i < 200)
+				if (num < 200)
 				{
 					MarblePiles[3].SetActive(value: true);
 				}
@@ -56,7 +56,7 @@ public class VaultScript : MonoBehaviour
 					MarblePiles[4].SetActive(value: true);
 				}
 			}
-			else if (i < 1000)
+			else if (num < 1000)
 			{
 				MarblePiles[5].SetActive(value: true);
 			}
@@ -65,9 +65,9 @@ public class VaultScript : MonoBehaviour
 				MarblePiles[6].SetActive(value: true);
 			}
 		}
-		else if (i < 5000)
+		else if (num < 5000)
 		{
-			if (i < 3000)
+			if (num < 3000)
 			{
 				MarblePiles[7].SetActive(value: true);
 			}
@@ -76,7 +76,7 @@ public class VaultScript : MonoBehaviour
 				MarblePiles[8].SetActive(value: true);
 			}
 		}
-		else if (i < 7500)
+		else if (num < 7500)
 		{
 			MarblePiles[9].SetActive(value: true);
 		}

@@ -34,10 +34,10 @@ public class PlaneMaster : MonoBehaviour
 	{
 		if (!PS.isFlying)
 		{
-			Vector3 validLocation = GameMaster.instance.GetValidLocation(CheckForDist: false, 0f, Vector3.zero, TargetPlayer: false);
-			if (validLocation != Vector3.zero)
+			Vector3 Location = GameMaster.instance.GetValidLocation(CheckForDist: false, 0f, Vector3.zero, TargetPlayer: false);
+			if (Location != Vector3.zero)
 			{
-				PS.TargetLocation = new Vector3(validLocation.x, 10f, validLocation.z);
+				PS.TargetLocation = new Vector3(Location.x, 10f, Location.z);
 				PS.StartFlyToTB(TeamNumber, TankID);
 			}
 		}

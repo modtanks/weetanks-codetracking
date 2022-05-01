@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class DifficultyCheck : MonoBehaviour
 {
-	public int myDifficulty;
+	public int myDifficulty = 0;
 
 	private void Awake()
 	{

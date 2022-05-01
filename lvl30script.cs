@@ -12,12 +12,12 @@ public class lvl30script : MonoBehaviour
 
 	private EnemyAI Boss30EA;
 
-	private int updated;
+	private int updated = 0;
 
 	private void Start()
 	{
-		int childCount = base.transform.childCount;
-		for (int i = 0; i < childCount; i++)
+		int children = base.transform.childCount;
+		for (int i = 0; i < children; i++)
 		{
 			if (base.transform.GetChild(i).tag == "Solid")
 			{
@@ -39,20 +39,20 @@ public class lvl30script : MonoBehaviour
 			{
 				if (Boss30HT.health < Boss30EA.lvl30Boss2modeLives && updated == 0)
 				{
-					int num = Mathf.CeilToInt((float)Blocks.Count / 1.5f);
-					for (int i = 0; i < num; i++)
+					int size = Mathf.CeilToInt((float)Blocks.Count / 1.5f);
+					for (int j = 0; j < size; j++)
 					{
-						int index = Random.Range(0, Blocks.Count);
-						StartCoroutine("MoveBlockDown", Blocks[index]);
-						Blocks.RemoveAt(index);
+						int pick = Random.Range(0, Blocks.Count);
+						StartCoroutine("MoveBlockDown", Blocks[pick]);
+						Blocks.RemoveAt(pick);
 					}
 					updated = 1;
 				}
 				else if (Boss30HT.health < Boss30EA.lvl30Boss3modeLives && updated == 1)
 				{
-					for (int j = 0; j < Blocks.Count; j++)
+					for (int i = 0; i < Blocks.Count; i++)
 					{
-						StartCoroutine("MoveBlockDown", Blocks[j]);
+						StartCoroutine("MoveBlockDown", Blocks[i]);
 					}
 					updated = 2;
 				}
@@ -72,17 +72,17 @@ public class lvl30script : MonoBehaviour
 	{
 		updated = 0;
 		Blocks = new List<GameObject>();
-		int childCount = base.transform.childCount;
-		for (int i = 0; i < childCount; i++)
+		int children = base.transform.childCount;
+		for (int j = 0; j < children; j++)
 		{
-			if (base.transform.GetChild(i).tag == "Solid" && !Blocks.Contains(base.transform.GetChild(i).gameObject))
+			if (base.transform.GetChild(j).tag == "Solid" && !Blocks.Contains(base.transform.GetChild(j).gameObject))
 			{
-				Blocks.Add(base.transform.GetChild(i).gameObject);
+				Blocks.Add(base.transform.GetChild(j).gameObject);
 			}
 		}
-		for (int j = 0; j < Blocks.Count; j++)
+		for (int i = 0; i < Blocks.Count; i++)
 		{
-			StartCoroutine("ResetDown", Blocks[j]);
+			StartCoroutine("ResetDown", Blocks[i]);
 		}
 	}
 

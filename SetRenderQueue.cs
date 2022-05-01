@@ -7,7 +7,9 @@ public class SetRenderQueue : MonoBehaviour
 
 	private void Start()
 	{
-		GetComponent<TextMeshProUGUI>().material.renderQueue = queue;
+		TextMeshProUGUI myText = GetComponent<TextMeshProUGUI>();
+		Material mymat = myText.material;
+		mymat.renderQueue = queue;
 	}
 
 	private void Update()

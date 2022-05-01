@@ -4,19 +4,19 @@ public class MapBorders : MonoBehaviour
 {
 	public void HideMapBorders()
 	{
-		foreach (Transform item in base.transform)
+		foreach (Transform child in base.transform)
 		{
-			Collider component = item.GetComponent<Collider>();
-			if ((bool)component)
+			Collider BorderCollider = child.GetComponent<Collider>();
+			if ((bool)BorderCollider)
 			{
-				component.enabled = false;
+				BorderCollider.enabled = false;
 			}
-			foreach (Transform item2 in item)
+			foreach (Transform child2 in child)
 			{
-				MeshRenderer component2 = item2.GetComponent<MeshRenderer>();
-				if ((bool)component2)
+				MeshRenderer MR = child2.GetComponent<MeshRenderer>();
+				if ((bool)MR)
 				{
-					component2.enabled = false;
+					MR.enabled = false;
 				}
 			}
 		}
@@ -24,19 +24,19 @@ public class MapBorders : MonoBehaviour
 
 	public void ShowMapBorders()
 	{
-		foreach (Transform item in base.transform)
+		foreach (Transform child in base.transform)
 		{
-			Collider component = item.GetComponent<Collider>();
-			if ((bool)component)
+			Collider BorderCollider = child.GetComponent<Collider>();
+			if ((bool)BorderCollider)
 			{
-				component.enabled = true;
+				BorderCollider.enabled = true;
 			}
-			foreach (Transform item2 in item)
+			foreach (Transform child2 in child)
 			{
-				MeshRenderer component2 = item2.GetComponent<MeshRenderer>();
-				if ((bool)component2)
+				MeshRenderer MR = child2.GetComponent<MeshRenderer>();
+				if ((bool)MR)
 				{
-					component2.enabled = true;
+					MR.enabled = true;
 				}
 			}
 		}

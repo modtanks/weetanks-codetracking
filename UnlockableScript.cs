@@ -116,23 +116,23 @@ public class UnlockableScript : MonoBehaviour
 		{
 			base.transform.localScale = scale;
 			base.transform.localRotation = Quaternion.Euler(Vector3.zero);
-			EventTrigger component = GetComponent<EventTrigger>();
-			EventTrigger.Entry entry = new EventTrigger.Entry();
-			entry.eventID = EventTriggerType.PointerDown;
-			entry.callback.AddListener(delegate
+			EventTrigger triggerz = GetComponent<EventTrigger>();
+			EventTrigger.Entry pointerDownz = new EventTrigger.Entry();
+			pointerDownz.eventID = EventTriggerType.PointerDown;
+			pointerDownz.callback.AddListener(delegate
 			{
 				TaskOnClick();
 			});
-			component.triggers.Add(entry);
+			triggerz.triggers.Add(pointerDownz);
 			StartCoroutine(LateCheck());
 			return;
 		}
 		UnlockableItem[] uIs = OptionsMainMenu.instance.UIs;
-		foreach (UnlockableItem unlockableItem in uIs)
+		foreach (UnlockableItem UI in uIs)
 		{
-			if (unlockableItem.ULID == ULID)
+			if (UI.ULID == ULID)
 			{
-				myUI = unlockableItem;
+				myUI = UI;
 			}
 		}
 		if (myUI == null)
@@ -162,14 +162,14 @@ public class UnlockableScript : MonoBehaviour
 		}
 		base.transform.localScale = scale;
 		base.transform.localRotation = Quaternion.Euler(Vector3.zero);
-		EventTrigger component2 = GetComponent<EventTrigger>();
-		EventTrigger.Entry entry2 = new EventTrigger.Entry();
-		entry2.eventID = EventTriggerType.PointerDown;
-		entry2.callback.AddListener(delegate
+		EventTrigger trigger = GetComponent<EventTrigger>();
+		EventTrigger.Entry pointerDown = new EventTrigger.Entry();
+		pointerDown.eventID = EventTriggerType.PointerDown;
+		pointerDown.callback.AddListener(delegate
 		{
 			TaskOnClick();
 		});
-		component2.triggers.Add(entry2);
+		trigger.triggers.Add(pointerDown);
 		SetText();
 		StartCoroutine(LateCheck());
 	}
@@ -248,109 +248,109 @@ public class UnlockableScript : MonoBehaviour
 		{
 			if (!AccountMaster.instance.PDO.ActivatedAM.Contains(ULID) && ULID < 1000)
 			{
-				bool flag = false;
-				bool flag2 = false;
-				bool flag3 = false;
-				bool flag4 = false;
-				bool flag5 = false;
-				bool flag6 = false;
+				bool skinAlready = false;
+				bool tracksAlready = false;
+				bool boostAlready = false;
+				bool mineAlready = false;
+				bool bulletAlready = false;
+				bool hitmarkerAlready = false;
 				if (OptionsMainMenu.instance.AMUS.Count > 0)
 				{
-					foreach (UnlockableScript aMU in OptionsMainMenu.instance.AMUS)
+					foreach (UnlockableScript sel in OptionsMainMenu.instance.AMUS)
 					{
-						if (aMU.isBoost)
+						if (sel.isBoost)
 						{
-							flag3 = true;
+							boostAlready = true;
 						}
-						if (aMU.isMine)
+						if (sel.isMine)
 						{
-							flag4 = true;
+							mineAlready = true;
 						}
-						if (aMU.isBullet)
+						if (sel.isBullet)
 						{
-							flag5 = true;
+							bulletAlready = true;
 						}
-						if (aMU.isSkidmarks)
+						if (sel.isSkidmarks)
 						{
-							flag2 = true;
+							tracksAlready = true;
 						}
-						if (aMU.isSkin)
+						if (sel.isSkin)
 						{
-							flag = true;
+							skinAlready = true;
 						}
-						if (aMU.isHitmarker)
+						if (sel.isHitmarker)
 						{
-							flag6 = true;
+							hitmarkerAlready = true;
 						}
 					}
 				}
-				if (isSkin && flag)
+				if (isSkin && skinAlready)
 				{
-					foreach (UnlockableScript aMU2 in OptionsMainMenu.instance.AMUS)
+					foreach (UnlockableScript US6 in OptionsMainMenu.instance.AMUS)
 					{
-						if (aMU2.isSkin && aMU2 != this)
+						if (US6.isSkin && US6 != this)
 						{
-							ReplaceAMUS(aMU2);
+							ReplaceAMUS(US6);
 							return;
 						}
 					}
 					Play2DClipAtPoint(ErrorSound);
 				}
-				else if (isMine && flag4)
+				else if (isMine && mineAlready)
 				{
-					foreach (UnlockableScript aMU3 in OptionsMainMenu.instance.AMUS)
+					foreach (UnlockableScript US5 in OptionsMainMenu.instance.AMUS)
 					{
-						if (aMU3.isMine && aMU3 != this)
+						if (US5.isMine && US5 != this)
 						{
-							ReplaceAMUS(aMU3);
+							ReplaceAMUS(US5);
 							return;
 						}
 					}
 					Play2DClipAtPoint(ErrorSound);
 				}
-				else if (isBullet && flag5)
+				else if (isBullet && bulletAlready)
 				{
-					foreach (UnlockableScript aMU4 in OptionsMainMenu.instance.AMUS)
+					foreach (UnlockableScript US4 in OptionsMainMenu.instance.AMUS)
 					{
-						if (aMU4.isBullet && aMU4 != this)
+						if (US4.isBullet && US4 != this)
 						{
-							ReplaceAMUS(aMU4);
+							ReplaceAMUS(US4);
 							return;
 						}
 					}
 					Play2DClipAtPoint(ErrorSound);
 				}
-				else if (isSkidmarks && flag2)
+				else if (isSkidmarks && tracksAlready)
 				{
-					foreach (UnlockableScript aMU5 in OptionsMainMenu.instance.AMUS)
+					foreach (UnlockableScript US3 in OptionsMainMenu.instance.AMUS)
 					{
-						if (aMU5.isSkidmarks && aMU5 != this)
+						if (US3.isSkidmarks && US3 != this)
 						{
-							ReplaceAMUS(aMU5);
+							ReplaceAMUS(US3);
 							return;
 						}
 					}
 					Play2DClipAtPoint(ErrorSound);
 				}
-				else if (isBoost && flag3)
+				else if (isBoost && boostAlready)
 				{
-					foreach (UnlockableScript aMU6 in OptionsMainMenu.instance.AMUS)
+					foreach (UnlockableScript US2 in OptionsMainMenu.instance.AMUS)
 					{
-						if (aMU6.isBoost && aMU6 != this)
+						if (US2.isBoost && US2 != this)
 						{
-							ReplaceAMUS(aMU6);
+							ReplaceAMUS(US2);
 							return;
 						}
 					}
 					Play2DClipAtPoint(ErrorSound);
 				}
-				else if (isHitmarker && flag6)
+				else if (isHitmarker && hitmarkerAlready)
 				{
-					foreach (UnlockableScript aMU7 in OptionsMainMenu.instance.AMUS)
+					foreach (UnlockableScript US in OptionsMainMenu.instance.AMUS)
 					{
-						if (aMU7.isHitmarker && aMU7 != this)
+						if (US.isHitmarker && US != this)
 						{
-							ReplaceAMUS(aMU7);
+							ReplaceAMUS(US);
 							OptionsMainMenu.instance.CheckCustomHitmarkers();
 							return;
 						}
@@ -406,13 +406,13 @@ public class UnlockableScript : MonoBehaviour
 
 	public void Play2DClipAtPoint(AudioClip clip)
 	{
-		GameObject obj = new GameObject("TempAudio");
-		AudioSource audioSource = obj.AddComponent<AudioSource>();
+		GameObject tempAudioSource = new GameObject("TempAudio");
+		AudioSource audioSource = tempAudioSource.AddComponent<AudioSource>();
 		audioSource.clip = clip;
 		audioSource.ignoreListenerVolume = true;
 		audioSource.volume = 1f * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
 		audioSource.spatialBlend = 0f;
 		audioSource.Play();
-		Object.Destroy(obj, clip.length);
+		Object.Destroy(tempAudioSource, clip.length);
 	}
 }

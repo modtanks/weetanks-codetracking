@@ -174,29 +174,29 @@ public class CalibrationWindow : Window
 			Debug.LogError("Rewired Control Mapper: Joystick cannot be null!");
 			return;
 		}
-		float num = 0f;
+		float buttonHeight = 0f;
 		for (int i = 0; i < joystick.axisCount; i++)
 		{
 			int index = i;
-			GameObject gameObject = UITools.InstantiateGUIObject<Button>(axisButtonPrefab, axisScrollAreaContent, "Axis" + i);
-			Button button = gameObject.GetComponent<Button>();
+			GameObject instance = UITools.InstantiateGUIObject<Button>(axisButtonPrefab, axisScrollAreaContent, "Axis" + i);
+			Button button = instance.GetComponent<Button>();
 			button.onClick.AddListener(delegate
 			{
 				OnAxisSelected(index, button);
 			});
-			TMP_Text componentInSelfOrChildren = UnityTools.GetComponentInSelfOrChildren<TMP_Text>(gameObject);
-			if (componentInSelfOrChildren != null)
+			TMP_Text text = UnityTools.GetComponentInSelfOrChildren<TMP_Text>(instance);
+			if (text != null)
 			{
-				componentInSelfOrChildren.text = ControlMapper.GetLanguage().GetElementIdentifierName(joystick, joystick.AxisElementIdentifiers[i].id, AxisRange.Full);
+				text.text = ControlMapper.GetLanguage().GetElementIdentifierName(joystick, joystick.AxisElementIdentifiers[i].id, AxisRange.Full);
 			}
-			if (num == 0f)
+			if (buttonHeight == 0f)
 			{
-				num = UnityTools.GetComponentInSelfOrChildren<LayoutElement>(gameObject).minHeight;
+				buttonHeight = UnityTools.GetComponentInSelfOrChildren<LayoutElement>(instance).minHeight;
 			}
 			axisButtons.Add(button);
 		}
-		float spacing = axisScrollAreaContent.GetComponent<VerticalLayoutGroup>().spacing;
-		axisScrollAreaContent.sizeDelta = new Vector2(axisScrollAreaContent.sizeDelta.x, Mathf.Max((float)joystick.axisCount * (num + spacing) - spacing, axisScrollAreaContent.sizeDelta.y));
+		float vSpacing = axisScrollAreaContent.GetComponent<VerticalLayoutGroup>().spacing;
+		axisScrollAreaContent.sizeDelta = new Vector2(axisScrollAreaContent.sizeDelta.x, Mathf.Max((float)joystick.axisCount * (buttonHeight + vSpacing) - vSpacing, axisScrollAreaContent.sizeDelta.y));
 		origCalibrationData = joystick.calibrationMap.ToXmlString();
 		displayAreaWidth = rightContentContainer.sizeDelta.x;
 		rewiredStandaloneInputModule = base.gameObject.transform.root.GetComponentInChildren<RewiredStandaloneInputModule>();
@@ -239,7 +239,7 @@ public class CalibrationWindow : Window
 		{
 			joystick.ImportCalibrationMapFromXmlString(origCalibrationData);
 		}
-		if (!buttonCallbacks.TryGetValue(1, out var value))
+		if (!buttonCallbacks.TryGetValue(1, out var callback))
 		{
 			if (cancelCallback != null)
 			{
@@ -248,7 +248,7 @@ public class CalibrationWindow : Window
 		}
 		else
 		{
-			value(base.id);
+			callback(base.id);
 		}
 	}
 
@@ -263,9 +263,9 @@ public class CalibrationWindow : Window
 
 	public void OnDone()
 	{
-		if (base.initialized && buttonCallbacks.TryGetValue(0, out var value))
+		if (base.initialized && buttonCallbacks.TryGetValue(0, out var callback))
 		{
-			value(base.id);
+			callback(base.id);
 		}
 	}
 
@@ -286,9 +286,9 @@ public class CalibrationWindow : Window
 
 	public void OnCalibrate()
 	{
-		if (base.initialized && buttonCallbacks.TryGetValue(3, out var value))
+		if (base.initialized && buttonCallbacks.TryGetValue(3, out var callback))
 		{
-			value(selectedAxis);
+			callback(selectedAxis);
 		}
 	}
 
@@ -361,7 +361,9 @@ public class CalibrationWindow : Window
 
 	public void OnAxisScrollRectScroll(Vector2 pos)
 	{
-		_ = base.initialized;
+		if (base.initialized)
+		{
+		}
 	}
 
 	private void OnAxisSelected(int axisIndex, Button button)
@@ -407,8 +409,8 @@ public class CalibrationWindow : Window
 	{
 		if (axisSelected)
 		{
-			float x = displayAreaWidth * axisCalibration.deadZone;
-			deadzoneArea.sizeDelta = new Vector2(x, deadzoneArea.sizeDelta.y);
+			float width = displayAreaWidth * axisCalibration.deadZone;
+			deadzoneArea.sizeDelta = new Vector2(width, deadzoneArea.sizeDelta.y);
 			deadzoneArea.anchoredPosition = new Vector2(axisCalibration.calibratedZero * (0f - deadzoneArea.parent.localPosition.x), deadzoneArea.anchoredPosition.y);
 		}
 	}
@@ -430,10 +432,10 @@ public class CalibrationWindow : Window
 			rawValueMarker.anchoredPosition = new Vector2(0f, rawValueMarker.anchoredPosition.y);
 			return;
 		}
-		float axis = joystick.GetAxis(selectedAxis);
-		float num = Mathf.Clamp(joystick.GetAxisRaw(selectedAxis), -1f, 1f);
-		calibratedValueMarker.anchoredPosition = new Vector2(displayAreaWidth * 0.5f * axis, calibratedValueMarker.anchoredPosition.y);
-		rawValueMarker.anchoredPosition = new Vector2(displayAreaWidth * 0.5f * num, rawValueMarker.anchoredPosition.y);
+		float value = joystick.GetAxis(selectedAxis);
+		float rawValue = Mathf.Clamp(joystick.GetAxisRaw(selectedAxis), -1f, 1f);
+		calibratedValueMarker.anchoredPosition = new Vector2(displayAreaWidth * 0.5f * value, calibratedValueMarker.anchoredPosition.y);
+		rawValueMarker.anchoredPosition = new Vector2(displayAreaWidth * 0.5f * rawValue, rawValueMarker.anchoredPosition.y);
 	}
 
 	private void SelectAxis(int index)
@@ -493,28 +495,28 @@ public class CalibrationWindow : Window
 		{
 			return false;
 		}
-		IList<Player> allPlayers = ReInput.players.AllPlayers;
-		int count = allPlayers.Count;
-		for (int i = 0; i < count; i++)
+		IList<Player> players = ReInput.players.AllPlayers;
+		int playerCount = players.Count;
+		for (int i = 0; i < playerCount; i++)
 		{
-			IList<JoystickMap> maps = allPlayers[i].controllers.maps.GetMaps<JoystickMap>(joystick.id);
+			IList<JoystickMap> maps = players[i].controllers.maps.GetMaps<JoystickMap>(joystick.id);
 			if (maps == null)
 			{
 				continue;
 			}
-			int count2 = maps.Count;
-			for (int j = 0; j < count2; j++)
+			int mapCount = maps.Count;
+			for (int j = 0; j < mapCount; j++)
 			{
-				IList<ActionElementMap> axisMaps = maps[j].AxisMaps;
-				if (axisMaps == null)
+				IList<ActionElementMap> aems = maps[j].AxisMaps;
+				if (aems == null)
 				{
 					continue;
 				}
-				int count3 = axisMaps.Count;
-				for (int k = 0; k < count3; k++)
+				int aemCount = aems.Count;
+				for (int k = 0; k < aemCount; k++)
 				{
-					ActionElementMap actionElementMap = axisMaps[k];
-					if (actionElementMap.actionId == actionId && actionElementMap.elementIndex == axisIndex)
+					ActionElementMap aem = aems[k];
+					if (aem.actionId == actionId && aem.elementIndex == axisIndex)
 					{
 						return true;
 					}

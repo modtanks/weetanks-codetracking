@@ -6,11 +6,11 @@ using UnityEngine.UI;
 
 public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHandler
 {
-	public int Place;
+	public int Place = 0;
 
-	public bool IsRadioButton;
+	public bool IsRadioButton = false;
 
-	public bool TurnChildTextGreen;
+	public bool TurnChildTextGreen = false;
 
 	public Color TextSelectedColor;
 
@@ -34,11 +34,11 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 
 	public Image myImage_img;
 
-	public bool IsEnabled;
+	public bool IsEnabled = false;
 
 	public RawImage CheckMarkImage;
 
-	public bool mouseOnMe;
+	public bool mouseOnMe = false;
 
 	public ScrollRect ParentSR;
 
@@ -47,7 +47,7 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 	private TMP_Dropdown MyDropdown;
 
 	[HideInInspector]
-	public int CustomTankID;
+	public int CustomTankID = 0;
 
 	private void Start()
 	{
@@ -59,10 +59,10 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 		{
 			myImage_img = GetComponent<Image>();
 		}
-		GameObject gameObject = GameObject.Find("Canvas");
-		if ((bool)gameObject)
+		GameObject N = GameObject.Find("Canvas");
+		if ((bool)N)
 		{
-			NMC = gameObject.GetComponent<NewMenuControl>();
+			NMC = N.GetComponent<NewMenuControl>();
 		}
 		SetSpriteTexture(NotSelected, NotSelected_sprite);
 		MyDropdown = GetComponent<TMP_Dropdown>();
@@ -85,12 +85,12 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 		{
 			return;
 		}
-		foreach (Transform item in base.transform)
+		foreach (Transform t in base.transform)
 		{
-			TextMeshProUGUI component = item.GetComponent<TextMeshProUGUI>();
-			if ((bool)component)
+			TextMeshProUGUI ChildText = t.GetComponent<TextMeshProUGUI>();
+			if ((bool)ChildText)
 			{
-				component.color = TextNormalColor;
+				ChildText.color = TextNormalColor;
 			}
 		}
 	}
@@ -139,9 +139,8 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 		{
 			return;
 		}
-		if (NMC.Selection == Place)
+		if (NMC.Selection != Place || NMC.IsUsingMouse)
 		{
-			_ = NMC.IsUsingMouse;
 		}
 		if (NMC.player != null && NMC.Selection == Place)
 		{
@@ -180,12 +179,12 @@ public class ButtonMouseEvents : MonoBehaviour, ISelectHandler, IEventSystemHand
 		}
 		if (TurnChildTextGreen)
 		{
-			foreach (Transform item in base.transform)
+			foreach (Transform t in base.transform)
 			{
-				TextMeshProUGUI component = item.GetComponent<TextMeshProUGUI>();
-				if ((bool)component)
+				TextMeshProUGUI ChildText = t.GetComponent<TextMeshProUGUI>();
+				if ((bool)ChildText)
 				{
-					component.color = TextSelectedColor;
+					ChildText.color = TextSelectedColor;
 				}
 			}
 		}

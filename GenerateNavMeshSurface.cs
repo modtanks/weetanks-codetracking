@@ -8,7 +8,7 @@ public class GenerateNavMeshSurface : MonoBehaviour
 
 	private NavMeshSurface theFloor;
 
-	private bool isRecalcing;
+	private bool isRecalcing = false;
 
 	public static GenerateNavMeshSurface instance => _instance;
 

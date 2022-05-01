@@ -17,12 +17,12 @@ public class FireworkSounds : MonoBehaviour
 	{
 		if ((bool)OnBirthSound)
 		{
-			int particleCount = PS.particleCount;
-			if (particleCount >= _numberOfParticles && particleCount > _numberOfParticles)
+			int count = PS.particleCount;
+			if (count >= _numberOfParticles && count > _numberOfParticles)
 			{
 				SFXManager.instance.PlaySFX(OnBirthSound, 1f, null);
 			}
-			_numberOfParticles = particleCount;
+			_numberOfParticles = count;
 		}
 	}
 }

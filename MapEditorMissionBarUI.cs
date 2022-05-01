@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class MapEditorMissionBarUI : MonoBehaviour, ISelectHandler, IEventSystemHandler
 {
-	public int mission;
+	public int mission = 0;
 
 	public TextMeshProUGUI myMissionNumber;
 
@@ -37,9 +37,9 @@ public class MapEditorMissionBarUI : MonoBehaviour, ISelectHandler, IEventSystem
 
 	public ScrollRect SR;
 
-	public bool isSelected;
+	public bool isSelected = false;
 
-	private bool MouseOnMe;
+	private bool MouseOnMe = false;
 
 	private void Start()
 	{

@@ -16,27 +16,27 @@ public class MapEditorGridPiece : MonoBehaviour
 
 	public float Yheight;
 
-	public bool mouseOnMe;
+	public bool mouseOnMe = false;
 
-	public bool selected;
+	public bool selected = false;
 
-	public int mission;
+	public int mission = 0;
 
 	public bool[] propOnMe;
 
-	private bool check;
+	private bool check = false;
 
 	public int[] myPropID;
 
-	public int SpawnDifficulty;
+	public int SpawnDifficulty = 0;
 
-	public int ID;
+	public int ID = 0;
 
-	public int IDlayer;
+	public int IDlayer = 0;
 
-	public int offsetX;
+	public int offsetX = 0;
 
-	public int offsetY;
+	public int offsetY = 0;
 
 	public int CustomID = -1;
 
@@ -44,7 +44,7 @@ public class MapEditorGridPiece : MonoBehaviour
 
 	public int MyTeamNumber = -1;
 
-	public bool FieldSelected;
+	public bool FieldSelected = false;
 
 	public Color[] TeamColors;
 
@@ -54,13 +54,13 @@ public class MapEditorGridPiece : MonoBehaviour
 
 	public int[] rotationDirection;
 
-	private bool ShowingProps;
+	private bool ShowingProps = false;
 
 	private int lastKnownLayer = -1;
 
 	public int lastKnownMission = -1;
 
-	public bool RunOnceSinceTesting;
+	public bool RunOnceSinceTesting = false;
 
 	private void Start()
 	{
@@ -112,85 +112,84 @@ public class MapEditorGridPiece : MonoBehaviour
 		if (MapEditorMaster.instance.startSelectionField.position.x == base.transform.position.x || MapEditorMaster.instance.startSelectionField.position.z == base.transform.position.z)
 		{
 			selected = true;
-			float maxDistance = Vector3.Distance(base.transform.position, MapEditorMaster.instance.startSelectionField.position);
+			float distance = Vector3.Distance(base.transform.position, MapEditorMaster.instance.startSelectionField.position);
 			Vector3 direction = MapEditorMaster.instance.startSelectionField.position - base.transform.position;
-			RaycastHit[] array = Physics.RaycastAll(base.transform.position, direction, maxDistance);
-			for (int i = 0; i < array.Length; i++)
+			RaycastHit[] hits = Physics.RaycastAll(base.transform.position, direction, distance);
+			for (int j = 0; j < hits.Length; j++)
 			{
-				if (array[i].transform.tag == "MapeditorField")
+				if (hits[j].transform.tag == "MapeditorField")
 				{
-					MapEditorGridPiece component = array[i].transform.GetComponent<MapEditorGridPiece>();
-					if (!component.selected)
+					MapEditorGridPiece MEGP = hits[j].transform.GetComponent<MapEditorGridPiece>();
+					if (!MEGP.selected)
 					{
-						component.selected = true;
+						MEGP.selected = true;
 					}
 				}
 			}
-			maxDistance = Vector3.Distance(base.transform.position, MapEditorMaster.instance.startSelectionField.position);
+			distance = Vector3.Distance(base.transform.position, MapEditorMaster.instance.startSelectionField.position);
 			direction = MapEditorMaster.instance.startSelectionField.position - base.transform.position;
-			RaycastHit[] array2 = Physics.RaycastAll(base.transform.position, -direction, 500f);
-			for (int j = 0; j < array2.Length; j++)
+			RaycastHit[] removehits = Physics.RaycastAll(base.transform.position, -direction, 500f);
+			for (int i = 0; i < removehits.Length; i++)
 			{
-				if (array2[j].transform.tag == "MapeditorField")
+				if (removehits[i].transform.tag == "MapeditorField")
 				{
-					MapEditorGridPiece component2 = array2[j].transform.GetComponent<MapEditorGridPiece>();
-					if (component2.selected)
+					MapEditorGridPiece MEGP2 = removehits[i].transform.GetComponent<MapEditorGridPiece>();
+					if (MEGP2.selected)
 					{
-						component2.selected = false;
+						MEGP2.selected = false;
 					}
 				}
 			}
 			return;
 		}
 		selected = false;
-		float num = Mathf.Abs(MapEditorMaster.instance.startSelectionField.position.x - base.transform.position.x);
-		float num2 = Mathf.Abs(MapEditorMaster.instance.startSelectionField.position.z - base.transform.position.z);
-		GameObject[] array4;
-		if (num > num2)
+		float xDiff = Mathf.Abs(MapEditorMaster.instance.startSelectionField.position.x - base.transform.position.x);
+		float zDiff = Mathf.Abs(MapEditorMaster.instance.startSelectionField.position.z - base.transform.position.z);
+		if (xDiff > zDiff)
 		{
-			Vector3 vector = new Vector3(base.transform.position.x, base.transform.position.y, MapEditorMaster.instance.startSelectionField.position.z);
-			GameObject[] array3 = GameObject.FindGameObjectsWithTag("MapeditorField");
-			MapEditorGridPiece mapEditorGridPiece = null;
-			array4 = array3;
-			foreach (GameObject obj in array4)
+			Vector3 pos2 = new Vector3(base.transform.position.x, base.transform.position.y, MapEditorMaster.instance.startSelectionField.position.z);
+			GameObject[] tiles2 = GameObject.FindGameObjectsWithTag("MapeditorField");
+			MapEditorGridPiece ChosenPlace2 = null;
+			GameObject[] array = tiles2;
+			foreach (GameObject tile2 in array)
 			{
-				MapEditorGridPiece component3 = obj.GetComponent<MapEditorGridPiece>();
-				if (obj.transform.position == vector)
+				MapEditorGridPiece MEGP4 = tile2.GetComponent<MapEditorGridPiece>();
+				if (tile2.transform.position == pos2)
 				{
-					mapEditorGridPiece = component3;
+					ChosenPlace2 = MEGP4;
 				}
-				else if (component3.selected)
+				else if (MEGP4.selected)
 				{
-					component3.selected = false;
+					MEGP4.selected = false;
 				}
 			}
-			if (mapEditorGridPiece != null)
+			if (ChosenPlace2 != null)
 			{
-				mapEditorGridPiece.selected = true;
-				mapEditorGridPiece.checkSelections();
+				ChosenPlace2.selected = true;
+				ChosenPlace2.checkSelections();
 			}
 			return;
 		}
-		Vector3 vector2 = new Vector3(MapEditorMaster.instance.startSelectionField.position.x, base.transform.position.y, base.transform.position.z);
-		GameObject[] array5 = GameObject.FindGameObjectsWithTag("MapeditorField");
-		MapEditorGridPiece mapEditorGridPiece2 = null;
-		array4 = array5;
-		foreach (GameObject obj2 in array4)
+		Vector3 pos = new Vector3(MapEditorMaster.instance.startSelectionField.position.x, base.transform.position.y, base.transform.position.z);
+		GameObject[] tiles = GameObject.FindGameObjectsWithTag("MapeditorField");
+		MapEditorGridPiece ChosenPlace = null;
+		GameObject[] array2 = tiles;
+		foreach (GameObject tile in array2)
 		{
-			MapEditorGridPiece component4 = obj2.GetComponent<MapEditorGridPiece>();
-			if (obj2.transform.position == vector2)
+			MapEditorGridPiece MEGP3 = tile.GetComponent<MapEditorGridPiece>();
+			if (tile.transform.position == pos)
 			{
-				mapEditorGridPiece2 = component4;
+				ChosenPlace = MEGP3;
 			}
-			else if (component4.selected)
+			else if (MEGP3.selected)
 			{
-				component4.selected = false;
+				MEGP3.selected = false;
 			}
 		}
-		if (mapEditorGridPiece2 != null)
+		if (ChosenPlace != null)
 		{
-			mapEditorGridPiece2.selected = true;
-			mapEditorGridPiece2.checkSelections();
+			ChosenPlace.selected = true;
+			ChosenPlace.checkSelections();
 		}
 	}
 
@@ -420,7 +419,8 @@ public class MapEditorGridPiece : MonoBehaviour
 			}
 			MapEditorMaster.instance.playerFourPlaced[GameMaster.instance.CurrentMission] = 1;
 		}
-		Object.Destroy(Object.Instantiate(PlacingSmoke, base.transform.position, Quaternion.identity), 2f);
+		GameObject smoke = Object.Instantiate(PlacingSmoke, base.transform.position, Quaternion.identity);
+		Object.Destroy(smoke, 2f);
 		if (MapEditorMaster.instance.SelectedProp < 4 || MapEditorMaster.instance.SelectedProp >= 40)
 		{
 			MapEditorMaster.instance.PlayAudio(MapEditorMaster.instance.PlaceHeavy);
@@ -431,7 +431,7 @@ public class MapEditorGridPiece : MonoBehaviour
 		}
 		if (MapEditorMaster.instance.SelectedProp >= 1000)
 		{
-			_ = MapEditorMaster.instance.SelectedProp;
+			int id = MapEditorMaster.instance.SelectedProp - 1000;
 			Yheight = GlobalAssets.instance.StockDatabase.Find((TankeyTownStockItem x) => x.MapEditorPropID == MapEditorMaster.instance.SelectedProp).MapEditorYoffset;
 			myProp[IDlayer] = Object.Instantiate(GlobalAssets.instance.StockDatabase.Find((TankeyTownStockItem x) => x.MapEditorPropID == MapEditorMaster.instance.SelectedProp).MapEditorPrefab, base.transform.position + new Vector3(0f, Yheight, 0f), Quaternion.identity);
 			myPropPrefab[IDlayer] = GlobalAssets.instance.StockDatabase.Find((TankeyTownStockItem x) => x.MapEditorPropID == MapEditorMaster.instance.SelectedProp).MapEditorPrefab;
@@ -450,47 +450,47 @@ public class MapEditorGridPiece : MonoBehaviour
 			myProp[IDlayer] = Object.Instantiate(MapEditorMaster.instance.Props[MapEditorMaster.instance.SelectedProp], base.transform.position + new Vector3(0f, Yheight, 0f), Quaternion.identity);
 			myPropPrefab[IDlayer] = MapEditorMaster.instance.Props[MapEditorMaster.instance.SelectedProp];
 		}
-		MapEditorProp mapEditorProp = myProp[IDlayer].GetComponent<MapEditorProp>();
-		if (mapEditorProp == null)
+		MapEditorProp MEP = myProp[IDlayer].GetComponent<MapEditorProp>();
+		if (MEP == null)
 		{
-			mapEditorProp = myProp[IDlayer].GetComponentInChildren<MapEditorProp>();
+			MEP = myProp[IDlayer].GetComponentInChildren<MapEditorProp>();
 		}
-		mapEditorProp.myMEGP = this;
-		mapEditorProp.LayerNumber = IDlayer;
-		myMEP[IDlayer] = mapEditorProp;
-		if ((bool)mapEditorProp)
+		MEP.myMEGP = this;
+		MEP.LayerNumber = IDlayer;
+		myMEP[IDlayer] = MEP;
+		if ((bool)MEP)
 		{
 			if (MapEditorMaster.instance.SelectedProp >= 100 && MapEditorMaster.instance.SelectedProp < 120)
 			{
-				mapEditorProp.CustomUniqueTankID = MapEditorMaster.instance.CustomTankDatas[CustomID].UniqueTankID;
+				MEP.CustomUniqueTankID = MapEditorMaster.instance.CustomTankDatas[CustomID].UniqueTankID;
 			}
 			rotationDirection[IDlayer] = MapEditorMaster.instance.LastPlacedRotation;
 			for (int i = 0; i < MapEditorMaster.instance.LastPlacedRotation; i++)
 			{
-				mapEditorProp.RotateProp();
+				MEP.RotateProp();
 			}
 		}
-		if (mapEditorProp.isEnemyTank)
+		if (MEP.isEnemyTank)
 		{
 			MapEditorMaster.instance.ColorsTeamsPlaced[MapEditorMaster.instance.LastPlacedColor]++;
-			mapEditorProp.TeamNumber = MapEditorMaster.instance.LastPlacedColor;
+			MEP.TeamNumber = MapEditorMaster.instance.LastPlacedColor;
 			MyTeamNumber = MapEditorMaster.instance.LastPlacedColor;
-			mapEditorProp.MyDifficultySpawn = MapEditorMaster.instance.OTM.PreviousDifficulty;
+			MEP.MyDifficultySpawn = MapEditorMaster.instance.OTM.PreviousDifficulty;
 		}
-		else if (mapEditorProp.isPlayerOne || mapEditorProp.isPlayerTwo || mapEditorProp.isPlayerThree || mapEditorProp.isPlayerFour)
+		else if (MEP.isPlayerOne || MEP.isPlayerTwo || MEP.isPlayerThree || MEP.isPlayerFour)
 		{
 			MapEditorMaster.instance.ColorsTeamsPlaced[1]++;
-			mapEditorProp.TeamNumber = 1;
+			MEP.TeamNumber = 1;
 			MyTeamNumber = 1;
 		}
 		myProp[IDlayer].transform.parent = GameMaster.instance.Levels[0].transform;
 		propOnMe[IDlayer] = true;
 		myPropID[IDlayer] = MapEditorMaster.instance.SelectedProp;
-		SetCustomMaterial(mapEditorProp);
+		SetCustomMaterial(MEP);
 		SetGridPieceColor();
-		if (mapEditorProp.CanBeColored)
+		if (MEP.CanBeColored)
 		{
-			mapEditorProp.SetMyColor();
+			MEP.SetMyColor();
 		}
 	}
 
@@ -538,15 +538,15 @@ public class MapEditorGridPiece : MonoBehaviour
 
 	private void SetCustomTanksMaterials(int ID, MeshRenderer[] objects)
 	{
-		foreach (MeshRenderer meshRenderer in objects)
+		foreach (MeshRenderer obj in objects)
 		{
-			for (int j = 0; j < meshRenderer.sharedMaterials.Length; j++)
+			for (int i = 0; i < obj.sharedMaterials.Length; i++)
 			{
-				if (meshRenderer.sharedMaterials[j].name.Contains("CustomTank"))
+				if (obj.sharedMaterials[i].name.Contains("CustomTank"))
 				{
-					Material[] sharedMaterials = meshRenderer.sharedMaterials;
-					sharedMaterials[j] = MapEditorMaster.instance.CustomMaterial[ID];
-					meshRenderer.sharedMaterials = sharedMaterials;
+					Material[] sharedMaterialsCopy = obj.sharedMaterials;
+					sharedMaterialsCopy[i] = MapEditorMaster.instance.CustomMaterial[ID];
+					obj.sharedMaterials = sharedMaterialsCopy;
 				}
 			}
 		}
@@ -577,25 +577,25 @@ public class MapEditorGridPiece : MonoBehaviour
 			Yheight = MapEditorMaster.instance.PropStartHeight[propID];
 			myProp[LayerHeight] = Object.Instantiate(MapEditorMaster.instance.Props[propID], new Vector3(base.transform.position.x, Yheight + (float)(LayerHeight * 2), base.transform.position.z), Quaternion.identity);
 		}
-		MapEditorProp mapEditorProp = myProp[LayerHeight].GetComponent<MapEditorProp>();
-		if (mapEditorProp == null)
+		MapEditorProp MEP = myProp[LayerHeight].GetComponent<MapEditorProp>();
+		if (MEP == null)
 		{
-			mapEditorProp = myProp[LayerHeight].GetComponentInChildren<MapEditorProp>();
+			MEP = myProp[LayerHeight].GetComponentInChildren<MapEditorProp>();
 		}
-		if (mapEditorProp == null)
+		if (MEP == null)
 		{
-			mapEditorProp = myProp[LayerHeight].transform.GetChild(0).GetComponentInChildren<MapEditorProp>();
+			MEP = myProp[LayerHeight].transform.GetChild(0).GetComponentInChildren<MapEditorProp>();
 		}
-		if (mapEditorProp == null)
+		if (MEP == null)
 		{
-			mapEditorProp = myProp[LayerHeight].transform.GetChild(0).GetChild(0).GetComponentInChildren<MapEditorProp>();
+			MEP = myProp[LayerHeight].transform.GetChild(0).GetChild(0).GetComponentInChildren<MapEditorProp>();
 		}
-		if (!(mapEditorProp != null))
+		if (!(MEP != null))
 		{
 			return;
 		}
-		mapEditorProp.myMEGP = this;
-		myMEP[LayerHeight] = mapEditorProp;
+		MEP.myMEGP = this;
+		myMEP[LayerHeight] = MEP;
 		myPropID[LayerHeight] = propID;
 		if (propID >= 1000)
 		{
@@ -603,7 +603,7 @@ public class MapEditorGridPiece : MonoBehaviour
 		}
 		else if (propID == 19)
 		{
-			mapEditorProp.CustomUniqueTankID = CustomUniqueID;
+			MEP.CustomUniqueTankID = CustomUniqueID;
 			myPropPrefab[LayerHeight] = MapEditorMaster.instance.Props[propID];
 			myPropID[LayerHeight] = 100 + CustomID;
 		}
@@ -613,26 +613,26 @@ public class MapEditorGridPiece : MonoBehaviour
 		}
 		myProp[LayerHeight].transform.parent = GameMaster.instance.Levels[0].transform;
 		propOnMe[LayerHeight] = true;
-		mapEditorProp.LayerNumber = LayerHeight;
+		MEP.LayerNumber = LayerHeight;
 		if (Team > -1)
 		{
-			mapEditorProp.TeamNumber = Team;
+			MEP.TeamNumber = Team;
 			MapEditorMaster.instance.ColorsTeamsPlaced[Team]++;
 		}
-		if (mapEditorProp != null)
+		if (MEP != null)
 		{
-			mapEditorProp.MyDifficultySpawn = SpawnDifficulty;
-			applyPropRotation(mapEditorProp, rotationDirection[LayerHeight]);
-			SetCustomMaterial(mapEditorProp);
+			MEP.MyDifficultySpawn = SpawnDifficulty;
+			applyPropRotation(MEP, rotationDirection[LayerHeight]);
+			SetCustomMaterial(MEP);
 			SetGridPieceColor();
-			DifficultyCheck component = mapEditorProp.transform.parent.GetComponent<DifficultyCheck>();
-			if ((bool)component)
+			DifficultyCheck DC = MEP.transform.parent.GetComponent<DifficultyCheck>();
+			if ((bool)DC)
 			{
-				component.myDifficulty = SpawnDifficulty;
+				DC.myDifficulty = SpawnDifficulty;
 			}
-			if (mapEditorProp.CanBeColored)
+			if (MEP.CanBeColored)
 			{
-				mapEditorProp.StartCoroutine(mapEditorProp.SetMaterialsDelay());
+				MEP.StartCoroutine(MEP.SetMaterialsDelay());
 			}
 		}
 	}
@@ -640,21 +640,21 @@ public class MapEditorGridPiece : MonoBehaviour
 	public void Reset()
 	{
 		GameObject[] array = myProp;
-		foreach (GameObject gameObject in array)
+		foreach (GameObject Prop in array)
 		{
-			if ((bool)gameObject)
+			if ((bool)Prop)
 			{
-				Object.Destroy(gameObject);
+				Object.Destroy(Prop);
 			}
 		}
-		for (int j = 0; j < 5; j++)
+		for (int i = 0; i < 5; i++)
 		{
-			propOnMe[j] = false;
-			myPropID[j] = -1;
-			myProp[j] = null;
-			myPropPrefab[j] = null;
-			myMEP[j] = null;
-			rotationDirection[j] = 0;
+			propOnMe[i] = false;
+			myPropID[i] = -1;
+			myProp[i] = null;
+			myPropPrefab[i] = null;
+			myMEP[i] = null;
+			rotationDirection[i] = 0;
 			MyTeamNumber = 0;
 		}
 		SpawnDifficulty = 0;
@@ -668,29 +668,29 @@ public class MapEditorGridPiece : MonoBehaviour
 
 	public void applyPropRotation(MapEditorProp MEP, int dir)
 	{
-		Quaternion quaternion = Quaternion.Euler(0f, 90f * (float)dir, 0f);
+		Quaternion theRot = Quaternion.Euler(0f, 90f * (float)dir, 0f);
 		if (MEP.transform.tag == "Player" || MEP.isEnemyTank)
 		{
-			MEP.transform.parent.transform.parent.transform.rotation *= quaternion;
+			MEP.transform.parent.transform.parent.transform.rotation *= theRot;
 		}
 		else if (MEP.transform.parent != null)
 		{
 			if (MEP.removeParentOnDelete)
 			{
-				MEP.transform.parent.transform.rotation *= quaternion;
+				MEP.transform.parent.transform.rotation *= theRot;
 			}
 			else if (MEP.transform.parent.name == "Hole" || MEP.transform.parent.name == "Hole(Clone)")
 			{
-				MEP.transform.parent.transform.rotation *= quaternion;
+				MEP.transform.parent.transform.rotation *= theRot;
 			}
 			else
 			{
-				MEP.transform.rotation *= quaternion;
+				MEP.transform.rotation *= theRot;
 			}
 		}
 		else
 		{
-			MEP.transform.rotation *= quaternion;
+			MEP.transform.rotation *= theRot;
 		}
 	}
 }

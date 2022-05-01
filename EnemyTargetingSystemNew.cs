@@ -29,32 +29,32 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	public Quaternion rot;
 
-	public float anglerotationcheck;
+	public float anglerotationcheck = 0f;
 
 	public Vector3 startingPosition = Vector3.zero;
 
 	private Quaternion originalRotation;
 
 	[Header("New Shoot Mechanism")]
-	public bool canShoot;
+	public bool canShoot = false;
 
 	public float ShootCountdown;
 
-	public bool specialMoveLockedIn;
+	public bool specialMoveLockedIn = false;
 
-	public int firedBullets;
+	public int firedBullets = 0;
 
 	public int maxFiredBullets = 5;
 
-	public float FirstShotDelay;
+	public float FirstShotDelay = 0f;
 
-	public bool IgnoreCork;
+	public bool IgnoreCork = false;
 
-	public bool canMine;
+	public bool canMine = false;
 
-	public bool canMineOnlyNearCork;
+	public bool canMineOnlyNearCork = false;
 
-	public float mineCountdown;
+	public float mineCountdown = 0f;
 
 	public GameObject minePrefab;
 
@@ -75,7 +75,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	private int lvl30BossSpecial = 6;
 
-	private bool canReloadRockets;
+	private bool canReloadRockets = false;
 
 	[SerializeField]
 	private Vector3 initialVelocity;
@@ -90,34 +90,34 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	public bool isTeamRed;
 
-	public bool specialMove;
+	public bool specialMove = false;
 
-	public bool LookingAtTarget;
+	public bool LookingAtTarget = false;
 
-	public bool normalLockedIn;
+	public bool normalLockedIn = false;
 
 	public bool TargetInSight;
 
-	public bool CR_running;
+	public bool CR_running = false;
 
-	public bool CFP_running;
+	public bool CFP_running = false;
 
-	public int SR_running;
+	public int SR_running = 0;
 
-	public bool turning;
+	public bool turning = false;
 
-	public bool turningLeft;
+	public bool turningLeft = false;
 
 	private Quaternion rotation;
 
 	public float angleSize;
 
-	public bool doubleStopper;
+	public bool doubleStopper = false;
 
 	[Range(0.5f, 5f)]
 	public float myTurnSpeed = 1f;
 
-	public float LookAngleOffset;
+	public float LookAngleOffset = 0f;
 
 	private float pick;
 
@@ -125,7 +125,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	private float originalLvl30TurnSpeed;
 
-	private bool isCheckingForPlayer;
+	private bool isCheckingForPlayer = false;
 
 	private Quaternion startRot;
 
@@ -133,34 +133,34 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	private float _timeStartedLerping;
 
-	private bool changedTargetedPlayer;
+	private bool changedTargetedPlayer = false;
 
 	private float specialMoveBounceCooldown = 2f;
 
 	public ParticleSystem ElectricCharge;
 
-	public bool LMCrunning;
+	public bool LMCrunning = false;
 
 	public Animator TankTopAnimator;
 
 	private LayerMask myLayerMasks;
 
 	[Header("Custom Tank SHIT")]
-	public int AmountShotgunShots;
+	public int AmountShotgunShots = 0;
 
 	public int CustomShootSpeed = -1;
 
 	public TemporaryRotation RotateOnFire;
 
-	private bool ScriptDisabled;
+	private bool ScriptDisabled = false;
 
-	private float SecretTimer;
+	private float SecretTimer = 0f;
 
-	private int prevKnownEnemies;
+	private int prevKnownEnemies = 0;
 
-	public bool PlayerInsightRunning;
+	public bool PlayerInsightRunning = false;
 
-	public bool DeflectingBullet;
+	public bool DeflectingBullet = false;
 
 	public float RocketReloadSpeed = -1f;
 
@@ -209,10 +209,10 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	private void StartInvokes()
 	{
-		float repeatRate = ((AIscript.difficulty < 2) ? 0.8f : 0.25f);
+		float playerchecker = ((AIscript.difficulty < 2) ? 0.8f : 0.25f);
 		if (!PlayerInsightRunning)
 		{
-			InvokeRepeating("PlayerInsight", 0.3f, repeatRate);
+			InvokeRepeating("PlayerInsight", 0.3f, playerchecker);
 		}
 		if (AIscript.isLevel30Boss)
 		{
@@ -224,10 +224,10 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		}
 		if ((AIscript.BouncyBullets || AIscript.isSmart) && !isCheckingForPlayer)
 		{
-			float repeatRate2 = ((OptionsMainMenu.instance.currentDifficulty == 0) ? 0.025f : 0.01f);
+			float BounceDetectionSpeed = ((OptionsMainMenu.instance.currentDifficulty == 0) ? 0.025f : 0.01f);
 			if (!CFP_running)
 			{
-				InvokeRepeating("CheckForPlayer", 0.1f, repeatRate2);
+				InvokeRepeating("CheckForPlayer", 0.1f, BounceDetectionSpeed);
 			}
 			isCheckingForPlayer = true;
 			maxReflectionCount = AIscript.amountOfBounces;
@@ -256,11 +256,11 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				if (rocketSlots[i] == 0)
 				{
 					rocketSlots[i] = 1;
-					GameObject gameObject = Object.Instantiate(rocketPrefab, rocketSlotLocations[i]);
-					gameObject.GetComponent<RocketScript>().isHuntingEnemies = isHuntingEnemies;
-					gameObject.GetComponent<RocketScript>().papaTank = AIscript.gameObject;
-					rockets[i] = gameObject;
-					gameObject.transform.parent = rocketSlotLocations[i];
+					GameObject newRocket = Object.Instantiate(rocketPrefab, rocketSlotLocations[i]);
+					newRocket.GetComponent<RocketScript>().isHuntingEnemies = isHuntingEnemies;
+					newRocket.GetComponent<RocketScript>().papaTank = AIscript.gameObject;
+					rockets[i] = newRocket;
+					newRocket.transform.parent = rocketSlotLocations[i];
 				}
 			}
 			SR_running++;
@@ -295,33 +295,43 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	private void CheckTargetsList()
 	{
-		List<GameObject> list = new List<GameObject>();
-		foreach (GameObject target in Targets)
+		List<GameObject> TargetsToRemove = new List<GameObject>();
+		foreach (GameObject Target2 in Targets)
 		{
-			if (target == null || !target.activeSelf)
+			if (Target2 == null || !Target2.activeSelf)
 			{
-				list.Add(target);
+				TargetsToRemove.Add(Target2);
 			}
 		}
-		if (list.Count <= 0)
+		if (TargetsToRemove.Count <= 0)
 		{
 			return;
 		}
-		foreach (GameObject item in list)
+		foreach (GameObject Target in TargetsToRemove)
 		{
-			Targets.Remove(item);
+			Targets.Remove(Target);
 		}
 	}
 
 	private Vector3 CalculateEnemyPosition(GameObject TargetObject)
 	{
-		if (currentTarget.GetComponent<Rigidbody>().velocity.magnitude > 0.5f)
+		Rigidbody rb = currentTarget.GetComponent<Rigidbody>();
+		if (rb.velocity.magnitude > 0.5f)
 		{
-			float num = Vector3.Distance(currentTarget.transform.position, base.transform.position);
-			EnemyAI component = currentTarget.GetComponent<EnemyAI>();
-			Vector3 vector = (component ? ((!component.DrivingBackwards) ? (currentTarget.transform.position + currentTarget.transform.forward * (num / 6f)) : (currentTarget.transform.position + -currentTarget.transform.forward * (num / 6f))) : ((!currentTarget.GetComponent<MoveTankScript>().DrivingBackwards) ? (currentTarget.transform.position + currentTarget.transform.forward * (num / 6f)) : (currentTarget.transform.position + -currentTarget.transform.forward * (num / 6f))));
-			Debug.DrawLine(vector, base.transform.position, Color.blue);
-			return vector - base.transform.position;
+			float distance = Vector3.Distance(currentTarget.transform.position, base.transform.position);
+			EnemyAI EA = currentTarget.GetComponent<EnemyAI>();
+			Vector3 lookPos;
+			if ((bool)EA)
+			{
+				lookPos = ((!EA.DrivingBackwards) ? (currentTarget.transform.position + currentTarget.transform.forward * (distance / 6f)) : (currentTarget.transform.position + -currentTarget.transform.forward * (distance / 6f)));
+			}
+			else
+			{
+				MoveTankScript MTS = currentTarget.GetComponent<MoveTankScript>();
+				lookPos = ((!MTS.DrivingBackwards) ? (currentTarget.transform.position + currentTarget.transform.forward * (distance / 6f)) : (currentTarget.transform.position + -currentTarget.transform.forward * (distance / 6f)));
+			}
+			Debug.DrawLine(lookPos, base.transform.position, Color.blue);
+			return lookPos - base.transform.position;
 		}
 		return currentTarget.transform.position - base.transform.position;
 	}
@@ -358,10 +368,10 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		{
 			SecretTimer = 0f;
 		}
-		int amountCalledInTanks = GameMaster.instance.AmountCalledInTanks;
-		if (Targets.Count < 1 || amountCalledInTanks != prevKnownEnemies)
+		int KnownEnemies = GameMaster.instance.AmountCalledInTanks;
+		if (Targets.Count < 1 || KnownEnemies != prevKnownEnemies)
 		{
-			prevKnownEnemies = amountCalledInTanks;
+			prevKnownEnemies = KnownEnemies;
 			SearchPlayers();
 			return;
 		}
@@ -421,23 +431,23 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 			{
 				if (!turning)
 				{
-					Vector3 vector = (AIscript.CalculateEnemyPosition ? CalculateEnemyPosition(currentTarget) : (currentTarget.transform.position - base.transform.position));
-					vector.y = 0f;
-					if (!(vector != Vector3.zero))
+					Vector3 lookPos = (AIscript.CalculateEnemyPosition ? CalculateEnemyPosition(currentTarget) : (currentTarget.transform.position - base.transform.position));
+					lookPos.y = 0f;
+					if (!(lookPos != Vector3.zero))
 					{
 						return;
 					}
-					rotation = Quaternion.LookRotation(vector);
-					float num = AIscript.Accuracy;
+					rotation = Quaternion.LookRotation(lookPos);
+					float Accuracy = AIscript.Accuracy;
 					if (currentTarget != null)
 					{
-						EnemyAI component = currentTarget.GetComponent<EnemyAI>();
-						if ((bool)component && component.isInvisible)
+						EnemyAI EA = currentTarget.GetComponent<EnemyAI>();
+						if ((bool)EA && EA.isInvisible)
 						{
-							num += 15f;
+							Accuracy += 15f;
 						}
 					}
-					pick = Random.Range(0f - num, num) + LookAngleOffset;
+					pick = Random.Range(0f - Accuracy, Accuracy) + LookAngleOffset;
 					rotation *= Quaternion.Euler(0f, pick, 0f);
 					angleSize = Quaternion.Angle(base.transform.rotation, rotation);
 					if (angleSize > 1f)
@@ -468,10 +478,11 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				}
 				else
 				{
-					float t = (Time.time - _timeStartedLerping) / timeTakenDuringLerp;
+					float timeSinceStarted2 = Time.time - _timeStartedLerping;
+					float percentageComplete2 = timeSinceStarted2 / timeTakenDuringLerp;
 					if (!AIscript.isStunned)
 					{
-						base.transform.rotation = Quaternion.Lerp(startRot, rotation, t);
+						base.transform.rotation = Quaternion.Lerp(startRot, rotation, percentageComplete2);
 					}
 					if (Quaternion.Angle(base.transform.rotation, rotation) <= 0.6f)
 					{
@@ -526,10 +537,11 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 					}
 					else
 					{
-						float t2 = (Time.time - _timeStartedLerping) / timeTakenDuringLerp;
+						float timeSinceStarted = Time.time - _timeStartedLerping;
+						float percentageComplete = timeSinceStarted / timeTakenDuringLerp;
 						if (!AIscript.isStunned)
 						{
-							base.transform.rotation = Quaternion.Lerp(startRot, rotation, t2);
+							base.transform.rotation = Quaternion.Lerp(startRot, rotation, percentageComplete);
 						}
 					}
 				}
@@ -554,88 +566,87 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	public IEnumerator SetTurnFalse()
 	{
-		float seconds = 0.5f - myTurnSpeed / 10f;
-		yield return new WaitForSeconds(seconds);
+		float time = 0.5f - myTurnSpeed / 10f;
+		yield return new WaitForSeconds(time);
 		turning = false;
 	}
 
 	private void SearchPlayers()
 	{
 		Targets.Clear();
-		GameObject[] array;
 		if ((bool)MapEditorMaster.instance)
 		{
-			array = GameObject.FindGameObjectsWithTag("Enemy");
-			foreach (GameObject gameObject in array)
+			GameObject[] array = GameObject.FindGameObjectsWithTag("Enemy");
+			foreach (GameObject Enemy in array)
 			{
-				EnemyAI component = gameObject.GetComponent<EnemyAI>();
-				if ((bool)component && gameObject.gameObject != AIscript.gameObject && (component.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0))
+				EnemyAI EA3 = Enemy.GetComponent<EnemyAI>();
+				if ((bool)EA3 && Enemy.gameObject != AIscript.gameObject && (EA3.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0))
 				{
-					Targets.Add(gameObject);
+					Targets.Add(Enemy);
 				}
 			}
-			array = GameObject.FindGameObjectsWithTag("Boss");
-			foreach (GameObject gameObject2 in array)
+			GameObject[] array2 = GameObject.FindGameObjectsWithTag("Boss");
+			foreach (GameObject Enemy2 in array2)
 			{
-				EnemyAI component2 = gameObject2.GetComponent<EnemyAI>();
-				if ((bool)component2 && gameObject2.gameObject != AIscript.gameObject && (component2.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0))
+				EnemyAI EA4 = Enemy2.GetComponent<EnemyAI>();
+				if ((bool)EA4 && Enemy2.gameObject != AIscript.gameObject && (EA4.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0))
 				{
-					Targets.Add(gameObject2);
+					Targets.Add(Enemy2);
 				}
 			}
-			array = GameObject.FindGameObjectsWithTag("Player");
-			foreach (GameObject gameObject3 in array)
+			GameObject[] array3 = GameObject.FindGameObjectsWithTag("Player");
+			foreach (GameObject Player in array3)
 			{
-				MoveTankScript component3 = gameObject3.GetComponent<MoveTankScript>();
-				if ((bool)component3)
+				MoveTankScript MTS = Player.GetComponent<MoveTankScript>();
+				if ((bool)MTS)
 				{
-					if (component3.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0)
+					if (MTS.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0)
 					{
-						Targets.Add(gameObject3);
+						Targets.Add(Player);
 					}
 					continue;
 				}
-				EnemyAI component4 = gameObject3.GetComponent<EnemyAI>();
-				if ((bool)component4 && gameObject3.gameObject != AIscript.gameObject && (component4.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0))
+				EnemyAI EA5 = Player.GetComponent<EnemyAI>();
+				if ((bool)EA5 && Player.gameObject != AIscript.gameObject && (EA5.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0))
 				{
-					Targets.Add(gameObject3);
+					Targets.Add(Player);
 				}
 			}
 			return;
 		}
 		if (isHuntingEnemies || GameMaster.instance.inMenuMode || AIscript.MyTeam == 1)
 		{
-			array = GameObject.FindGameObjectsWithTag("Enemy");
-			foreach (GameObject gameObject4 in array)
+			GameObject[] array4 = GameObject.FindGameObjectsWithTag("Enemy");
+			foreach (GameObject GO in array4)
 			{
-				EnemyAI component5 = gameObject4.GetComponent<EnemyAI>();
-				if ((bool)component5 && gameObject4.gameObject != AIscript.gameObject && (component5.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0))
+				EnemyAI EA = GO.GetComponent<EnemyAI>();
+				if ((bool)EA && GO.gameObject != AIscript.gameObject && (EA.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0))
 				{
-					Targets.Add(gameObject4);
+					Targets.Add(GO);
 				}
 			}
-			array = GameObject.FindGameObjectsWithTag("Boss");
-			foreach (GameObject gameObject5 in array)
+			GameObject[] array5 = GameObject.FindGameObjectsWithTag("Boss");
+			foreach (GameObject GO2 in array5)
 			{
-				if (gameObject5.gameObject != AIscript.gameObject)
+				if (GO2.gameObject != AIscript.gameObject)
 				{
-					Targets.Add(gameObject5);
+					Targets.Add(GO2);
 				}
 			}
 			return;
 		}
-		array = GameObject.FindGameObjectsWithTag("Player");
-		foreach (GameObject item in array)
+		GameObject[] array6 = GameObject.FindGameObjectsWithTag("Player");
+		foreach (GameObject GO3 in array6)
 		{
-			Targets.Add(item);
+			Targets.Add(GO3);
 		}
-		array = GameObject.FindGameObjectsWithTag("Enemy");
-		foreach (GameObject gameObject6 in array)
+		GameObject[] array7 = GameObject.FindGameObjectsWithTag("Enemy");
+		foreach (GameObject GO4 in array7)
 		{
-			EnemyAI component6 = gameObject6.GetComponent<EnemyAI>();
-			if ((bool)component6 && gameObject6.gameObject != AIscript.gameObject && component6.MyTeam != AIscript.MyTeam)
+			EnemyAI EA2 = GO4.GetComponent<EnemyAI>();
+			if ((bool)EA2 && GO4.gameObject != AIscript.gameObject && EA2.MyTeam != AIscript.MyTeam)
 			{
-				Targets.Add(gameObject6);
+				Targets.Add(GO4);
 			}
 		}
 	}
@@ -659,18 +670,18 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		Targets = Targets.OrderBy((GameObject x) => Vector3.Distance(base.transform.position, x.transform.position)).ToList();
 		if ((bool)currentTarget && TargetInSight)
 		{
-			HealthTanks component = currentTarget.GetComponent<HealthTanks>();
-			if ((bool)component && component.dying)
+			HealthTanks currentTargetHealth = currentTarget.GetComponent<HealthTanks>();
+			if ((bool)currentTargetHealth && currentTargetHealth.dying)
 			{
 				LookingAtTarget = false;
 				TargetInSight = false;
 				currentTarget = null;
 				return;
 			}
-			EnemyAI component2 = currentTarget.GetComponent<EnemyAI>();
-			if ((bool)component2)
+			EnemyAI TargetEA = currentTarget.GetComponent<EnemyAI>();
+			if ((bool)TargetEA)
 			{
-				if (component2.isInvisible)
+				if (TargetEA.isInvisible)
 				{
 					AIscript.ShootSpeed = AIscript.OriginalShootSpeed * 1.5f;
 				}
@@ -679,17 +690,17 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 					AIscript.ShootSpeed = AIscript.OriginalShootSpeed;
 				}
 			}
-			RaycastHit hitInfo;
+			RaycastHit rayhit;
 			if (Targets[0] != currentTarget)
 			{
-				float num = Vector3.Distance(base.transform.position, Targets[0].transform.position);
-				float num2 = Vector3.Distance(base.transform.position, currentTarget.transform.position);
-				if (num < num2 - 5f)
+				float distTarget0 = Vector3.Distance(base.transform.position, Targets[0].transform.position);
+				float distCurrentTarget = Vector3.Distance(base.transform.position, currentTarget.transform.position);
+				if (distTarget0 < distCurrentTarget - 5f)
 				{
-					Vector3 vector = Targets[0].transform.position - base.transform.position;
-					Debug.DrawRay(base.transform.position, vector * 50f, Color.green, 0.5f);
-					vector += new Vector3(0f, 0.5f, 0f);
-					if (Physics.Raycast(base.transform.position, vector, out hitInfo, 50f, myLayerMasks) && hitInfo.collider.gameObject == Targets[0])
+					Vector3 testdir = Targets[0].transform.position - base.transform.position;
+					Debug.DrawRay(base.transform.position, testdir * 50f, Color.green, 0.5f);
+					testdir += new Vector3(0f, 0.5f, 0f);
+					if (Physics.Raycast(base.transform.position, testdir, out rayhit, 50f, myLayerMasks) && rayhit.collider.gameObject == Targets[0])
 					{
 						TargetInSight = true;
 						currentTarget = Targets[0];
@@ -699,12 +710,12 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 					}
 				}
 			}
-			Vector3 vector2 = currentTarget.transform.position - base.transform.position;
-			vector2 += new Vector3(0f, 0.5f, 0f);
-			Debug.DrawRay(base.transform.position, vector2 * 50f, Color.green, 0.1f);
-			if (Physics.Raycast(base.transform.position, vector2, out hitInfo, 50f, myLayerMasks))
+			Vector3 dir = currentTarget.transform.position - base.transform.position;
+			dir += new Vector3(0f, 0.5f, 0f);
+			Debug.DrawRay(base.transform.position, dir * 50f, Color.green, 0.1f);
+			if (Physics.Raycast(base.transform.position, dir, out rayhit, 50f, myLayerMasks))
 			{
-				if (hitInfo.collider.gameObject == currentTarget)
+				if (rayhit.collider.gameObject == currentTarget)
 				{
 					TargetInSight = true;
 				}
@@ -721,14 +732,14 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 			{
 				TargetInSight = false;
 			}
-			GameObject gameObject = CheckTargetsIfInSight(myLayerMasks);
-			if ((bool)gameObject)
+			GameObject Target = CheckTargetsIfInSight(myLayerMasks);
+			if ((bool)Target)
 			{
 				LookingAtTarget = false;
 				normalLockedIn = false;
 				specialMoveLockedIn = false;
 				TargetInSight = false;
-				StartCoroutine(StartTheShooting(gameObject));
+				StartCoroutine(StartTheShooting(Target));
 			}
 			if (!TargetInSight && currentTarget == null)
 			{
@@ -740,75 +751,75 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	private GameObject CheckTargetsIfInSight(LayerMask layerMask)
 	{
-		List<GameObject> list = new List<GameObject>();
-		list.Clear();
-		foreach (GameObject target in Targets)
+		List<GameObject> TargetsInSight = new List<GameObject>();
+		TargetsInSight.Clear();
+		foreach (GameObject Target in Targets)
 		{
-			Vector3 vector = target.transform.position - base.transform.position;
-			vector += new Vector3(0f, 0.5f, 0f);
-			Debug.DrawRay(base.transform.position, vector * 50f, Color.yellow, 0.1f);
-			if (!Physics.Raycast(base.transform.position, vector, out var hitInfo, float.PositiveInfinity, layerMask))
+			Vector3 dir = Target.transform.position - base.transform.position;
+			dir += new Vector3(0f, 0.5f, 0f);
+			Debug.DrawRay(base.transform.position, dir * 50f, Color.yellow, 0.1f);
+			if (!Physics.Raycast(base.transform.position, dir, out var rayhit, float.PositiveInfinity, layerMask))
 			{
 				continue;
 			}
 			if ((bool)MapEditorMaster.instance)
 			{
-				if (hitInfo.collider.tag == "Enemy" || hitInfo.collider.tag == "Boss")
+				if (rayhit.collider.tag == "Enemy" || rayhit.collider.tag == "Boss")
 				{
-					EnemyAI component = hitInfo.collider.GetComponent<EnemyAI>();
-					if ((bool)component && (component.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0))
+					EnemyAI EA = rayhit.collider.GetComponent<EnemyAI>();
+					if ((bool)EA && (EA.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0))
 					{
-						list.Add(target);
+						TargetsInSight.Add(Target);
 					}
 				}
 				else
 				{
-					if (!(hitInfo.collider.tag == "Player"))
+					if (!(rayhit.collider.tag == "Player"))
 					{
 						continue;
 					}
-					MoveTankScript component2 = hitInfo.collider.GetComponent<MoveTankScript>();
-					if ((bool)component2)
+					MoveTankScript MTS = rayhit.collider.GetComponent<MoveTankScript>();
+					if ((bool)MTS)
 					{
-						if (component2.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0)
+						if (MTS.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0)
 						{
-							list.Add(target);
+							TargetsInSight.Add(Target);
 						}
 						continue;
 					}
-					EnemyAI component3 = hitInfo.collider.GetComponent<EnemyAI>();
-					if ((bool)component3 && (component3.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0))
+					EnemyAI EA2 = rayhit.collider.GetComponent<EnemyAI>();
+					if ((bool)EA2 && (EA2.MyTeam != AIscript.MyTeam || AIscript.MyTeam == 0))
 					{
-						list.Add(target);
+						TargetsInSight.Add(Target);
 					}
 				}
 			}
 			else if (isHuntingEnemies || AIscript.MyTeam == 1)
 			{
-				if (hitInfo.collider.tag == "Enemy" || hitInfo.collider.tag == "Boss")
+				if (rayhit.collider.tag == "Enemy" || rayhit.collider.tag == "Boss")
 				{
-					list.Add(target);
+					TargetsInSight.Add(Target);
 				}
 			}
-			else if (!isHuntingEnemies && hitInfo.collider.tag == "Player")
+			else if (!isHuntingEnemies && rayhit.collider.tag == "Player")
 			{
-				if (IgnoreCork && EnemiesNear(hitInfo.transform.position, 4))
+				if (IgnoreCork && EnemiesNear(rayhit.transform.position, 4))
 				{
-					currentTarget = target;
+					currentTarget = Target;
 					StartCoroutine(CooldownTarget(1f));
 					return null;
 				}
-				HealthTanks component4 = hitInfo.transform.gameObject.GetComponent<HealthTanks>();
-				if (!component4 || !component4.dying)
+				HealthTanks currentTargetHealth = rayhit.transform.gameObject.GetComponent<HealthTanks>();
+				if (!currentTargetHealth || !currentTargetHealth.dying)
 				{
-					list.Add(target);
+					TargetsInSight.Add(Target);
 				}
 			}
 		}
-		if (list.Count > 0)
+		if (TargetsInSight.Count > 0)
 		{
-			list = list.OrderBy((GameObject x) => Vector3.Distance(base.transform.position, x.transform.position)).ToList();
-			return list[0];
+			TargetsInSight = TargetsInSight.OrderBy((GameObject x) => Vector3.Distance(base.transform.position, x.transform.position)).ToList();
+			return TargetsInSight[0];
 		}
 		return null;
 	}
@@ -845,18 +856,24 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		}
 		else if (canMine && !canMineOnlyNearCork)
 		{
-			Collider[] array = Physics.OverlapSphere(base.transform.position, 2.5f);
-			foreach (Collider collider in array)
+			Collider[] objectsInRange = Physics.OverlapSphere(base.transform.position, 2.5f);
+			Collider[] array = objectsInRange;
+			foreach (Collider col2 in array)
 			{
-				if (collider.GetComponent<DestroyableWall>() != null && collider.gameObject.layer == LayerMask.NameToLayer("CorkWall"))
+				DestroyableWall DestroyWall2 = col2.GetComponent<DestroyableWall>();
+				if (DestroyWall2 != null && col2.gameObject.layer == LayerMask.NameToLayer("CorkWall"))
 				{
 					PlaceMine(deathmine: false);
 					return;
 				}
 			}
-			if (!EnemiesNear(base.transform.position, 6) && currentTarget != null && Vector3.Distance(base.transform.position, currentTarget.transform.position) < 16f)
+			if (!EnemiesNear(base.transform.position, 6) && currentTarget != null)
 			{
-				PlaceMine(deathmine: false);
+				float dist = Vector3.Distance(base.transform.position, currentTarget.transform.position);
+				if (dist < 16f)
+				{
+					PlaceMine(deathmine: false);
+				}
 			}
 		}
 		else
@@ -865,11 +882,12 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 			{
 				return;
 			}
-			Collider[] array = Physics.OverlapSphere(base.transform.position, 2.5f);
-			for (int i = 0; i < array.Length; i++)
+			Collider[] objectsInRange2 = Physics.OverlapSphere(base.transform.position, 2.5f);
+			Collider[] array2 = objectsInRange2;
+			foreach (Collider col in array2)
 			{
-				DestroyableWall component = array[i].GetComponent<DestroyableWall>();
-				if (component != null && !component.IsStone)
+				DestroyableWall DestroyWall = col.GetComponent<DestroyableWall>();
+				if (DestroyWall != null && !DestroyWall.IsStone)
 				{
 					PlaceMine(deathmine: false);
 				}
@@ -879,27 +897,28 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	public void PlaceMine(bool deathmine)
 	{
-		if (Random.Range(0, 2) == 1 || deathmine)
+		int random = Random.Range(0, 2);
+		if (random == 1 || deathmine)
 		{
-			GameObject gameObject = Object.Instantiate(minePrefab, base.transform.position + new Vector3(0f, -0.65f, 0f), Quaternion.identity);
-			MineScript component = gameObject.GetComponent<MineScript>();
-			component.isHuntingEnemies = isHuntingEnemies;
-			component.placedByEnemies = true;
+			GameObject mine = Object.Instantiate(minePrefab, base.transform.position + new Vector3(0f, -0.65f, 0f), Quaternion.identity);
+			MineScript minescript = mine.GetComponent<MineScript>();
+			minescript.isHuntingEnemies = isHuntingEnemies;
+			minescript.placedByEnemies = true;
 			if ((bool)GameMaster.instance.CM)
 			{
-				gameObject.transform.SetParent(GameMaster.instance.CM.transform);
+				mine.transform.SetParent(GameMaster.instance.CM.transform);
 			}
 			else
 			{
-				gameObject.transform.parent = null;
+				mine.transform.parent = null;
 			}
-			gameObject.transform.position = new Vector3(gameObject.transform.position.x, -0.02f, gameObject.transform.position.z);
+			mine.transform.position = new Vector3(mine.transform.position.x, -0.02f, mine.transform.position.z);
 			canMine = false;
-			component.MyPlacer = AIscript.gameObject;
+			minescript.MyPlacer = AIscript.gameObject;
 			mineCountdown = Random.Range(1f, 2.5f) + AIscript.LayMinesSpeed;
 			if (deathmine)
 			{
-				component.StartCoroutine(component.setactive());
+				minescript.StartCoroutine(minescript.setactive());
 			}
 		}
 	}
@@ -917,20 +936,20 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		isCheckingForPlayer = true;
 		if (AIscript.IncomingBullets.Count > 0 && AIscript.isSmart && !specialMove)
 		{
-			foreach (GameObject incomingBullet in AIscript.IncomingBullets)
+			foreach (GameObject incomingbullet in AIscript.IncomingBullets)
 			{
-				if (!incomingBullet)
+				if (!incomingbullet)
 				{
 					continue;
 				}
-				float num = Vector3.Distance(base.transform.position, incomingBullet.transform.position);
-				if (((num < 8f && TargetInSight) || (num < 12f && !TargetInSight)) && !specialMove && !specialMove && canShoot && !specialMoveLockedIn)
+				float dist = Vector3.Distance(base.transform.position, incomingbullet.transform.position);
+				if (((dist < 8f && TargetInSight) || (dist < 12f && !TargetInSight)) && !specialMove && !specialMove && canShoot && !specialMoveLockedIn)
 				{
-					startingPosition = incomingBullet.transform.position;
-					startingPosition = incomingBullet.transform.position + -incomingBullet.transform.up;
+					startingPosition = incomingbullet.transform.position;
+					startingPosition = incomingbullet.transform.position + -incomingbullet.transform.up;
 					startingPosition = new Vector3(startingPosition.x, base.transform.position.y, startingPosition.z);
 					TurnTowardsSpecialMove();
-					AIscript.IncomingBullets.Remove(incomingBullet);
+					AIscript.IncomingBullets.Remove(incomingbullet);
 					DeflectingBullet = true;
 					if (!CR_running)
 					{
@@ -990,112 +1009,112 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		specialMoveLockedIn = false;
 		if (startingPosition != Vector3.zero)
 		{
-			Vector3 forward = startingPosition - base.transform.position;
-			rotation = Quaternion.LookRotation(forward);
+			Vector3 lookPos = startingPosition - base.transform.position;
+			rotation = Quaternion.LookRotation(lookPos);
 		}
 	}
 
 	private bool DrawReflectionPattern(Vector3 position, Vector3 direction, int reflectionsRemaining, bool CheckingForFriendlies)
 	{
-		int num = 0;
-		float num2 = -1f;
+		int iterations = 0;
+		float distToPoint = -1f;
 		do
 		{
-			bool flag = false;
-			Vector3 start = position;
+			bool seeingPlayer = false;
+			Vector3 startPosition = position;
 			Ray ray = new Ray(position, direction);
 			LayerMask layerMask = ~((1 << LayerMask.NameToLayer("EnemyDetectionLayer")) | (1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("BulletDetectField")) | (1 << LayerMask.NameToLayer("Other")) | (1 << LayerMask.NameToLayer("OneWayBlock")));
-			RaycastHit[] array = (from h in Physics.RaycastAll(ray, 100f, layerMask)
+			RaycastHit[] allhits = (from h in Physics.RaycastAll(ray, 100f, layerMask)
 				orderby h.distance
 				select h).ToArray();
-			for (int i = 0; i < array.Length; i++)
+			for (int i = 0; i < allhits.Length; i++)
 			{
-				RaycastHit raycastHit = array[i];
+				RaycastHit hit = allhits[i];
 				if (CheckingForFriendlies)
 				{
-					Debug.DrawLine(start, raycastHit.point, Color.yellow, 1f);
+					Debug.DrawLine(startPosition, hit.point, Color.yellow, 1f);
 				}
 				else
 				{
-					Debug.DrawLine(start, raycastHit.point, Color.red);
+					Debug.DrawLine(startPosition, hit.point, Color.red);
 				}
-				if (raycastHit.collider.gameObject == AIscript.gameObject && num == 0)
+				if (hit.collider.gameObject == AIscript.gameObject && iterations == 0)
 				{
 					continue;
 				}
-				if ((raycastHit.collider.tag == "Player" || raycastHit.collider.tag == "HitZone") && !isHuntingEnemies && raycastHit.collider.transform.parent.gameObject != AIscript.gameObject && raycastHit.collider.gameObject != AIscript.gameObject)
+				if ((hit.collider.tag == "Player" || hit.collider.tag == "HitZone") && !isHuntingEnemies && hit.collider.transform.parent.gameObject != AIscript.gameObject && hit.collider.gameObject != AIscript.gameObject)
 				{
-					MoveTankScript component = raycastHit.transform.GetComponent<MoveTankScript>();
-					if (component == null && raycastHit.collider.tag == "HitZone")
+					MoveTankScript MTS = hit.transform.GetComponent<MoveTankScript>();
+					if (MTS == null && hit.collider.tag == "HitZone")
 					{
-						component = raycastHit.transform.parent.GetChild(0).transform.GetComponent<MoveTankScript>();
+						MTS = hit.transform.parent.GetChild(0).transform.GetComponent<MoveTankScript>();
 					}
-					if ((bool)component)
+					if ((bool)MTS)
 					{
-						if (!(raycastHit.collider.tag == "HitZone"))
+						if (!(hit.collider.tag == "HitZone"))
 						{
 							return false;
 						}
-						if (component.MyTeam == AIscript.MyTeam && AIscript.MyTeam != 0 && !CheckingForFriendlies)
+						if (MTS.MyTeam == AIscript.MyTeam && AIscript.MyTeam != 0 && !CheckingForFriendlies)
 						{
 							return false;
 						}
-						if (component.MyTeam == AIscript.MyTeam && AIscript.MyTeam != 0 && CheckingForFriendlies)
+						if (MTS.MyTeam == AIscript.MyTeam && AIscript.MyTeam != 0 && CheckingForFriendlies)
 						{
 							return true;
 						}
 					}
 					else
 					{
-						EnemyAI component2 = raycastHit.transform.GetComponent<EnemyAI>();
-						if ((bool)component2)
+						EnemyAI EA = hit.transform.GetComponent<EnemyAI>();
+						if ((bool)EA)
 						{
-							if (component2.MyTeam == AIscript.MyTeam && AIscript.MyTeam != 0 && !CheckingForFriendlies)
+							if (EA.MyTeam == AIscript.MyTeam && AIscript.MyTeam != 0 && !CheckingForFriendlies)
 							{
 								return false;
 							}
-							if (component2.MyTeam == AIscript.MyTeam && AIscript.MyTeam != 0 && CheckingForFriendlies)
+							if (EA.MyTeam == AIscript.MyTeam && AIscript.MyTeam != 0 && CheckingForFriendlies)
 							{
 								return true;
 							}
 						}
 					}
-					HealthTanks component3 = raycastHit.transform.gameObject.GetComponent<HealthTanks>();
-					if (component3 != null && component3.dying)
+					HealthTanks HT = hit.transform.gameObject.GetComponent<HealthTanks>();
+					if (HT != null && HT.dying)
 					{
 						return false;
 					}
-					if (num2 < 0f && reflectionsRemaining < 1)
+					if (distToPoint < 0f && reflectionsRemaining < 1)
 					{
 						return false;
 					}
-					flag = true;
-					if (num2 != -1f && AIscript.CanMove)
+					seeingPlayer = true;
+					if (distToPoint != -1f && AIscript.CanMove)
 					{
-						Vector3 point = raycastHit.point;
-						float num3 = Vector3.Distance(base.transform.position, point);
-						if (num2 < num3)
+						Vector3 posTemp = hit.point;
+						float secondDistToPoint = Vector3.Distance(base.transform.position, posTemp);
+						if (distToPoint < secondDistToPoint)
 						{
 							return false;
 						}
 					}
 				}
-				if ((raycastHit.collider.tag == "Enemy" || raycastHit.collider.tag == "Boss") && raycastHit.collider.gameObject != AIscript.gameObject)
+				if ((hit.collider.tag == "Enemy" || hit.collider.tag == "Boss") && hit.collider.gameObject != AIscript.gameObject)
 				{
-					EnemyAI component4 = raycastHit.transform.GetComponent<EnemyAI>();
-					if (component4.MyTeam == AIscript.MyTeam && AIscript.MyTeam != 0 && !CheckingForFriendlies && component4.gameObject != AIscript.gameObject)
+					EnemyAI EA2 = hit.transform.GetComponent<EnemyAI>();
+					if (EA2.MyTeam == AIscript.MyTeam && AIscript.MyTeam != 0 && !CheckingForFriendlies && EA2.gameObject != AIscript.gameObject)
 					{
 						return false;
 					}
-					if (component4.MyTeam == AIscript.MyTeam && AIscript.MyTeam != 0 && CheckingForFriendlies && component4.gameObject != AIscript.gameObject)
+					if (EA2.MyTeam == AIscript.MyTeam && AIscript.MyTeam != 0 && CheckingForFriendlies && EA2.gameObject != AIscript.gameObject)
 					{
 						return true;
 					}
-					if (num2 != -1f)
+					if (distToPoint != -1f)
 					{
-						Vector3 point2 = raycastHit.point;
-						float num4 = Vector3.Distance(position, point2);
-						if (num2 < num4 && num2 < 9f)
+						Vector3 posTemp2 = hit.point;
+						float secondDistToPoint2 = Vector3.Distance(position, posTemp2);
+						if (distToPoint < secondDistToPoint2 && distToPoint < 9f)
 						{
 							return false;
 						}
@@ -1106,39 +1125,39 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 					}
 					return false;
 				}
-				if ((raycastHit.collider.tag == "Enemy" || raycastHit.collider.tag == "Boss") && raycastHit.collider.gameObject == AIscript.gameObject && !AIscript.CanMove && CheckingForFriendlies)
+				if ((hit.collider.tag == "Enemy" || hit.collider.tag == "Boss") && hit.collider.gameObject == AIscript.gameObject && !AIscript.CanMove && CheckingForFriendlies)
 				{
 					return true;
 				}
-				if (raycastHit.collider.gameObject.layer == LayerMask.NameToLayer("NoBounceWall") && !CheckingForFriendlies)
+				if (hit.collider.gameObject.layer == LayerMask.NameToLayer("NoBounceWall") && !CheckingForFriendlies)
 				{
 					return false;
 				}
-				if (raycastHit.collider.tag == "Solid" || raycastHit.collider.tag == "MapBorder")
+				if (hit.collider.tag == "Solid" || hit.collider.tag == "MapBorder")
 				{
 					if (reflectionsRemaining == maxReflectionCount && startingPosition == Vector3.zero)
 					{
-						startingPosition = raycastHit.point;
+						startingPosition = hit.point;
 					}
-					direction = Vector3.Reflect(direction, raycastHit.normal);
-					position = raycastHit.point;
-					num2 = Vector3.Distance(base.transform.position, position);
+					direction = Vector3.Reflect(direction, hit.normal);
+					position = hit.point;
+					distToPoint = Vector3.Distance(base.transform.position, position);
 				}
-				num2 = Vector3.Distance(base.transform.position, position);
-				if (((num2 < 6f && AIscript.CanMove) || (num2 < 1f && !AIscript.CanMove)) && reflectionsRemaining == maxReflectionCount && !CheckingForFriendlies)
+				distToPoint = Vector3.Distance(base.transform.position, position);
+				if (((distToPoint < 6f && AIscript.CanMove) || (distToPoint < 1f && !AIscript.CanMove)) && reflectionsRemaining == maxReflectionCount && !CheckingForFriendlies)
 				{
 					return false;
 				}
-				if (raycastHit.collider.tag == "Solid" || raycastHit.collider.tag == "MapBorder")
+				if (hit.collider.tag == "Solid" || hit.collider.tag == "MapBorder")
 				{
 					break;
 				}
 			}
-			if (flag && !CheckingForFriendlies)
+			if (seeingPlayer && !CheckingForFriendlies)
 			{
 				return true;
 			}
-			num++;
+			iterations++;
 			reflectionsRemaining--;
 		}
 		while (reflectionsRemaining >= 0);
@@ -1147,32 +1166,32 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	public void ShootAllBarrels()
 	{
-		int num = maxFiredBullets - firedBullets;
-		if (num <= 0)
+		int BulletsLeft = maxFiredBullets - firedBullets;
+		if (BulletsLeft <= 0)
 		{
 			return;
 		}
 		if (AmountShotgunShots > 0)
 		{
-			if (AmountShotgunShots == 1 && num >= 1)
+			if (AmountShotgunShots == 1 && BulletsLeft >= 1)
 			{
 				firedBullets++;
 				FireTank(firePoint[0], bulletPrefab);
 			}
-			else if (AmountShotgunShots == 2 && num >= 2)
+			else if (AmountShotgunShots == 2 && BulletsLeft >= 2)
 			{
 				firedBullets += 2;
 				FireTank(firePoint[1], bulletPrefab);
 				FireTank(firePoint[2], bulletPrefab);
 			}
-			else if (AmountShotgunShots == 3 && num >= 3)
+			else if (AmountShotgunShots == 3 && BulletsLeft >= 3)
 			{
 				firedBullets += 3;
 				FireTank(firePoint[0], bulletPrefab);
 				FireTank(firePoint[1], bulletPrefab);
 				FireTank(firePoint[2], bulletPrefab);
 			}
-			else if (AmountShotgunShots == 4 && num >= 4)
+			else if (AmountShotgunShots == 4 && BulletsLeft >= 4)
 			{
 				firedBullets += 4;
 				FireTank(firePoint[1], bulletPrefab);
@@ -1182,7 +1201,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 			}
 			else
 			{
-				if (AmountShotgunShots != 5 || num < 5)
+				if (AmountShotgunShots != 5 || BulletsLeft < 5)
 				{
 					return;
 				}
@@ -1200,13 +1219,13 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				}
 			}
 		}
-		else if (num >= firePoint.Length)
+		else if (BulletsLeft >= firePoint.Length)
 		{
 			firedBullets += firePoint.Length;
 			Transform[] array = firePoint;
-			foreach (Transform firepoint in array)
+			foreach (Transform point in array)
 			{
-				FireTank(firepoint, bulletPrefab);
+				FireTank(point, bulletPrefab);
 			}
 		}
 	}
@@ -1279,8 +1298,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 			}
 			else if (TargetInSight && !specialMove && canShoot && LookingAtTarget)
 			{
-				int reflections = ((AIscript.amountOfBounces > 0) ? 1 : 0);
-				if (CheckForEverything(base.transform.rotation, 0.6f, FriendliesCheck: true, reflections))
+				if (CheckForEverything(reflections: (AIscript.amountOfBounces > 0) ? 1 : 0, checkAngle: base.transform.rotation, checkOffset: 0.6f, FriendliesCheck: true))
 				{
 					if (AIscript.isAggro)
 					{
@@ -1296,12 +1314,12 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				}
 				normalLockedIn = false;
 				Debug.DrawRay(base.transform.position, base.transform.TransformDirection(Vector3.forward) * 100f, Color.green, 2f);
-				LayerMask layerMask = ~((1 << LayerMask.NameToLayer("EnemyDetectionLayer")) | (1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("OneWayBlock")) | (1 << LayerMask.NameToLayer("EnemyBorder")));
-				if (Physics.Raycast(base.transform.position, base.transform.TransformDirection(Vector3.forward) * 100f, out var hitInfo, float.PositiveInfinity, layerMask))
+				if (Physics.Raycast(layerMask: (LayerMask)(~((1 << LayerMask.NameToLayer("EnemyDetectionLayer")) | (1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("OneWayBlock")) | (1 << LayerMask.NameToLayer("EnemyBorder")))), origin: base.transform.position, direction: base.transform.TransformDirection(Vector3.forward) * 100f, hitInfo: out var rayhit, maxDistance: float.PositiveInfinity))
 				{
-					if (hitInfo.collider.tag == "Solid" || hitInfo.collider.tag == "MapBorder" || hitInfo.collider.tag == "Mine")
+					if (rayhit.collider.tag == "Solid" || rayhit.collider.tag == "MapBorder" || rayhit.collider.tag == "Mine")
 					{
-						if (Vector3.Distance(base.transform.position, hitInfo.point) > 5f)
+						float distance = Vector3.Distance(base.transform.position, rayhit.point);
+						if (distance > 5f)
 						{
 							if (firedBullets >= maxFiredBullets)
 							{
@@ -1329,9 +1347,9 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		{
 			if (AIscript.HTscript.health < AIscript.lvl30Boss3modeLives && lvl30BossSpecial < 8)
 			{
-				for (int i = 0; i < 8; i++)
+				for (int j = 0; j < 8; j++)
 				{
-					FireTank(firePoint[i], SecondBulletPrefab);
+					FireTank(firePoint[j], SecondBulletPrefab);
 				}
 				if (lvl30BossSpecial > 1)
 				{
@@ -1344,9 +1362,9 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 			}
 			else
 			{
-				for (int j = 0; j < firePoint.Length; j++)
+				for (int i = 0; i < firePoint.Length; i++)
 				{
-					FireTank(firePoint[j], bulletPrefab);
+					FireTank(firePoint[i], bulletPrefab);
 				}
 				if (AIscript.HTscript.health < AIscript.lvl30Boss3modeLives)
 				{
@@ -1360,18 +1378,18 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	private bool CheckForEverything(Quaternion checkAngle, float checkOffset, bool FriendliesCheck, int reflections)
 	{
-		Vector3 position = base.transform.position + (checkAngle * Vector3.left).normalized * checkOffset;
-		Vector3 position2 = base.transform.position + (checkAngle * Vector3.right).normalized * checkOffset;
-		bool flag = DrawReflectionPattern(position, checkAngle * Vector3.forward, reflections, FriendliesCheck);
-		bool flag2 = DrawReflectionPattern(position2, checkAngle * Vector3.forward, reflections, FriendliesCheck);
+		Vector3 checkPos1 = base.transform.position + (checkAngle * Vector3.left).normalized * checkOffset;
+		Vector3 checkPos2 = base.transform.position + (checkAngle * Vector3.right).normalized * checkOffset;
+		bool StillHitLeft = DrawReflectionPattern(checkPos1, checkAngle * Vector3.forward, reflections, FriendliesCheck);
+		bool StillHitRight = DrawReflectionPattern(checkPos2, checkAngle * Vector3.forward, reflections, FriendliesCheck);
 		if (FriendliesCheck)
 		{
-			if (flag || flag2)
+			if (StillHitLeft || StillHitRight)
 			{
 				return true;
 			}
 		}
-		else if (!flag || !flag2)
+		else if (!StillHitLeft || !StillHitRight)
 		{
 			return true;
 		}
@@ -1380,23 +1398,23 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	public void AddRocket(int index)
 	{
-		GameObject gameObject = Object.Instantiate(rocketPrefab, rocketSlotLocations[index]);
-		gameObject.GetComponent<RocketScript>().isHuntingEnemies = isHuntingEnemies;
-		gameObject.GetComponent<RocketScript>().papaTank = AIscript.gameObject;
-		gameObject.GetComponent<RocketScript>().MyTeam = AIscript.MyTeam;
+		GameObject newRocket = Object.Instantiate(rocketPrefab, rocketSlotLocations[index]);
+		newRocket.GetComponent<RocketScript>().isHuntingEnemies = isHuntingEnemies;
+		newRocket.GetComponent<RocketScript>().papaTank = AIscript.gameObject;
+		newRocket.GetComponent<RocketScript>().MyTeam = AIscript.MyTeam;
 		if (AIscript.isInvisible)
 		{
-			foreach (Transform item in gameObject.transform)
+			foreach (Transform T in newRocket.transform)
 			{
-				item.gameObject.SetActive(value: false);
-				foreach (Transform item2 in item)
+				T.gameObject.SetActive(value: false);
+				foreach (Transform TR in T)
 				{
-					item2.gameObject.SetActive(value: false);
+					TR.gameObject.SetActive(value: false);
 				}
 			}
 		}
-		rockets[index] = gameObject;
-		gameObject.transform.parent = rocketSlotLocations[index];
+		rockets[index] = newRocket;
+		newRocket.transform.parent = rocketSlotLocations[index];
 	}
 
 	private IEnumerator ShootRockets()
@@ -1405,24 +1423,24 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		{
 			yield break;
 		}
-		float seconds = Random.Range(2f, 2.5f);
+		float RandomizedWaitingTime2 = Random.Range(2f, 2.5f);
 		if (RocketReloadSpeed > 0f)
 		{
-			seconds = RocketReloadSpeed;
+			RandomizedWaitingTime2 = RocketReloadSpeed;
 		}
 		else if (OptionsMainMenu.instance.currentDifficulty == 1)
 		{
-			seconds = Random.Range(1.5f, 2f);
+			RandomizedWaitingTime2 = Random.Range(1.5f, 2f);
 		}
 		else if (OptionsMainMenu.instance.currentDifficulty == 2)
 		{
-			seconds = Random.Range(1f, 1.5f);
+			RandomizedWaitingTime2 = Random.Range(1f, 1.5f);
 		}
 		else if (OptionsMainMenu.instance.currentDifficulty == 3)
 		{
-			seconds = Random.Range(0.75f, 1f);
+			RandomizedWaitingTime2 = Random.Range(0.75f, 1f);
 		}
-		yield return new WaitForSeconds(seconds);
+		yield return new WaitForSeconds(RandomizedWaitingTime2);
 		if (!GameMaster.instance.GameHasStarted || GameMaster.instance.GameHasPaused)
 		{
 			yield break;
@@ -1439,25 +1457,25 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				}
 				if (RocketReloadSpeed > 0f)
 				{
-					seconds = RocketReloadSpeed / 2f;
+					RandomizedWaitingTime2 = RocketReloadSpeed / 2f;
 				}
 				else
 				{
-					seconds = Random.Range(0.4f, 0.9f);
+					RandomizedWaitingTime2 = Random.Range(0.4f, 0.9f);
 					if (OptionsMainMenu.instance.currentDifficulty == 1)
 					{
-						seconds = Random.Range(0.3f, 0.8f);
+						RandomizedWaitingTime2 = Random.Range(0.3f, 0.8f);
 					}
 					else if (OptionsMainMenu.instance.currentDifficulty == 2)
 					{
-						seconds = Random.Range(0.2f, 0.7f);
+						RandomizedWaitingTime2 = Random.Range(0.2f, 0.7f);
 					}
 					else if (OptionsMainMenu.instance.currentDifficulty == 3)
 					{
-						seconds = Random.Range(0.1f, 0.6f);
+						RandomizedWaitingTime2 = Random.Range(0.1f, 0.6f);
 					}
 				}
-				yield return new WaitForSeconds(seconds);
+				yield return new WaitForSeconds(RandomizedWaitingTime2);
 			}
 			else
 			{
@@ -1475,25 +1493,25 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				{
 					if (RocketReloadSpeed > 0f)
 					{
-						seconds = RocketReloadSpeed / 2f;
+						RandomizedWaitingTime2 = RocketReloadSpeed / 2f;
 					}
 					else
 					{
-						seconds = Random.Range(0.4f, 0.9f);
+						RandomizedWaitingTime2 = Random.Range(0.4f, 0.9f);
 						if (OptionsMainMenu.instance.currentDifficulty == 1)
 						{
-							seconds = Random.Range(0.3f, 0.8f);
+							RandomizedWaitingTime2 = Random.Range(0.3f, 0.8f);
 						}
 						else if (OptionsMainMenu.instance.currentDifficulty == 2)
 						{
-							seconds = Random.Range(0.2f, 0.7f);
+							RandomizedWaitingTime2 = Random.Range(0.2f, 0.7f);
 						}
 						else if (OptionsMainMenu.instance.currentDifficulty == 3)
 						{
-							seconds = Random.Range(0.1f, 0.6f);
+							RandomizedWaitingTime2 = Random.Range(0.1f, 0.6f);
 						}
 					}
-					yield return new WaitForSeconds(seconds);
+					yield return new WaitForSeconds(RandomizedWaitingTime2);
 				}
 				else
 				{
@@ -1507,24 +1525,24 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	private IEnumerator reloadRocketsTimer()
 	{
-		float seconds = Random.Range(4f, 5f);
+		float RandomizedWaitingTime = Random.Range(4f, 5f);
 		if (RocketReloadSpeed > 0f)
 		{
-			seconds = RocketReloadSpeed;
+			RandomizedWaitingTime = RocketReloadSpeed;
 		}
 		else if (OptionsMainMenu.instance.currentDifficulty == 1)
 		{
-			seconds = Random.Range(3.5f, 4f);
+			RandomizedWaitingTime = Random.Range(3.5f, 4f);
 		}
 		else if (OptionsMainMenu.instance.currentDifficulty == 2)
 		{
-			seconds = Random.Range(3f, 3.5f);
+			RandomizedWaitingTime = Random.Range(3f, 3.5f);
 		}
 		else if (OptionsMainMenu.instance.currentDifficulty == 3)
 		{
-			seconds = Random.Range(2.5f, 3f);
+			RandomizedWaitingTime = Random.Range(2.5f, 3f);
 		}
-		yield return new WaitForSeconds(seconds);
+		yield return new WaitForSeconds(RandomizedWaitingTime);
 		canReloadRockets = true;
 	}
 
@@ -1581,39 +1599,39 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				}
 			}
 		}
-		bool flag = false;
-		GameObject gameObject;
+		bool isPlayingShootSound = false;
+		GameObject bulletGO;
 		if (AIscript.isElectric && !AIscript.HTscript.IsCustom)
 		{
 			if (AIscript.isCharged || AIscript.isLevel70Boss)
 			{
-				gameObject = Object.Instantiate(bulletprefab, firepoint.position, Quaternion.Euler(firepoint.transform.forward));
+				bulletGO = Object.Instantiate(bulletprefab, firepoint.position, Quaternion.Euler(firepoint.transform.forward));
 				if (ExtraShotSounds.Length != 0)
 				{
-					int num = Random.Range(0, ExtraShotSounds.Length);
-					SFXManager.instance.PlaySFX(ExtraShotSounds[num]);
-					flag = true;
+					int picky2 = Random.Range(0, ExtraShotSounds.Length);
+					SFXManager.instance.PlaySFX(ExtraShotSounds[picky2]);
+					isPlayingShootSound = true;
 				}
 				else
 				{
 					SFXManager.instance.PlaySFX(ShootSound);
-					flag = true;
+					isPlayingShootSound = true;
 				}
 			}
 			else
 			{
-				gameObject = Object.Instantiate(SecondBulletPrefab, firepoint.position, Quaternion.Euler(firepoint.transform.forward));
+				bulletGO = Object.Instantiate(SecondBulletPrefab, firepoint.position, Quaternion.Euler(firepoint.transform.forward));
 				SFXManager.instance.PlaySFX(secondShotSound);
-				flag = true;
+				isPlayingShootSound = true;
 			}
 		}
 		else
 		{
 			if (ExtraShotSounds.Length != 0)
 			{
-				int num2 = Random.Range(0, ExtraShotSounds.Length);
-				SFXManager.instance.PlaySFX(ExtraShotSounds[num2]);
-				flag = true;
+				int picky = Random.Range(0, ExtraShotSounds.Length);
+				SFXManager.instance.PlaySFX(ExtraShotSounds[picky]);
+				isPlayingShootSound = true;
 			}
 			else if (AIscript.HTscript.EnemyID == -1)
 			{
@@ -1621,62 +1639,62 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				{
 					SFXManager.instance.PlaySFX(secondShotSound);
 				}
-				flag = true;
+				isPlayingShootSound = true;
 			}
-			gameObject = Object.Instantiate(bulletprefab, firepoint.position, Quaternion.Euler(firepoint.transform.forward));
+			bulletGO = Object.Instantiate(bulletprefab, firepoint.position, Quaternion.Euler(firepoint.transform.forward));
 		}
-		if (!flag)
+		if (!isPlayingShootSound)
 		{
 			SFXManager.instance.PlaySFX(ShootSound);
 		}
-		PlayerBulletScript component = gameObject.GetComponent<PlayerBulletScript>();
-		component.MyTeam = AIscript.MyTeam;
+		PlayerBulletScript bullet = bulletGO.GetComponent<PlayerBulletScript>();
+		bullet.MyTeam = AIscript.MyTeam;
 		if (AIscript.isShiny)
 		{
-			component.isShiny = true;
+			bullet.isShiny = true;
 		}
 		if (AIscript.isSuperShiny)
 		{
-			component.isSuperShiny = true;
+			bullet.isSuperShiny = true;
 		}
-		Rigidbody component2 = gameObject.GetComponent<Rigidbody>();
-		if ((bool)component2)
+		Rigidbody bulletBody = bulletGO.GetComponent<Rigidbody>();
+		if ((bool)bulletBody)
 		{
-			component2.AddForce(firepoint.forward * 6f);
-			component.StartingVelocity = firepoint.forward * 6f;
-			_ = firepoint.position;
+			bulletBody.AddForce(firepoint.forward * 6f);
+			bullet.StartingVelocity = firepoint.forward * 6f;
+			Vector3 startingPosition = firepoint.position;
 			Ray ray = new Ray(firepoint.position, firepoint.forward);
-			LayerMask layerMask = (1 << LayerMask.NameToLayer("CorkWall")) | (1 << LayerMask.NameToLayer("Wall")) | (1 << LayerMask.NameToLayer("NoBounceWall")) | (1 << LayerMask.NameToLayer("DestroyableWall"));
+			LayerMask LM = (1 << LayerMask.NameToLayer("CorkWall")) | (1 << LayerMask.NameToLayer("Wall")) | (1 << LayerMask.NameToLayer("NoBounceWall")) | (1 << LayerMask.NameToLayer("DestroyableWall"));
 			Debug.DrawRay(firepoint.position, firepoint.forward * 15f, Color.cyan, 3f);
-			if (Physics.Raycast(ray, out var hitInfo, 1000f, layerMask))
+			if (Physics.Raycast(ray, out var hit, 1000f, LM))
 			{
-				component.WallGonnaBounceInTo = hitInfo.transform.gameObject;
+				bullet.WallGonnaBounceInTo = hit.transform.gameObject;
 			}
 		}
 		if (!AIscript.IsCompanion)
 		{
-			component.MaxBounces = AIscript.amountOfBounces;
-			component.papaTank = AIscript.gameObject;
-			component.EnemyTankScript = this;
-			component.isEnemyBullet = true;
+			bullet.MaxBounces = AIscript.amountOfBounces;
+			bullet.papaTank = AIscript.gameObject;
+			bullet.EnemyTankScript = this;
+			bullet.isEnemyBullet = true;
 		}
 		else
 		{
-			component.MaxBounces = AIscript.amountOfBounces;
-			component.papaTank = AIscript.gameObject;
-			component.ShotByPlayer = AIscript.CompanionID;
-			component.EnemyTankScript = this;
+			bullet.MaxBounces = AIscript.amountOfBounces;
+			bullet.papaTank = AIscript.gameObject;
+			bullet.ShotByPlayer = AIscript.CompanionID;
+			bullet.EnemyTankScript = this;
 		}
 		if (CustomShootSpeed > -1)
 		{
-			component.BulletSpeed = CustomShootSpeed;
+			bullet.BulletSpeed = CustomShootSpeed;
 		}
 		if (bulletprefab == SecondBulletPrefab && AIscript.isLevel30Boss)
 		{
-			component.MaxBounces = 1;
+			bullet.MaxBounces = 1;
 		}
-		Physics.IgnoreCollision(component.GetComponent<Collider>(), AIscript.GetComponent<Collider>());
-		component.CollidersIgnoring.Add(AIscript.GetComponent<Collider>());
+		Physics.IgnoreCollision(bullet.GetComponent<Collider>(), AIscript.GetComponent<Collider>());
+		bullet.CollidersIgnoring.Add(AIscript.GetComponent<Collider>());
 		doubleStopper = true;
 		StartCoroutine("preventDouble");
 	}
@@ -1690,14 +1708,15 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	public bool EnemiesNear(Vector3 position, int range)
 	{
-		Collider[] array = Physics.OverlapSphere(position, range);
-		foreach (Collider collider in array)
+		Collider[] objectsInRange = Physics.OverlapSphere(position, range);
+		Collider[] array = objectsInRange;
+		foreach (Collider col in array)
 		{
-			if (((collider.tag == "Enemy" && !isHuntingEnemies) || (collider.tag == "Player" && isHuntingEnemies)) && collider.gameObject != AIscript.gameObject)
+			if (((col.tag == "Enemy" && !isHuntingEnemies) || (col.tag == "Player" && isHuntingEnemies)) && col.gameObject != AIscript.gameObject)
 			{
 				return true;
 			}
-			if (collider.tag == "Player" && AIscript.IsCompanion && collider.gameObject != AIscript.gameObject)
+			if (col.tag == "Player" && AIscript.IsCompanion && col.gameObject != AIscript.gameObject)
 			{
 				return true;
 			}

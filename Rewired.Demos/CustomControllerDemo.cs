@@ -31,10 +31,10 @@ public class CustomControllerDemo : MonoBehaviour
 
 	private void Awake()
 	{
-		ScreenOrientation screenOrientation = ScreenOrientation.Landscape;
-		if (SystemInfo.deviceType == DeviceType.Handheld && Screen.orientation != screenOrientation)
+		ScreenOrientation orientation = ScreenOrientation.Landscape;
+		if (SystemInfo.deviceType == DeviceType.Handheld && Screen.orientation != orientation)
 		{
-			Screen.orientation = screenOrientation;
+			Screen.orientation = orientation;
 		}
 		Initialize();
 	}

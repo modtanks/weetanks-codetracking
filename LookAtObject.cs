@@ -2,13 +2,13 @@ using UnityEngine;
 
 public class LookAtObject : MonoBehaviour
 {
-	public bool FollowPlayer;
+	public bool FollowPlayer = false;
 
-	public bool LookStraight;
+	public bool LookStraight = false;
 
-	public bool LookStraighttwo;
+	public bool LookStraighttwo = false;
 
-	public int AdditionRotationY;
+	public int AdditionRotationY = 0;
 
 	private void Start()
 	{
@@ -20,17 +20,17 @@ public class LookAtObject : MonoBehaviour
 		{
 			if ((bool)GameMaster.instance.Players[0])
 			{
-				Vector3 forward = GameMaster.instance.Players[0].transform.position - base.transform.position;
-				forward.y = 0f;
-				Quaternion b = Quaternion.LookRotation(forward);
-				b *= Quaternion.Euler(0f, AdditionRotationY, 0f);
-				base.transform.rotation = Quaternion.Lerp(base.transform.rotation, b, Time.deltaTime);
+				Vector3 lookPos = GameMaster.instance.Players[0].transform.position - base.transform.position;
+				lookPos.y = 0f;
+				Quaternion rotation2 = Quaternion.LookRotation(lookPos);
+				rotation2 *= Quaternion.Euler(0f, AdditionRotationY, 0f);
+				base.transform.rotation = Quaternion.Lerp(base.transform.rotation, rotation2, Time.deltaTime);
 			}
 		}
 		else if (LookStraight)
 		{
-			Quaternion b2 = Quaternion.LookRotation(-Vector3.left);
-			base.transform.rotation = Quaternion.Lerp(base.transform.rotation, b2, Time.deltaTime);
+			Quaternion rotation = Quaternion.LookRotation(-Vector3.left);
+			base.transform.rotation = Quaternion.Lerp(base.transform.rotation, rotation, Time.deltaTime);
 		}
 	}
 }

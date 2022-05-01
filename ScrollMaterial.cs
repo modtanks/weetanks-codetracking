@@ -13,7 +13,7 @@ public class ScrollMaterial : MonoBehaviour
 
 	private void Update()
 	{
-		float num = Time.time * scrollSpeed;
-		rend.material.SetTextureOffset("_MainTex", new Vector2(num, num));
+		float offset = Time.time * scrollSpeed;
+		rend.material.SetTextureOffset("_MainTex", new Vector2(offset, offset));
 	}
 }

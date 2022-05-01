@@ -17,15 +17,15 @@ public class GetPublicMaps : MonoBehaviour
 
 	public TextMeshProUGUI PageNumber;
 
-	public int CurrentPage;
+	public int CurrentPage = 0;
 
-	public int PageType;
+	public int PageType = 0;
 
 	public TMP_Dropdown SortDropdown;
 
 	public GameObject LoadingScreen;
 
-	public bool isLoading;
+	public bool isLoading = false;
 
 	private void Start()
 	{
@@ -81,14 +81,14 @@ public class GetPublicMaps : MonoBehaviour
 		{
 			yield break;
 		}
-		WWWForm wWWForm = new WWWForm();
-		wWWForm.AddField("key", AccountMaster.instance.Key);
-		wWWForm.AddField("userid", AccountMaster.instance.UserID);
-		wWWForm.AddField("pagenumber", CurrentPage);
-		wWWForm.AddField("sort", SortDropdown.value);
-		wWWForm.AddField("type", PageType);
+		WWWForm form = new WWWForm();
+		form.AddField("key", AccountMaster.instance.Key);
+		form.AddField("userid", AccountMaster.instance.UserID);
+		form.AddField("pagenumber", CurrentPage);
+		form.AddField("sort", SortDropdown.value);
+		form.AddField("type", PageType);
 		isLoading = true;
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/get_maps.php", wWWForm);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/get_maps.php", form);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		isLoading = false;
@@ -103,53 +103,55 @@ public class GetPublicMaps : MonoBehaviour
 		{
 			yield break;
 		}
-		JSONNode jSONNode = JSON.Parse(uwr.downloadHandler.text);
+		JSONNode N = JSON.Parse(uwr.downloadHandler.text);
 		if (PublicMapParent.transform.childCount > 0)
 		{
-			foreach (Transform item in PublicMapParent.transform)
+			foreach (Transform child in PublicMapParent.transform)
 			{
-				UnityEngine.Object.Destroy(item.gameObject);
+				UnityEngine.Object.Destroy(child.gameObject);
 			}
 		}
-		for (int i = 0; i < jSONNode.Count; i++)
+		for (int i = 0; i < N.Count; i++)
 		{
-			CampaignItemScript component = UnityEngine.Object.Instantiate(PublicMapPrefab, base.transform.position, Quaternion.identity, PublicMapParent.transform).GetComponent<CampaignItemScript>();
-			string text = (((int)jSONNode[i]["amount_missions"] > 1) ? " missions" : " mission");
-			string text2 = ((int.Parse(jSONNode[i]["map_size"]) == 180) ? "small" : ((int.Parse(jSONNode[i]["map_size"]) == 285) ? "normal" : ((int.Parse(jSONNode[i]["map_size"]) == 374) ? "big" : ((int.Parse(jSONNode[i]["map_size"]) == 475) ? "large" : "size"))));
-			component.text_mapname.text = string.Concat(jSONNode[i]["mapname"], " (", jSONNode[i]["amount_missions"], text, ", ", text2, ")");
-			component.campaignName = string.Concat(jSONNode[i]["mapname"], " (", jSONNode[i]["amount_missions"], text, ", ", text2, ")");
-			component.text_version.text = ((jSONNode[i]["version"] == (object)OptionsMainMenu.instance.CurrentVersion) ? ((string)jSONNode[i]["version"]) : string.Concat("<color=red>(!) ", jSONNode[i]["version"], "</color>"));
-			component.campaignVersion = jSONNode[i]["version"];
-			component.text_authorname.text = jSONNode[i]["username"];
-			component.campaignAuthor = jSONNode[i]["username"];
-			component.campaignID = jSONNode[i]["ID"];
-			string text3 = ((int.Parse(jSONNode[i]["difficulty"]) == 0) ? "Toddler" : ((int.Parse(jSONNode[i]["difficulty"]) == 1) ? "Kid" : ((int.Parse(jSONNode[i]["difficulty"]) == 2) ? "Adult" : "Grandpa")));
-			component.text_difficulty.text = text3;
-			component.text_downloaded.text = jSONNode[i]["times_downloaded"];
-			component.times_downloaded = int.Parse(jSONNode[i]["times_downloaded"]);
-			component.text_favorited.text = jSONNode[i]["times_favorited"];
-			component.times_favorited = jSONNode[i]["times_favorited"];
-			component.NMC = NMC;
-			component.file_url = jSONNode[i]["file_url"];
-			component.map_size = jSONNode[i]["map_size"];
-			if (jSONNode[i]["has_favorited"] == (object)"true")
+			GameObject MapPrefab = UnityEngine.Object.Instantiate(PublicMapPrefab, base.transform.position, Quaternion.identity, PublicMapParent.transform);
+			CampaignItemScript CIS = MapPrefab.GetComponent<CampaignItemScript>();
+			string missionAmount = (((int)N[i]["amount_missions"] > 1) ? " missions" : " mission");
+			string mapName = ((int.Parse(N[i]["map_size"]) == 180) ? "small" : ((int.Parse(N[i]["map_size"]) == 285) ? "normal" : ((int.Parse(N[i]["map_size"]) == 374) ? "big" : ((int.Parse(N[i]["map_size"]) == 475) ? "large" : "size"))));
+			CIS.text_mapname.text = string.Concat(N[i]["mapname"], " (", N[i]["amount_missions"], missionAmount, ", ", mapName, ")");
+			CIS.campaignName = string.Concat(N[i]["mapname"], " (", N[i]["amount_missions"], missionAmount, ", ", mapName, ")");
+			CIS.text_version.text = ((N[i]["version"] == (object)OptionsMainMenu.instance.CurrentVersion) ? ((string)N[i]["version"]) : string.Concat("<color=red>(!) ", N[i]["version"], "</color>"));
+			CIS.campaignVersion = N[i]["version"];
+			CIS.text_authorname.text = N[i]["username"];
+			CIS.campaignAuthor = N[i]["username"];
+			CIS.campaignID = N[i]["ID"];
+			string difficulty = ((int.Parse(N[i]["difficulty"]) == 0) ? "Toddler" : ((int.Parse(N[i]["difficulty"]) == 1) ? "Kid" : ((int.Parse(N[i]["difficulty"]) == 2) ? "Adult" : "Grandpa")));
+			CIS.text_difficulty.text = difficulty;
+			CIS.text_downloaded.text = N[i]["times_downloaded"];
+			CIS.times_downloaded = int.Parse(N[i]["times_downloaded"]);
+			CIS.text_favorited.text = N[i]["times_favorited"];
+			CIS.times_favorited = N[i]["times_favorited"];
+			CIS.NMC = NMC;
+			CIS.file_url = N[i]["file_url"];
+			CIS.map_size = N[i]["map_size"];
+			if (N[i]["has_favorited"] == (object)"true")
 			{
-				component.FavoriteHolder.texture = component.Tex_Favorite;
+				CIS.FavoriteHolder.texture = CIS.Tex_Favorite;
 			}
 			else
 			{
-				component.FavoriteHolder.texture = component.Tex_NoFavorite;
+				CIS.FavoriteHolder.texture = CIS.Tex_NoFavorite;
 			}
 			string pattern = "(.*)\\/(.*)\\.";
-			string[] array = Regex.Split(component.file_url, pattern);
+			string[] names = Regex.Split(CIS.file_url, pattern);
 			_ = Application.persistentDataPath + "/";
-			string text4 = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/") + "/My Games/Wee Tanks/downloads/" + array[2] + ".campaign";
-			component.coded_file_name = array[2];
-			Debug.Log(text4);
-			if (File.Exists(text4))
+			string savePath2 = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
+			savePath2 = savePath2 + "/My Games/Wee Tanks/downloads/" + names[2] + ".campaign";
+			CIS.coded_file_name = names[2];
+			Debug.Log(savePath2);
+			if (File.Exists(savePath2))
 			{
-				component.hasDownloaded = true;
-				component.HideDownloadButton();
+				CIS.hasDownloaded = true;
+				CIS.HideDownloadButton();
 			}
 		}
 	}

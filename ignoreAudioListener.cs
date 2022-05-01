@@ -5,6 +5,7 @@ public class ignoreAudioListener : MonoBehaviour
 {
 	private void Awake()
 	{
-		GetComponent<AudioSource>().ignoreListenerVolume = true;
+		AudioSource src = GetComponent<AudioSource>();
+		src.ignoreListenerVolume = true;
 	}
 }

@@ -44,6 +44,9 @@
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Wee Tanks\Wee Tanks_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.AIModule">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Wee Tanks\Wee Tanks_Data\Managed\UnityEngine.AIModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.IMGUIModule">
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Wee Tanks\Wee Tanks_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
     </Reference>
@@ -55,9 +58,6 @@
     </Reference>
     <Reference Include="QFSW.QC">
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Wee Tanks\Wee Tanks_Data\Managed\QFSW.QC.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.AIModule">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Wee Tanks\Wee Tanks_Data\Managed\UnityEngine.AIModule.dll</HintPath>
     </Reference>
     <Reference Include="com.rlabrecque.steamworks.net">
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Wee Tanks\Wee Tanks_Data\Managed\com.rlabrecque.steamworks.net.dll</HintPath>

@@ -11,9 +11,9 @@ public class UnlockableItem : ScriptableObject
 
 	public string code;
 
-	public bool codeNeededToUnlock;
+	public bool codeNeededToUnlock = false;
 
-	public int ULID;
+	public int ULID = 0;
 
 	public bool isSkin;
 

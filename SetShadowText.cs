@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class SetShadowText : MonoBehaviour
 {
-	public bool isRunning;
+	public bool isRunning = false;
 
 	private TextMeshProUGUI myText;
 

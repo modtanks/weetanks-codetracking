@@ -12,7 +12,7 @@ public class FinalBossExitTrigger : MonoBehaviour
 
 	public List<MoveTankScript> MTSinMe = new List<MoveTankScript>();
 
-	public bool ExitTriggered;
+	public bool ExitTriggered = false;
 
 	public Animator ExitPlaneAnimator;
 
@@ -20,7 +20,7 @@ public class FinalBossExitTrigger : MonoBehaviour
 
 	public ContinuousRotating[] CRS;
 
-	public bool ExitOverride;
+	public bool ExitOverride = false;
 
 	private void Start()
 	{
@@ -31,9 +31,9 @@ public class FinalBossExitTrigger : MonoBehaviour
 	{
 		if (PlayerInMe && MTSinMe.Count > 0 && !ExitTriggered)
 		{
-			foreach (MoveTankScript item in MTSinMe)
+			foreach (MoveTankScript MTS in MTSinMe)
 			{
-				if (item.player.GetButtonUp("Use"))
+				if (MTS.player.GetButtonUp("Use"))
 				{
 					DoExit();
 				}
@@ -62,19 +62,19 @@ public class FinalBossExitTrigger : MonoBehaviour
 		}
 		ExitText.gameObject.SetActive(value: false);
 		ExitTriggered = true;
-		CameraFollowPlayer component = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>().transform.parent.gameObject.GetComponent<CameraFollowPlayer>();
-		if ((bool)component)
+		CameraFollowPlayer CFP = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>().transform.parent.gameObject.GetComponent<CameraFollowPlayer>();
+		if ((bool)CFP)
 		{
-			component.enabled = false;
+			CFP.enabled = false;
 		}
-		foreach (GameObject player in GameMaster.instance.Players)
+		foreach (GameObject P in GameMaster.instance.Players)
 		{
-			player.transform.parent.gameObject.SetActive(value: false);
+			P.transform.parent.gameObject.SetActive(value: false);
 		}
 		ContinuousRotating[] cRS = CRS;
-		for (int i = 0; i < cRS.Length; i++)
+		foreach (ContinuousRotating CR in cRS)
 		{
-			cRS[i].enabled = false;
+			CR.enabled = false;
 		}
 		StartCoroutine(DoFlyAwayAnimation());
 		SFXManager.instance.PlaySFX(PlaneTakeOffSound, 1f, null);
@@ -88,21 +88,21 @@ public class FinalBossExitTrigger : MonoBehaviour
 		}
 		PlayerInMe = true;
 		ExitText.gameObject.SetActive(value: true);
-		string text = "<sprite=2>";
-		MoveTankScript component = other.GetComponent<MoveTankScript>();
-		if ((bool)component)
+		string button = "<sprite=2>";
+		MoveTankScript MTS = other.GetComponent<MoveTankScript>();
+		if ((bool)MTS)
 		{
-			if (!MTSinMe.Contains(component))
+			if (!MTSinMe.Contains(MTS))
 			{
-				MTSinMe.Add(component);
+				MTSinMe.Add(MTS);
 			}
-			if (GameMaster.instance.isPlayingWithController || component.isPlayer2)
+			if (GameMaster.instance.isPlayingWithController || MTS.isPlayer2)
 			{
-				ExitText.text = "Press " + text + " board plane";
+				ExitText.text = "Press " + button + " board plane";
 			}
 			else
 			{
-				ExitText.text = "Press " + component.player.controllers.maps.GetFirstButtonMapWithAction("Use", skipDisabledMaps: true).elementIdentifierName + " to board plane";
+				ExitText.text = "Press " + MTS.player.controllers.maps.GetFirstButtonMapWithAction("Use", skipDisabledMaps: true).elementIdentifierName + " to board plane";
 			}
 		}
 		else
@@ -117,10 +117,10 @@ public class FinalBossExitTrigger : MonoBehaviour
 		{
 			PlayerInMe = false;
 			ExitText.gameObject.SetActive(value: false);
-			MoveTankScript component = other.GetComponent<MoveTankScript>();
-			if ((bool)component && MTSinMe.Contains(component))
+			MoveTankScript MTS = other.GetComponent<MoveTankScript>();
+			if ((bool)MTS && MTSinMe.Contains(MTS))
 			{
-				MTSinMe.Remove(component);
+				MTSinMe.Remove(MTS);
 			}
 		}
 	}

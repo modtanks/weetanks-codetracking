@@ -35,9 +35,9 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 			{
 				return;
 			}
-			foreach (Rewired.Components.PlayerMouse item in other.playerMice)
+			foreach (Rewired.Components.PlayerMouse i in other.playerMice)
 			{
-				playerMice.Add(item);
+				playerMice.Add(i);
 			}
 		}
 
@@ -61,11 +61,11 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 
 	[SerializeField]
 	[Tooltip("Use all Rewired game Players to control the UI. This does not include the System Player. If enabled, this setting overrides individual Player Ids set in Rewired Player Ids.")]
-	private bool useAllRewiredGamePlayers;
+	private bool useAllRewiredGamePlayers = false;
 
 	[SerializeField]
 	[Tooltip("Allow the Rewired System Player to control the UI.")]
-	private bool useRewiredSystemPlayer;
+	private bool useRewiredSystemPlayer = false;
 
 	[SerializeField]
 	[Tooltip("A list of Player Ids that are allowed to control the UI. If Use All Rewired Game Players = True, this list will be ignored.")]
@@ -73,7 +73,7 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 
 	[SerializeField]
 	[Tooltip("Allow only Players with Player.isPlaying = true to control the UI.")]
-	private bool usePlayingPlayersOnly;
+	private bool usePlayingPlayersOnly = false;
 
 	[SerializeField]
 	[Tooltip("Player Mice allowed to interact with the UI. Each Player that owns a Player Mouse must also be allowed to control the UI or the Player Mouse will not function.")]
@@ -85,7 +85,7 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 
 	[SerializeField]
 	[Tooltip("If enabled, Action Ids will be used to set the Actions. If disabled, string names will be used to set the Actions.")]
-	private bool setActionsById;
+	private bool setActionsById = false;
 
 	[SerializeField]
 	[Tooltip("Id of the horizontal Action for movement (if axis events are used).")]
@@ -125,7 +125,7 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 
 	[SerializeField]
 	[Tooltip("Delay in seconds before vertical/horizontal movement starts repeating continouously when a movement direction is held.")]
-	private float m_RepeatDelay;
+	private float m_RepeatDelay = 0f;
 
 	[SerializeField]
 	[Tooltip("Allows the mouse to be used to select elements.")]
@@ -167,7 +167,7 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 	private Vector2 m_LastMoveVector;
 
 	[NonSerialized]
-	private int m_ConsecutiveMoveCount;
+	private int m_ConsecutiveMoveCount = 0;
 
 	[NonSerialized]
 	private bool m_HasFocus = true;
@@ -192,9 +192,9 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 		}
 		set
 		{
-			bool num = value != useAllRewiredGamePlayers;
+			bool changed = value != useAllRewiredGamePlayers;
 			useAllRewiredGamePlayers = value;
-			if (num)
+			if (changed)
 			{
 				SetupRewiredVars();
 			}
@@ -209,9 +209,9 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 		}
 		set
 		{
-			bool num = value != useRewiredSystemPlayer;
+			bool changed = value != useRewiredSystemPlayer;
 			useRewiredSystemPlayer = value;
-			if (num)
+			if (changed)
 			{
 				SetupRewiredVars();
 			}
@@ -440,11 +440,7 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 			{
 				return false;
 			}
-			if (!isTouchSupported)
-			{
-				return true;
-			}
-			return m_allowMouseInputIfTouchSupported;
+			return !isTouchSupported || m_allowMouseInputIfTouchSupported;
 		}
 	}
 
@@ -583,10 +579,10 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 	{
 		base.Awake();
 		isTouchSupported = base.defaultTouchInputSource.touchSupported;
-		TouchInputModule component = GetComponent<TouchInputModule>();
-		if (component != null)
+		TouchInputModule tim = GetComponent<TouchInputModule>();
+		if (tim != null)
 		{
-			component.enabled = false;
+			tim.enabled = false;
 		}
 		ReInput.InitializedEvent += OnRewiredInitialized;
 		InitializeRewired();
@@ -595,9 +591,8 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 	public override void UpdateModule()
 	{
 		CheckEditorRecompile();
-		if (!recompiling && ReInput.isReady && !m_HasFocus)
+		if (!recompiling && ReInput.isReady && !m_HasFocus && !ShouldIgnoreEventsOnNoFocus())
 		{
-			ShouldIgnoreEventsOnNoFocus();
 		}
 	}
 
@@ -620,40 +615,40 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 		{
 			return false;
 		}
-		bool flag = m_ForceModuleActive;
+		bool shouldActivate = m_ForceModuleActive;
 		for (int i = 0; i < playerIds.Length; i++)
 		{
 			Player player = ReInput.players.GetPlayer(playerIds[i]);
 			if (player != null && (!usePlayingPlayersOnly || player.isPlaying))
 			{
-				flag |= GetButtonDown(player, submitActionId);
-				flag |= GetButtonDown(player, cancelActionId);
+				shouldActivate |= GetButtonDown(player, submitActionId);
+				shouldActivate |= GetButtonDown(player, cancelActionId);
 				if (moveOneElementPerAxisPress)
 				{
-					flag |= GetButtonDown(player, horizontalActionId) || GetNegativeButtonDown(player, horizontalActionId);
-					flag |= GetButtonDown(player, verticalActionId) || GetNegativeButtonDown(player, verticalActionId);
+					shouldActivate |= GetButtonDown(player, horizontalActionId) || GetNegativeButtonDown(player, horizontalActionId);
+					shouldActivate |= GetButtonDown(player, verticalActionId) || GetNegativeButtonDown(player, verticalActionId);
 				}
 				else
 				{
-					flag |= !Mathf.Approximately(GetAxis(player, horizontalActionId), 0f);
-					flag |= !Mathf.Approximately(GetAxis(player, verticalActionId), 0f);
+					shouldActivate |= !Mathf.Approximately(GetAxis(player, horizontalActionId), 0f);
+					shouldActivate |= !Mathf.Approximately(GetAxis(player, verticalActionId), 0f);
 				}
 			}
 		}
 		if (isMouseSupported)
 		{
-			flag |= DidAnyMouseMove();
-			flag |= GetMouseButtonDownOnAnyMouse(0);
+			shouldActivate |= DidAnyMouseMove();
+			shouldActivate |= GetMouseButtonDownOnAnyMouse(0);
 		}
 		if (isTouchAllowed)
 		{
 			for (int j = 0; j < base.defaultTouchInputSource.touchCount; j++)
 			{
 				Touch touch = base.defaultTouchInputSource.GetTouch(j);
-				flag |= touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary;
+				shouldActivate |= touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary;
 			}
 		}
-		return flag;
+		return shouldActivate;
 	}
 
 	public override void ActivateModule()
@@ -661,12 +656,12 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 		if (m_HasFocus || !ShouldIgnoreEventsOnNoFocus())
 		{
 			base.ActivateModule();
-			GameObject gameObject = base.eventSystem.currentSelectedGameObject;
-			if (gameObject == null)
+			GameObject toSelect = base.eventSystem.currentSelectedGameObject;
+			if (toSelect == null)
 			{
-				gameObject = base.eventSystem.firstSelectedGameObject;
+				toSelect = base.eventSystem.firstSelectedGameObject;
 			}
-			base.eventSystem.SetSelectedGameObject(gameObject, GetBaseEventData());
+			base.eventSystem.SetSelectedGameObject(toSelect, GetBaseEventData());
 		}
 	}
 
@@ -682,14 +677,14 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 		{
 			return;
 		}
-		bool flag = SendUpdateEventToSelectedObject();
+		bool usedEvent = SendUpdateEventToSelectedObject();
 		if (base.eventSystem.sendNavigationEvents)
 		{
-			if (!flag)
+			if (!usedEvent)
 			{
-				flag |= SendMoveEventToSelectedObject();
+				usedEvent |= SendMoveEventToSelectedObject();
 			}
-			if (!flag)
+			if (!usedEvent)
 			{
 				SendSubmitEventToSelectedObject();
 			}
@@ -713,16 +708,16 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 			{
 				bool pressed;
 				bool released;
-				PlayerPointerEventData touchPointerEventData = GetTouchPointerEventData(0, 0, touch, out pressed, out released);
-				ProcessTouchPress(touchPointerEventData, pressed, released);
+				PlayerPointerEventData pointer = GetTouchPointerEventData(0, 0, touch, out pressed, out released);
+				ProcessTouchPress(pointer, pressed, released);
 				if (!released)
 				{
-					ProcessMove(touchPointerEventData);
-					ProcessDrag(touchPointerEventData);
+					ProcessMove(pointer);
+					ProcessDrag(pointer);
 				}
 				else
 				{
-					RemovePointerData(touchPointerEventData);
+					RemovePointerData(pointer);
 				}
 			}
 		}
@@ -731,7 +726,7 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 
 	private void ProcessTouchPress(PointerEventData pointerEvent, bool pressed, bool released)
 	{
-		GameObject gameObject = pointerEvent.pointerCurrentRaycast.gameObject;
+		GameObject currentOverGo = pointerEvent.pointerCurrentRaycast.gameObject;
 		if (pressed)
 		{
 			pointerEvent.eligibleForClick = true;
@@ -740,21 +735,22 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 			pointerEvent.useDragThreshold = true;
 			pointerEvent.pressPosition = pointerEvent.position;
 			pointerEvent.pointerPressRaycast = pointerEvent.pointerCurrentRaycast;
-			HandleMouseTouchDeselectionOnSelectionChanged(gameObject, pointerEvent);
-			if (pointerEvent.pointerEnter != gameObject)
+			HandleMouseTouchDeselectionOnSelectionChanged(currentOverGo, pointerEvent);
+			if (pointerEvent.pointerEnter != currentOverGo)
 			{
-				HandlePointerExitAndEnter(pointerEvent, gameObject);
-				pointerEvent.pointerEnter = gameObject;
+				HandlePointerExitAndEnter(pointerEvent, currentOverGo);
+				pointerEvent.pointerEnter = currentOverGo;
 			}
-			GameObject gameObject2 = ExecuteEvents.ExecuteHierarchy(gameObject, pointerEvent, ExecuteEvents.pointerDownHandler);
-			if (gameObject2 == null)
+			GameObject newPressed = ExecuteEvents.ExecuteHierarchy(currentOverGo, pointerEvent, ExecuteEvents.pointerDownHandler);
+			if (newPressed == null)
 			{
-				gameObject2 = ExecuteEvents.GetEventHandler<IPointerClickHandler>(gameObject);
+				newPressed = ExecuteEvents.GetEventHandler<IPointerClickHandler>(currentOverGo);
 			}
-			double unscaledTime = ReInput.time.unscaledTime;
-			if (gameObject2 == pointerEvent.lastPress)
+			double time = ReInput.time.unscaledTime;
+			if (newPressed == pointerEvent.lastPress)
 			{
-				if (unscaledTime - (double)pointerEvent.clickTime < 0.30000001192092896)
+				double diffTime = time - (double)pointerEvent.clickTime;
+				if (diffTime < 0.30000001192092896)
 				{
 					pointerEvent.clickCount++;
 				}
@@ -762,16 +758,16 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 				{
 					pointerEvent.clickCount = 1;
 				}
-				pointerEvent.clickTime = (float)unscaledTime;
+				pointerEvent.clickTime = (float)time;
 			}
 			else
 			{
 				pointerEvent.clickCount = 1;
 			}
-			pointerEvent.pointerPress = gameObject2;
-			pointerEvent.rawPointerPress = gameObject;
-			pointerEvent.clickTime = (float)unscaledTime;
-			pointerEvent.pointerDrag = ExecuteEvents.GetEventHandler<IDragHandler>(gameObject);
+			pointerEvent.pointerPress = newPressed;
+			pointerEvent.rawPointerPress = currentOverGo;
+			pointerEvent.clickTime = (float)time;
+			pointerEvent.pointerDrag = ExecuteEvents.GetEventHandler<IDragHandler>(currentOverGo);
 			if (pointerEvent.pointerDrag != null)
 			{
 				ExecuteEvents.Execute(pointerEvent.pointerDrag, pointerEvent, ExecuteEvents.initializePotentialDrag);
@@ -780,14 +776,14 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 		if (released)
 		{
 			ExecuteEvents.Execute(pointerEvent.pointerPress, pointerEvent, ExecuteEvents.pointerUpHandler);
-			GameObject eventHandler = ExecuteEvents.GetEventHandler<IPointerClickHandler>(gameObject);
-			if (pointerEvent.pointerPress == eventHandler && pointerEvent.eligibleForClick)
+			GameObject pointerUpHandler = ExecuteEvents.GetEventHandler<IPointerClickHandler>(currentOverGo);
+			if (pointerEvent.pointerPress == pointerUpHandler && pointerEvent.eligibleForClick)
 			{
 				ExecuteEvents.Execute(pointerEvent.pointerPress, pointerEvent, ExecuteEvents.pointerClickHandler);
 			}
 			else if (pointerEvent.pointerDrag != null && pointerEvent.dragging)
 			{
-				ExecuteEvents.ExecuteHierarchy(gameObject, pointerEvent, ExecuteEvents.dropHandler);
+				ExecuteEvents.ExecuteHierarchy(currentOverGo, pointerEvent, ExecuteEvents.dropHandler);
 			}
 			pointerEvent.eligibleForClick = false;
 			pointerEvent.pointerPress = null;
@@ -818,7 +814,7 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 		{
 			return false;
 		}
-		BaseEventData baseEventData = GetBaseEventData();
+		BaseEventData data = GetBaseEventData();
 		for (int i = 0; i < playerIds.Length; i++)
 		{
 			Player player = ReInput.players.GetPlayer(playerIds[i]);
@@ -826,17 +822,17 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 			{
 				if (GetButtonDown(player, submitActionId))
 				{
-					ExecuteEvents.Execute(base.eventSystem.currentSelectedGameObject, baseEventData, ExecuteEvents.submitHandler);
+					ExecuteEvents.Execute(base.eventSystem.currentSelectedGameObject, data, ExecuteEvents.submitHandler);
 					break;
 				}
 				if (GetButtonDown(player, cancelActionId))
 				{
-					ExecuteEvents.Execute(base.eventSystem.currentSelectedGameObject, baseEventData, ExecuteEvents.cancelHandler);
+					ExecuteEvents.Execute(base.eventSystem.currentSelectedGameObject, data, ExecuteEvents.cancelHandler);
 					break;
 				}
 			}
 		}
-		return baseEventData.used;
+		return data.used;
 	}
 
 	private Vector2 GetRawMoveVector()
@@ -845,7 +841,9 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 		{
 			return Vector2.zero;
 		}
-		Vector2 zero = Vector2.zero;
+		Vector2 move = Vector2.zero;
+		bool horizButton = false;
+		bool vertButton = false;
 		for (int i = 0; i < playerIds.Length; i++)
 		{
 			Player player = ReInput.players.GetPlayer(playerIds[i]);
@@ -853,56 +851,56 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 			{
 				continue;
 			}
-			float num = GetAxis(player, horizontalActionId);
-			float num2 = GetAxis(player, verticalActionId);
-			if (Mathf.Approximately(num, 0f))
+			float horizontal = GetAxis(player, horizontalActionId);
+			float vertical = GetAxis(player, verticalActionId);
+			if (Mathf.Approximately(horizontal, 0f))
 			{
-				num = 0f;
+				horizontal = 0f;
 			}
-			if (Mathf.Approximately(num2, 0f))
+			if (Mathf.Approximately(vertical, 0f))
 			{
-				num2 = 0f;
+				vertical = 0f;
 			}
 			if (moveOneElementPerAxisPress)
 			{
-				if (GetButtonDown(player, horizontalActionId) && num > 0f)
+				if (GetButtonDown(player, horizontalActionId) && horizontal > 0f)
 				{
-					zero.x += 1f;
+					move.x += 1f;
 				}
-				if (GetNegativeButtonDown(player, horizontalActionId) && num < 0f)
+				if (GetNegativeButtonDown(player, horizontalActionId) && horizontal < 0f)
 				{
-					zero.x -= 1f;
+					move.x -= 1f;
 				}
-				if (GetButtonDown(player, verticalActionId) && num2 > 0f)
+				if (GetButtonDown(player, verticalActionId) && vertical > 0f)
 				{
-					zero.y += 1f;
+					move.y += 1f;
 				}
-				if (GetNegativeButtonDown(player, verticalActionId) && num2 < 0f)
+				if (GetNegativeButtonDown(player, verticalActionId) && vertical < 0f)
 				{
-					zero.y -= 1f;
+					move.y -= 1f;
 				}
 			}
 			else
 			{
-				if (GetButton(player, horizontalActionId) && num > 0f)
+				if (GetButton(player, horizontalActionId) && horizontal > 0f)
 				{
-					zero.x += 1f;
+					move.x += 1f;
 				}
-				if (GetNegativeButton(player, horizontalActionId) && num < 0f)
+				if (GetNegativeButton(player, horizontalActionId) && horizontal < 0f)
 				{
-					zero.x -= 1f;
+					move.x -= 1f;
 				}
-				if (GetButton(player, verticalActionId) && num2 > 0f)
+				if (GetButton(player, verticalActionId) && vertical > 0f)
 				{
-					zero.y += 1f;
+					move.y += 1f;
 				}
-				if (GetNegativeButton(player, verticalActionId) && num2 < 0f)
+				if (GetNegativeButton(player, verticalActionId) && vertical < 0f)
 				{
-					zero.y -= 1f;
+					move.y -= 1f;
 				}
 			}
 		}
-		return zero;
+		return move;
 	}
 
 	private bool SendMoveEventToSelectedObject()
@@ -911,48 +909,48 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 		{
 			return false;
 		}
-		double unscaledTime = ReInput.time.unscaledTime;
-		Vector2 rawMoveVector = GetRawMoveVector();
-		if (Mathf.Approximately(rawMoveVector.x, 0f) && Mathf.Approximately(rawMoveVector.y, 0f))
+		double time = ReInput.time.unscaledTime;
+		Vector2 movement = GetRawMoveVector();
+		if (Mathf.Approximately(movement.x, 0f) && Mathf.Approximately(movement.y, 0f))
 		{
 			m_ConsecutiveMoveCount = 0;
 			return false;
 		}
-		bool flag = Vector2.Dot(rawMoveVector, m_LastMoveVector) > 0f;
-		CheckButtonOrKeyMovement(out var downHorizontal, out var downVertical);
+		bool similarDir = Vector2.Dot(movement, m_LastMoveVector) > 0f;
+		CheckButtonOrKeyMovement(out var buttonDownHorizontal, out var buttonDownVertical);
 		AxisEventData axisEventData = null;
-		bool flag2 = downHorizontal || downVertical;
-		if (flag2)
+		bool allow = buttonDownHorizontal || buttonDownVertical;
+		if (allow)
 		{
-			axisEventData = GetAxisEventData(rawMoveVector.x, rawMoveVector.y, 0f);
+			axisEventData = GetAxisEventData(movement.x, movement.y, 0f);
 			MoveDirection moveDir = axisEventData.moveDir;
-			flag2 = ((moveDir == MoveDirection.Up || moveDir == MoveDirection.Down) && downVertical) || ((moveDir == MoveDirection.Left || moveDir == MoveDirection.Right) && downHorizontal);
+			allow = ((moveDir == MoveDirection.Up || moveDir == MoveDirection.Down) && buttonDownVertical) || ((moveDir == MoveDirection.Left || moveDir == MoveDirection.Right) && buttonDownHorizontal);
 		}
-		if (!flag2)
+		if (!allow)
 		{
-			flag2 = ((!(m_RepeatDelay > 0f)) ? (unscaledTime > m_PrevActionTime + (double)(1f / m_InputActionsPerSecond)) : ((!flag || m_ConsecutiveMoveCount != 1) ? (unscaledTime > m_PrevActionTime + (double)(1f / m_InputActionsPerSecond)) : (unscaledTime > m_PrevActionTime + (double)m_RepeatDelay)));
+			allow = ((!(m_RepeatDelay > 0f)) ? (time > m_PrevActionTime + (double)(1f / m_InputActionsPerSecond)) : ((!similarDir || m_ConsecutiveMoveCount != 1) ? (time > m_PrevActionTime + (double)(1f / m_InputActionsPerSecond)) : (time > m_PrevActionTime + (double)m_RepeatDelay)));
 		}
-		if (!flag2)
+		if (!allow)
 		{
 			return false;
 		}
 		if (axisEventData == null)
 		{
-			axisEventData = GetAxisEventData(rawMoveVector.x, rawMoveVector.y, 0f);
+			axisEventData = GetAxisEventData(movement.x, movement.y, 0f);
 		}
 		if (axisEventData.moveDir != MoveDirection.None)
 		{
 			ExecuteEvents.Execute(base.eventSystem.currentSelectedGameObject, axisEventData, ExecuteEvents.moveHandler);
-			if (!flag)
+			if (!similarDir)
 			{
 				m_ConsecutiveMoveCount = 0;
 			}
-			if (m_ConsecutiveMoveCount == 0 || !(downHorizontal || downVertical))
+			if (m_ConsecutiveMoveCount == 0 || !(buttonDownHorizontal || buttonDownVertical))
 			{
 				m_ConsecutiveMoveCount++;
 			}
-			m_PrevActionTime = unscaledTime;
-			m_LastMoveVector = rawMoveVector;
+			m_PrevActionTime = time;
+			m_LastMoveVector = movement;
 		}
 		else
 		{
@@ -983,8 +981,8 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 			Player player = ReInput.players.GetPlayer(playerIds[i]);
 			if (player != null && (!usePlayingPlayersOnly || player.isPlaying))
 			{
-				int mouseInputSourceCount = GetMouseInputSourceCount(playerIds[i]);
-				for (int j = 0; j < mouseInputSourceCount; j++)
+				int pointerCount = GetMouseInputSourceCount(playerIds[i]);
+				for (int j = 0; j < pointerCount; j++)
 				{
 					ProcessMouseEvent(playerIds[i], j);
 				}
@@ -994,30 +992,31 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 
 	private void ProcessMouseEvent(int playerId, int pointerIndex)
 	{
-		MouseState mousePointerEventData = GetMousePointerEventData(playerId, pointerIndex);
-		if (mousePointerEventData == null)
+		MouseState mouseData = GetMousePointerEventData(playerId, pointerIndex);
+		if (mouseData == null)
 		{
 			return;
 		}
-		MouseButtonEventData eventData = mousePointerEventData.GetButtonState(0).eventData;
-		ProcessMousePress(eventData);
-		ProcessMove(eventData.buttonData);
-		ProcessDrag(eventData.buttonData);
-		ProcessMousePress(mousePointerEventData.GetButtonState(1).eventData);
-		ProcessDrag(mousePointerEventData.GetButtonState(1).eventData.buttonData);
-		ProcessMousePress(mousePointerEventData.GetButtonState(2).eventData);
-		ProcessDrag(mousePointerEventData.GetButtonState(2).eventData.buttonData);
+		MouseButtonEventData leftButtonData = mouseData.GetButtonState(0).eventData;
+		ProcessMousePress(leftButtonData);
+		ProcessMove(leftButtonData.buttonData);
+		ProcessDrag(leftButtonData.buttonData);
+		ProcessMousePress(mouseData.GetButtonState(1).eventData);
+		ProcessDrag(mouseData.GetButtonState(1).eventData.buttonData);
+		ProcessMousePress(mouseData.GetButtonState(2).eventData);
+		ProcessDrag(mouseData.GetButtonState(2).eventData.buttonData);
 		IMouseInputSource mouseInputSource = GetMouseInputSource(playerId, pointerIndex);
 		if (mouseInputSource != null)
 		{
 			for (int i = 3; i < mouseInputSource.buttonCount; i++)
 			{
-				ProcessMousePress(mousePointerEventData.GetButtonState(i).eventData);
-				ProcessDrag(mousePointerEventData.GetButtonState(i).eventData.buttonData);
+				ProcessMousePress(mouseData.GetButtonState(i).eventData);
+				ProcessDrag(mouseData.GetButtonState(i).eventData.buttonData);
 			}
-			if (!Mathf.Approximately(eventData.buttonData.scrollDelta.sqrMagnitude, 0f))
+			if (!Mathf.Approximately(leftButtonData.buttonData.scrollDelta.sqrMagnitude, 0f))
 			{
-				ExecuteEvents.ExecuteHierarchy(ExecuteEvents.GetEventHandler<IScrollHandler>(eventData.buttonData.pointerCurrentRaycast.gameObject), eventData.buttonData, ExecuteEvents.scrollHandler);
+				GameObject scrollHandler = ExecuteEvents.GetEventHandler<IScrollHandler>(leftButtonData.buttonData.pointerCurrentRaycast.gameObject);
+				ExecuteEvents.ExecuteHierarchy(scrollHandler, leftButtonData.buttonData, ExecuteEvents.scrollHandler);
 			}
 		}
 	}
@@ -1028,84 +1027,85 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 		{
 			return false;
 		}
-		BaseEventData baseEventData = GetBaseEventData();
-		ExecuteEvents.Execute(base.eventSystem.currentSelectedGameObject, baseEventData, ExecuteEvents.updateSelectedHandler);
-		return baseEventData.used;
+		BaseEventData data = GetBaseEventData();
+		ExecuteEvents.Execute(base.eventSystem.currentSelectedGameObject, data, ExecuteEvents.updateSelectedHandler);
+		return data.used;
 	}
 
 	private void ProcessMousePress(MouseButtonEventData data)
 	{
-		PlayerPointerEventData buttonData = data.buttonData;
-		if (GetMouseInputSource(buttonData.playerId, buttonData.inputSourceIndex) == null)
+		PlayerPointerEventData pointerEvent = data.buttonData;
+		if (GetMouseInputSource(pointerEvent.playerId, pointerEvent.inputSourceIndex) == null)
 		{
 			return;
 		}
-		GameObject gameObject = buttonData.pointerCurrentRaycast.gameObject;
+		GameObject currentOverGo = pointerEvent.pointerCurrentRaycast.gameObject;
 		if (data.PressedThisFrame())
 		{
-			buttonData.eligibleForClick = true;
-			buttonData.delta = Vector2.zero;
-			buttonData.dragging = false;
-			buttonData.useDragThreshold = true;
-			buttonData.pressPosition = buttonData.position;
-			buttonData.pointerPressRaycast = buttonData.pointerCurrentRaycast;
-			HandleMouseTouchDeselectionOnSelectionChanged(gameObject, buttonData);
-			GameObject gameObject2 = ExecuteEvents.ExecuteHierarchy(gameObject, buttonData, ExecuteEvents.pointerDownHandler);
-			if (gameObject2 == null)
+			pointerEvent.eligibleForClick = true;
+			pointerEvent.delta = Vector2.zero;
+			pointerEvent.dragging = false;
+			pointerEvent.useDragThreshold = true;
+			pointerEvent.pressPosition = pointerEvent.position;
+			pointerEvent.pointerPressRaycast = pointerEvent.pointerCurrentRaycast;
+			HandleMouseTouchDeselectionOnSelectionChanged(currentOverGo, pointerEvent);
+			GameObject newPressed = ExecuteEvents.ExecuteHierarchy(currentOverGo, pointerEvent, ExecuteEvents.pointerDownHandler);
+			if (newPressed == null)
 			{
-				gameObject2 = ExecuteEvents.GetEventHandler<IPointerClickHandler>(gameObject);
+				newPressed = ExecuteEvents.GetEventHandler<IPointerClickHandler>(currentOverGo);
 			}
-			double unscaledTime = ReInput.time.unscaledTime;
-			if (gameObject2 == buttonData.lastPress)
+			double time = ReInput.time.unscaledTime;
+			if (newPressed == pointerEvent.lastPress)
 			{
-				if (unscaledTime - (double)buttonData.clickTime < 0.30000001192092896)
+				double diffTime = time - (double)pointerEvent.clickTime;
+				if (diffTime < 0.30000001192092896)
 				{
-					buttonData.clickCount++;
+					pointerEvent.clickCount++;
 				}
 				else
 				{
-					buttonData.clickCount = 1;
+					pointerEvent.clickCount = 1;
 				}
-				buttonData.clickTime = (float)unscaledTime;
+				pointerEvent.clickTime = (float)time;
 			}
 			else
 			{
-				buttonData.clickCount = 1;
+				pointerEvent.clickCount = 1;
 			}
-			buttonData.pointerPress = gameObject2;
-			buttonData.rawPointerPress = gameObject;
-			buttonData.clickTime = (float)unscaledTime;
-			buttonData.pointerDrag = ExecuteEvents.GetEventHandler<IDragHandler>(gameObject);
-			if (buttonData.pointerDrag != null)
+			pointerEvent.pointerPress = newPressed;
+			pointerEvent.rawPointerPress = currentOverGo;
+			pointerEvent.clickTime = (float)time;
+			pointerEvent.pointerDrag = ExecuteEvents.GetEventHandler<IDragHandler>(currentOverGo);
+			if (pointerEvent.pointerDrag != null)
 			{
-				ExecuteEvents.Execute(buttonData.pointerDrag, buttonData, ExecuteEvents.initializePotentialDrag);
+				ExecuteEvents.Execute(pointerEvent.pointerDrag, pointerEvent, ExecuteEvents.initializePotentialDrag);
 			}
 		}
 		if (data.ReleasedThisFrame())
 		{
-			ExecuteEvents.Execute(buttonData.pointerPress, buttonData, ExecuteEvents.pointerUpHandler);
-			GameObject eventHandler = ExecuteEvents.GetEventHandler<IPointerClickHandler>(gameObject);
-			if (buttonData.pointerPress == eventHandler && buttonData.eligibleForClick)
+			ExecuteEvents.Execute(pointerEvent.pointerPress, pointerEvent, ExecuteEvents.pointerUpHandler);
+			GameObject pointerUpHandler = ExecuteEvents.GetEventHandler<IPointerClickHandler>(currentOverGo);
+			if (pointerEvent.pointerPress == pointerUpHandler && pointerEvent.eligibleForClick)
 			{
-				ExecuteEvents.Execute(buttonData.pointerPress, buttonData, ExecuteEvents.pointerClickHandler);
+				ExecuteEvents.Execute(pointerEvent.pointerPress, pointerEvent, ExecuteEvents.pointerClickHandler);
 			}
-			else if (buttonData.pointerDrag != null && buttonData.dragging)
+			else if (pointerEvent.pointerDrag != null && pointerEvent.dragging)
 			{
-				ExecuteEvents.ExecuteHierarchy(gameObject, buttonData, ExecuteEvents.dropHandler);
+				ExecuteEvents.ExecuteHierarchy(currentOverGo, pointerEvent, ExecuteEvents.dropHandler);
 			}
-			buttonData.eligibleForClick = false;
-			buttonData.pointerPress = null;
-			buttonData.rawPointerPress = null;
-			if (buttonData.pointerDrag != null && buttonData.dragging)
+			pointerEvent.eligibleForClick = false;
+			pointerEvent.pointerPress = null;
+			pointerEvent.rawPointerPress = null;
+			if (pointerEvent.pointerDrag != null && pointerEvent.dragging)
 			{
-				ExecuteEvents.Execute(buttonData.pointerDrag, buttonData, ExecuteEvents.endDragHandler);
+				ExecuteEvents.Execute(pointerEvent.pointerDrag, pointerEvent, ExecuteEvents.endDragHandler);
 			}
-			buttonData.dragging = false;
-			buttonData.pointerDrag = null;
-			if (gameObject != buttonData.pointerEnter)
+			pointerEvent.dragging = false;
+			pointerEvent.pointerDrag = null;
+			if (currentOverGo != pointerEvent.pointerEnter)
 			{
-				HandlePointerExitAndEnter(buttonData, null);
-				HandlePointerExitAndEnter(buttonData, gameObject);
+				HandlePointerExitAndEnter(pointerEvent, null);
+				HandlePointerExitAndEnter(pointerEvent, currentOverGo);
 			}
 		}
 	}
@@ -1117,15 +1117,15 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 			DeselectIfSelectionChanged(currentOverGo, pointerEvent);
 			return;
 		}
-		GameObject eventHandler = ExecuteEvents.GetEventHandler<ISelectHandler>(currentOverGo);
+		GameObject selectHandlerGO = ExecuteEvents.GetEventHandler<ISelectHandler>(currentOverGo);
 		if (m_deselectIfBackgroundClicked)
 		{
-			if (eventHandler != base.eventSystem.currentSelectedGameObject && eventHandler != null)
+			if (selectHandlerGO != base.eventSystem.currentSelectedGameObject && selectHandlerGO != null)
 			{
 				base.eventSystem.SetSelectedGameObject(null, pointerEvent);
 			}
 		}
-		else if (m_deselectBeforeSelecting && eventHandler != null && eventHandler != base.eventSystem.currentSelectedGameObject)
+		else if (m_deselectBeforeSelecting && selectHandlerGO != null && selectHandlerGO != base.eventSystem.currentSelectedGameObject)
 		{
 			base.eventSystem.SetSelectedGameObject(null, pointerEvent);
 		}
@@ -1163,14 +1163,14 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 		{
 			return false;
 		}
-		for (int i = 0; i < 3; i++)
+		for (int tries = 0; tries < 3; tries++)
 		{
-			for (int j = 0; j < playerIds.Length; j++)
+			for (int i = 0; i < playerIds.Length; i++)
 			{
-				Player player = ReInput.players.GetPlayer(playerIds[j]);
-				if (player != null && (i >= 1 || !usePlayingPlayersOnly || player.isPlaying) && (i >= 2 || player.controllers.hasMouse))
+				Player player = ReInput.players.GetPlayer(playerIds[i]);
+				if (player != null && (tries >= 1 || !usePlayingPlayersOnly || player.isPlaying) && (tries >= 2 || player.controllers.hasMouse))
 				{
-					return playerIds[j] == playerId;
+					return playerIds[i] == playerId;
 				}
 			}
 		}
@@ -1200,34 +1200,34 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 		SetUpRewiredActions();
 		if (useAllRewiredGamePlayers)
 		{
-			IList<Player> list = (useRewiredSystemPlayer ? ReInput.players.AllPlayers : ReInput.players.Players);
-			playerIds = new int[list.Count];
-			for (int i = 0; i < list.Count; i++)
+			IList<Player> rwPlayers = (useRewiredSystemPlayer ? ReInput.players.AllPlayers : ReInput.players.Players);
+			this.playerIds = new int[rwPlayers.Count];
+			for (int i = 0; i < rwPlayers.Count; i++)
 			{
-				playerIds[i] = list[i].id;
+				this.playerIds[i] = rwPlayers[i].id;
 			}
 		}
 		else
 		{
-			bool flag = false;
-			List<int> list2 = new List<int>(rewiredPlayerIds.Length + 1);
+			bool foundSystem = false;
+			List<int> playerIds = new List<int>(rewiredPlayerIds.Length + 1);
 			for (int j = 0; j < rewiredPlayerIds.Length; j++)
 			{
 				Player player = ReInput.players.GetPlayer(rewiredPlayerIds[j]);
-				if (player != null && !list2.Contains(player.id))
+				if (player != null && !playerIds.Contains(player.id))
 				{
-					list2.Add(player.id);
+					playerIds.Add(player.id);
 					if (player.id == 9999999)
 					{
-						flag = true;
+						foundSystem = true;
 					}
 				}
 			}
-			if (useRewiredSystemPlayer && !flag)
+			if (useRewiredSystemPlayer && !foundSystem)
 			{
-				list2.Insert(0, ReInput.players.GetSystemPlayer().id);
+				playerIds.Insert(0, ReInput.players.GetSystemPlayer().id);
 			}
-			playerIds = list2.ToArray();
+			this.playerIds = playerIds.ToArray();
 		}
 		SetUpRewiredPlayerMice();
 	}
@@ -1241,10 +1241,10 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 		ClearMouseInputSources();
 		for (int i = 0; i < playerMice.Count; i++)
 		{
-			Rewired.Components.PlayerMouse playerMouse = playerMice[i];
-			if (!UnityTools.IsNullOrDestroyed(playerMouse))
+			Rewired.Components.PlayerMouse mouse = playerMice[i];
+			if (!UnityTools.IsNullOrDestroyed(mouse))
 			{
-				AddMouseInputSource(playerMouse);
+				AddMouseInputSource(mouse);
 			}
 		}
 	}
@@ -1365,11 +1365,11 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 			{
 				continue;
 			}
-			int mouseInputSourceCount = GetMouseInputSourceCount(playerId);
-			for (int j = 0; j < mouseInputSourceCount; j++)
+			int mouseCount = GetMouseInputSourceCount(playerId);
+			for (int j = 0; j < mouseCount; j++)
 			{
-				IMouseInputSource mouseInputSource = GetMouseInputSource(playerId, j);
-				if (mouseInputSource != null && mouseInputSource.screenPositionDelta.sqrMagnitude > 0f)
+				IMouseInputSource source = GetMouseInputSource(playerId, j);
+				if (source != null && source.screenPositionDelta.sqrMagnitude > 0f)
 				{
 					return true;
 				}
@@ -1388,11 +1388,11 @@ public sealed class RewiredStandaloneInputModule : RewiredPointerInputModule
 			{
 				continue;
 			}
-			int mouseInputSourceCount = GetMouseInputSourceCount(playerId);
-			for (int j = 0; j < mouseInputSourceCount; j++)
+			int mouseCount = GetMouseInputSourceCount(playerId);
+			for (int j = 0; j < mouseCount; j++)
 			{
-				IMouseInputSource mouseInputSource = GetMouseInputSource(playerId, j);
-				if (mouseInputSource != null && mouseInputSource.GetButtonDown(buttonIndex))
+				IMouseInputSource source = GetMouseInputSource(playerId, j);
+				if (source != null && source.GetButtonDown(buttonIndex))
 				{
 					return true;
 				}

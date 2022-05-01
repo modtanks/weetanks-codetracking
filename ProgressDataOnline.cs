@@ -38,7 +38,7 @@ public class ProgressDataOnline
 
 	public string accountname;
 
-	public int TimePlayed;
+	public int TimePlayed = 0;
 
 	public float[] SpeedrunTimes = new float[9];
 }

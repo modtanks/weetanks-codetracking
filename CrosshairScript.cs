@@ -83,18 +83,19 @@ public class CrosshairScript : MonoBehaviour
 		}
 		if (SelectedCrosshair.CrosshairFrames.Length > 1)
 		{
-			int num = Mathf.RoundToInt(Time.time * (float)SelectedCrosshair.FPS % (float)SelectedCrosshair.CrosshairFrames.Length);
-			if (num != SelectedCrosshair.CrosshairFrames.Length)
+			int index = Mathf.RoundToInt(Time.time * (float)SelectedCrosshair.FPS % (float)SelectedCrosshair.CrosshairFrames.Length);
+			if (index != SelectedCrosshair.CrosshairFrames.Length)
 			{
-				RI.texture = SelectedCrosshair.CrosshairFrames[num];
+				RI.texture = SelectedCrosshair.CrosshairFrames[index];
 			}
 		}
 		else
 		{
 			RI.texture = SelectedCrosshair.CrosshairFrames[0];
 		}
-		RI.GetComponent<RectTransform>().sizeDelta = new Vector2(SelectedCrosshair.CrosshairSize, SelectedCrosshair.CrosshairSize);
-		Vector2 vector = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-		base.transform.position = vector;
+		RectTransform RT = RI.GetComponent<RectTransform>();
+		RT.sizeDelta = new Vector2(SelectedCrosshair.CrosshairSize, SelectedCrosshair.CrosshairSize);
+		Vector2 targetPos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+		base.transform.position = targetPos;
 	}
 }

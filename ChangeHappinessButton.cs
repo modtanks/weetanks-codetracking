@@ -16,7 +16,7 @@ public class ChangeHappinessButton : MonoBehaviour, ISelectHandler, IEventSystem
 
 	public RawImage myImage;
 
-	public bool IsSelected;
+	public bool IsSelected = false;
 
 	private void Start()
 	{

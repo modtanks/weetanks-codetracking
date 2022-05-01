@@ -180,21 +180,21 @@ public class CustomToggle : Toggle, ICustomSelectable, ICancelHandler, IEventSys
 	{
 		if (isHighlightDisabled)
 		{
-			Color color = _disabledHighlightedColor;
-			Sprite newSprite = _disabledHighlightedSprite;
-			string triggername = _disabledHighlightedTrigger;
+			Color tintColor = _disabledHighlightedColor;
+			Sprite transitionSprite = _disabledHighlightedSprite;
+			string triggerName = _disabledHighlightedTrigger;
 			if (base.gameObject.activeInHierarchy)
 			{
 				switch (base.transition)
 				{
 				case Transition.ColorTint:
-					StartColorTween(color * base.colors.colorMultiplier, instant);
+					StartColorTween(tintColor * base.colors.colorMultiplier, instant);
 					break;
 				case Transition.SpriteSwap:
-					DoSpriteSwap(newSprite);
+					DoSpriteSwap(transitionSprite);
 					break;
 				case Transition.Animation:
-					TriggerAnimation(triggername);
+					TriggerAnimation(triggerName);
 					break;
 				}
 			}

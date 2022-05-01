@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class AchievementItemScript : MonoBehaviour
 {
-	public int AMID;
+	public int AMID = 0;
 
 	public TextMeshProUGUI MyTitle;
 
@@ -13,7 +13,7 @@ public class AchievementItemScript : MonoBehaviour
 
 	public GameObject CheckMark;
 
-	public int myDifficulty;
+	public int myDifficulty = 0;
 
 	public Transform myParent;
 
@@ -25,7 +25,7 @@ public class AchievementItemScript : MonoBehaviour
 
 	public Vector3 scale;
 
-	public bool isInGame;
+	public bool isInGame = false;
 
 	public string message;
 
@@ -90,9 +90,9 @@ public class AchievementItemScript : MonoBehaviour
 			return;
 		}
 		int[] companionAllowedIDS = CompanionAllowedIDS;
-		for (int i = 0; i < companionAllowedIDS.Length; i++)
+		foreach (int ID in companionAllowedIDS)
 		{
-			if (companionAllowedIDS[i] == AMID && (bool)CompanionAllowed)
+			if (ID == AMID && (bool)CompanionAllowed)
 			{
 				CompanionAllowed.SetActive(value: true);
 			}

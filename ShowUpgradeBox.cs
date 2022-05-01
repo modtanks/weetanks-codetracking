@@ -32,13 +32,13 @@ public class ShowUpgradeBox : MonoBehaviour
 	{
 		if ((!isTurretRepair || WT.enabled) && collider.tag == "Player")
 		{
-			MoveTankScript component = collider.GetComponent<MoveTankScript>();
-			UpgradeField upgField = component.UpgField;
-			if (upgField.canShow && !upgField.Show && (!isBuild || component.Upgrades[0] <= 3) && (!isSpeed || component.Upgrades[1] <= 3) && (!isShield || component.Upgrades[2] <= 3) && (!isRocket || component.Upgrades[3] <= 0) && (!isMine || component.Upgrades[4] <= 0) && (!isTurret || component.Upgrades[5] <= 1) && (!isTurret || !component.isPlayer2 || GameMaster.instance.TurretsPlaced[1] <= 0) && (!isTurret || component.isPlayer2 || GameMaster.instance.TurretsPlaced[0] <= 0) && (!isTurretRepair || ((WT.Health < WT.maxHealth || WT.upgradeLevel <= 1) && (WT.PlacedByPlayer != 0 || component.playerId == 0) && (WT.PlacedByPlayer != 1 || component.playerId == 1) && (WT.PlacedByPlayer != 2 || component.playerId == 2) && (WT.PlacedByPlayer != 3 || component.playerId == 3))))
+			MoveTankScript MTS = collider.GetComponent<MoveTankScript>();
+			UpgradeField Field = MTS.UpgField;
+			if (Field.canShow && !Field.Show && (!isBuild || MTS.Upgrades[0] <= 3) && (!isSpeed || MTS.Upgrades[1] <= 3) && (!isShield || MTS.Upgrades[2] <= 3) && (!isRocket || MTS.Upgrades[3] <= 0) && (!isMine || MTS.Upgrades[4] <= 0) && (!isTurret || MTS.Upgrades[5] <= 1) && (!isTurret || !MTS.isPlayer2 || GameMaster.instance.TurretsPlaced[1] <= 0) && (!isTurret || MTS.isPlayer2 || GameMaster.instance.TurretsPlaced[0] <= 0) && (!isTurretRepair || ((WT.Health < WT.maxHealth || WT.upgradeLevel <= 1) && (WT.PlacedByPlayer != 0 || MTS.playerId == 0) && (WT.PlacedByPlayer != 1 || MTS.playerId == 1) && (WT.PlacedByPlayer != 2 || MTS.playerId == 2) && (WT.PlacedByPlayer != 3 || MTS.playerId == 3))))
 			{
-				upgField.Show = true;
-				upgField.startTime = Time.time;
-				upgField.ChangeMessage(isBuild, isSpeed, isShield, isRocket, isMine, isTurret, isTurretRepair, component, WT);
+				Field.Show = true;
+				Field.startTime = Time.time;
+				Field.ChangeMessage(isBuild, isSpeed, isShield, isRocket, isMine, isTurret, isTurretRepair, MTS, WT);
 			}
 		}
 	}
@@ -47,12 +47,13 @@ public class ShowUpgradeBox : MonoBehaviour
 	{
 		if (collider.tag == "Player")
 		{
-			UpgradeField upgField = collider.GetComponent<MoveTankScript>().UpgField;
-			if (!upgField.inPlacingMode)
+			MoveTankScript MTS = collider.GetComponent<MoveTankScript>();
+			UpgradeField Field = MTS.UpgField;
+			if (!Field.inPlacingMode)
 			{
-				upgField.Show = false;
-				upgField.StartCoroutine(upgField.WaitBox());
-				upgField.startTime = Time.time;
+				Field.Show = false;
+				Field.StartCoroutine(Field.WaitBox());
+				Field.startTime = Time.time;
 			}
 		}
 	}

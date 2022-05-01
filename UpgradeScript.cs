@@ -21,11 +21,11 @@ public class UpgradeScript : MonoBehaviour
 	{
 		if (collision.transform.tag == "Player" && isSpeed)
 		{
-			MoveTankScript component = collision.transform.GetComponent<MoveTankScript>();
-			if (component != null)
+			MoveTankScript moveScript = collision.transform.GetComponent<MoveTankScript>();
+			if (moveScript != null)
 			{
 				Debug.LogWarning("speed boost got picked up by: " + collision.name);
-				component.StartCoroutine("UpgradeSpeed");
+				moveScript.StartCoroutine("UpgradeSpeed");
 				Play2DClipAtPoint(PickupSound);
 				Object.Destroy(base.gameObject);
 			}
@@ -34,12 +34,12 @@ public class UpgradeScript : MonoBehaviour
 		{
 			return;
 		}
-		HealthTanks component2 = collision.transform.GetComponent<HealthTanks>();
-		if (component2 != null)
+		HealthTanks healthScript = collision.transform.GetComponent<HealthTanks>();
+		if (healthScript != null)
 		{
-			if (component2.health < 2)
+			if (healthScript.health < 2)
 			{
-				component2.health++;
+				healthScript.health++;
 			}
 			Play2DClipAtPoint(PickupSound);
 			Object.Destroy(base.gameObject);
@@ -54,12 +54,12 @@ public class UpgradeScript : MonoBehaviour
 
 	public void Play2DClipAtPoint(AudioClip clip)
 	{
-		GameObject obj = new GameObject("TempAudio");
-		AudioSource audioSource = obj.AddComponent<AudioSource>();
+		GameObject tempAudioSource = new GameObject("TempAudio");
+		AudioSource audioSource = tempAudioSource.AddComponent<AudioSource>();
 		audioSource.clip = clip;
 		audioSource.volume = 0.5f;
 		audioSource.spatialBlend = 0f;
 		audioSource.Play();
-		Object.Destroy(obj, clip.length);
+		Object.Destroy(tempAudioSource, clip.length);
 	}
 }

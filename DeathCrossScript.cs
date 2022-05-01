@@ -13,7 +13,7 @@ public class DeathCrossScript : MonoBehaviour
 
 	private Renderer m_Renderer;
 
-	private bool startfade;
+	private bool startfade = false;
 
 	private Color alphaColor;
 

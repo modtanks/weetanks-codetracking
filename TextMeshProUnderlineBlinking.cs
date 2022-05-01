@@ -13,10 +13,10 @@ public class TextMeshProUnderlineBlinking : MonoBehaviour
 
 	private void BlinkingText()
 	{
-		bool flag = (myText.fontStyle & FontStyles.Underline) != 0;
+		bool isBold = (myText.fontStyle & FontStyles.Underline) != 0;
 		if (!GameMaster.instance.GameHasStarted)
 		{
-			if (flag)
+			if (isBold)
 			{
 				myText.fontStyle ^= FontStyles.Underline;
 			}

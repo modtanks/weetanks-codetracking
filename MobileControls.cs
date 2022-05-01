@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class MobileControls : MonoBehaviour
 {
-	public bool isBooster;
+	public bool isBooster = false;
 
-	public bool isMiner;
+	public bool isMiner = false;
 
-	public bool isPressed;
+	public bool isPressed = false;
 
 	private void Start()
 	{
@@ -14,29 +14,29 @@ public class MobileControls : MonoBehaviour
 
 	private void Update()
 	{
-		GameObject obj = GameObject.FindGameObjectWithTag("Player");
-		MoveTankScript component = obj.GetComponent<MoveTankScript>();
-		FiringTank component2 = obj.GetComponent<FiringTank>();
+		GameObject player = GameObject.FindGameObjectWithTag("Player");
+		MoveTankScript MTS = player.GetComponent<MoveTankScript>();
+		FiringTank FT = player.GetComponent<FiringTank>();
 		if (isPressed)
 		{
 			if (isBooster)
 			{
-				component.mobileBoosting = true;
+				MTS.mobileBoosting = true;
 			}
 			if (isMiner)
 			{
-				component2.mobileMine = true;
+				FT.mobileMine = true;
 			}
 		}
 		else
 		{
 			if (isBooster)
 			{
-				component.mobileBoosting = false;
+				MTS.mobileBoosting = false;
 			}
 			if (isMiner)
 			{
-				component2.mobileMine = false;
+				FT.mobileMine = false;
 			}
 		}
 	}

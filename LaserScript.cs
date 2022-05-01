@@ -6,9 +6,9 @@ public class LaserScript : MonoBehaviour
 
 	public float maxStepDistance = 200f;
 
-	public bool directionSet;
+	public bool directionSet = false;
 
-	public int amountBounces;
+	public int amountBounces = 0;
 
 	public Vector3 thedirection;
 
@@ -67,14 +67,16 @@ public class LaserScript : MonoBehaviour
 		{
 			return;
 		}
-		Vector3 vector = position;
-		if (Physics.Raycast(new Ray(position, direction), layerMask: (LayerMask)((1 << LayerMask.NameToLayer("CorkWall")) | (1 << LayerMask.NameToLayer("Wall")) | (1 << LayerMask.NameToLayer("NoBounceWall"))), hitInfo: out var hitInfo, maxDistance: maxStepDistance))
+		Vector3 startingPosition = position;
+		Ray ray = new Ray(position, direction);
+		LayerMask LM = (1 << LayerMask.NameToLayer("CorkWall")) | (1 << LayerMask.NameToLayer("Wall")) | (1 << LayerMask.NameToLayer("NoBounceWall"));
+		if (Physics.Raycast(ray, out var hit, maxStepDistance, LM))
 		{
-			direction = Vector3.Reflect(direction.normalized, hitInfo.normal);
-			position = hitInfo.point;
+			direction = Vector3.Reflect(direction.normalized, hit.normal);
+			position = hit.point;
 			if (iterations == 0)
 			{
-				WallGonnaBounceInTo = hitInfo.transform.gameObject;
+				WallGonnaBounceInTo = hit.transform.gameObject;
 			}
 		}
 		else
@@ -83,10 +85,10 @@ public class LaserScript : MonoBehaviour
 		}
 		if (iterations == 0)
 		{
-			thedirection = position - vector;
+			thedirection = position - startingPosition;
 			if (WallGonnaBounceInTo != null)
 			{
-				distanceToWall = Vector3.Distance(vector, position);
+				distanceToWall = Vector3.Distance(startingPosition, position);
 			}
 			lookAtPoint = position;
 		}
@@ -111,7 +113,7 @@ public class LaserScript : MonoBehaviour
 		{
 			EBS.nearWall = false;
 		}
-		Debug.DrawLine(vector, position, Color.blue);
+		Debug.DrawLine(startingPosition, position, Color.blue);
 		DrawReflectionPattern(position, direction, reflectionsRemaining - 1, 1);
 	}
 }

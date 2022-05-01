@@ -1000,7 +1000,7 @@ public class LocalizationMaster : MonoBehaviour
 
 	private static LocalizationMaster _instance;
 
-	public int CurrentLang;
+	public int CurrentLang = 0;
 
 	[Header("JSONs")]
 	public TextAsset[] jsons;
@@ -1025,9 +1025,9 @@ public class LocalizationMaster : MonoBehaviour
 	private void Start()
 	{
 		TextAsset[] array = jsons;
-		foreach (TextAsset textAsset in array)
+		foreach (TextAsset json in array)
 		{
-			langs.Add(JsonUtility.FromJson<Locale>(textAsset.ToString()));
+			langs.Add(JsonUtility.FromJson<Locale>(json.ToString()));
 		}
 	}
 

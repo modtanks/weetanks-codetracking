@@ -48,23 +48,23 @@ public class InputBehaviorWindow : Window
 			{
 			case PropertyType.JoystickAxisSensitivity:
 			{
-				float joystickAxisSensitivity = copyOfOriginal.joystickAxisSensitivity;
-				_inputBehavior.joystickAxisSensitivity = joystickAxisSensitivity;
-				UISliderControl control2 = _controlSet.GetControl<UISliderControl>(controlId);
-				if (control2 != null)
+				float value = copyOfOriginal.joystickAxisSensitivity;
+				_inputBehavior.joystickAxisSensitivity = value;
+				UISliderControl control = _controlSet.GetControl<UISliderControl>(controlId);
+				if (control != null)
 				{
-					control2.slider.value = joystickAxisSensitivity;
+					control.slider.value = value;
 				}
 				break;
 			}
 			case PropertyType.MouseXYAxisSensitivity:
 			{
-				float mouseXYAxisSensitivity = copyOfOriginal.mouseXYAxisSensitivity;
-				_inputBehavior.mouseXYAxisSensitivity = mouseXYAxisSensitivity;
-				UISliderControl control = _controlSet.GetControl<UISliderControl>(controlId);
-				if (control != null)
+				float value2 = copyOfOriginal.mouseXYAxisSensitivity;
+				_inputBehavior.mouseXYAxisSensitivity = value2;
+				UISliderControl control2 = _controlSet.GetControl<UISliderControl>(controlId);
+				if (control2 != null)
 				{
-					control.slider.value = mouseXYAxisSensitivity;
+					control2.slider.value = value2;
 				}
 				break;
 			}
@@ -77,12 +77,12 @@ public class InputBehaviorWindow : Window
 			{
 				return;
 			}
-			foreach (KeyValuePair<int, PropertyType> item in idToProperty)
+			foreach (KeyValuePair<int, PropertyType> pair in idToProperty)
 			{
-				UISliderControl control = _controlSet.GetControl<UISliderControl>(item.Key);
+				UISliderControl control = _controlSet.GetControl<UISliderControl>(pair.Key);
 				if (!(control == null))
 				{
-					switch (item.Value)
+					switch (pair.Value)
 					{
 					case PropertyType.JoystickAxisSensitivity:
 						control.slider.value = _inputBehavior.joystickAxisSensitivity;
@@ -166,39 +166,39 @@ public class InputBehaviorWindow : Window
 			return;
 		}
 		this.playerId = playerId;
-		foreach (ControlMapper.InputBehaviorSettings inputBehaviorSettings in data)
+		foreach (ControlMapper.InputBehaviorSettings item in data)
 		{
-			if (inputBehaviorSettings == null || !inputBehaviorSettings.isValid)
+			if (item == null || !item.isValid)
 			{
 				continue;
 			}
-			InputBehavior inputBehavior = GetInputBehavior(inputBehaviorSettings.inputBehaviorId);
+			InputBehavior inputBehavior = GetInputBehavior(item.inputBehaviorId);
 			if (inputBehavior != null)
 			{
-				UIControlSet uIControlSet = CreateControlSet();
-				Dictionary<int, PropertyType> dictionary = new Dictionary<int, PropertyType>();
-				string customEntry = ControlMapper.GetLanguage().GetCustomEntry(inputBehaviorSettings.labelLanguageKey);
-				if (!string.IsNullOrEmpty(customEntry))
+				UIControlSet set = CreateControlSet();
+				Dictionary<int, PropertyType> idToProperty = new Dictionary<int, PropertyType>();
+				string customTitle = ControlMapper.GetLanguage().GetCustomEntry(item.labelLanguageKey);
+				if (!string.IsNullOrEmpty(customTitle))
 				{
-					uIControlSet.SetTitle(customEntry);
+					set.SetTitle(customTitle);
 				}
 				else
 				{
-					uIControlSet.SetTitle(inputBehavior.name);
+					set.SetTitle(inputBehavior.name);
 				}
-				if (inputBehaviorSettings.showJoystickAxisSensitivity)
+				if (item.showJoystickAxisSensitivity)
 				{
-					UISliderControl uISliderControl = CreateSlider(uIControlSet, inputBehavior.id, null, ControlMapper.GetLanguage().GetCustomEntry(inputBehaviorSettings.joystickAxisSensitivityLabelLanguageKey), inputBehaviorSettings.joystickAxisSensitivityIcon, inputBehaviorSettings.joystickAxisSensitivityMin, inputBehaviorSettings.joystickAxisSensitivityMax, JoystickAxisSensitivityValueChanged, JoystickAxisSensitivityCanceled);
-					uISliderControl.slider.value = Mathf.Clamp(inputBehavior.joystickAxisSensitivity, inputBehaviorSettings.joystickAxisSensitivityMin, inputBehaviorSettings.joystickAxisSensitivityMax);
-					dictionary.Add(uISliderControl.id, PropertyType.JoystickAxisSensitivity);
+					UISliderControl slider2 = CreateSlider(set, inputBehavior.id, null, ControlMapper.GetLanguage().GetCustomEntry(item.joystickAxisSensitivityLabelLanguageKey), item.joystickAxisSensitivityIcon, item.joystickAxisSensitivityMin, item.joystickAxisSensitivityMax, JoystickAxisSensitivityValueChanged, JoystickAxisSensitivityCanceled);
+					slider2.slider.value = Mathf.Clamp(inputBehavior.joystickAxisSensitivity, item.joystickAxisSensitivityMin, item.joystickAxisSensitivityMax);
+					idToProperty.Add(slider2.id, PropertyType.JoystickAxisSensitivity);
 				}
-				if (inputBehaviorSettings.showMouseXYAxisSensitivity)
+				if (item.showMouseXYAxisSensitivity)
 				{
-					UISliderControl uISliderControl2 = CreateSlider(uIControlSet, inputBehavior.id, null, ControlMapper.GetLanguage().GetCustomEntry(inputBehaviorSettings.mouseXYAxisSensitivityLabelLanguageKey), inputBehaviorSettings.mouseXYAxisSensitivityIcon, inputBehaviorSettings.mouseXYAxisSensitivityMin, inputBehaviorSettings.mouseXYAxisSensitivityMax, MouseXYAxisSensitivityValueChanged, MouseXYAxisSensitivityCanceled);
-					uISliderControl2.slider.value = Mathf.Clamp(inputBehavior.mouseXYAxisSensitivity, inputBehaviorSettings.mouseXYAxisSensitivityMin, inputBehaviorSettings.mouseXYAxisSensitivityMax);
-					dictionary.Add(uISliderControl2.id, PropertyType.MouseXYAxisSensitivity);
+					UISliderControl slider = CreateSlider(set, inputBehavior.id, null, ControlMapper.GetLanguage().GetCustomEntry(item.mouseXYAxisSensitivityLabelLanguageKey), item.mouseXYAxisSensitivityIcon, item.mouseXYAxisSensitivityMin, item.mouseXYAxisSensitivityMax, MouseXYAxisSensitivityValueChanged, MouseXYAxisSensitivityCanceled);
+					slider.slider.value = Mathf.Clamp(inputBehavior.mouseXYAxisSensitivity, item.mouseXYAxisSensitivityMin, item.mouseXYAxisSensitivityMax);
+					idToProperty.Add(slider.id, PropertyType.MouseXYAxisSensitivity);
 				}
-				inputBehaviorInfo.Add(new InputBehaviorInfo(inputBehavior, uIControlSet, dictionary));
+				inputBehaviorInfo.Add(new InputBehaviorInfo(inputBehavior, set, idToProperty));
 			}
 		}
 		base.defaultUIElement = doneButton.gameObject;
@@ -225,11 +225,11 @@ public class InputBehaviorWindow : Window
 		{
 			return;
 		}
-		foreach (InputBehaviorInfo item in inputBehaviorInfo)
+		foreach (InputBehaviorInfo info in inputBehaviorInfo)
 		{
-			item.RestorePreviousData();
+			info.RestorePreviousData();
 		}
-		if (!buttonCallbacks.TryGetValue(1, out var value))
+		if (!buttonCallbacks.TryGetValue(1, out var callback))
 		{
 			if (cancelCallback != null)
 			{
@@ -238,15 +238,15 @@ public class InputBehaviorWindow : Window
 		}
 		else
 		{
-			value(base.id);
+			callback(base.id);
 		}
 	}
 
 	public void OnDone()
 	{
-		if (base.initialized && buttonCallbacks.TryGetValue(0, out var value))
+		if (base.initialized && buttonCallbacks.TryGetValue(0, out var callback))
 		{
-			value(base.id);
+			callback(base.id);
 		}
 	}
 
@@ -261,9 +261,9 @@ public class InputBehaviorWindow : Window
 		{
 			return;
 		}
-		foreach (InputBehaviorInfo item in inputBehaviorInfo)
+		foreach (InputBehaviorInfo info in inputBehaviorInfo)
 		{
-			item.RestoreDefaultData();
+			info.RestoreDefaultData();
 		}
 	}
 
@@ -294,32 +294,32 @@ public class InputBehaviorWindow : Window
 
 	private UIControlSet CreateControlSet()
 	{
-		GameObject obj = UnityEngine.Object.Instantiate(uiControlSetPrefab);
-		obj.transform.SetParent(spawnTransform, worldPositionStays: false);
-		return obj.GetComponent<UIControlSet>();
+		GameObject instance = UnityEngine.Object.Instantiate(uiControlSetPrefab);
+		instance.transform.SetParent(spawnTransform, worldPositionStays: false);
+		return instance.GetComponent<UIControlSet>();
 	}
 
 	private UISliderControl CreateSlider(UIControlSet set, int inputBehaviorId, string defaultTitle, string overrideTitle, Sprite icon, float minValue, float maxValue, Action<int, int, float> valueChangedCallback, Action<int, int> cancelCallback)
 	{
-		UISliderControl uISliderControl = set.CreateSlider(uiSliderControlPrefab, icon, minValue, maxValue, delegate(int cId, float value)
+		UISliderControl control = set.CreateSlider(uiSliderControlPrefab, icon, minValue, maxValue, delegate(int cId, float value)
 		{
 			valueChangedCallback(inputBehaviorId, cId, value);
 		}, delegate(int cId)
 		{
 			cancelCallback(inputBehaviorId, cId);
 		});
-		string text = (string.IsNullOrEmpty(overrideTitle) ? defaultTitle : overrideTitle);
-		if (!string.IsNullOrEmpty(text))
+		string title = (string.IsNullOrEmpty(overrideTitle) ? defaultTitle : overrideTitle);
+		if (!string.IsNullOrEmpty(title))
 		{
-			uISliderControl.showTitle = true;
-			uISliderControl.title.text = text;
+			control.showTitle = true;
+			control.title.text = title;
 		}
 		else
 		{
-			uISliderControl.showTitle = false;
+			control.showTitle = false;
 		}
-		uISliderControl.showIcon = icon != null;
-		return uISliderControl;
+		control.showIcon = icon != null;
+		return control;
 	}
 
 	private InputBehavior GetInputBehavior(int id)

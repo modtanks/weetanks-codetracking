@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class BombSackScript : MonoBehaviour
 {
-	public int BombState;
+	public int BombState = 0;
 
 	private Rigidbody rb;
 
@@ -25,9 +25,9 @@ public class BombSackScript : MonoBehaviour
 
 	public GameObject ParticleToSpawn;
 
-	public bool isDying;
+	public bool isDying = false;
 
-	public bool blinkScriptRunning;
+	public bool blinkScriptRunning = false;
 
 	public GameObject ShootMeTutorial;
 
@@ -43,17 +43,17 @@ public class BombSackScript : MonoBehaviour
 
 	public Vector3 StartPos;
 
-	private bool HasDoneDamage;
+	private bool HasDoneDamage = false;
 
 	private float previousYPos;
 
-	private bool IsGrounded;
+	private bool IsGrounded = false;
 
-	private int GroundedCounter;
+	private int GroundedCounter = 0;
 
 	private GameObject SpawnedTarget;
 
-	private bool LaunchedBack;
+	private bool LaunchedBack = false;
 
 	public MeshRenderer BombBase;
 
@@ -73,10 +73,10 @@ public class BombSackScript : MonoBehaviour
 		if (collision.gameObject.layer == LayerMask.NameToLayer("DestroyableWall"))
 		{
 			TimeTillDetonation = -100f;
-			BossPlatform component = collision.gameObject.GetComponent<BossPlatform>();
-			if ((bool)component && !HasDoneDamage)
+			BossPlatform BP = collision.gameObject.GetComponent<BossPlatform>();
+			if ((bool)BP && !HasDoneDamage)
 			{
-				component.KTS.Throne.PlatformHealth--;
+				BP.KTS.Throne.PlatformHealth--;
 				HasDoneDamage = true;
 			}
 			SFXManager.instance.PlaySFX(ExplosionSound, 0.6f, null);
@@ -86,10 +86,10 @@ public class BombSackScript : MonoBehaviour
 		else if (collision.gameObject.tag == "Player" || collision.gameObject.tag == "Enemy")
 		{
 			Explode();
-			HealthTanks component2 = collision.gameObject.GetComponent<HealthTanks>();
-			if ((bool)component2)
+			HealthTanks HT = collision.gameObject.GetComponent<HealthTanks>();
+			if ((bool)HT)
 			{
-				component2.DamageMe(2);
+				HT.DamageMe(2);
 			}
 		}
 	}
@@ -119,12 +119,13 @@ public class BombSackScript : MonoBehaviour
 		{
 			Debug.Log("LANDED");
 			BombAnimator.SetBool("MortarIsLive", value: true);
-			Object.Destroy(Object.Instantiate(LandingParticles, base.transform), 3f);
+			GameObject LandParts = Object.Instantiate(LandingParticles, base.transform);
+			Object.Destroy(LandParts, 3f);
 			SFXManager.instance.PlaySFX(LandSound, 1f, null);
-			CameraShake component = Camera.main.GetComponent<CameraShake>();
-			if ((bool)component)
+			CameraShake CS = Camera.main.GetComponent<CameraShake>();
+			if ((bool)CS)
 			{
-				component.StartCoroutine(component.Shake(0.1f, 0.15f));
+				CS.StartCoroutine(CS.Shake(0.1f, 0.15f));
 			}
 		}
 		previousYPos = base.transform.position.y;
@@ -226,37 +227,37 @@ public class BombSackScript : MonoBehaviour
 		{
 			SFXManager.instance.PlaySFX(BeepSound, 1f, null);
 			IsWhiteNow = false;
-			Material[] materials = BombBase.materials;
-			materials[0].SetColor("_EmissionColor", Color.red * 1.9f);
-			BombBase.materials = materials;
+			Material[] ms2 = BombBase.materials;
+			ms2[0].SetColor("_EmissionColor", Color.red * 1.9f);
+			BombBase.materials = ms2;
 		}
 		else
 		{
 			IsWhiteNow = true;
-			Material[] materials2 = BombBase.materials;
-			materials2[0].SetColor("_EmissionColor", Color.white * 1.7f);
-			BombBase.materials = materials2;
+			Material[] ms = BombBase.materials;
+			ms[0].SetColor("_EmissionColor", Color.white * 1.7f);
+			BombBase.materials = ms;
 		}
 		StartCoroutine(BlinkWhite());
 	}
 
 	private void ShootBullet(Vector3 direction)
 	{
-		GameObject obj = Object.Instantiate(BulletToSpawn, direction, Quaternion.identity);
-		PlayerBulletScript component = obj.GetComponent<PlayerBulletScript>();
-		component.isTowerCharged = true;
-		component.IsSackBullet = true;
-		InstantiateOneParticle component2 = obj.GetComponent<InstantiateOneParticle>();
-		if ((bool)component2)
+		GameObject Bullet = Object.Instantiate(BulletToSpawn, direction, Quaternion.identity);
+		PlayerBulletScript bullet = Bullet.GetComponent<PlayerBulletScript>();
+		bullet.isTowerCharged = true;
+		bullet.IsSackBullet = true;
+		InstantiateOneParticle IOP = Bullet.GetComponent<InstantiateOneParticle>();
+		if ((bool)IOP)
 		{
-			component2.Sound = null;
+			IOP.Sound = null;
 		}
-		component.MaxBounces = 0;
-		obj.transform.Rotate(Vector3.right * 90f);
-		Rigidbody component3 = obj.GetComponent<Rigidbody>();
-		Vector3 vector = direction - base.transform.position;
-		component3.AddForce(vector * 6f);
-		component.StartingVelocity = vector * 6f;
+		bullet.MaxBounces = 0;
+		Bullet.transform.Rotate(Vector3.right * 90f);
+		Rigidbody bulletBody = Bullet.GetComponent<Rigidbody>();
+		Vector3 Bdirection = direction - base.transform.position;
+		bulletBody.AddForce(Bdirection * 6f);
+		bullet.StartingVelocity = Bdirection * 6f;
 	}
 
 	private void SpawnBullets(int index)
@@ -271,35 +272,36 @@ public class BombSackScript : MonoBehaviour
 			SpawnBullets(++index);
 			return;
 		}
-		Vector3 direction = Vector3.zero;
+		GameObject Bullet = null;
+		Vector3 offset = Vector3.zero;
 		switch (index)
 		{
 		case 0:
-			direction = base.transform.position + new Vector3(1f, 0.5f, 0f);
+			offset = base.transform.position + new Vector3(1f, 0.5f, 0f);
 			break;
 		case 1:
-			direction = base.transform.position + new Vector3(1f, 0.5f, 1f);
+			offset = base.transform.position + new Vector3(1f, 0.5f, 1f);
 			break;
 		case 2:
-			direction = base.transform.position + new Vector3(0f, 0.5f, 1f);
+			offset = base.transform.position + new Vector3(0f, 0.5f, 1f);
 			break;
 		case 3:
-			direction = base.transform.position + new Vector3(0f, 0.5f, -1f);
+			offset = base.transform.position + new Vector3(0f, 0.5f, -1f);
 			break;
 		case 4:
-			direction = base.transform.position + new Vector3(-1f, 0.5f, -1f);
+			offset = base.transform.position + new Vector3(-1f, 0.5f, -1f);
 			break;
 		case 5:
-			direction = base.transform.position + new Vector3(-1f, 0.5f, 0f);
+			offset = base.transform.position + new Vector3(-1f, 0.5f, 0f);
 			break;
 		case 6:
-			direction = base.transform.position + new Vector3(-1f, 0.5f, 1f);
+			offset = base.transform.position + new Vector3(-1f, 0.5f, 1f);
 			break;
 		case 7:
-			direction = base.transform.position + new Vector3(1f, 0.5f, -1f);
+			offset = base.transform.position + new Vector3(1f, 0.5f, -1f);
 			break;
 		}
-		ShootBullet(direction);
+		ShootBullet(offset);
 		SpawnBullets(++index);
 	}
 

@@ -27,7 +27,7 @@ public class WeeTurret : MonoBehaviour
 
 	public Transform ShootPoint;
 
-	public bool TargetInSight;
+	public bool TargetInSight = false;
 
 	public AudioClip ShootSound;
 
@@ -41,13 +41,13 @@ public class WeeTurret : MonoBehaviour
 
 	public int maxHealth = 10;
 
-	public int upgradeLevel;
+	public int upgradeLevel = 0;
 
 	public GameObject deathExplosion;
 
 	public GameObject BrokenState;
 
-	public bool BrokenActive;
+	public bool BrokenActive = false;
 
 	public MoveTankScript myMTS;
 
@@ -57,7 +57,7 @@ public class WeeTurret : MonoBehaviour
 
 	public GameObject[] SecondUpgradeParts;
 
-	public int PlacedByPlayer;
+	public int PlacedByPlayer = 0;
 
 	public float ScannerRange = 20f;
 
@@ -65,13 +65,13 @@ public class WeeTurret : MonoBehaviour
 
 	private float _timeStartedLerping;
 
-	public bool LockedIn;
+	public bool LockedIn = false;
 
-	private bool turning;
+	private bool turning = false;
 
-	private bool GotRandomLookTarget;
+	private bool GotRandomLookTarget = false;
 
-	private bool CoolingDown;
+	private bool CoolingDown = false;
 
 	private void Start()
 	{
@@ -82,9 +82,9 @@ public class WeeTurret : MonoBehaviour
 	{
 		UpgradeParts.SetActive(value: false);
 		GameObject[] secondUpgradeParts = SecondUpgradeParts;
-		for (int i = 0; i < secondUpgradeParts.Length; i++)
+		foreach (GameObject part in secondUpgradeParts)
 		{
-			secondUpgradeParts[i].SetActive(value: false);
+			part.SetActive(value: false);
 		}
 	}
 
@@ -92,29 +92,29 @@ public class WeeTurret : MonoBehaviour
 	{
 		Targets.Clear();
 		LockedIn = false;
-		GameObject[] array = GameObject.FindGameObjectsWithTag("Enemy");
+		GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
 		if (Health < 4 && !BrokenActive)
 		{
 			ParticleSystem[] componentsInChildren = BrokenState.GetComponentsInChildren<ParticleSystem>();
-			for (int i = 0; i < componentsInChildren.Length; i++)
+			foreach (ParticleSystem PS in componentsInChildren)
 			{
-				componentsInChildren[i].Play();
+				PS.Play();
 			}
 			BrokenActive = true;
 		}
 		else if (Health >= 4 && BrokenActive)
 		{
-			ParticleSystem[] componentsInChildren = BrokenState.GetComponentsInChildren<ParticleSystem>();
-			for (int i = 0; i < componentsInChildren.Length; i++)
+			ParticleSystem[] componentsInChildren2 = BrokenState.GetComponentsInChildren<ParticleSystem>();
+			foreach (ParticleSystem PS2 in componentsInChildren2)
 			{
-				componentsInChildren[i].Stop();
+				PS2.Stop();
 			}
 			BrokenActive = false;
 		}
-		GameObject[] array2 = array;
-		foreach (GameObject gameObject in array2)
+		GameObject[] array = enemies;
+		foreach (GameObject enemy in array)
 		{
-			Targets.Add(gameObject.transform);
+			Targets.Add(enemy.transform);
 		}
 		if ((bool)Head)
 		{
@@ -126,39 +126,41 @@ public class WeeTurret : MonoBehaviour
 				return;
 			}
 			closestTarget = null;
-			foreach (Transform target in Targets)
+			foreach (Transform potentialTarget in Targets)
 			{
-				if (Vector3.Distance(target.transform.position, MyHead.transform.position) <= ScannerRange)
+				float dist = Vector3.Distance(potentialTarget.transform.position, MyHead.transform.position);
+				if (dist <= ScannerRange)
 				{
-					Vector3 vector = new Vector3(target.transform.position.x, 0.5f, target.transform.position.z);
-					Vector3 position = MyHead.transform.position;
-					position.y = 0.5f;
-					Vector3 vector2 = vector - position;
-					Ray ray = new Ray(position, vector2);
-					Debug.DrawRay(position, vector2 * ScannerRange, Color.red, 0.1f);
+					Vector3 TargetPos = new Vector3(potentialTarget.transform.position.x, 0.5f, potentialTarget.transform.position.z);
+					Vector3 HeadPos = MyHead.transform.position;
+					HeadPos.y = 0.5f;
+					Vector3 targetDirection2 = TargetPos - HeadPos;
+					Ray ray = new Ray(HeadPos, targetDirection2);
+					Debug.DrawRay(HeadPos, targetDirection2 * ScannerRange, Color.red, 0.1f);
 					LayerMask layerMask = ~((1 << LayerMask.NameToLayer("EnemyDetectionLayer")) | (1 << LayerMask.NameToLayer("TeleportBlock")) | (1 << LayerMask.NameToLayer("BulletDetectField")) | (1 << LayerMask.NameToLayer("Other")) | (1 << LayerMask.NameToLayer("OneWayBlock")));
-					RaycastHit[] array3 = (from h in Physics.RaycastAll(ray, 50f, layerMask)
+					RaycastHit[] allhits = (from h in Physics.RaycastAll(ray, 50f, layerMask)
 						orderby h.distance
 						select h).ToArray();
-					for (int j = 0; j < array3.Length; j++)
+					for (int i = 0; i < allhits.Length; i++)
 					{
-						RaycastHit raycastHit = array3[j];
-						if (raycastHit.collider.tag == "Turret")
+						RaycastHit hit = allhits[i];
+						if (hit.collider.tag == "Turret")
 						{
 							Debug.Log("Hit turret!!!");
-							if (raycastHit.collider.GetComponent<WeeTurret>() != this)
+							WeeTurret WT = hit.collider.GetComponent<WeeTurret>();
+							if (WT != this)
 							{
 								break;
 							}
 							continue;
 						}
-						if (raycastHit.collider.tag == "Solid" || raycastHit.collider.tag == "Player" || raycastHit.collider.tag == "Mine")
+						if (hit.collider.tag == "Solid" || hit.collider.tag == "Player" || hit.collider.tag == "Mine")
 						{
 							break;
 						}
-						if (raycastHit.collider.tag == "Enemy")
+						if (hit.collider.tag == "Enemy")
 						{
-							closestTarget = target;
+							closestTarget = potentialTarget;
 							break;
 						}
 					}
@@ -181,17 +183,17 @@ public class WeeTurret : MonoBehaviour
 			}
 			LastTarget = closestTarget;
 			TargetInSight = true;
-			Rigidbody component = closestTarget.GetComponent<Rigidbody>();
-			float num = Vector3.Distance(closestTarget.transform.position, MyHead.transform.position);
-			Vector3 vector3 = ((!(component.velocity.magnitude > 0.8f)) ? closestTarget.position : (closestTarget.position + closestTarget.transform.forward * (num / 3f)));
-			Vector3 forward = vector3 - MyHead.transform.position;
+			Rigidbody targetRB = closestTarget.GetComponent<Rigidbody>();
+			float distance = Vector3.Distance(closestTarget.transform.position, MyHead.transform.position);
+			Vector3 infrontTarget = ((!(targetRB.velocity.magnitude > 0.8f)) ? closestTarget.position : (closestTarget.position + closestTarget.transform.forward * (distance / 3f)));
+			Vector3 targetDirection = infrontTarget - MyHead.transform.position;
 			startRot = MyHead.transform.rotation;
 			GotRandomLookTarget = false;
 			CoolingDown = false;
-			forward.y = 0f;
-			rotation = Quaternion.LookRotation(forward) * Quaternion.Euler(-90f, 0f, 0f);
-			float num2 = Quaternion.Angle(MyHead.transform.rotation, rotation);
-			timeTakenDuringLerp = num2 / 180f * 0.5f;
+			targetDirection.y = 0f;
+			rotation = Quaternion.LookRotation(targetDirection) * Quaternion.Euler(-90f, 0f, 0f);
+			float angleSize = Quaternion.Angle(MyHead.transform.rotation, rotation);
+			timeTakenDuringLerp = angleSize / 180f * 0.5f;
 			if (timeTakenDuringLerp < 0.2f)
 			{
 				timeTakenDuringLerp = 0.2f;
@@ -207,8 +209,9 @@ public class WeeTurret : MonoBehaviour
 		{
 			return;
 		}
-		float t = (Time.time - _timeStartedLerping) / timeTakenDuringLerp;
-		MyHead.transform.rotation = Quaternion.Lerp(startRot, rotation, t);
+		float timeSinceStarted = Time.time - _timeStartedLerping;
+		float percentageComplete = timeSinceStarted / timeTakenDuringLerp;
+		MyHead.transform.rotation = Quaternion.Lerp(startRot, rotation, percentageComplete);
 		if (Quaternion.Angle(MyHead.transform.rotation, rotation) <= 0.6f)
 		{
 			if (ToShoot)
@@ -250,8 +253,8 @@ public class WeeTurret : MonoBehaviour
 			{
 				startRot = MyHead.transform.rotation;
 				rotation = Quaternion.Euler(-90f, Random.Range(0f, 360f), 0f);
-				float num = Quaternion.Angle(MyHead.transform.rotation, rotation);
-				timeTakenDuringLerp = num / 180f * 3f;
+				float angleSize = Quaternion.Angle(MyHead.transform.rotation, rotation);
+				timeTakenDuringLerp = angleSize / 180f * 3f;
 				if (timeTakenDuringLerp < 0.2f)
 				{
 					timeTakenDuringLerp = 0.2f;
@@ -276,28 +279,29 @@ public class WeeTurret : MonoBehaviour
 	private void Shoot()
 	{
 		SFXManager.instance.PlaySFX(ShootSound, 1f, null);
-		GameObject gameObject = ((upgradeLevel <= 0) ? Object.Instantiate(BulletPrefab, ShootPoint.position, ShootPoint.transform.rotation) : Object.Instantiate(UpgradedBulletPrefab, ShootPoint.position, ShootPoint.transform.rotation));
-		gameObject.GetComponent<Rigidbody>().AddForce(ShootPoint.forward * 6f);
-		PlayerBulletScript component = gameObject.GetComponent<PlayerBulletScript>();
-		component.StartingVelocity = ShootPoint.forward * 6f;
-		if ((bool)component)
+		GameObject bulletGO = ((upgradeLevel <= 0) ? Object.Instantiate(BulletPrefab, ShootPoint.position, ShootPoint.transform.rotation) : Object.Instantiate(UpgradedBulletPrefab, ShootPoint.position, ShootPoint.transform.rotation));
+		Rigidbody bulletBody = bulletGO.GetComponent<Rigidbody>();
+		bulletBody.AddForce(ShootPoint.forward * 6f);
+		PlayerBulletScript PBS = bulletGO.GetComponent<PlayerBulletScript>();
+		PBS.StartingVelocity = ShootPoint.forward * 6f;
+		if ((bool)PBS)
 		{
-			component.TurretBullet = true;
-			component.ShotByPlayer = PlacedByPlayer;
+			PBS.TurretBullet = true;
+			PBS.ShotByPlayer = PlacedByPlayer;
 		}
 	}
 
 	private void DIE()
 	{
 		SFXManager.instance.PlaySFX(ExplosionSound, 1f, null);
-		GameObject obj = Object.Instantiate(deathExplosion, base.transform.position, Quaternion.identity);
-		obj.GetComponent<ParticleSystem>().Play();
+		GameObject poof = Object.Instantiate(deathExplosion, base.transform.position, Quaternion.identity);
+		poof.GetComponent<ParticleSystem>().Play();
 		if ((bool)myMTS)
 		{
 			myMTS.Upgrades[5] = 0;
 		}
 		GameMaster.instance.TurretsPlaced[PlacedByPlayer]--;
-		Object.Destroy(obj.gameObject, 3f);
+		Object.Destroy(poof.gameObject, 3f);
 		Object.Destroy(base.gameObject);
 	}
 
@@ -321,9 +325,9 @@ public class WeeTurret : MonoBehaviour
 			shootSpeed = 0.5f;
 			ScannerRange = 30f;
 			GameObject[] secondUpgradeParts = SecondUpgradeParts;
-			for (int i = 0; i < secondUpgradeParts.Length; i++)
+			foreach (GameObject part in secondUpgradeParts)
 			{
-				secondUpgradeParts[i].SetActive(value: true);
+				part.SetActive(value: true);
 			}
 		}
 		Health = 5 + upgradeLevel * 5;

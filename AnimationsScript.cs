@@ -76,9 +76,9 @@ public class AnimationsScript : MonoBehaviour
 			if (headscript.Lives <= 1)
 			{
 				TMP_Text[] array = defeatText;
-				for (int i = 0; i < array.Length; i++)
+				foreach (TMP_Text dftext in array)
 				{
-					array[i].text = "Game over!";
+					dftext.text = "Game over!";
 				}
 				myanimator.SetBool("Restart", value: false);
 				yield return new WaitForSeconds(2f);

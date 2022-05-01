@@ -12,9 +12,9 @@ public class MapEditorMaster : MonoBehaviour
 
 	public List<MapPiecesClass> MissionsData = new List<MapPiecesClass>();
 
-	public bool inPlayingMode;
+	public bool inPlayingMode = false;
 
-	public int SelectedProp;
+	public int SelectedProp = 0;
 
 	public int maxMission = 20;
 
@@ -26,9 +26,9 @@ public class MapEditorMaster : MonoBehaviour
 
 	public float[] PropStartHeight;
 
-	public bool RemoveMode;
+	public bool RemoveMode = false;
 
-	public int selectedFields;
+	public int selectedFields = 0;
 
 	public Transform startSelectionField;
 
@@ -52,22 +52,22 @@ public class MapEditorMaster : MonoBehaviour
 
 	public CountDownScript CDS;
 
-	public bool isTesting;
+	public bool isTesting = false;
 
-	public bool canPlaceProp;
+	public bool canPlaceProp = false;
 
 	public GameObject EditingCanvas;
 
-	public int IsPublished;
+	public int IsPublished = 0;
 
 	public Material[] FloorMaterials;
 
 	[Header("Layer Editing")]
-	public int CurrentLayer;
+	public int CurrentLayer = 0;
 
 	public int MaxLayer = 5;
 
-	public bool ShowAllLayers;
+	public bool ShowAllLayers = false;
 
 	[Header("Map editor Levels")]
 	public List<SingleMapEditorData> Levels = new List<SingleMapEditorData>();
@@ -117,7 +117,7 @@ public class MapEditorMaster : MonoBehaviour
 
 	public AudioClip ChangeSound;
 
-	private int playingAmount;
+	private int playingAmount = 0;
 
 	public int lastKnownMusicVol;
 
@@ -143,7 +143,7 @@ public class MapEditorMaster : MonoBehaviour
 	public Color TabSelectedColor;
 
 	[Header("Custom Tank")]
-	public int minTankSpeed;
+	public int minTankSpeed = 0;
 
 	public int maxTankSpeed = 100;
 
@@ -157,13 +157,13 @@ public class MapEditorMaster : MonoBehaviour
 
 	public int maxBulletSpeed = 100;
 
-	public int minBounces;
+	public int minBounces = 0;
 
 	public int maxBounces = 10;
 
 	private int maxBouncesBoosted = 100;
 
-	public int minBullets;
+	public int minBullets = 0;
 
 	public int maxBullets = 100;
 
@@ -175,7 +175,7 @@ public class MapEditorMaster : MonoBehaviour
 
 	public int maxTurnHead = 5;
 
-	public int minAccuracy;
+	public int minAccuracy = 0;
 
 	public int maxAccuracy = 100;
 
@@ -245,7 +245,7 @@ public class MapEditorMaster : MonoBehaviour
 	public GameObject MenuAddCustomTankButton;
 
 	[Header("Campaign Settings")]
-	public int Difficulty;
+	public int Difficulty = 0;
 
 	public Slider StartLivesSlider;
 
@@ -277,11 +277,11 @@ public class MapEditorMaster : MonoBehaviour
 
 	public int PlayerMaxBullets = 5;
 
-	public int PlayerBulletType;
+	public int PlayerBulletType = 0;
 
-	public int PlayerAmountBounces;
+	public int PlayerAmountBounces = 0;
 
-	public int PlayerArmourPoints;
+	public int PlayerArmourPoints = 0;
 
 	public bool PlayerCanLayMines = true;
 
@@ -319,7 +319,7 @@ public class MapEditorMaster : MonoBehaviour
 
 	public GameObject TeamsCursorMenu;
 
-	public bool OnTeamsMenu;
+	public bool OnTeamsMenu = false;
 
 	public OnTeamsMenu OTM;
 
@@ -327,13 +327,13 @@ public class MapEditorMaster : MonoBehaviour
 
 	public GameObject SelectedPropUITexture;
 
-	public int SelectedPropUITextureMenu;
+	public int SelectedPropUITextureMenu = 0;
 
-	public int MenuCurrent;
+	public int MenuCurrent = 0;
 
 	public Vector3 AnimatorStartHeight;
 
-	public int ID;
+	public int ID = 0;
 
 	public int ShowIDSlider = -1;
 
@@ -407,26 +407,26 @@ public class MapEditorMaster : MonoBehaviour
 		{
 			AccountMaster.instance.StartCoroutine(AccountMaster.instance.GetCloudInventory());
 		}
-		Animator component = Camera.main.GetComponent<Animator>();
+		Animator camAnimator = Camera.main.GetComponent<Animator>();
 		if (OptionsMainMenu.instance.MapSize == 180)
 		{
 			SetMapBorder(0);
-			component.SetInteger("MapSize", 0);
+			camAnimator.SetInteger("MapSize", 0);
 		}
 		else if (OptionsMainMenu.instance.MapSize == 285)
 		{
 			SetMapBorder(1);
-			component.SetInteger("MapSize", 1);
+			camAnimator.SetInteger("MapSize", 1);
 		}
 		else if (OptionsMainMenu.instance.MapSize == 374)
 		{
 			SetMapBorder(2);
-			component.SetInteger("MapSize", 2);
+			camAnimator.SetInteger("MapSize", 2);
 		}
 		else if (OptionsMainMenu.instance.MapSize == 475)
 		{
 			SetMapBorder(3);
-			component.SetInteger("MapSize", 3);
+			camAnimator.SetInteger("MapSize", 3);
 		}
 		if (GameMaster.instance.inMapEditor)
 		{
@@ -437,21 +437,21 @@ public class MapEditorMaster : MonoBehaviour
 			LoadData();
 			LastPlacedColor = 2;
 			RawImage[] menuImages = MenuImages;
-			for (int i = 0; i < menuImages.Length; i++)
+			foreach (RawImage img in menuImages)
 			{
-				menuImages[i].color = TabNotSelectedColor;
+				img.color = TabNotSelectedColor;
 			}
 			TeleportationFields.SetActive(value: false);
-			AudioSource component2 = Camera.main.GetComponent<AudioSource>();
+			AudioSource mySrc = Camera.main.GetComponent<AudioSource>();
 			if (OptionsMainMenu.instance != null)
 			{
 				lastKnownMasterVol = OptionsMainMenu.instance.masterVolumeLvl;
 				lastKnownMusicVol = OptionsMainMenu.instance.musicVolumeLvl;
-				component2.volume = 0.1f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
+				mySrc.volume = 0.1f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
 			}
-			component2.clip = EditingModeBackgroundMusic;
-			component2.loop = true;
-			component2.Play();
+			mySrc.clip = EditingModeBackgroundMusic;
+			mySrc.loop = true;
+			mySrc.Play();
 			ShowMenu(0);
 		}
 		if (!inPlayingMode)
@@ -479,9 +479,9 @@ public class MapEditorMaster : MonoBehaviour
 	private IEnumerator LateStart()
 	{
 		StartLivesSlider.value = StartingLives;
-		for (int i = 0; i < TeamColorsToggles.Length; i++)
+		for (int j = 0; j < TeamColorsToggles.Length; j++)
 		{
-			TeamColorsToggles[i].IsEnabled = TeamColorEnabled[i];
+			TeamColorsToggles[j].IsEnabled = TeamColorEnabled[j];
 		}
 		Menus[8].transform.position += new Vector3(0f, -3000f, 0f);
 		TankeyTownItemsButton.gameObject.SetActive(value: false);
@@ -489,29 +489,30 @@ public class MapEditorMaster : MonoBehaviour
 		MapEditorDifficultyList.SetValueWithoutNotify(OptionsMainMenu.instance.currentDifficulty);
 		MapEditorDifficultyList.value = OptionsMainMenu.instance.currentDifficulty;
 		UpdateMembus();
-		int num = 0;
+		int AmountOfItems = 0;
 		if (AccountMaster.instance.Inventory.InventoryItems != null && AccountMaster.instance.Inventory.InventoryItems.Length != 0)
 		{
 			int[] inventoryItems = AccountMaster.instance.Inventory.InventoryItems;
-			foreach (int num2 in inventoryItems)
+			foreach (int item in inventoryItems)
 			{
-				for (int k = 0; k < GlobalAssets.instance.StockDatabase.Count; k++)
+				for (int i = 0; i < GlobalAssets.instance.StockDatabase.Count; i++)
 				{
-					if (num2 == GlobalAssets.instance.StockDatabase[k].ItemID && GlobalAssets.instance.StockDatabase[k].IsMapEditorObject)
+					if (item == GlobalAssets.instance.StockDatabase[i].ItemID && GlobalAssets.instance.StockDatabase[i].IsMapEditorObject)
 					{
-						ItemsPlayerHas.Add(GlobalAssets.instance.StockDatabase[k]);
-						num++;
-						MapEditorUIprop component = UnityEngine.Object.Instantiate(MenuItemPrefab, TankeyTownListParent.transform).GetComponent<MapEditorUIprop>();
-						if ((bool)component)
+						ItemsPlayerHas.Add(GlobalAssets.instance.StockDatabase[i]);
+						AmountOfItems++;
+						GameObject newListItem = UnityEngine.Object.Instantiate(MenuItemPrefab, TankeyTownListParent.transform);
+						MapEditorUIprop MEUP = newListItem.GetComponent<MapEditorUIprop>();
+						if ((bool)MEUP)
 						{
-							component.PropID = GlobalAssets.instance.StockDatabase[k].MapEditorPropID;
-							component.customTex = GlobalAssets.instance.StockDatabase[k].ItemTexture;
+							MEUP.PropID = GlobalAssets.instance.StockDatabase[i].MapEditorPropID;
+							MEUP.customTex = GlobalAssets.instance.StockDatabase[i].ItemTexture;
 						}
 					}
 				}
 			}
 		}
-		if (num > 0)
+		if (AmountOfItems > 0)
 		{
 			TankeyTownItemsButton.gameObject.SetActive(value: true);
 		}
@@ -656,59 +657,59 @@ public class MapEditorMaster : MonoBehaviour
 		if (MenuCurrent == 6)
 		{
 			StartingLives = Mathf.RoundToInt(StartLivesSlider.value);
-			int num = (OptionsMainMenu.instance.AMselected.Contains(63) ? 1000 : 50);
-			StartLivesSlider.maxValue = num;
+			int startingLives = (OptionsMainMenu.instance.AMselected.Contains(63) ? 1000 : 50);
+			StartLivesSlider.maxValue = startingLives;
 			if (StartingLives < 1)
 			{
 				StartingLives = 1;
 			}
-			else if (StartingLives > num)
+			else if (StartingLives > startingLives)
 			{
-				StartingLives = num;
+				StartingLives = startingLives;
 			}
 			PlayerSpeed = Mathf.RoundToInt(PlayerSpeedSlider.value);
-			int num2 = (OptionsMainMenu.instance.AMselected.Contains(63) ? 1000 : 100);
-			PlayerSpeedSlider.maxValue = num2;
+			int maxSpeed = (OptionsMainMenu.instance.AMselected.Contains(63) ? 1000 : 100);
+			PlayerSpeedSlider.maxValue = maxSpeed;
 			if (PlayerSpeed < 0)
 			{
 				PlayerSpeed = 0;
 			}
-			else if (PlayerSpeed > num2)
+			else if (PlayerSpeed > maxSpeed)
 			{
-				PlayerSpeed = num2;
+				PlayerSpeed = maxSpeed;
 			}
 			PlayerMaxBullets = Mathf.RoundToInt(PlayerMaxBulletsSlider.value);
-			int num3 = (OptionsMainMenu.instance.AMselected.Contains(63) ? 100 : 10);
-			PlayerMaxBulletsSlider.maxValue = num3;
+			int maxBullets = (OptionsMainMenu.instance.AMselected.Contains(63) ? 100 : 10);
+			PlayerMaxBulletsSlider.maxValue = maxBullets;
 			if (PlayerMaxBullets < 0)
 			{
 				PlayerMaxBullets = 0;
 			}
-			else if (PlayerMaxBullets > num3)
+			else if (PlayerMaxBullets > maxBullets)
 			{
-				PlayerMaxBullets = num3;
+				PlayerMaxBullets = maxBullets;
 			}
 			PlayerAmountBounces = Mathf.RoundToInt(PlayerBouncesSlider.value);
-			int num4 = (OptionsMainMenu.instance.AMselected.Contains(63) ? 100 : 10);
-			PlayerBouncesSlider.maxValue = num4;
+			int maxBounces = (OptionsMainMenu.instance.AMselected.Contains(63) ? 100 : 10);
+			PlayerBouncesSlider.maxValue = maxBounces;
 			if (PlayerAmountBounces < 0)
 			{
 				PlayerAmountBounces = 0;
 			}
-			else if (PlayerAmountBounces > num4)
+			else if (PlayerAmountBounces > maxBounces)
 			{
-				PlayerAmountBounces = num4;
+				PlayerAmountBounces = maxBounces;
 			}
 			PlayerArmourPoints = Mathf.RoundToInt(PlayerArmourPointsSlider.value);
-			int num5 = (OptionsMainMenu.instance.AMselected.Contains(63) ? 100 : 20);
-			PlayerArmourPointsSlider.maxValue = num5;
+			int maxPoints = (OptionsMainMenu.instance.AMselected.Contains(63) ? 100 : 20);
+			PlayerArmourPointsSlider.maxValue = maxPoints;
 			if (PlayerArmourPoints < 0)
 			{
 				PlayerArmourPoints = 0;
 			}
-			else if (PlayerArmourPoints > num5)
+			else if (PlayerArmourPoints > maxPoints)
 			{
-				PlayerArmourPoints = num5;
+				PlayerArmourPoints = maxPoints;
 			}
 			PlayerBulletType = PlayerBulletTypeList.value;
 			Difficulty = DifficultyList.value;
@@ -750,13 +751,13 @@ public class MapEditorMaster : MonoBehaviour
 			else
 			{
 				CustomTankExampleRocketHolder.SetActive(value: true);
-				for (int j = 0; j < 4; j++)
+				for (int k = 0; k < 4; k++)
 				{
-					CustomTankExampleRockets[j].SetActive(value: false);
+					CustomTankExampleRockets[k].SetActive(value: false);
 				}
-				for (int k = 0; k < CustomTankDatas[SelectedCustomTank].CustomMissileCapacity; k++)
+				for (int l = 0; l < CustomTankDatas[SelectedCustomTank].CustomMissileCapacity; l++)
 				{
-					CustomTankExampleRockets[k].SetActive(value: true);
+					CustomTankExampleRockets[l].SetActive(value: true);
 				}
 			}
 			CustomTankDatas[SelectedCustomTank].CustomTankName = CustomTankInputName.text;
@@ -811,7 +812,7 @@ public class MapEditorMaster : MonoBehaviour
 				CustomTankDatas[SelectedCustomTank].CustomFireSpeed = maxFireSpeed;
 			}
 			CustomTankDatas[SelectedCustomTank].CustomBounces = Mathf.RoundToInt(AmountBouncesField.value);
-			AmountBouncesField.maxValue = (OptionsMainMenu.instance.AMselected.Contains(63) ? maxBouncesBoosted : maxBounces);
+			AmountBouncesField.maxValue = (OptionsMainMenu.instance.AMselected.Contains(63) ? maxBouncesBoosted : this.maxBounces);
 			if (CustomTankDatas[SelectedCustomTank].CustomBounces < minBounces)
 			{
 				CustomTankDatas[SelectedCustomTank].CustomBounces = minBounces;
@@ -825,9 +826,9 @@ public class MapEditorMaster : MonoBehaviour
 			{
 				CustomTankDatas[SelectedCustomTank].CustomBullets = minBullets;
 			}
-			else if (CustomTankDatas[SelectedCustomTank].CustomBullets > maxBullets)
+			else if (CustomTankDatas[SelectedCustomTank].CustomBullets > this.maxBullets)
 			{
-				CustomTankDatas[SelectedCustomTank].CustomBullets = maxBullets;
+				CustomTankDatas[SelectedCustomTank].CustomBullets = this.maxBullets;
 			}
 			CustomTankDatas[SelectedCustomTank].CustomMineSpeed = Mathf.Floor(MineLaySpeedField.value * 100f) / 100f;
 			if (CustomTankDatas[SelectedCustomTank].CustomMineSpeed < minMineSpeed)
@@ -856,20 +857,20 @@ public class MapEditorMaster : MonoBehaviour
 			{
 				CustomTankDatas[SelectedCustomTank].CustomAccuracy = maxAccuracy;
 			}
-			for (int l = 0; l < CustomTankExampleRenderers.Length; l++)
+			for (int j = 0; j < CustomTankExampleRenderers.Length; j++)
 			{
-				if (l == 0)
+				if (j == 0)
 				{
-					Material[] materials = CustomTankExampleRenderers[l].materials;
-					materials[1].color = CustomTankMaterialSource.material.GetColor("_Color1");
-					materials[2].color = CustomTankMaterialSource.material.GetColor("_Color1");
-					CustomTankExampleRenderers[l].materials = materials;
+					Material[] mats2 = CustomTankExampleRenderers[j].materials;
+					mats2[1].color = CustomTankMaterialSource.material.GetColor("_Color1");
+					mats2[2].color = CustomTankMaterialSource.material.GetColor("_Color1");
+					CustomTankExampleRenderers[j].materials = mats2;
 				}
 				else
 				{
-					Material[] materials2 = CustomTankExampleRenderers[l].materials;
-					materials2[0].color = CustomTankMaterialSource.material.GetColor("_Color1");
-					CustomTankExampleRenderers[l].materials = materials2;
+					Material[] mats = CustomTankExampleRenderers[j].materials;
+					mats[0].color = CustomTankMaterialSource.material.GetColor("_Color1");
+					CustomTankExampleRenderers[j].materials = mats;
 				}
 			}
 			CustomTankDatas[SelectedCustomTank].CustomTankColor.Color = CustomTankMaterialSource.material.GetColor("_Color1");
@@ -890,7 +891,8 @@ public class MapEditorMaster : MonoBehaviour
 		{
 			lastKnownMusicVol = OptionsMainMenu.instance.musicVolumeLvl;
 			lastKnownMasterVol = OptionsMainMenu.instance.masterVolumeLvl;
-			Camera.main.GetComponent<AudioSource>().volume = 0.1f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
+			AudioSource mySrc = Camera.main.GetComponent<AudioSource>();
+			mySrc.volume = 0.1f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
 		}
 	}
 
@@ -917,8 +919,11 @@ public class MapEditorMaster : MonoBehaviour
 		if (FCP != null)
 		{
 			_ = CustomMaterial[customtank].color;
-			FCP.startingColor = CustomMaterial[customtank].color;
-			FCP.color = CustomMaterial[customtank].color;
+			if (true)
+			{
+				FCP.startingColor = CustomMaterial[customtank].color;
+				FCP.color = CustomMaterial[customtank].color;
+			}
 		}
 		SelectedCustomTank = customtank;
 		CanLayMinesToggle.IsEnabled = CustomTankDatas[customtank].CustomLayMines;
@@ -940,16 +945,16 @@ public class MapEditorMaster : MonoBehaviour
 		{
 			if (i == 0)
 			{
-				Material[] materials = CustomTankExampleRenderers[i].materials;
-				materials[1].color = CustomTankMaterialSource.material.GetColor("_Color1");
-				materials[2].color = CustomTankMaterialSource.material.GetColor("_Color1");
-				CustomTankExampleRenderers[i].materials = materials;
+				Material[] mats2 = CustomTankExampleRenderers[i].materials;
+				mats2[1].color = CustomTankMaterialSource.material.GetColor("_Color1");
+				mats2[2].color = CustomTankMaterialSource.material.GetColor("_Color1");
+				CustomTankExampleRenderers[i].materials = mats2;
 			}
 			else
 			{
-				Material[] materials2 = CustomTankExampleRenderers[i].materials;
-				materials2[0].color = CustomTankMaterialSource.material.GetColor("_Color1");
-				CustomTankExampleRenderers[i].materials = materials2;
+				Material[] mats = CustomTankExampleRenderers[i].materials;
+				mats[0].color = CustomTankMaterialSource.material.GetColor("_Color1");
+				CustomTankExampleRenderers[i].materials = mats;
 			}
 		}
 		CustomTankDatas[SelectedCustomTank].CustomTankColor.Color = CustomTankMaterialSource.material.GetColor("_Color1");
@@ -974,8 +979,8 @@ public class MapEditorMaster : MonoBehaviour
 		}
 		else if (ShowIDSlider == 1)
 		{
-			float customFireSpeed = CustomTankDatas[SelectedCustomTank].CustomFireSpeed;
-			OnCursorText.text = customFireSpeed.ToString();
+			float redoneData = CustomTankDatas[SelectedCustomTank].CustomFireSpeed;
+			OnCursorText.text = redoneData.ToString();
 			OnCursorText.transform.gameObject.SetActive(value: true);
 		}
 		else if (ShowIDSlider == 2)
@@ -985,8 +990,8 @@ public class MapEditorMaster : MonoBehaviour
 		}
 		else if (ShowIDSlider == 3)
 		{
-			float num = Mathf.Round(1f / (10.5f - CustomTankDatas[SelectedCustomTank].CustomMineSpeed) * 100f) / 100f;
-			OnCursorText.text = num.ToString();
+			float redoneData2 = Mathf.Round(1f / (10.5f - CustomTankDatas[SelectedCustomTank].CustomMineSpeed) * 100f) / 100f;
+			OnCursorText.text = redoneData2.ToString();
 			OnCursorText.transform.gameObject.SetActive(value: true);
 		}
 		else if (ShowIDSlider == 4)
@@ -1103,13 +1108,13 @@ public class MapEditorMaster : MonoBehaviour
 
 	public void LoadData()
 	{
-		MapEditorData mapEditorData = null;
+		MapEditorData theData = null;
 		if ((bool)OptionsMainMenu.instance.ClassicMap)
 		{
-			SingleMapEditorData item = SavingMapEditorData.LoadDataFromTXT(OptionsMainMenu.instance.ClassicMap);
-			GameObject item2 = UnityEngine.Object.Instantiate(LevelPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
-			GameMaster.instance.Levels.Add(item2);
-			Levels.Add(item);
+			SingleMapEditorData SMED = SavingMapEditorData.LoadDataFromTXT(OptionsMainMenu.instance.ClassicMap);
+			GameObject newLevels = UnityEngine.Object.Instantiate(LevelPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
+			GameMaster.instance.Levels.Add(newLevels);
+			Levels.Add(SMED);
 			playerOnePlaced.Add(0);
 			playerTwoPlaced.Add(0);
 			playerThreePlaced.Add(0);
@@ -1118,27 +1123,27 @@ public class MapEditorMaster : MonoBehaviour
 			StartCoroutine(PlaceAllProps(Levels[0].MissionDataProps, oldVersion: false, 0));
 			return;
 		}
-		mapEditorData = SavingMapEditorData.LoadData(OptionsMainMenu.instance.MapEditorMapName);
-		if (mapEditorData == null && !OptionsMainMenu.instance.ClassicMap)
+		theData = SavingMapEditorData.LoadData(OptionsMainMenu.instance.MapEditorMapName);
+		if (theData == null && !OptionsMainMenu.instance.ClassicMap)
 		{
 			Debug.Log("no data found");
-			GameObject item3 = UnityEngine.Object.Instantiate(LevelPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
-			GameMaster.instance.Levels.Add(item3);
+			GameObject singleLevel = UnityEngine.Object.Instantiate(LevelPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
+			GameMaster.instance.Levels.Add(singleLevel);
 			CreateNewLevel(isBrandNew: true);
 			return;
 		}
-		int missionAmount = mapEditorData.missionAmount;
-		Debug.LogError("MISSION AMOUNT IS:" + missionAmount);
-		GameMaster.instance.NightLevels = mapEditorData.nightMissions;
-		List<string> list = mapEditorData.missionNames.ToList();
-		campaignName = mapEditorData.campaignName;
-		signedName = mapEditorData.signedName;
-		StartingLives = mapEditorData.StartingLives;
-		if (mapEditorData.TeamColorsShowing != null)
+		int missions = theData.missionAmount;
+		Debug.LogError("MISSION AMOUNT IS:" + missions);
+		GameMaster.instance.NightLevels = theData.nightMissions;
+		List<string> thenames = theData.missionNames.ToList();
+		campaignName = theData.campaignName;
+		signedName = theData.signedName;
+		StartingLives = theData.StartingLives;
+		if (theData.TeamColorsShowing != null)
 		{
-			TeamColorEnabled = mapEditorData.TeamColorsShowing;
+			TeamColorEnabled = theData.TeamColorsShowing;
 		}
-		if (mapEditorData.VersionCreated == "v0.7.9" || mapEditorData.VersionCreated == "v0.7.8")
+		if (theData.VersionCreated == "v0.7.9" || theData.VersionCreated == "v0.7.8")
 		{
 			PlayerSpeed = 65;
 			PlayerMaxBullets = 5;
@@ -1149,12 +1154,12 @@ public class MapEditorMaster : MonoBehaviour
 		}
 		else
 		{
-			PlayerSpeed = mapEditorData.PTS;
-			PlayerMaxBullets = mapEditorData.PMB;
-			PlayerCanLayMines = mapEditorData.PCLM;
-			PlayerArmourPoints = mapEditorData.PAP;
-			PlayerBulletType = mapEditorData.PBT;
-			PlayerAmountBounces = mapEditorData.PAB;
+			PlayerSpeed = theData.PTS;
+			PlayerMaxBullets = theData.PMB;
+			PlayerCanLayMines = theData.PCLM;
+			PlayerArmourPoints = theData.PAP;
+			PlayerBulletType = theData.PBT;
+			PlayerAmountBounces = theData.PAB;
 		}
 		if (!inPlayingMode)
 		{
@@ -1162,40 +1167,40 @@ public class MapEditorMaster : MonoBehaviour
 			PlayerMaxBulletsSlider.value = PlayerMaxBullets;
 			PlayerBouncesSlider.value = PlayerAmountBounces;
 			PlayerBulletTypeList.value = PlayerBulletType;
-			DifficultyList.value = mapEditorData.difficulty;
+			DifficultyList.value = theData.difficulty;
 			PlayerArmourPointsSlider.value = PlayerArmourPoints;
 			PlayerCanLayMinesToggle.IsEnabled = PlayerCanLayMines;
 		}
-		SetCustomTankData(mapEditorData);
-		GameObject item4 = UnityEngine.Object.Instantiate(LevelPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
-		GameMaster.instance.Levels.Add(item4);
-		for (int j = 0; j < mapEditorData.MissionMessages.Count; j++)
+		SetCustomTankData(theData);
+		GameObject newLevel = UnityEngine.Object.Instantiate(LevelPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
+		GameMaster.instance.Levels.Add(newLevel);
+		for (int j = 0; j < theData.MissionMessages.Count; j++)
 		{
-			Debug.Log(mapEditorData.MissionMessages[j]);
+			Debug.Log(theData.MissionMessages[j]);
 		}
 		int i;
-		for (i = 0; i < missionAmount; i++)
+		for (i = 0; i < missions; i++)
 		{
-			SingleMapEditorData singleMapEditorData = new SingleMapEditorData(null, null);
-			singleMapEditorData.MissionDataProps = mapEditorData.MissionDataProps.FindAll((MapPiecesClass x) => x.missionNumber == i);
-			if (mapEditorData.MissionMessages != null && mapEditorData.MissionMessages.Count > 0 && mapEditorData.MissionMessages[i] != null)
+			SingleMapEditorData newSMED = new SingleMapEditorData(null, null);
+			newSMED.MissionDataProps = theData.MissionDataProps.FindAll((MapPiecesClass x) => x.missionNumber == i);
+			if (theData.MissionMessages != null && theData.MissionMessages.Count > 0 && theData.MissionMessages[i] != null)
 			{
-				singleMapEditorData.MissionMessage = mapEditorData.MissionMessages[i];
+				newSMED.MissionMessage = theData.MissionMessages[i];
 				if (i == 0)
 				{
-					MissionMessageInputField.SetTextWithoutNotify(mapEditorData.MissionMessages[i]);
+					MissionMessageInputField.SetTextWithoutNotify(theData.MissionMessages[i]);
 				}
 			}
 			for (int k = 0; k < OptionsMainMenu.instance.MapSize; k++)
 			{
-				singleMapEditorData.MissionDataProps[k].ID = k;
+				newSMED.MissionDataProps[k].ID = k;
 			}
 			GameMaster.instance.MissionNames.Add("Level " + Levels.Count);
-			Levels.Add(singleMapEditorData);
+			Levels.Add(newSMED);
 			CreateNewLevel(isBrandNew: false);
-			if (list.ElementAtOrDefault(i) != null)
+			if (thenames.ElementAtOrDefault(i) != null)
 			{
-				GameMaster.instance.MissionNames[i] = list[i];
+				GameMaster.instance.MissionNames[i] = thenames[i];
 			}
 			else
 			{
@@ -1203,28 +1208,28 @@ public class MapEditorMaster : MonoBehaviour
 			}
 		}
 		bool oldVersion = false;
-		if (mapEditorData.VersionCreated == "v0.7.9" || mapEditorData.VersionCreated == "v0.7.8" || mapEditorData.VersionCreated == "v0.7.10" || mapEditorData.VersionCreated == "v0.7.11" || mapEditorData.VersionCreated == "v0.7.12" || mapEditorData.VersionCreated == "v0.8.0a" || mapEditorData.VersionCreated == "v0.8.0b" || mapEditorData.VersionCreated == "v0.8.0c")
+		if (theData.VersionCreated == "v0.7.9" || theData.VersionCreated == "v0.7.8" || theData.VersionCreated == "v0.7.10" || theData.VersionCreated == "v0.7.11" || theData.VersionCreated == "v0.7.12" || theData.VersionCreated == "v0.8.0a" || theData.VersionCreated == "v0.8.0b" || theData.VersionCreated == "v0.8.0c")
 		{
 			oldVersion = true;
 		}
 		StartCoroutine(PlaceAllProps(Levels[0].MissionDataProps, oldVersion, 0));
 		NightToggler.IsEnabled = (GameMaster.instance.NightLevels.Contains(0) ? true : false);
 		NoBordersToggler.IsEnabled = (NoBordersMissions.Contains(0) ? true : false);
-		PID = mapEditorData.PID;
-		IsPublished = mapEditorData.isPublished;
-		if (mapEditorData.WeatherTypes != null && mapEditorData.WeatherTypes.Length != 0)
+		PID = theData.PID;
+		IsPublished = theData.isPublished;
+		if (theData.WeatherTypes != null && theData.WeatherTypes.Length != 0)
 		{
-			WeatherTypes = mapEditorData.WeatherTypes;
+			WeatherTypes = theData.WeatherTypes;
 			WeatherList.value = WeatherTypes[0];
 		}
-		if (mapEditorData.MissionFloorTextures != null && mapEditorData.MissionFloorTextures.Length != 0)
+		if (theData.MissionFloorTextures != null && theData.MissionFloorTextures.Length != 0)
 		{
-			MissionFloorTextures = mapEditorData.MissionFloorTextures;
+			MissionFloorTextures = theData.MissionFloorTextures;
 			FloorDropdown.value = MissionFloorTextures[0];
 		}
-		if (mapEditorData.NoBordersMissions != null)
+		if (theData.NoBordersMissions != null)
 		{
-			NoBordersMissions = mapEditorData.NoBordersMissions;
+			NoBordersMissions = theData.NoBordersMissions;
 			if (NoBordersMissions.Count < 1)
 			{
 				NoBordersToggler.IsEnabled = true;
@@ -1241,12 +1246,12 @@ public class MapEditorMaster : MonoBehaviour
 		if (theData.CTD != null && theData.CTD.Count > 0)
 		{
 			CustomTankDatas = theData.CTD;
-			for (int i = 0; i < theData.CTD.Count; i++)
+			for (int j = 0; j < theData.CTD.Count; j++)
 			{
-				Material material = new Material(Shader.Find("Standard"));
-				material.color = CustomTankDatas[i].CustomTankColor.Color;
-				material.name = "CustomTank";
-				CustomMaterial.Add(material);
+				Material M2 = new Material(Shader.Find("Standard"));
+				M2.color = CustomTankDatas[j].CustomTankColor.Color;
+				M2.name = "CustomTank";
+				CustomMaterial.Add(M2);
 			}
 		}
 		else
@@ -1255,37 +1260,40 @@ public class MapEditorMaster : MonoBehaviour
 			{
 				return;
 			}
-			for (int j = 0; j < 3; j++)
+			for (int i = 0; i < 3; i++)
 			{
 				CustomTankDatas.Add(new CustomTankData());
-				CustomTankDatas[j].CustomTankSpeed = theData.CustomTankSpeed[j];
-				CustomTankDatas[j].CustomFireSpeed = theData.CustomFireSpeed[j];
-				CustomTankDatas[j].CustomBounces = theData.CustomBounces[j];
-				CustomTankDatas[j].CustomMineSpeed = theData.CustomMineSpeed[j];
-				CustomTankDatas[j].CustomTurnHead = theData.CustomTurnHead[j];
-				CustomTankDatas[j].CustomAccuracy = theData.CustomAccuracy[j];
-				CustomTankDatas[j].CustomLayMines = theData.LayMines[j];
-				CustomTankDatas[j].CustomTankColor = theData.CTC[j];
-				_ = theData.CTC[j].Color;
-				Material item = new Material(Shader.Find("Standard"));
-				CustomMaterial.Add(item);
-				CustomMaterial[j].color = theData.CTC[j].Color;
-				CustomTankDatas[j].CustomBulletType = theData.CustomBulletType[j];
-				CustomTankDatas[j].CustomArmoured = theData.CustomArmoured[j];
-				CustomTankDatas[j].CustomArmourPoints = theData.CustomArmourPoints[j];
-				CustomTankDatas[j].CustomInvisibility = theData.CustomInvisibility[j];
-				CustomTankDatas[j].CustomCalculateShots = theData.CustomCalculateShots[j];
+				CustomTankDatas[i].CustomTankSpeed = theData.CustomTankSpeed[i];
+				CustomTankDatas[i].CustomFireSpeed = theData.CustomFireSpeed[i];
+				CustomTankDatas[i].CustomBounces = theData.CustomBounces[i];
+				CustomTankDatas[i].CustomMineSpeed = theData.CustomMineSpeed[i];
+				CustomTankDatas[i].CustomTurnHead = theData.CustomTurnHead[i];
+				CustomTankDatas[i].CustomAccuracy = theData.CustomAccuracy[i];
+				CustomTankDatas[i].CustomLayMines = theData.LayMines[i];
+				CustomTankDatas[i].CustomTankColor = theData.CTC[i];
+				_ = theData.CTC[i].Color;
+				if (true)
+				{
+					Material M = new Material(Shader.Find("Standard"));
+					CustomMaterial.Add(M);
+					CustomMaterial[i].color = theData.CTC[i].Color;
+				}
+				CustomTankDatas[i].CustomBulletType = theData.CustomBulletType[i];
+				CustomTankDatas[i].CustomArmoured = theData.CustomArmoured[i];
+				CustomTankDatas[i].CustomArmourPoints = theData.CustomArmourPoints[i];
+				CustomTankDatas[i].CustomInvisibility = theData.CustomInvisibility[i];
+				CustomTankDatas[i].CustomCalculateShots = theData.CustomCalculateShots[i];
 				if (theData.CustomBullets != null && theData.CustomBullets.Count > 0)
 				{
-					CustomTankDatas[j].CustomBullets = theData.CustomBullets[j];
+					CustomTankDatas[i].CustomBullets = theData.CustomBullets[i];
 				}
 				if (theData.CustomMusic != null && theData.CustomMusic.Count > 0)
 				{
-					CustomTankDatas[j].CustomMusic = theData.CustomMusic[j];
+					CustomTankDatas[i].CustomMusic = theData.CustomMusic[i];
 				}
 				if (theData.CustomScalePoints != null && theData.CustomScalePoints.Count > 1)
 				{
-					CustomTankDatas[j].CustomTankScale = theData.CustomScalePoints[j];
+					CustomTankDatas[i].CustomTankScale = theData.CustomScalePoints[i];
 				}
 			}
 		}
@@ -1302,130 +1310,102 @@ public class MapEditorMaster : MonoBehaviour
 		int currMission = 0;
 		yield return new WaitForSeconds(0.01f);
 		GameMaster.instance.Levels[0].SetActive(value: true);
-		GameObject[] array = GameObject.FindGameObjectsWithTag("MapeditorField");
-		foreach (GameObject gameObject in array)
+		GameObject[] allGridPieces = GameObject.FindGameObjectsWithTag("MapeditorField");
+		GameObject[] array = allGridPieces;
+		foreach (GameObject piece in array)
 		{
-			MapEditorGridPiece MEGP = gameObject.GetComponent<MapEditorGridPiece>();
-			MapPiecesClass mapPiecesClass = allPropData.Find((MapPiecesClass x) => x.ID == MEGP.ID);
-			if (mapPiecesClass == null)
+			MapEditorGridPiece MEGP = piece.GetComponent<MapEditorGridPiece>();
+			MapPiecesClass myClass = allPropData.Find((MapPiecesClass x) => x.ID == MEGP.ID);
+			if (myClass == null)
 			{
 				continue;
 			}
-			if (mapPiecesClass.propID.Length < 3 || oldVersion)
+			if (myClass.propID.Length < 3 || oldVersion)
 			{
-				int num = Convert.ToInt32(mapPiecesClass.propID);
-				if (num == -1)
+				int propID = Convert.ToInt32(myClass.propID);
+				if (propID == -1)
 				{
 					continue;
 				}
-				int direction = Convert.ToInt32(mapPiecesClass.propRotation);
-				int num2 = Convert.ToInt32(mapPiecesClass.TeamColor);
-				if (num > -1)
+				int propRotation = Convert.ToInt32(myClass.propRotation);
+				int propTeam = Convert.ToInt32(myClass.TeamColor);
+				if (propID > -1)
 				{
-					switch (num)
+					if (propID == 4)
 					{
-					case 4:
-						playerOnePlaced[mapPiecesClass.missionNumber]++;
-						break;
-					case 5:
-						playerTwoPlaced[mapPiecesClass.missionNumber]++;
-						break;
-					case 28:
-						playerThreePlaced[mapPiecesClass.missionNumber]++;
-						break;
-					case 29:
-						playerFourPlaced[mapPiecesClass.missionNumber]++;
-						break;
-					case 6:
-					case 7:
-					case 8:
-					case 9:
-					case 10:
-					case 11:
-					case 12:
-					case 13:
-					case 14:
-					case 15:
-					case 16:
-					case 17:
-					case 18:
-					case 19:
-					case 20:
-					case 21:
-					case 22:
-					case 23:
-					case 24:
-					case 25:
-					case 26:
-					case 27:
-					case 30:
-					case 31:
-					case 32:
-					case 33:
-					case 34:
-					case 35:
-					case 36:
-					case 37:
-					case 38:
-					case 39:
-						enemyTanksPlaced[mapPiecesClass.missionNumber]++;
-						break;
+						playerOnePlaced[myClass.missionNumber]++;
 					}
-					MEGP.MyTeamNumber = num2;
-					switch (num)
+					else if (propID == 5)
+					{
+						playerTwoPlaced[myClass.missionNumber]++;
+					}
+					else if (propID == 28)
+					{
+						playerThreePlaced[myClass.missionNumber]++;
+					}
+					else if (propID == 29)
+					{
+						playerFourPlaced[myClass.missionNumber]++;
+					}
+					else if (propID > 5 && propID < 40)
+					{
+						enemyTanksPlaced[myClass.missionNumber]++;
+					}
+					MEGP.MyTeamNumber = propTeam;
+					switch (propID)
 					{
 					case 41:
-						MEGP.SpawnInProps(0, direction, num2, 0, 0);
-						MEGP.SpawnInProps(41, direction, num2, 1, 0);
+						MEGP.SpawnInProps(0, propRotation, propTeam, 0, 0);
+						MEGP.SpawnInProps(41, propRotation, propTeam, 1, 0);
 						break;
 					case 42:
-						MEGP.SpawnInProps(1, direction, num2, 0, 0);
-						MEGP.SpawnInProps(42, direction, num2, 1, 0);
+						MEGP.SpawnInProps(1, propRotation, propTeam, 0, 0);
+						MEGP.SpawnInProps(42, propRotation, propTeam, 1, 0);
 						break;
 					case 43:
-						MEGP.SpawnInProps(1, direction, num2, 0, 0);
-						MEGP.SpawnInProps(1, direction, num2, 1, 0);
+						MEGP.SpawnInProps(1, propRotation, propTeam, 0, 0);
+						MEGP.SpawnInProps(1, propRotation, propTeam, 1, 0);
 						break;
 					case 44:
-						MEGP.SpawnInProps(0, direction, num2, 0, 0);
-						MEGP.SpawnInProps(0, direction, num2, 1, 0);
+						MEGP.SpawnInProps(0, propRotation, propTeam, 0, 0);
+						MEGP.SpawnInProps(0, propRotation, propTeam, 1, 0);
 						break;
 					default:
-						MEGP.SpawnInProps(num, direction, num2, 0, 0);
+						MEGP.SpawnInProps(propID, propRotation, propTeam, 0, 0);
 						break;
 					}
 				}
 				continue;
 			}
-			for (int j = 0; j < 5; j++)
+			for (int i = 0; i < 5; i++)
 			{
-				if (mapPiecesClass.propID[j] > -1)
+				if (myClass.propID[i] > -1)
 				{
-					if (mapPiecesClass.propID[j] == 4)
+					if (myClass.propID[i] == 4)
 					{
-						playerOnePlaced[mapPiecesClass.missionNumber]++;
+						playerOnePlaced[myClass.missionNumber]++;
 					}
-					else if (mapPiecesClass.propID[j] == 5)
+					else if (myClass.propID[i] == 5)
 					{
-						playerTwoPlaced[mapPiecesClass.missionNumber]++;
+						playerTwoPlaced[myClass.missionNumber]++;
 					}
-					else if (mapPiecesClass.propID[j] == 28)
+					else if (myClass.propID[i] == 28)
 					{
-						playerThreePlaced[mapPiecesClass.missionNumber]++;
+						playerThreePlaced[myClass.missionNumber]++;
 					}
-					else if (mapPiecesClass.propID[j] == 29)
+					else if (myClass.propID[i] == 29)
 					{
-						playerFourPlaced[mapPiecesClass.missionNumber]++;
+						playerFourPlaced[myClass.missionNumber]++;
 					}
-					else if ((mapPiecesClass.propID[j] > 5 && mapPiecesClass.propID[j] < 40) || mapPiecesClass.propID[j] == 1001 || mapPiecesClass.propID[j] == 1003)
+					else if ((myClass.propID[i] > 5 && myClass.propID[i] < 40) || myClass.propID[i] == 1001 || myClass.propID[i] == 1003)
 					{
-						enemyTanksPlaced[mapPiecesClass.missionNumber]++;
+						enemyTanksPlaced[myClass.missionNumber]++;
 					}
-					Convert.ToInt32(mapPiecesClass.SpawnDifficulty);
-					MEGP.MyTeamNumber = mapPiecesClass.TeamColor[j];
-					MEGP.SpawnDifficulty = mapPiecesClass.SpawnDifficulty;
+					Convert.ToInt32(myClass.SpawnDifficulty);
+					MEGP.MyTeamNumber = myClass.TeamColor[i];
+					MEGP.SpawnDifficulty = myClass.SpawnDifficulty;
 					MEGP.mission = missionnumber;
-					MEGP.SpawnInProps(mapPiecesClass.propID[j], mapPiecesClass.propRotation[j], mapPiecesClass.TeamColor[j], j, mapPiecesClass.SpawnDifficulty);
+					MEGP.SpawnInProps(myClass.propID[i], myClass.propRotation[i], myClass.TeamColor[i], i, myClass.SpawnDifficulty);
 				}
 			}
 		}
@@ -1449,13 +1429,13 @@ public class MapEditorMaster : MonoBehaviour
 
 	public string RandomStringGenerator(int lenght)
 	{
-		string text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-		string text2 = "";
+		string characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+		string generated_string = "";
 		for (int i = 0; i < lenght; i++)
 		{
-			text2 += text[UnityEngine.Random.Range(0, text.Length)];
+			generated_string += characters[UnityEngine.Random.Range(0, characters.Length)];
 		}
-		return text2;
+		return generated_string;
 	}
 
 	public void ShowMenu(int menu)
@@ -1476,17 +1456,17 @@ public class MapEditorMaster : MonoBehaviour
 			{
 				if (CustomTankDatas[i] != null)
 				{
-					GameObject gameObject = UnityEngine.Object.Instantiate(CustomTankMenuItem, CustomTankUIParent);
-					gameObject.transform.SetSiblingIndex(i);
-					SpawnedCustomTankUI.Add(gameObject);
-					MapEditorUIprop component = gameObject.GetComponent<MapEditorUIprop>();
-					if ((bool)component)
+					GameObject NewUITank = UnityEngine.Object.Instantiate(CustomTankMenuItem, CustomTankUIParent);
+					NewUITank.transform.SetSiblingIndex(i);
+					SpawnedCustomTankUI.Add(NewUITank);
+					MapEditorUIprop MEUP = NewUITank.GetComponent<MapEditorUIprop>();
+					if ((bool)MEUP)
 					{
-						component.SecondImage.color = CustomTankDatas[i].CustomTankColor.Color;
-						component.PropID = 100 + i;
-						ButtonMouseEvents componentInChildren = component.GetComponentInChildren<ButtonMouseEvents>();
-						componentInChildren.CustomTankID = i;
-						component.myBME = componentInChildren;
+						MEUP.SecondImage.color = CustomTankDatas[i].CustomTankColor.Color;
+						MEUP.PropID = 100 + i;
+						ButtonMouseEvents BME = MEUP.GetComponentInChildren<ButtonMouseEvents>();
+						BME.CustomTankID = i;
+						MEUP.myBME = BME;
 					}
 				}
 			}
@@ -1514,8 +1494,8 @@ public class MapEditorMaster : MonoBehaviour
 		if (canChangeValues)
 		{
 			MissionFloorTextures[GameMaster.instance.CurrentMission] = FloorDropdown.value;
-			LoadModTexture component = GameMaster.instance.floor.GetComponent<LoadModTexture>();
-			if (!component || !component.IsModded)
+			LoadModTexture LMT = GameMaster.instance.floor.GetComponent<LoadModTexture>();
+			if (!LMT || !LMT.IsModded)
 			{
 				GameMaster.instance.floor.GetComponent<MeshRenderer>().material = FloorMaterials[MissionFloorTextures[GameMaster.instance.CurrentMission]];
 			}
@@ -1524,40 +1504,40 @@ public class MapEditorMaster : MonoBehaviour
 
 	public void ChangeCamera()
 	{
-		Animator component = Camera.main.GetComponent<Animator>();
-		if (component.GetBool("CameraDownEditor"))
+		Animator camAnimator = Camera.main.GetComponent<Animator>();
+		if (camAnimator.GetBool("CameraDownEditor"))
 		{
-			component.SetBool("CameraDown", value: false);
-			component.SetBool("CameraUp", value: false);
-			component.SetBool("CameraDownEditor", value: false);
-			component.SetBool("CameraUpEditor", value: true);
+			camAnimator.SetBool("CameraDown", value: false);
+			camAnimator.SetBool("CameraUp", value: false);
+			camAnimator.SetBool("CameraDownEditor", value: false);
+			camAnimator.SetBool("CameraUpEditor", value: true);
 		}
 		else
 		{
-			component.SetBool("CameraDown", value: false);
-			component.SetBool("CameraUp", value: false);
-			component.SetBool("CameraDownEditor", value: true);
-			component.SetBool("CameraUpEditor", value: false);
+			camAnimator.SetBool("CameraDown", value: false);
+			camAnimator.SetBool("CameraUp", value: false);
+			camAnimator.SetBool("CameraDownEditor", value: true);
+			camAnimator.SetBool("CameraUpEditor", value: false);
 		}
 	}
 
 	private void ActivateView(int tab)
 	{
 		SFXManager.instance.PlaySFX(MenuSwitch);
-		for (int i = 0; i < Menus.Length; i++)
+		for (int j = 0; j < Menus.Length; j++)
 		{
-			Menus[i].SetActive(value: false);
+			Menus[j].SetActive(value: false);
 		}
 		RawImage[] menuImages = MenuImages;
-		for (int j = 0; j < menuImages.Length; j++)
+		foreach (RawImage img in menuImages)
 		{
-			menuImages[j].color = TabNotSelectedColor;
+			img.color = TabNotSelectedColor;
 		}
 		if (TeamColorsToggles.Length != 0)
 		{
-			for (int k = 0; k < TeamColorsToggles.Length; k++)
+			for (int i = 0; i < TeamColorsToggles.Length; i++)
 			{
-				TeamColorsToggles[k].IsEnabled = TeamColorEnabled[k];
+				TeamColorsToggles[i].IsEnabled = TeamColorEnabled[i];
 			}
 		}
 		Menus[tab].SetActive(value: true);
@@ -1570,48 +1550,51 @@ public class MapEditorMaster : MonoBehaviour
 
 	public void NewCustomTank()
 	{
-		Material material = new Material(Shader.Find("Standard"));
-		material.name = "CustomTank";
-		CustomMaterial.Add(material);
-		CustomTankData customTankData = new CustomTankData();
-		customTankData.UniqueTankID = RandomStringGenerator(12);
-		CustomTankDatas.Add(customTankData);
+		Material M = new Material(Shader.Find("Standard"));
+		M.name = "CustomTank";
+		CustomMaterial.Add(M);
+		CustomTankData NewCustomTank = new CustomTankData();
+		NewCustomTank.UniqueTankID = RandomStringGenerator(12);
+		CustomTankDatas.Add(NewCustomTank);
 		SelectedCustomTank = CustomTankDatas.Count - 1;
 		ShowMenu(8);
 	}
 
 	public void SaveCurrentProps()
 	{
-		GameObject[] array = GameObject.FindGameObjectsWithTag("MapeditorField");
-		foreach (GameObject gameObject in array)
+		GameObject[] allMapEditorFields = GameObject.FindGameObjectsWithTag("MapeditorField");
+		GameObject[] array = allMapEditorFields;
+		foreach (GameObject field in array)
 		{
-			MapEditorGridPiece MEGP = gameObject.GetComponent<MapEditorGridPiece>();
-			for (int j = 0; j < 5; j++)
+			MapEditorGridPiece MEGP = field.GetComponent<MapEditorGridPiece>();
+			for (int i = 0; i < 5; i++)
 			{
-				if (MEGP.myPropID[j] > -1)
+				if (MEGP.myPropID[i] > -1)
 				{
-					List<MapPiecesClass> missionDataProps = Levels[GameMaster.instance.CurrentMission].MissionDataProps;
-					MapPiecesClass mapPiecesClass = missionDataProps.Find((MapPiecesClass x) => x.ID == MEGP.ID);
-					if (mapPiecesClass != null)
+					List<MapPiecesClass> TempList2 = Levels[GameMaster.instance.CurrentMission].MissionDataProps;
+					MapPiecesClass MPC2 = TempList2.Find((MapPiecesClass x) => x.ID == MEGP.ID);
+					if (MPC2 != null)
 					{
-						mapPiecesClass.propID[j] = MEGP.myPropID[j];
-						if ((bool)MEGP.myMEP[j])
+						MPC2.propID[i] = MEGP.myPropID[i];
+						if ((bool)MEGP.myMEP[i])
 						{
-							mapPiecesClass.TeamColor[j] = MEGP.myMEP[j].TeamNumber;
+							MPC2.TeamColor[i] = MEGP.myMEP[i].TeamNumber;
 						}
 						else
 						{
-							mapPiecesClass.TeamColor[j] = -1;
+							MPC2.TeamColor[i] = -1;
 						}
-						mapPiecesClass.missionNumber = MEGP.mission;
-						mapPiecesClass.propRotation[j] = MEGP.rotationDirection[j];
-						mapPiecesClass.SpawnDifficulty = MEGP.myMEP[j].MyDifficultySpawn;
-						Levels[GameMaster.instance.CurrentMission].MissionDataProps = missionDataProps;
+						MPC2.missionNumber = MEGP.mission;
+						MPC2.propRotation[i] = MEGP.rotationDirection[i];
+						MPC2.SpawnDifficulty = MEGP.myMEP[i].MyDifficultySpawn;
+						Levels[GameMaster.instance.CurrentMission].MissionDataProps = TempList2;
 					}
 				}
 				else
 				{
-					Levels[GameMaster.instance.CurrentMission].MissionDataProps.Find((MapPiecesClass x) => x.ID == MEGP.ID).propID[j] = -1;
+					List<MapPiecesClass> TempList = Levels[GameMaster.instance.CurrentMission].MissionDataProps;
+					MapPiecesClass MPC = TempList.Find((MapPiecesClass x) => x.ID == MEGP.ID);
+					MPC.propID[i] = -1;
 				}
 			}
 		}
@@ -1641,19 +1624,19 @@ public class MapEditorMaster : MonoBehaviour
 			}
 			if (isBrandNew)
 			{
-				SingleMapEditorData singleMapEditorData = new SingleMapEditorData(null, null);
+				SingleMapEditorData newSMED = new SingleMapEditorData(null, null);
 				for (int i = 0; i < OptionsMainMenu.instance.MapSize; i++)
 				{
-					MapPiecesClass mapPiecesClass = new MapPiecesClass();
-					mapPiecesClass.ID = i;
+					MapPiecesClass newMPC = new MapPiecesClass();
+					newMPC.ID = i;
 					for (int j = 0; j < 5; j++)
 					{
-						mapPiecesClass.propID[j] = -1;
+						newMPC.propID[j] = -1;
 					}
-					mapPiecesClass.missionNumber = Levels.Count;
-					singleMapEditorData.MissionDataProps.Add(mapPiecesClass);
+					newMPC.missionNumber = Levels.Count;
+					newSMED.MissionDataProps.Add(newMPC);
 				}
-				Levels.Add(singleMapEditorData);
+				Levels.Add(newSMED);
 				GameMaster.instance.MissionNames.Add("Level " + Levels.Count);
 			}
 			playerOnePlaced.Add(0);
@@ -1663,12 +1646,13 @@ public class MapEditorMaster : MonoBehaviour
 			enemyTanksPlaced.Add(0);
 			if (!inPlayingMode)
 			{
-				GameObject gameObject = UnityEngine.Object.Instantiate(LevelUIListPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
-				gameObject.transform.SetParent(ParentObjectList.transform, worldPositionStays: false);
-				LevelUIList.Add(gameObject);
-				gameObject.transform.SetSiblingIndex(gameObject.transform.parent.transform.childCount - 2);
-				gameObject.transform.localScale = new Vector3(1f, 1f, 1f);
-				gameObject.GetComponent<MapEditorMissionBarUI>().mission = Levels.Count - 1;
+				GameObject newMissionBar = UnityEngine.Object.Instantiate(LevelUIListPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
+				newMissionBar.transform.SetParent(ParentObjectList.transform, worldPositionStays: false);
+				LevelUIList.Add(newMissionBar);
+				newMissionBar.transform.SetSiblingIndex(newMissionBar.transform.parent.transform.childCount - 2);
+				newMissionBar.transform.localScale = new Vector3(1f, 1f, 1f);
+				MapEditorMissionBarUI MEMBU = newMissionBar.GetComponent<MapEditorMissionBarUI>();
+				MEMBU.mission = Levels.Count - 1;
 				UpdateMembus();
 				NoBordersToggler.IsEnabled = true;
 				MissionNameInputField.text = GameMaster.instance.MissionNames[GameMaster.instance.CurrentMission];
@@ -1682,14 +1666,14 @@ public class MapEditorMaster : MonoBehaviour
 		{
 			return;
 		}
-		foreach (GameObject levelUI in LevelUIList)
+		foreach (GameObject uilist in LevelUIList)
 		{
-			if ((bool)levelUI)
+			if ((bool)uilist)
 			{
-				MapEditorMissionBarUI component = levelUI.GetComponent<MapEditorMissionBarUI>();
-				if ((bool)component)
+				MapEditorMissionBarUI MEMBU = uilist.GetComponent<MapEditorMissionBarUI>();
+				if ((bool)MEMBU)
 				{
-					component.CheckMaster();
+					MEMBU.CheckMaster();
 				}
 			}
 		}
@@ -1697,13 +1681,14 @@ public class MapEditorMaster : MonoBehaviour
 
 	public void RemoveCurrentObjects()
 	{
-		GameObject[] array = GameObject.FindGameObjectsWithTag("MapeditorField");
-		for (int i = 0; i < array.Length; i++)
+		GameObject[] allGridPieces = GameObject.FindGameObjectsWithTag("MapeditorField");
+		GameObject[] array = allGridPieces;
+		foreach (GameObject piece in array)
 		{
-			MapEditorGridPiece component = array[i].GetComponent<MapEditorGridPiece>();
-			if ((bool)component)
+			MapEditorGridPiece MEGP = piece.GetComponent<MapEditorGridPiece>();
+			if ((bool)MEGP)
 			{
-				component.Reset();
+				MEGP.Reset();
 			}
 		}
 	}
@@ -1746,12 +1731,12 @@ public class MapEditorMaster : MonoBehaviour
 		Levels.RemoveAt(removeMission);
 		ShowPositiveMessage("SUCCES: Level " + (removeMission + 1) + " removed!");
 		GameMaster.instance.MissionNames.RemoveAt(removeMission);
-		int num = WeatherTypes[removeMission];
+		int thisWeatherType = WeatherTypes[removeMission];
 		WeatherTypes[removeMission] = WeatherTypes[removeMission + 1];
-		WeatherTypes[removeMission + 1] = num;
-		int num2 = MissionFloorTextures[removeMission];
+		WeatherTypes[removeMission + 1] = thisWeatherType;
+		int floorType = MissionFloorTextures[removeMission];
 		MissionFloorTextures[removeMission] = MissionFloorTextures[removeMission + 1];
-		MissionFloorTextures[removeMission + 1] = num2;
+		MissionFloorTextures[removeMission + 1] = floorType;
 		UnityEngine.Object.Destroy(LevelUIList[removeMission]);
 		LevelUIList.RemoveAt(removeMission);
 		UpdateMembus();
@@ -1774,29 +1759,28 @@ public class MapEditorMaster : MonoBehaviour
 
 	public void UpdateMapBorder(int missionNumber)
 	{
-		GameObject[] mapBorders;
 		if (NoBordersMissions.Contains(missionNumber))
 		{
 			Debug.Log("CONTAINED : " + missionNumber);
-			mapBorders = MapBorders;
-			for (int i = 0; i < mapBorders.Length; i++)
+			GameObject[] mapBorders = MapBorders;
+			foreach (GameObject border2 in mapBorders)
 			{
-				MapBorders component = mapBorders[i].GetComponent<MapBorders>();
-				if ((bool)component)
+				MapBorders MB2 = border2.GetComponent<MapBorders>();
+				if ((bool)MB2)
 				{
-					component.HideMapBorders();
+					MB2.HideMapBorders();
 				}
 			}
 			return;
 		}
 		Debug.Log("Showing bordars ");
-		mapBorders = MapBorders;
-		for (int i = 0; i < mapBorders.Length; i++)
+		GameObject[] mapBorders2 = MapBorders;
+		foreach (GameObject border in mapBorders2)
 		{
-			MapBorders component2 = mapBorders[i].GetComponent<MapBorders>();
-			if ((bool)component2)
+			MapBorders MB = border.GetComponent<MapBorders>();
+			if ((bool)MB)
 			{
-				component2.ShowMapBorders();
+				MB.ShowMapBorders();
 			}
 		}
 	}
@@ -1813,31 +1797,31 @@ public class MapEditorMaster : MonoBehaviour
 				int item = playerOnePlaced[mission - 1];
 				playerOnePlaced.RemoveAt(mission - 1);
 				playerOnePlaced.Insert(mission, item);
-				int item2 = playerTwoPlaced[mission - 1];
+				int item3 = playerTwoPlaced[mission - 1];
 				playerTwoPlaced.RemoveAt(mission - 1);
-				playerTwoPlaced.Insert(mission, item2);
-				int item3 = playerThreePlaced[mission - 1];
+				playerTwoPlaced.Insert(mission, item3);
+				int item5 = playerThreePlaced[mission - 1];
 				playerThreePlaced.RemoveAt(mission - 1);
-				playerThreePlaced.Insert(mission, item3);
-				int item4 = playerFourPlaced[mission - 1];
+				playerThreePlaced.Insert(mission, item5);
+				int item7 = playerFourPlaced[mission - 1];
 				playerFourPlaced.RemoveAt(mission - 1);
-				playerFourPlaced.Insert(mission, item4);
-				int item5 = enemyTanksPlaced[mission - 1];
+				playerFourPlaced.Insert(mission, item7);
+				int enemies = enemyTanksPlaced[mission - 1];
 				enemyTanksPlaced.RemoveAt(mission - 1);
-				enemyTanksPlaced.Insert(mission, item5);
-				SingleMapEditorData item6 = Levels[mission - 1];
+				enemyTanksPlaced.Insert(mission, enemies);
+				SingleMapEditorData level = Levels[mission - 1];
 				Levels.RemoveAt(mission - 1);
-				Levels.Insert(mission, item6);
-				GameObject gameObject = LevelUIList[mission - 1];
+				Levels.Insert(mission, level);
+				GameObject UIitem = LevelUIList[mission - 1];
 				LevelUIList.RemoveAt(mission - 1);
-				LevelUIList.Insert(mission, gameObject);
-				gameObject.transform.SetSiblingIndex(gameObject.transform.GetSiblingIndex() + 1);
-				int num = WeatherTypes[mission];
+				LevelUIList.Insert(mission, UIitem);
+				UIitem.transform.SetSiblingIndex(UIitem.transform.GetSiblingIndex() + 1);
+				int thisWeatherType = WeatherTypes[mission];
 				WeatherTypes[mission] = WeatherTypes[mission - 1];
-				WeatherTypes[mission - 1] = num;
-				int num2 = MissionFloorTextures[mission];
+				WeatherTypes[mission - 1] = thisWeatherType;
+				int floorType = MissionFloorTextures[mission];
 				MissionFloorTextures[mission] = MissionFloorTextures[mission - 1];
-				MissionFloorTextures[mission - 1] = num2;
+				MissionFloorTextures[mission - 1] = floorType;
 				if (GameMaster.instance.NightLevels.Contains(mission) && !GameMaster.instance.NightLevels.Contains(mission - 1))
 				{
 					GameMaster.instance.NightLevels.Remove(mission);
@@ -1858,23 +1842,23 @@ public class MapEditorMaster : MonoBehaviour
 					NoBordersMissions.Add(mission);
 					NoBordersMissions.Remove(mission - 1);
 				}
-				string item7 = GameMaster.instance.MissionNames[mission - 1];
+				string levelname = GameMaster.instance.MissionNames[mission - 1];
 				GameMaster.instance.MissionNames.RemoveAt(mission - 1);
-				GameMaster.instance.MissionNames.Insert(mission, item7);
-				for (int i = 0; i < GameMaster.instance.Levels.Count; i++)
+				GameMaster.instance.MissionNames.Insert(mission, levelname);
+				for (int j = 0; j < GameMaster.instance.Levels.Count; j++)
 				{
-					GameMaster.instance.Levels[i].name = "Level " + (i + 1);
+					GameMaster.instance.Levels[j].name = "Level " + (j + 1);
 				}
 				UpdateMapBorder(mission - 1);
-				int num3 = mission - 1;
-				GameMaster.instance.CurrentMission = num3;
-				StartCoroutine(PlaceAllProps(Levels[num3].MissionDataProps, oldVersion: false, 0));
-				NightToggler.IsEnabled = (GameMaster.instance.NightLevels.Contains(num3) ? true : false);
-				NoBordersToggler.IsEnabled = ((!NoBordersMissions.Contains(num3)) ? true : false);
-				UpdateMapBorder(num3);
-				MissionNameInputField.text = GameMaster.instance.MissionNames[num3];
-				WeatherList.value = WeatherTypes[num3];
-				FloorDropdown.value = MissionFloorTextures[num3];
+				int ToMission2 = mission - 1;
+				GameMaster.instance.CurrentMission = ToMission2;
+				StartCoroutine(PlaceAllProps(Levels[ToMission2].MissionDataProps, oldVersion: false, 0));
+				NightToggler.IsEnabled = (GameMaster.instance.NightLevels.Contains(ToMission2) ? true : false);
+				NoBordersToggler.IsEnabled = ((!NoBordersMissions.Contains(ToMission2)) ? true : false);
+				UpdateMapBorder(ToMission2);
+				MissionNameInputField.text = GameMaster.instance.MissionNames[ToMission2];
+				WeatherList.value = WeatherTypes[ToMission2];
+				FloorDropdown.value = MissionFloorTextures[ToMission2];
 				StartCoroutine(MembusDelay());
 				ShowPositiveMessage("SUCCES: Level " + (mission + 2) + " moved up");
 			}
@@ -1885,37 +1869,37 @@ public class MapEditorMaster : MonoBehaviour
 		}
 		else if (mission != Levels.Count - 1)
 		{
-			int item8 = playerOnePlaced[mission + 1];
+			int item2 = playerOnePlaced[mission + 1];
 			playerOnePlaced.RemoveAt(mission + 1);
-			playerOnePlaced.Insert(mission, item8);
-			int item9 = playerTwoPlaced[mission + 1];
+			playerOnePlaced.Insert(mission, item2);
+			int item4 = playerTwoPlaced[mission + 1];
 			playerTwoPlaced.RemoveAt(mission + 1);
-			playerTwoPlaced.Insert(mission, item9);
-			int item10 = playerThreePlaced[mission + 1];
+			playerTwoPlaced.Insert(mission, item4);
+			int item6 = playerThreePlaced[mission + 1];
 			playerThreePlaced.RemoveAt(mission + 1);
-			playerThreePlaced.Insert(mission, item10);
-			int item11 = playerFourPlaced[mission + 1];
+			playerThreePlaced.Insert(mission, item6);
+			int item8 = playerFourPlaced[mission + 1];
 			playerFourPlaced.RemoveAt(mission + 1);
-			playerFourPlaced.Insert(mission, item11);
-			int item12 = enemyTanksPlaced[mission + 1];
+			playerFourPlaced.Insert(mission, item8);
+			int enemies2 = enemyTanksPlaced[mission + 1];
 			enemyTanksPlaced.RemoveAt(mission + 1);
-			enemyTanksPlaced.Insert(mission, item12);
-			SingleMapEditorData item13 = Levels[mission + 1];
+			enemyTanksPlaced.Insert(mission, enemies2);
+			SingleMapEditorData level2 = Levels[mission + 1];
 			Levels.RemoveAt(mission + 1);
-			Levels.Insert(mission, item13);
-			GameObject gameObject2 = LevelUIList[mission + 1];
+			Levels.Insert(mission, level2);
+			GameObject UIitem2 = LevelUIList[mission + 1];
 			LevelUIList.RemoveAt(mission + 1);
-			LevelUIList.Insert(mission, gameObject2);
-			gameObject2.transform.SetSiblingIndex(gameObject2.transform.GetSiblingIndex() - 1);
-			string item14 = GameMaster.instance.MissionNames[mission + 1];
+			LevelUIList.Insert(mission, UIitem2);
+			UIitem2.transform.SetSiblingIndex(UIitem2.transform.GetSiblingIndex() - 1);
+			string levelname2 = GameMaster.instance.MissionNames[mission + 1];
 			GameMaster.instance.MissionNames.RemoveAt(mission + 1);
-			GameMaster.instance.MissionNames.Insert(mission, item14);
-			int num4 = WeatherTypes[mission];
+			GameMaster.instance.MissionNames.Insert(mission, levelname2);
+			int thisWeatherType2 = WeatherTypes[mission];
 			WeatherTypes[mission] = WeatherTypes[mission + 1];
-			WeatherTypes[mission + 1] = num4;
-			int num5 = MissionFloorTextures[mission];
+			WeatherTypes[mission + 1] = thisWeatherType2;
+			int floorType2 = MissionFloorTextures[mission];
 			MissionFloorTextures[mission] = MissionFloorTextures[mission + 1];
-			MissionFloorTextures[mission + 1] = num5;
+			MissionFloorTextures[mission + 1] = floorType2;
 			if (GameMaster.instance.NightLevels.Contains(mission) && !GameMaster.instance.NightLevels.Contains(mission + 1))
 			{
 				GameMaster.instance.NightLevels.Remove(mission);
@@ -1936,20 +1920,20 @@ public class MapEditorMaster : MonoBehaviour
 				NoBordersMissions.Add(mission);
 				NoBordersMissions.Remove(mission + 1);
 			}
-			for (int j = 0; j < GameMaster.instance.Levels.Count; j++)
+			for (int i = 0; i < GameMaster.instance.Levels.Count; i++)
 			{
-				GameMaster.instance.Levels[j].name = "Level " + (j + 1);
+				GameMaster.instance.Levels[i].name = "Level " + (i + 1);
 			}
 			UpdateMapBorder(mission + 1);
-			int num6 = mission + 1;
-			GameMaster.instance.CurrentMission = num6;
-			StartCoroutine(PlaceAllProps(Levels[num6].MissionDataProps, oldVersion: false, 0));
-			NightToggler.IsEnabled = (GameMaster.instance.NightLevels.Contains(num6) ? true : false);
-			NoBordersToggler.IsEnabled = ((!NoBordersMissions.Contains(num6)) ? true : false);
-			UpdateMapBorder(num6);
-			MissionNameInputField.text = GameMaster.instance.MissionNames[num6];
-			WeatherList.value = WeatherTypes[num6];
-			FloorDropdown.value = MissionFloorTextures[num6];
+			int ToMission = mission + 1;
+			GameMaster.instance.CurrentMission = ToMission;
+			StartCoroutine(PlaceAllProps(Levels[ToMission].MissionDataProps, oldVersion: false, 0));
+			NightToggler.IsEnabled = (GameMaster.instance.NightLevels.Contains(ToMission) ? true : false);
+			NoBordersToggler.IsEnabled = ((!NoBordersMissions.Contains(ToMission)) ? true : false);
+			UpdateMapBorder(ToMission);
+			MissionNameInputField.text = GameMaster.instance.MissionNames[ToMission];
+			WeatherList.value = WeatherTypes[ToMission];
+			FloorDropdown.value = MissionFloorTextures[ToMission];
 			StartCoroutine(MembusDelay());
 			ShowPositiveMessage("SUCCES: Level " + mission + " moved down");
 		}
@@ -1969,25 +1953,25 @@ public class MapEditorMaster : MonoBehaviour
 		MEGP.lastKnownMission = MEGP.mission;
 		if (isDuplicate)
 		{
-			MapPiecesClass mapPiecesClass = new MapPiecesClass();
-			MapPiecesClass mapPiecesClass2 = MissionsData.Find((MapPiecesClass x) => x.ID == MEGP.ID);
-			mapPiecesClass.offsetX = mapPiecesClass2.offsetX;
-			mapPiecesClass.offsetY = mapPiecesClass2.offsetY;
-			mapPiecesClass.missionNumber = MEGP.mission;
+			MapPiecesClass newMPC = new MapPiecesClass();
+			MapPiecesClass otherMPC = MissionsData.Find((MapPiecesClass x) => x.ID == MEGP.ID);
+			newMPC.offsetX = otherMPC.offsetX;
+			newMPC.offsetY = otherMPC.offsetY;
+			newMPC.missionNumber = MEGP.mission;
 			for (int i = 0; i < 5; i++)
 			{
-				mapPiecesClass.propID[i] = mapPiecesClass2.propID[i];
-				mapPiecesClass.propRotation[i] = mapPiecesClass2.propRotation[i];
+				newMPC.propID[i] = otherMPC.propID[i];
+				newMPC.propRotation[i] = otherMPC.propRotation[i];
 			}
 			MEGP.ID = OptionsMainMenu.instance.MapSize * MEGP.mission + MEGP.ID % OptionsMainMenu.instance.MapSize;
-			mapPiecesClass.ID = MEGP.ID;
-			MissionsData.Add(mapPiecesClass);
+			newMPC.ID = MEGP.ID;
+			MissionsData.Add(newMPC);
 		}
 		else
 		{
-			MapPiecesClass mapPiecesClass3 = MissionsData.Find((MapPiecesClass x) => x.ID == MEGP.ID);
+			MapPiecesClass MPC = MissionsData.Find((MapPiecesClass x) => x.ID == MEGP.ID);
 			MEGP.ID = OptionsMainMenu.instance.MapSize * MEGP.mission + MEGP.ID % OptionsMainMenu.instance.MapSize;
-			mapPiecesClass3.ID = MEGP.ID;
+			MPC.ID = MEGP.ID;
 		}
 	}
 
@@ -2007,31 +1991,32 @@ public class MapEditorMaster : MonoBehaviour
 		SaveCurrentProps();
 		RemoveCurrentObjects();
 		Debug.Log("duplicating mission " + MissionToDuplicate);
-		SingleMapEditorData singleMapEditorData = new SingleMapEditorData(null, null);
-		List<MapPiecesClass> missionDataProps = Levels[MissionToDuplicate].MissionDataProps;
+		SingleMapEditorData newSMED = new SingleMapEditorData(null, null);
+		List<MapPiecesClass> DuplicateList = Levels[MissionToDuplicate].MissionDataProps;
 		for (int i = 0; i < OptionsMainMenu.instance.MapSize; i++)
 		{
-			MapPiecesClass mapPiecesClass = new MapPiecesClass();
-			mapPiecesClass.ID = i;
+			MapPiecesClass newMPC = new MapPiecesClass();
+			newMPC.ID = i;
 			for (int j = 0; j < 5; j++)
 			{
-				mapPiecesClass.propID[j] = missionDataProps[i].propID[j];
-				mapPiecesClass.propRotation[j] = missionDataProps[i].propRotation[j];
-				mapPiecesClass.TeamColor[j] = missionDataProps[i].TeamColor[j];
-				mapPiecesClass.SpawnDifficulty = missionDataProps[i].SpawnDifficulty;
-				mapPiecesClass.CustomColor = missionDataProps[i].CustomColor;
+				newMPC.propID[j] = DuplicateList[i].propID[j];
+				newMPC.propRotation[j] = DuplicateList[i].propRotation[j];
+				newMPC.TeamColor[j] = DuplicateList[i].TeamColor[j];
+				newMPC.SpawnDifficulty = DuplicateList[i].SpawnDifficulty;
+				newMPC.CustomColor = DuplicateList[i].CustomColor;
 			}
-			mapPiecesClass.missionNumber = Levels.Count;
-			singleMapEditorData.MissionDataProps.Add(mapPiecesClass);
+			newMPC.missionNumber = Levels.Count;
+			newSMED.MissionDataProps.Add(newMPC);
 		}
-		Levels.Insert(MissionToDuplicate, singleMapEditorData);
+		Levels.Insert(MissionToDuplicate, newSMED);
 		GameMaster.instance.MissionNames.Insert(MissionToDuplicate, GameMaster.instance.MissionNames[MissionToDuplicate]);
-		GameObject gameObject = UnityEngine.Object.Instantiate(LevelUIListPrefab);
-		gameObject.transform.SetParent(ParentObjectList.transform, worldPositionStays: false);
-		LevelUIList.Insert(MissionToDuplicate, gameObject);
-		gameObject.transform.SetSiblingIndex(gameObject.transform.parent.transform.childCount - (Levels.Count - MissionToDuplicate) - 1);
-		gameObject.transform.localScale = new Vector3(1f, 1f, 1f);
-		gameObject.GetComponent<MapEditorMissionBarUI>().mission = MissionToDuplicate + 1;
+		GameObject ListUIItem = UnityEngine.Object.Instantiate(LevelUIListPrefab);
+		ListUIItem.transform.SetParent(ParentObjectList.transform, worldPositionStays: false);
+		LevelUIList.Insert(MissionToDuplicate, ListUIItem);
+		ListUIItem.transform.SetSiblingIndex(ListUIItem.transform.parent.transform.childCount - (Levels.Count - MissionToDuplicate) - 1);
+		ListUIItem.transform.localScale = new Vector3(1f, 1f, 1f);
+		MapEditorMissionBarUI MEMBU = ListUIItem.GetComponent<MapEditorMissionBarUI>();
+		MEMBU.mission = MissionToDuplicate + 1;
 		WeatherTypes[MissionToDuplicate + 1] = WeatherTypes[MissionToDuplicate];
 		MissionFloorTextures[MissionToDuplicate + 1] = MissionFloorTextures[MissionToDuplicate];
 		if (GameMaster.instance.NightLevels.Contains(MissionToDuplicate))
@@ -2044,15 +2029,15 @@ public class MapEditorMaster : MonoBehaviour
 		}
 		ShowPositiveMessage("SUCCES: Level " + (MissionToDuplicate + 1) + " duplicated");
 		UpdateMapBorder(MissionToDuplicate + 1);
-		int num = MissionToDuplicate + 1;
-		GameMaster.instance.CurrentMission = num;
-		StartCoroutine(PlaceAllProps(Levels[num].MissionDataProps, oldVersion: false, 0));
-		NightToggler.IsEnabled = (GameMaster.instance.NightLevels.Contains(num) ? true : false);
-		NoBordersToggler.IsEnabled = ((!NoBordersMissions.Contains(num)) ? true : false);
-		UpdateMapBorder(num);
-		MissionNameInputField.text = GameMaster.instance.MissionNames[num];
-		WeatherList.value = WeatherTypes[num];
-		FloorDropdown.value = MissionFloorTextures[num];
+		int ToMission = MissionToDuplicate + 1;
+		GameMaster.instance.CurrentMission = ToMission;
+		StartCoroutine(PlaceAllProps(Levels[ToMission].MissionDataProps, oldVersion: false, 0));
+		NightToggler.IsEnabled = (GameMaster.instance.NightLevels.Contains(ToMission) ? true : false);
+		NoBordersToggler.IsEnabled = ((!NoBordersMissions.Contains(ToMission)) ? true : false);
+		UpdateMapBorder(ToMission);
+		MissionNameInputField.text = GameMaster.instance.MissionNames[ToMission];
+		WeatherList.value = WeatherTypes[ToMission];
+		FloorDropdown.value = MissionFloorTextures[ToMission];
 		StartCoroutine(MembusDelay());
 	}
 
@@ -2112,19 +2097,19 @@ public class MapEditorMaster : MonoBehaviour
 		GameMaster.instance.isResettingTestLevel = false;
 		GameMaster.instance.OnlyCompanionLeft = false;
 		GetComponent<AudioSource>().Stop();
-		Animator component = Camera.main.GetComponent<Animator>();
-		if (component.GetBool("CameraDownEditor"))
+		Animator camAnimator = Camera.main.GetComponent<Animator>();
+		if (camAnimator.GetBool("CameraDownEditor"))
 		{
-			component.SetBool("CameraDownEditor", value: true);
+			camAnimator.SetBool("CameraDownEditor", value: true);
 		}
 		else
 		{
-			component.SetBool("CameraDownEditor", value: false);
-			component.SetBool("CameraUpEditor", value: false);
+			camAnimator.SetBool("CameraDownEditor", value: false);
+			camAnimator.SetBool("CameraUpEditor", value: false);
 		}
-		component.SetBool("CameraUpEditor", value: false);
-		component.SetBool("CameraDown", value: true);
-		component.SetBool("CameraUp", value: false);
+		camAnimator.SetBool("CameraUpEditor", value: false);
+		camAnimator.SetBool("CameraDown", value: true);
+		camAnimator.SetBool("CameraUp", value: false);
 		ErrorFieldMessage.transform.localPosition = AnimatorStartHeight;
 		ErrorFieldMessage.SetBool("ToTest", value: true);
 		isTesting = true;

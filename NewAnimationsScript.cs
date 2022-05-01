@@ -29,9 +29,9 @@ public class NewAnimationsScript : MonoBehaviour
 
 	private float startTime;
 
-	private bool zoomOutCamera;
+	private bool zoomOutCamera = false;
 
-	private bool zoomInCamera;
+	private bool zoomInCamera = false;
 
 	[Header("Texts")]
 	public TextMeshProUGUI missionNumber;
@@ -57,13 +57,13 @@ public class NewAnimationsScript : MonoBehaviour
 
 	public AudioClip FinalWinSound;
 
-	public bool playingAnimation;
+	public bool playingAnimation = false;
 
-	public bool restart;
+	public bool restart = false;
 
-	private bool finished;
+	private bool finished = false;
 
-	public float extraWait;
+	public float extraWait = 0f;
 
 	[Header("Zombie")]
 	public TextMeshProUGUI EnemiesHeader;
@@ -135,10 +135,10 @@ public class NewAnimationsScript : MonoBehaviour
 
 	private void FixedUpdate()
 	{
-		float num = 1f;
+		float speed = 1f;
 		if (Input.GetKey(KeyCode.LeftShift) && GameMaster.instance.Lives > 0 && !GameMaster.instance.GameHasStarted)
 		{
-			num = 3f;
+			speed = 3f;
 			if (CamAnimator != null)
 			{
 				CamAnimator.speed = 3f;
@@ -150,7 +150,7 @@ public class NewAnimationsScript : MonoBehaviour
 		}
 		else if (!GameMaster.instance.GameHasStarted)
 		{
-			num = 1f;
+			speed = 1f;
 			if (CamAnimator != null)
 			{
 				CamAnimator.speed = 1f;
@@ -164,11 +164,11 @@ public class NewAnimationsScript : MonoBehaviour
 		{
 			return;
 		}
-		float num2 = (Time.time - startTime) / duration * num;
+		float t = (Time.time - startTime) / duration * speed;
 		if (zoomOutCamera)
 		{
-			mainCam.orthographicSize = Mathf.SmoothStep(ZoomedInSize, ZoomedOutSize, num2);
-			if (num2 >= 0.9f && num > 2f)
+			mainCam.orthographicSize = Mathf.SmoothStep(ZoomedInSize, ZoomedOutSize, t);
+			if (t >= 0.9f && speed > 2f)
 			{
 				mainCam.orthographicSize = ZoomedOutSize;
 				zoomOutCamera = false;
@@ -176,8 +176,8 @@ public class NewAnimationsScript : MonoBehaviour
 		}
 		if (zoomInCamera)
 		{
-			mainCam.orthographicSize = Mathf.SmoothStep(ZoomedOutSize, ZoomedInSize, num2);
-			if (num2 >= 0.9f && num > 2f)
+			mainCam.orthographicSize = Mathf.SmoothStep(ZoomedOutSize, ZoomedInSize, t);
+			if (t >= 0.9f && speed > 2f)
 			{
 				mainCam.orthographicSize = ZoomedInSize;
 				zoomInCamera = false;

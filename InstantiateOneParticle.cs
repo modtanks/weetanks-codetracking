@@ -24,10 +24,10 @@ public class InstantiateOneParticle : MonoBehaviour
 			{
 				if (ChargedSound.Length != 0)
 				{
-					int num = Random.Range(0, ChargedSound.Length);
-					if (ChargedSound[num] != null)
+					int ClipToPlay2 = Random.Range(0, ChargedSound.Length);
+					if (ChargedSound[ClipToPlay2] != null)
 					{
-						SFXManager.instance.PlaySFX(ChargedSound[num], 1f, null);
+						SFXManager.instance.PlaySFX(ChargedSound[ClipToPlay2], 1f, null);
 					}
 				}
 				else
@@ -38,18 +38,19 @@ public class InstantiateOneParticle : MonoBehaviour
 		}
 		else if (Sound != null && Sound.Length != 0)
 		{
-			int num2 = Random.Range(0, Sound.Length);
-			if (Sound[num2] != null)
+			int ClipToPlay = Random.Range(0, Sound.Length);
+			if (Sound[ClipToPlay] != null)
 			{
-				SFXManager.instance.PlaySFX(Sound[num2], 1f, null);
+				SFXManager.instance.PlaySFX(Sound[ClipToPlay], 1f, null);
 			}
 		}
 		yield return new WaitForSeconds(0.04f);
-		Vector3 eulerAngles = base.transform.rotation.eulerAngles;
-		eulerAngles = new Vector3(eulerAngles.x, eulerAngles.y + 180f, eulerAngles.z - 90f);
+		Vector3 rot2 = base.transform.rotation.eulerAngles;
+		rot2 = new Vector3(rot2.x, rot2.y + 180f, rot2.z - 90f);
 		if ((bool)Particle)
 		{
-			Object.Destroy(Object.Instantiate(Particle, base.transform.position, Quaternion.Euler(eulerAngles)).gameObject, 2f);
+			GameObject poof = Object.Instantiate(Particle, base.transform.position, Quaternion.Euler(rot2));
+			Object.Destroy(poof.gameObject, 2f);
 		}
 	}
 }

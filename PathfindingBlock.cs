@@ -20,9 +20,9 @@ public class PathfindingBlock : MonoBehaviour
 
 	public bool SolidInMe;
 
-	public bool SolidInMeIsCork;
+	public bool SolidInMeIsCork = false;
 
-	public bool ElectricInMe;
+	public bool ElectricInMe = false;
 
 	public int myLatestScore = -1;
 
@@ -32,13 +32,13 @@ public class PathfindingBlock : MonoBehaviour
 
 	public int AmountCalls = -1;
 
-	public int myID;
+	public int myID = 0;
 
-	public int GridID;
+	public int GridID = 0;
 
-	public bool SolidSouthOfMe;
+	public bool SolidSouthOfMe = false;
 
-	public bool SouthOnTop;
+	public bool SouthOnTop = false;
 
 	public PathGridPieceClass PGPC;
 
@@ -58,17 +58,17 @@ public class PathfindingBlock : MonoBehaviour
 		{
 			return;
 		}
-		List<GameObject> list = new List<GameObject>();
-		foreach (GameObject item in inMe)
+		List<GameObject> ToRemove = new List<GameObject>();
+		foreach (GameObject inObj in inMe)
 		{
-			if (item == null)
+			if (inObj == null)
 			{
-				list.Add(item);
+				ToRemove.Add(inObj);
 			}
-			else if (item.transform.tag == "Solid" || item.transform.tag == "ElectricPad")
+			else if (inObj.transform.tag == "Solid" || inObj.transform.tag == "ElectricPad")
 			{
 				SolidInMe = true;
-				if (item.gameObject.layer == LayerMask.NameToLayer("CorkWall"))
+				if (inObj.gameObject.layer == LayerMask.NameToLayer("CorkWall"))
 				{
 					SolidInMeIsCork = true;
 				}
@@ -78,12 +78,12 @@ public class PathfindingBlock : MonoBehaviour
 				}
 			}
 		}
-		foreach (GameObject obj in list)
+		foreach (GameObject obj in ToRemove)
 		{
-			TankInfo tankInfo = TanksInMe.Find((TankInfo x) => x.TankObject == obj);
-			if (tankInfo != null)
+			TankInfo Tank = TanksInMe.Find((TankInfo x) => x.TankObject == obj);
+			if (Tank != null)
 			{
-				TanksInMe.Remove(tankInfo);
+				TanksInMe.Remove(Tank);
 			}
 			inMe.Remove(obj);
 		}
@@ -91,19 +91,21 @@ public class PathfindingBlock : MonoBehaviour
 		{
 			SolidInMe = false;
 		}
-		_ = GameMaster.instance.GameHasStarted;
+		if (!GameMaster.instance.GameHasStarted)
+		{
+		}
 		if (!GameMaster.instance.AssassinTankAlive)
 		{
 			return;
 		}
-		LayerMask layerMask = (1 << LayerMask.NameToLayer("CorkWall")) | (1 << LayerMask.NameToLayer("Wall")) | (1 << LayerMask.NameToLayer("NoBounceWall"));
+		LayerMask LM = (1 << LayerMask.NameToLayer("CorkWall")) | (1 << LayerMask.NameToLayer("Wall")) | (1 << LayerMask.NameToLayer("NoBounceWall"));
 		Debug.DrawRay(base.transform.position, new Vector3(0f, 0f, -1f) * 1.5f, Color.red, 0.1f);
-		if (Physics.Raycast(base.transform.position, new Vector3(0f, 0f, -1f), out var hitInfo, 1.5f, layerMask))
+		if (Physics.Raycast(base.transform.position, new Vector3(0f, 0f, -1f), out var hit, 1.5f, LM))
 		{
-			if (hitInfo.transform.tag == "Solid" || hitInfo.transform.tag == "MapBorder")
+			if (hit.transform.tag == "Solid" || hit.transform.tag == "MapBorder")
 			{
 				SolidSouthOfMe = true;
-				if (Physics.Raycast(hitInfo.transform.position, new Vector3(0f, 1f, 0f), out hitInfo, 1.5f, layerMask))
+				if (Physics.Raycast(hit.transform.position, new Vector3(0f, 1f, 0f), out hit, 1.5f, LM))
 				{
 					SouthOnTop = true;
 				}
@@ -133,19 +135,19 @@ public class PathfindingBlock : MonoBehaviour
 			inMe.Add(other.gameObject);
 			if (other.tag == "Enemy" || other.tag == "Player")
 			{
-				TankInfo tankInfo = new TankInfo();
-				tankInfo.TankObject = other.gameObject;
-				tankInfo.EnemyID = other.GetComponent<HealthTanks>().EnemyID;
-				MoveTankScript component = other.gameObject.GetComponent<MoveTankScript>();
-				if ((bool)component)
+				TankInfo NewTank = new TankInfo();
+				NewTank.TankObject = other.gameObject;
+				NewTank.EnemyID = other.GetComponent<HealthTanks>().EnemyID;
+				MoveTankScript MTS = other.gameObject.GetComponent<MoveTankScript>();
+				if ((bool)MTS)
 				{
-					tankInfo.EnemyTeam = component.MyTeam;
+					NewTank.EnemyTeam = MTS.MyTeam;
 				}
 				else
 				{
-					tankInfo.EnemyTeam = other.gameObject.GetComponent<EnemyAI>().MyTeam;
+					NewTank.EnemyTeam = other.gameObject.GetComponent<EnemyAI>().MyTeam;
 				}
-				TanksInMe.Add(tankInfo);
+				TanksInMe.Add(NewTank);
 			}
 		}
 		if ((other.tag == "Solid" || other.tag == "ElectricPad") && !inMe.Contains(other.gameObject))
@@ -167,10 +169,10 @@ public class PathfindingBlock : MonoBehaviour
 		}
 		if ((other.tag == "Solid" || other.tag == "Other" || other.tag == "Bullet" || other.tag == "Enemy" || other.tag == "Player" || other.tag == "Mine") && inMe.Contains(other.gameObject))
 		{
-			TankInfo tankInfo = TanksInMe.Find((TankInfo x) => x.TankObject == other.gameObject);
-			if (tankInfo != null)
+			TankInfo Tank = TanksInMe.Find((TankInfo x) => x.TankObject == other.gameObject);
+			if (Tank != null)
 			{
-				TanksInMe.Remove(tankInfo);
+				TanksInMe.Remove(Tank);
 			}
 			inMe.Remove(other.gameObject);
 		}

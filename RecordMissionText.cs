@@ -24,60 +24,60 @@ public class RecordMissionText : MonoBehaviour
 	{
 		if (AccountMaster.instance.isSignedIn)
 		{
-			int num = AccountMaster.instance.PDO.maxMission2 - 1;
-			if (num < 0)
+			int completedMissions2 = AccountMaster.instance.PDO.maxMission2 - 1;
+			if (completedMissions2 < 0)
 			{
-				num = 0;
+				completedMissions2 = 0;
 			}
-			textHard = "RecoRd Misision: " + num;
-			int num2 = AccountMaster.instance.PDO.maxMission1 - 1;
-			if (num2 < 0)
+			textHard = "RecoRd Misision: " + completedMissions2;
+			int completedKid2 = AccountMaster.instance.PDO.maxMission1 - 1;
+			if (completedKid2 < 0)
 			{
-				num2 = 0;
+				completedKid2 = 0;
 			}
-			textKid = "RecoRd Misision: " + num2;
-			int num3 = AccountMaster.instance.PDO.maxMission0 - 1;
-			if (num3 < 0)
+			textKid = "RecoRd Misision: " + completedKid2;
+			int completedMissions4 = AccountMaster.instance.PDO.maxMission0 - 1;
+			if (completedMissions4 < 0)
 			{
-				num3 = 0;
+				completedMissions4 = 0;
 			}
-			textNormal = "RecoRd Misision: " + num3;
-			int num4 = AccountMaster.instance.PDO.maxMission3 - 1;
-			if (num4 < 0)
+			textNormal = "RecoRd Misision: " + completedMissions4;
+			int completedGrandpa2 = AccountMaster.instance.PDO.maxMission3 - 1;
+			if (completedGrandpa2 < 0)
 			{
-				num4 = 0;
+				completedGrandpa2 = 0;
 			}
-			textGrandpa = "RecoRd Misision: " + num4;
+			textGrandpa = "RecoRd Misision: " + completedGrandpa2;
 		}
 		else if (SavingData.ExistData())
 		{
-			ProgressDataNew progressDataNew = SavingData.LoadData();
-			int num5 = progressDataNew.cH - 1;
-			if (num5 < 0)
+			ProgressDataNew data = SavingData.LoadData();
+			int completedMissions = data.cH - 1;
+			if (completedMissions < 0)
 			{
-				num5 = 0;
+				completedMissions = 0;
 			}
-			textHard = "RecoRd Misision: " + num5;
-			int num6 = progressDataNew.cK - 1;
-			if (num6 < 0)
+			textHard = "RecoRd Misision: " + completedMissions;
+			int completedKid = data.cK - 1;
+			if (completedKid < 0)
 			{
-				num6 = 0;
+				completedKid = 0;
 			}
-			textKid = "RecoRd Misision: " + num6;
-			int num7 = progressDataNew.cM - 1;
-			if (num7 < 0)
+			textKid = "RecoRd Misision: " + completedKid;
+			int completedMissions3 = data.cM - 1;
+			if (completedMissions3 < 0)
 			{
-				num7 = 0;
+				completedMissions3 = 0;
 			}
-			textNormal = "RecoRd Misision: " + num7;
-			if (progressDataNew.cG > 0)
+			textNormal = "RecoRd Misision: " + completedMissions3;
+			if (data.cG > 0)
 			{
-				int num8 = progressDataNew.cG - 1;
-				if (num8 < 0)
+				int completedGrandpa = data.cG - 1;
+				if (completedGrandpa < 0)
 				{
-					num8 = 0;
+					completedGrandpa = 0;
 				}
-				textGrandpa = "RecoRd Misision: " + num8;
+				textGrandpa = "RecoRd Misision: " + completedGrandpa;
 			}
 		}
 		else

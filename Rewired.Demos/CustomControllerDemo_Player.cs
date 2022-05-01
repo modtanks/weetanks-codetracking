@@ -39,19 +39,20 @@ public class CustomControllerDemo_Player : MonoBehaviour
 	{
 		if (ReInput.isReady)
 		{
-			Vector2 vector = new Vector2(player.GetAxis("Move Horizontal"), player.GetAxis("Move Vertical"));
-			cc.Move(vector * speed * Time.deltaTime);
+			Vector2 moveVector = new Vector2(player.GetAxis("Move Horizontal"), player.GetAxis("Move Vertical"));
+			cc.Move(moveVector * speed * Time.deltaTime);
 			if (player.GetButtonDown("Fire"))
 			{
-				Vector3 vector2 = Vector3.Scale(new Vector3(1f, 0f, 0f), base.transform.right);
-				Object.Instantiate(bulletPrefab, base.transform.position + vector2, Quaternion.identity).GetComponent<Rigidbody>().velocity = new Vector3(bulletSpeed * base.transform.right.x, 0f, 0f);
+				Vector3 offset = Vector3.Scale(new Vector3(1f, 0f, 0f), base.transform.right);
+				GameObject bullet = Object.Instantiate(bulletPrefab, base.transform.position + offset, Quaternion.identity);
+				bullet.GetComponent<Rigidbody>().velocity = new Vector3(bulletSpeed * base.transform.right.x, 0f, 0f);
 			}
 			if (player.GetButtonDown("Change Color"))
 			{
-				Renderer component = GetComponent<Renderer>();
-				Material material = component.material;
-				material.color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1f);
-				component.material = material;
+				Renderer renderer = GetComponent<Renderer>();
+				Material mat = renderer.material;
+				mat.color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1f);
+				renderer.material = mat;
 			}
 		}
 	}

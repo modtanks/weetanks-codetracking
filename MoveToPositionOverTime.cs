@@ -8,11 +8,11 @@ public class MoveToPositionOverTime : MonoBehaviour
 
 	public float Speed = 3f;
 
-	public bool moveToEnd;
+	public bool moveToEnd = false;
 
-	public bool moveToStart;
+	public bool moveToStart = false;
 
-	public bool atStart;
+	public bool atStart = false;
 
 	private void Start()
 	{
@@ -48,7 +48,8 @@ public class MoveToPositionOverTime : MonoBehaviour
 
 	private bool MoveTo(Vector3 POS)
 	{
-		if (Vector3.Distance(base.transform.position, POS) >= 1f)
+		float dist = Vector3.Distance(base.transform.position, POS);
+		if (dist >= 1f)
 		{
 			base.transform.position = Vector3.Lerp(base.transform.position, POS, Time.deltaTime * Speed);
 			return false;

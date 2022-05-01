@@ -14,18 +14,18 @@ public class NewMenuControl : MonoBehaviour
 {
 	private Vector2 input;
 
-	public int currentMenu;
+	public int currentMenu = 0;
 
 	public List<int> menuAmountOptions = new List<int>();
 
-	public int Selection;
+	public int Selection = 0;
 
 	[Header("Temp Selection")]
-	public int Temp_scene;
+	public int Temp_scene = 0;
 
 	public MainMenuButtons Temp_MMB;
 
-	public int Temp_startingLevel;
+	public int Temp_startingLevel = 0;
 
 	[Header("Audio")]
 	public AudioClip errorSound;
@@ -152,7 +152,7 @@ public class NewMenuControl : MonoBehaviour
 
 	public GameObject MapFileView;
 
-	public bool MapLoading;
+	public bool MapLoading = false;
 
 	public GameObject AchievementPrefab;
 
@@ -172,9 +172,9 @@ public class NewMenuControl : MonoBehaviour
 
 	public GameObject TankKillItemParent;
 
-	public int StatisticsOpenMenu;
+	public int StatisticsOpenMenu = 0;
 
-	public int ControlsOpenMenu;
+	public int ControlsOpenMenu = 0;
 
 	public RebindKeyScript selectedRKS;
 
@@ -214,7 +214,7 @@ public class NewMenuControl : MonoBehaviour
 
 	public TextAsset EditClassicMapID;
 
-	public bool HoldingShift;
+	public bool HoldingShift = false;
 
 	public string EnteredCode = "";
 
@@ -236,7 +236,7 @@ public class NewMenuControl : MonoBehaviour
 
 	public bool IsUsingMouse = true;
 
-	private int SelectedCheckpoint;
+	private int SelectedCheckpoint = 0;
 
 	private bool prevRequestIsHere = true;
 
@@ -247,8 +247,8 @@ public class NewMenuControl : MonoBehaviour
 	private IEnumerator PlayJingle()
 	{
 		yield return new WaitForSeconds(0.4f);
-		int num = UnityEngine.Random.Range(0, Jingles.Length);
-		SFXManager.instance.PlaySFX(Jingles[num]);
+		int pick = UnityEngine.Random.Range(0, Jingles.Length);
+		SFXManager.instance.PlaySFX(Jingles[pick]);
 	}
 
 	private void Awake()
@@ -259,34 +259,35 @@ public class NewMenuControl : MonoBehaviour
 
 	public void GetMapFiles()
 	{
-		foreach (GameObject mapObject in MapObjects)
+		foreach (GameObject Map in MapObjects)
 		{
-			UnityEngine.Object.Destroy(mapObject);
+			UnityEngine.Object.Destroy(Map);
 		}
 		MapObjects.Clear();
-		string text = Application.persistentDataPath + "/";
-		text = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
-		text += "/My Games/Wee Tanks/";
-		if (!Directory.Exists(text))
+		string savePath = Application.persistentDataPath + "/";
+		savePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
+		savePath += "/My Games/Wee Tanks/";
+		if (!Directory.Exists(savePath))
 		{
-			Directory.CreateDirectory(text);
+			Directory.CreateDirectory(savePath);
 		}
-		new FileInfo(text);
-		FileInfo[] files = new DirectoryInfo(text).GetFiles("*.campaign");
-		if (files.Length != 0)
+		FileInfo file = new FileInfo(savePath);
+		DirectoryInfo dataPathMap = new DirectoryInfo(savePath);
+		FileInfo[] mapFiles = dataPathMap.GetFiles("*.campaign");
+		if (mapFiles.Length != 0)
 		{
-			Debug.LogError("MapFiles FOUND!" + files.Length);
-			FileInfo[] array = files;
-			foreach (FileInfo fileInfo in array)
+			Debug.LogError("MapFiles FOUND!" + mapFiles.Length);
+			FileInfo[] array = mapFiles;
+			foreach (FileInfo mapFile in array)
 			{
-				string mapname = fileInfo.Name.Replace(".campaign", "");
+				string mapname = mapFile.Name.Replace(".campaign", "");
 				int MapSize = 285;
 				if (mapname.Length < 1 || mapname.Length > 25)
 				{
 					continue;
 				}
-				MapEditorData mapEditorData = SavingMapEditorData.LoadData(mapname);
-				if (mapEditorData == null)
+				MapEditorData MED = SavingMapEditorData.LoadData(mapname);
+				if (MED == null)
 				{
 					continue;
 				}
@@ -294,65 +295,70 @@ public class NewMenuControl : MonoBehaviour
 				{
 					NoMapsText.gameObject.SetActive(value: false);
 				}
-				GameObject gameObject = UnityEngine.Object.Instantiate(MapFilePrefab);
-				MapObjects.Add(gameObject);
-				gameObject.transform.SetParent(MapFileView.transform, worldPositionStays: false);
-				gameObject.GetComponentInChildren<TextMeshProUGUI>().text = mapname;
-				CampaignItemScript campaignItemScript = null;
-				if (mapEditorData.VersionCreated != "v0.7.12" && mapEditorData.VersionCreated != "v0.7.11" && mapEditorData.VersionCreated != "v0.7.10" && mapEditorData.VersionCreated != "v0.8.0e" && mapEditorData.VersionCreated != "v0.8.0d" && mapEditorData.VersionCreated != "v0.8.0c" && mapEditorData.VersionCreated != "v0.8.0b")
+				GameObject MapFileUIListItem = UnityEngine.Object.Instantiate(MapFilePrefab);
+				MapObjects.Add(MapFileUIListItem);
+				MapFileUIListItem.transform.SetParent(MapFileView.transform, worldPositionStays: false);
+				TextMeshProUGUI FileText = MapFileUIListItem.GetComponentInChildren<TextMeshProUGUI>();
+				FileText.text = mapname;
+				CampaignItemScript CIS = null;
+				if (MED.VersionCreated != "v0.7.12" && MED.VersionCreated != "v0.7.11" && MED.VersionCreated != "v0.7.10" && MED.VersionCreated != "v0.8.0e" && MED.VersionCreated != "v0.8.0d" && MED.VersionCreated != "v0.8.0c" && MED.VersionCreated != "v0.8.0b")
 				{
-					GameObject obj = UnityEngine.Object.Instantiate(OnlineMyMapPrefab);
-					obj.transform.SetParent(OnlineMyMapParent.transform, worldPositionStays: false);
-					campaignItemScript = obj.GetComponent<CampaignItemScript>();
-					campaignItemScript.campaignName = mapname;
-					campaignItemScript.campaignVersion = mapEditorData.VersionCreated;
-					campaignItemScript.NMC = this;
-					campaignItemScript.map_size = mapEditorData.MapSize;
-					campaignItemScript.amount_missions = mapEditorData.missionAmount;
-					campaignItemScript.campaign_difficulty = mapEditorData.difficulty;
+					GameObject myMap = UnityEngine.Object.Instantiate(OnlineMyMapPrefab);
+					myMap.transform.SetParent(OnlineMyMapParent.transform, worldPositionStays: false);
+					CIS = myMap.GetComponent<CampaignItemScript>();
+					CIS.campaignName = mapname;
+					CIS.campaignVersion = MED.VersionCreated;
+					CIS.NMC = this;
+					CIS.map_size = MED.MapSize;
+					CIS.amount_missions = MED.missionAmount;
+					CIS.campaign_difficulty = MED.difficulty;
 					AmountMaps++;
-					if (mapEditorData.PID > 0)
+					if (MED.PID > 0)
 					{
-						campaignItemScript.isPublished = mapEditorData.isPublished;
-						campaignItemScript.campaignID = mapEditorData.PID;
+						CIS.isPublished = MED.isPublished;
+						CIS.campaignID = MED.PID;
 					}
 				}
-				campaignItemScript = gameObject.GetComponent<CampaignItemScript>();
-				_ = (bool)campaignItemScript;
-				_ = campaignItemScript.isMainMenuCampaign;
-				if ((bool)campaignItemScript && campaignItemScript.isMainMenuCampaign)
+				CIS = MapFileUIListItem.GetComponent<CampaignItemScript>();
+				if (!CIS)
 				{
-					if (mapEditorData.missionAmount > 0)
+				}
+				if (!CIS.isMainMenuCampaign)
+				{
+				}
+				if ((bool)CIS && CIS.isMainMenuCampaign)
+				{
+					if (MED.missionAmount > 0)
 					{
-						campaignItemScript.text_amountmissions.text = mapEditorData.missionAmount.ToString();
+						CIS.text_amountmissions.text = MED.missionAmount.ToString();
 					}
-					string text2 = ((mapEditorData.signedName != "") ? mapEditorData.signedName : "unknown");
-					if (OptionsMainMenu.instance.CurrentVersion != mapEditorData.VersionCreated)
+					string creatorname = ((MED.signedName != "") ? MED.signedName : "unknown");
+					if (OptionsMainMenu.instance.CurrentVersion != MED.VersionCreated)
 					{
-						campaignItemScript.text_subtitle.color = Color.red;
-						if (mapEditorData.VersionCreated != null)
+						CIS.text_subtitle.color = Color.red;
+						if (MED.VersionCreated != null)
 						{
-							campaignItemScript.text_subtitle.text = "WARNING! Created in " + mapEditorData.VersionCreated;
+							CIS.text_subtitle.text = "WARNING! Created in " + MED.VersionCreated;
 						}
 						else
 						{
-							campaignItemScript.text_subtitle.text = "WARNING! Unknown version";
+							CIS.text_subtitle.text = "WARNING! Unknown version";
 						}
 					}
 					else
 					{
-						campaignItemScript.text_subtitle.text = "";
-						campaignItemScript.text_subtitle.color = Color.grey;
-						if (text2 != "")
+						CIS.text_subtitle.text = "";
+						CIS.text_subtitle.color = Color.grey;
+						if (creatorname != "")
 						{
-							campaignItemScript.text_subtitle.text = "Created by " + text2;
+							CIS.text_subtitle.text = "Created by " + creatorname;
 						}
 					}
 				}
-				gameObject.GetComponent<EventTrigger>();
+				EventTrigger MapFileUIButton = MapFileUIListItem.GetComponent<EventTrigger>();
 				try
 				{
-					MapSize = mapEditorData.MapSize;
+					MapSize = MED.MapSize;
 					if (MapSize == 0)
 					{
 						MapSize = 285;
@@ -362,19 +368,19 @@ public class NewMenuControl : MonoBehaviour
 				{
 					Debug.Log("no map size found");
 				}
-				EventTrigger component = gameObject.gameObject.GetComponent<EventTrigger>();
-				EventTrigger.Entry entry = new EventTrigger.Entry();
-				entry.eventID = EventTriggerType.PointerDown;
-				entry.callback.AddListener(delegate
+				EventTrigger trigger = MapFileUIListItem.gameObject.GetComponent<EventTrigger>();
+				EventTrigger.Entry pointerDown = new EventTrigger.Entry();
+				pointerDown.eventID = EventTriggerType.PointerDown;
+				pointerDown.callback.AddListener(delegate
 				{
 					OnMapClick(mapname, MapSize);
 				});
-				component.triggers.Add(entry);
+				trigger.triggers.Add(pointerDown);
 			}
 		}
 		else if (NoMapsText != null)
 		{
-			Debug.LogError("NO MAPS FOUND! " + text);
+			Debug.LogError("NO MAPS FOUND! " + savePath);
 			NoMapsText.gameObject.SetActive(value: true);
 		}
 	}
@@ -422,22 +428,22 @@ public class NewMenuControl : MonoBehaviour
 		}
 		GetMapFiles();
 		GameObject[] menus = Menus;
-		foreach (GameObject gameObject in menus)
+		foreach (GameObject Menu in menus)
 		{
-			if (!(gameObject != null))
+			if (!(Menu != null))
 			{
 				continue;
 			}
-			int num = 0;
-			int childCount = gameObject.transform.childCount;
-			for (int j = 0; j < childCount; j++)
+			int amountWithButton = 0;
+			int amountChilds = Menu.transform.childCount;
+			for (int i = 0; i < amountChilds; i++)
 			{
-				if (gameObject.transform.GetChild(j).GetComponent<MainMenuButtons>() != null)
+				if (Menu.transform.GetChild(i).GetComponent<MainMenuButtons>() != null)
 				{
-					num++;
+					amountWithButton++;
 				}
 			}
-			menuAmountOptions.Add(num - 1);
+			menuAmountOptions.Add(amountWithButton - 1);
 		}
 		Fullscreen_toggle.IsEnabled = OptionsMainMenu.instance.isFullscreen;
 		FriendlyFire_toggle.IsEnabled = OptionsMainMenu.instance.FriendlyFire;
@@ -449,16 +455,16 @@ public class NewMenuControl : MonoBehaviour
 		{
 			if (OptionsMainMenu.instance.AMnames[k] != "")
 			{
-				GameObject obj = UnityEngine.Object.Instantiate(AchievementPrefab);
-				obj.transform.SetParent(AchievementParent.transform);
-				obj.GetComponent<AchievementItemScript>().AMID = k;
+				GameObject AMprefab = UnityEngine.Object.Instantiate(AchievementPrefab);
+				AMprefab.transform.SetParent(AchievementParent.transform);
+				AMprefab.GetComponent<AchievementItemScript>().AMID = k;
 			}
 		}
-		for (int l = 0; l < OptionsMainMenu.instance.AM.Length; l++)
+		for (int j = 0; j < OptionsMainMenu.instance.AM.Length; j++)
 		{
-			GameObject obj2 = UnityEngine.Object.Instantiate(UnlockablePrefab);
-			obj2.transform.SetParent(UnlockableParent.transform);
-			obj2.GetComponent<UnlockableScript>().ULID = l;
+			GameObject ULprefab = UnityEngine.Object.Instantiate(UnlockablePrefab);
+			ULprefab.transform.SetParent(UnlockableParent.transform);
+			ULprefab.GetComponent<UnlockableScript>().ULID = j;
 		}
 		MusicVolume_list.SetValueWithoutNotify(OptionsMainMenu.instance.musicVolumeLvl);
 		MasterVolume_list.SetValueWithoutNotify(OptionsMainMenu.instance.masterVolumeLvl);
@@ -484,38 +490,40 @@ public class NewMenuControl : MonoBehaviour
 	private IEnumerator LateStart()
 	{
 		yield return new WaitForSeconds(0.2f);
-		int num = 0;
-		for (int i = 0; i < GameMaster.instance.TankColorKilled.Count; i++)
+		int track = 0;
+		for (int k = 0; k < GameMaster.instance.TankColorKilled.Count; k++)
 		{
-			GameObject obj = UnityEngine.Object.Instantiate(TankKillItemPrefab);
-			obj.transform.SetParent(TankKillItemParent.transform);
-			obj.GetComponent<TankStatsItem>().myMenu = 1;
-			obj.GetComponent<TankStatsItem>().myStatID = i;
-			obj.GetComponent<TankStatsItem>().NMC = this;
-			obj.GetComponent<TankStatsItem>().originalParent = TankKillItemParent.transform;
-			if (GameMaster.instance.TankColorKilled[i] > 0)
+			GameObject TKprefab = UnityEngine.Object.Instantiate(TankKillItemPrefab);
+			TKprefab.transform.SetParent(TankKillItemParent.transform);
+			TKprefab.GetComponent<TankStatsItem>().myMenu = 1;
+			TKprefab.GetComponent<TankStatsItem>().myStatID = k;
+			TKprefab.GetComponent<TankStatsItem>().NMC = this;
+			TKprefab.GetComponent<TankStatsItem>().originalParent = TankKillItemParent.transform;
+			if (GameMaster.instance.TankColorKilled[k] > 0)
 			{
-				num++;
+				track++;
 			}
 		}
-		_ = 0;
+		if (track > 0)
+		{
+		}
 		for (int j = 0; j < 5; j++)
 		{
-			GameObject obj2 = UnityEngine.Object.Instantiate(TankKillItemPrefab);
-			obj2.transform.SetParent(TankKillItemParent.transform);
-			obj2.GetComponent<TankStatsItem>().myMenu = 0;
-			obj2.GetComponent<TankStatsItem>().myStatID = j;
-			obj2.GetComponent<TankStatsItem>().NMC = this;
-			obj2.GetComponent<TankStatsItem>().originalParent = TankKillItemParent.transform;
+			GameObject TKprefab2 = UnityEngine.Object.Instantiate(TankKillItemPrefab);
+			TKprefab2.transform.SetParent(TankKillItemParent.transform);
+			TKprefab2.GetComponent<TankStatsItem>().myMenu = 0;
+			TKprefab2.GetComponent<TankStatsItem>().myStatID = j;
+			TKprefab2.GetComponent<TankStatsItem>().NMC = this;
+			TKprefab2.GetComponent<TankStatsItem>().originalParent = TankKillItemParent.transform;
 		}
-		for (int k = 0; k < 8; k++)
+		for (int i = 0; i < 8; i++)
 		{
-			GameObject obj3 = UnityEngine.Object.Instantiate(TankKillItemPrefab);
-			obj3.transform.SetParent(TankKillItemParent.transform);
-			obj3.GetComponent<TankStatsItem>().myMenu = 2;
-			obj3.GetComponent<TankStatsItem>().myStatID = k;
-			obj3.GetComponent<TankStatsItem>().NMC = this;
-			obj3.GetComponent<TankStatsItem>().originalParent = TankKillItemParent.transform;
+			GameObject TKprefab3 = UnityEngine.Object.Instantiate(TankKillItemPrefab);
+			TKprefab3.transform.SetParent(TankKillItemParent.transform);
+			TKprefab3.GetComponent<TankStatsItem>().myMenu = 2;
+			TKprefab3.GetComponent<TankStatsItem>().myStatID = i;
+			TKprefab3.GetComponent<TankStatsItem>().NMC = this;
+			TKprefab3.GetComponent<TankStatsItem>().originalParent = TankKillItemParent.transform;
 		}
 		UpdateMenuSignedInText();
 		yield return new WaitForSeconds(2f);
@@ -538,22 +546,22 @@ public class NewMenuControl : MonoBehaviour
 	{
 		for (int i = 0; i < AccountMaster.instance.Inventory.InventoryItems.Length; i++)
 		{
-			foreach (TankeyTownStockItem item in GlobalAssets.instance.StockDatabase)
+			foreach (TankeyTownStockItem TTSI in GlobalAssets.instance.StockDatabase)
 			{
-				if (item.ItemID == AccountMaster.instance.Inventory.InventoryItems[i] && !item.IsMapEditorObject)
+				if (TTSI.ItemID == AccountMaster.instance.Inventory.InventoryItems[i] && !TTSI.IsMapEditorObject)
 				{
-					GameObject obj = UnityEngine.Object.Instantiate(UnlockablePrefab);
-					obj.transform.SetParent(InventoryItemsParent.transform);
-					obj.GetComponent<UnlockableScript>().isTankeyTownItem = true;
-					obj.GetComponent<UnlockableScript>().ULID = item.ItemID + 1000;
-					obj.GetComponent<UnlockableScript>().UnlockableTitle.text = item.ItemName;
-					obj.GetComponent<UnlockableScript>().UnlockableRequire.text = "";
-					obj.GetComponent<UnlockableScript>().isBoost = item.isBoost;
-					obj.GetComponent<UnlockableScript>().isBullet = item.isBullet;
-					obj.GetComponent<UnlockableScript>().isHitmarker = item.isHitmarker;
-					obj.GetComponent<UnlockableScript>().isMine = item.isMine;
-					obj.GetComponent<UnlockableScript>().isSkin = item.isSkin;
-					obj.GetComponent<UnlockableScript>().isSkidmarks = item.isSkidmarks;
+					GameObject ULprefab = UnityEngine.Object.Instantiate(UnlockablePrefab);
+					ULprefab.transform.SetParent(InventoryItemsParent.transform);
+					ULprefab.GetComponent<UnlockableScript>().isTankeyTownItem = true;
+					ULprefab.GetComponent<UnlockableScript>().ULID = TTSI.ItemID + 1000;
+					ULprefab.GetComponent<UnlockableScript>().UnlockableTitle.text = TTSI.ItemName;
+					ULprefab.GetComponent<UnlockableScript>().UnlockableRequire.text = "";
+					ULprefab.GetComponent<UnlockableScript>().isBoost = TTSI.isBoost;
+					ULprefab.GetComponent<UnlockableScript>().isBullet = TTSI.isBullet;
+					ULprefab.GetComponent<UnlockableScript>().isHitmarker = TTSI.isHitmarker;
+					ULprefab.GetComponent<UnlockableScript>().isMine = TTSI.isMine;
+					ULprefab.GetComponent<UnlockableScript>().isSkin = TTSI.isSkin;
+					ULprefab.GetComponent<UnlockableScript>().isSkidmarks = TTSI.isSkidmarks;
 				}
 			}
 		}
@@ -610,17 +618,17 @@ public class NewMenuControl : MonoBehaviour
 
 	private void Update()
 	{
-		this.player = ReInput.players.GetPlayer(0);
-		bool flag = false;
-		for (int i = 0; i < ReInput.players.playerCount; i++)
+		player = ReInput.players.GetPlayer(0);
+		bool PressedUse = false;
+		for (int j = 0; j < ReInput.players.playerCount; j++)
 		{
-			Player player = ReInput.players.GetPlayer(i);
-			if (player.isPlaying)
+			Player p = ReInput.players.GetPlayer(j);
+			if (p.isPlaying)
 			{
-				input.x = player.GetAxis("Move Horizontal");
-				input.y = player.GetAxis("Move Vertically");
-				flag = player.GetButtonUp("Menu Use");
-				if (input.y < 0f || input.y > 0f || flag)
+				input.x = p.GetAxis("Move Horizontal");
+				input.y = p.GetAxis("Move Vertically");
+				PressedUse = p.GetButtonUp("Menu Use");
+				if (input.y < 0f || input.y > 0f || PressedUse)
 				{
 					break;
 				}
@@ -648,15 +656,15 @@ public class NewMenuControl : MonoBehaviour
 		else if (HoldingShift && (!Input.GetKey(KeyCode.LeftShift) || !Input.GetKey(KeyCode.L)))
 		{
 			HoldingShift = false;
-			int num = int.Parse(EnteredCode);
-			if (num > 0 && num < 101)
+			int convertedCode = int.Parse(EnteredCode);
+			if (convertedCode > 0 && convertedCode < 101)
 			{
-				OptionsMainMenu.instance.StartLevel = num - 1;
+				OptionsMainMenu.instance.StartLevel = convertedCode - 1;
 				StartCoroutine(LoadYourAsyncScene(1));
 			}
-			else if (num > 100)
+			else if (convertedCode > 100)
 			{
-				OptionsMainMenu.instance.StartLevel = num - 101;
+				OptionsMainMenu.instance.StartLevel = convertedCode - 101;
 				TTL.Survival = true;
 				StartCoroutine(LoadYourAsyncScene(2));
 			}
@@ -665,11 +673,11 @@ public class NewMenuControl : MonoBehaviour
 		}
 		if (HoldingShift)
 		{
-			for (int j = 0; j < keyCodes.Length; j++)
+			for (int i = 0; i < keyCodes.Length; i++)
 			{
-				if (Input.GetKeyDown(keyCodes[j]))
+				if (Input.GetKeyDown(keyCodes[i]))
 				{
-					EnteredCode += j;
+					EnteredCode += i;
 				}
 			}
 		}
@@ -683,7 +691,7 @@ public class NewMenuControl : MonoBehaviour
 			{
 				GameMaster.instance.isPlayingWithController = true;
 			}
-			if (flag)
+			if (PressedUse)
 			{
 				GameMaster.instance.isPlayingWithController = true;
 				doButton(currentScript);
@@ -774,13 +782,13 @@ public class NewMenuControl : MonoBehaviour
 			CreateAccountNotificationText.text = "Please wait before request";
 			yield break;
 		}
-		string text = keyRequest.downloadHandler.text;
-		WWWForm wWWForm = new WWWForm();
-		wWWForm.AddField("key", key);
-		wWWForm.AddField("userid", userid);
-		wWWForm.AddField("username", name);
-		wWWForm.AddField("authKey", text);
-		UnityWebRequest uwr = UnityWebRequest.Post(url, wWWForm);
+		string receivedKey = keyRequest.downloadHandler.text;
+		WWWForm form = new WWWForm();
+		form.AddField("key", key);
+		form.AddField("userid", userid);
+		form.AddField("username", name);
+		form.AddField("authKey", receivedKey);
+		UnityWebRequest uwr = UnityWebRequest.Post(url, form);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
@@ -808,11 +816,11 @@ public class NewMenuControl : MonoBehaviour
 		CenterText.text = "Setting password...";
 		CenterText.gameObject.SetActive(value: true);
 		Menus[currentMenu].SetActive(value: false);
-		WWWForm wWWForm = new WWWForm();
-		wWWForm.AddField("key", AccountMaster.instance.Key);
-		wWWForm.AddField("userid", AccountMaster.instance.UserID);
-		wWWForm.AddField("password", password);
-		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/set_new_password.php", wWWForm);
+		WWWForm form = new WWWForm();
+		form.AddField("key", AccountMaster.instance.Key);
+		form.AddField("userid", AccountMaster.instance.UserID);
+		form.AddField("password", password);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/set_new_password.php", form);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
@@ -855,14 +863,14 @@ public class NewMenuControl : MonoBehaviour
 			CreateAccountNotificationText.text = "Please wait before request";
 			yield break;
 		}
-		string text = keyRequest.downloadHandler.text;
-		WWWForm wWWForm = new WWWForm();
-		wWWForm.AddField("username", username);
-		wWWForm.AddField("password", password);
-		wWWForm.AddField("authKey", text);
-		wWWForm.AddField("authKey", text);
-		wWWForm.AddField("userData", JsonUtility.ToJson(GameMaster.instance.CurrentData));
-		UnityWebRequest uwr = UnityWebRequest.Post(url, wWWForm);
+		string receivedKey = keyRequest.downloadHandler.text;
+		WWWForm form = new WWWForm();
+		form.AddField("username", username);
+		form.AddField("password", password);
+		form.AddField("authKey", receivedKey);
+		form.AddField("authKey", receivedKey);
+		form.AddField("userData", JsonUtility.ToJson(GameMaster.instance.CurrentData));
+		UnityWebRequest uwr = UnityWebRequest.Post(url, form);
 		uwr.SetRequestHeader("Access-Control-Allow-Credentials", "true");
 		uwr.SetRequestHeader("Access-Control-Allow-Headers", "Accept, Content-Type, X-Access-Token, X-Application-Name, X-Request-Sent-Time");
 		uwr.SetRequestHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
@@ -914,25 +922,25 @@ public class NewMenuControl : MonoBehaviour
 
 	private IEnumerator SignIn(string url, string username, string password)
 	{
-		WWWForm wWWForm = new WWWForm();
-		wWWForm.AddField("username", username);
-		wWWForm.AddField("password", password);
-		wWWForm.AddField("fromGame", "true");
+		WWWForm form = new WWWForm();
+		form.AddField("username", username);
+		form.AddField("password", password);
+		form.AddField("fromGame", "true");
 		if (GameMaster.instance.CurrentData.marbles == 0)
 		{
-			int num = 0;
+			int addedMarbles = 0;
 			for (int i = 0; i < OptionsMainMenu.instance.AM.Length; i++)
 			{
 				if (OptionsMainMenu.instance.AM[i] == 1)
 				{
-					num += OptionsMainMenu.instance.AM_marbles[i];
+					addedMarbles += OptionsMainMenu.instance.AM_marbles[i];
 				}
 			}
-			GameMaster.instance.CurrentData.marbles += num;
+			GameMaster.instance.CurrentData.marbles += addedMarbles;
 			GameMaster.instance.CurrentData.accountname = username;
-			wWWForm.AddField("userData", JsonUtility.ToJson(GameMaster.instance.CurrentData));
+			form.AddField("userData", JsonUtility.ToJson(GameMaster.instance.CurrentData));
 		}
-		UnityWebRequest uwr = UnityWebRequest.Post(url, wWWForm);
+		UnityWebRequest uwr = UnityWebRequest.Post(url, form);
 		uwr.chunkedTransfer = false;
 		CenterText.text = "Signing in...";
 		CenterText.gameObject.SetActive(value: true);
@@ -965,12 +973,12 @@ public class NewMenuControl : MonoBehaviour
 				AccountMaster.instance.SteamUserID = ulong.Parse(splitArray[3]);
 				AccountMaster.instance.SaveCredentials();
 				yield return new WaitForSeconds(1f);
-				int num2 = int.Parse(splitArray[2]);
-				if (num2 > 0)
+				int marbles = int.Parse(splitArray[2]);
+				if (marbles > 0)
 				{
-					AccountMaster.instance.PDO.marbles = num2;
-					GameMaster.instance.CurrentData.marbles = num2;
-					AccountMaster.instance.ShowMarbleNotification(num2);
+					AccountMaster.instance.PDO.marbles = marbles;
+					GameMaster.instance.CurrentData.marbles = marbles;
+					AccountMaster.instance.ShowMarbleNotification(marbles);
 				}
 				yield return new WaitForSeconds(1f);
 				AccountMaster.instance.StartCoroutine(AccountMaster.instance.LoadCloudData());
@@ -1053,11 +1061,11 @@ public class NewMenuControl : MonoBehaviour
 				CreateAccountNotificationText.text = "Error: Name has to be atleast 3 long";
 				return;
 			}
-			string text = PasswordCheck(Create_PasswordInput.text, Create_PasswordInputCheck.text);
-			if (text.Contains("Error"))
+			string passwordCheck = PasswordCheck(Create_PasswordInput.text, Create_PasswordInputCheck.text);
+			if (passwordCheck.Contains("Error"))
 			{
 				CreateAccountNotificationText.gameObject.SetActive(value: true);
-				CreateAccountNotificationText.text = text;
+				CreateAccountNotificationText.text = passwordCheck;
 				return;
 			}
 			Debug.LogError("Creating account");
@@ -1083,11 +1091,11 @@ public class NewMenuControl : MonoBehaviour
 		}
 		else if (MMB.IsSetNewPassword && AccountMaster.instance.CanSetNewPassword)
 		{
-			string text2 = PasswordCheck(NewPassword_PasswordInput.text, NewPassword_PasswordInputCheck.text);
-			if (text2.Contains("Error"))
+			string passwordCheck2 = PasswordCheck(NewPassword_PasswordInput.text, NewPassword_PasswordInputCheck.text);
+			if (passwordCheck2.Contains("Error"))
 			{
 				SetNewPasswordNotificationText.gameObject.SetActive(value: true);
-				SetNewPasswordNotificationText.text = text2;
+				SetNewPasswordNotificationText.text = passwordCheck2;
 				return;
 			}
 			StartCoroutine(SetNewPassword(NewPassword_PasswordInput.text));
@@ -1149,19 +1157,19 @@ public class NewMenuControl : MonoBehaviour
 				if (TransferAccountText.text.Contains("overwrite"))
 				{
 					GameObject[] transferButtons = TransferButtons;
-					for (int i = 0; i < transferButtons.Length; i++)
+					foreach (GameObject button in transferButtons)
 					{
-						transferButtons[i].SetActive(value: false);
+						button.SetActive(value: false);
 					}
 					TransferAccountText.text = "setting new account data...";
 					AccountMaster.instance.StartCoroutine(AccountMaster.instance.TransferAccountToSteam("https://www.weetanks.com/overwrite_to_steam_account.php"));
 				}
 				else if (AccountMaster.instance.isSignedIn)
 				{
-					GameObject[] transferButtons = TransferButtons;
-					for (int i = 0; i < transferButtons.Length; i++)
+					GameObject[] transferButtons2 = TransferButtons;
+					foreach (GameObject button2 in transferButtons2)
 					{
-						transferButtons[i].SetActive(value: false);
+						button2.SetActive(value: false);
 					}
 					TransferAccountText.text = "transferring...";
 					AccountMaster.instance.StartCoroutine(AccountMaster.instance.TransferAccountToSteam("https://www.weetanks.com/transfer_to_steam_account.php"));
@@ -1272,10 +1280,10 @@ public class NewMenuControl : MonoBehaviour
 			}
 			else if (MMB.IsControls)
 			{
-				ControlMapper component = GameObject.Find("ControlMapper").GetComponent<ControlMapper>();
-				if ((bool)component)
+				ControlMapper CM = GameObject.Find("ControlMapper").GetComponent<ControlMapper>();
+				if ((bool)CM)
 				{
-					component.Open();
+					CM.Open();
 				}
 			}
 			else if (MMB.IsAudio)
@@ -1424,36 +1432,36 @@ public class NewMenuControl : MonoBehaviour
 				else if (MMB.StartMatchButton)
 				{
 					Debug.Log("Starting Match..");
-					for (int j = 0; j < 4; j++)
+					for (int i = 0; i < 4; i++)
 					{
-						bool flag = false;
-						for (int k = 0; k < ReInput.controllers.GetControllers(ControllerType.Joystick).Length; k++)
+						bool SetController = false;
+						for (int j = 0; j < ReInput.controllers.GetControllers(ControllerType.Joystick).Length; j++)
 						{
-							if (PIM.Dropdowns[j].captionText.text == ReInput.controllers.GetController(ControllerType.Joystick, k).name)
+							if (PIM.Dropdowns[i].captionText.text == ReInput.controllers.GetController(ControllerType.Joystick, j).name)
 							{
-								Debug.Log("FOUND ONE!!!: " + ReInput.controllers.GetController(ControllerType.Joystick, k).name);
-								ReInput.players.GetPlayer(j).controllers.AddController(ReInput.controllers.GetController(ControllerType.Joystick, k), removeFromOtherPlayers: true);
-								flag = true;
-								OptionsMainMenu.instance.PlayerJoined[j] = true;
+								Debug.Log("FOUND ONE!!!: " + ReInput.controllers.GetController(ControllerType.Joystick, j).name);
+								ReInput.players.GetPlayer(i).controllers.AddController(ReInput.controllers.GetController(ControllerType.Joystick, j), removeFromOtherPlayers: true);
+								SetController = true;
+								OptionsMainMenu.instance.PlayerJoined[i] = true;
 							}
 						}
-						if (!flag)
+						if (!SetController)
 						{
-							if (j == 0)
+							if (i == 0)
 							{
-								ReInput.players.GetPlayer(j).controllers.ClearAllControllers();
-								ReInput.players.GetPlayer(j).controllers.AddController(ReInput.controllers.GetController(ControllerType.Keyboard, 0), removeFromOtherPlayers: true);
-								ReInput.players.GetPlayer(j).controllers.AddController(ReInput.controllers.GetController(ControllerType.Mouse, 0), removeFromOtherPlayers: true);
-								OptionsMainMenu.instance.PlayerJoined[j] = true;
+								ReInput.players.GetPlayer(i).controllers.ClearAllControllers();
+								ReInput.players.GetPlayer(i).controllers.AddController(ReInput.controllers.GetController(ControllerType.Keyboard, 0), removeFromOtherPlayers: true);
+								ReInput.players.GetPlayer(i).controllers.AddController(ReInput.controllers.GetController(ControllerType.Mouse, 0), removeFromOtherPlayers: true);
+								OptionsMainMenu.instance.PlayerJoined[i] = true;
 							}
-							else if (PIM.Dropdowns[j].captionText.text.Contains("AI"))
+							else if (PIM.Dropdowns[i].captionText.text.Contains("AI"))
 							{
-								OptionsMainMenu.instance.AIcompanion[j] = true;
-								OptionsMainMenu.instance.PlayerJoined[j] = false;
+								OptionsMainMenu.instance.AIcompanion[i] = true;
+								OptionsMainMenu.instance.PlayerJoined[i] = false;
 							}
 							else
 							{
-								OptionsMainMenu.instance.PlayerJoined[j] = false;
+								OptionsMainMenu.instance.PlayerJoined[i] = false;
 							}
 						}
 					}
@@ -1511,11 +1519,11 @@ public class NewMenuControl : MonoBehaviour
 		}
 		Debug.Log("loading new level: " + lvlNumber);
 		GameObject[] menus = Menus;
-		foreach (GameObject gameObject in menus)
+		foreach (GameObject menu in menus)
 		{
-			if (gameObject != null)
+			if (menu != null)
 			{
-				gameObject.SetActive(value: false);
+				menu.SetActive(value: false);
 			}
 		}
 		LIS_parent.gameObject.SetActive(value: true);
@@ -1648,8 +1656,8 @@ public class NewMenuControl : MonoBehaviour
 	{
 		CreateAccountNotificationText.gameObject.SetActive(value: false);
 		SignInNotificationText.gameObject.SetActive(value: false);
-		string text = ((OptionsMainMenu.instance.currentDifficulty == 0) ? "Toddler" : ((OptionsMainMenu.instance.currentDifficulty == 1) ? "Kid" : ((OptionsMainMenu.instance.currentDifficulty == 2) ? "Adult" : "Grandpa")));
-		DifficultyExplainText.text = "You are playing on the " + text + " difficulty";
+		string difficultyname = ((OptionsMainMenu.instance.currentDifficulty == 0) ? "Toddler" : ((OptionsMainMenu.instance.currentDifficulty == 1) ? "Kid" : ((OptionsMainMenu.instance.currentDifficulty == 2) ? "Adult" : "Grandpa")));
+		DifficultyExplainText.text = "You are playing on the " + difficultyname + " difficulty";
 		StartCoroutine(MenuTransition(menunumber));
 	}
 
@@ -1661,9 +1669,9 @@ public class NewMenuControl : MonoBehaviour
 		CanvasGroup CG2 = Menus[currentMenu].GetComponent<CanvasGroup>();
 		MainMenuButtons[] MMBs2 = Menus[currentMenu].GetComponentsInChildren<MainMenuButtons>();
 		MainMenuButtons[] array = MMBs2;
-		for (int i = 0; i < array.Length; i++)
+		foreach (MainMenuButtons MMB in array)
 		{
-			array[i].SwitchedMenu();
+			MMB.SwitchedMenu();
 		}
 		if ((bool)CG2)
 		{
@@ -1674,17 +1682,17 @@ public class NewMenuControl : MonoBehaviour
 				yield return null;
 			}
 		}
-		array = MMBs2;
-		for (int i = 0; i < array.Length; i++)
+		MainMenuButtons[] array2 = MMBs2;
+		foreach (MainMenuButtons MMB2 in array2)
 		{
-			array[i].SwitchedMenu();
+			MMB2.SwitchedMenu();
 		}
 		GameObject[] menus = Menus;
-		foreach (GameObject gameObject in menus)
+		foreach (GameObject menu in menus)
 		{
-			if (gameObject != null)
+			if (menu != null)
 			{
-				gameObject.SetActive(value: false);
+				menu.SetActive(value: false);
 			}
 		}
 		lastKnownPlaces[currentMenu] = Selection;
@@ -1696,10 +1704,10 @@ public class NewMenuControl : MonoBehaviour
 		Selection = lastKnownPlaces[menunumber];
 		Menus[menunumber].SetActive(value: true);
 		MMBs2 = Menus[currentMenu].GetComponentsInChildren<MainMenuButtons>();
-		array = MMBs2;
-		for (int i = 0; i < array.Length; i++)
+		MainMenuButtons[] array3 = MMBs2;
+		foreach (MainMenuButtons MMB3 in array3)
 		{
-			array[i].LoadButton();
+			MMB3.LoadButton();
 		}
 		t2 = 0f;
 		CG2 = Menus[currentMenu].GetComponent<CanvasGroup>();

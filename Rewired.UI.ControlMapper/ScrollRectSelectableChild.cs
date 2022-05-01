@@ -9,7 +9,7 @@ namespace Rewired.UI.ControlMapper;
 [RequireComponent(typeof(Selectable))]
 public class ScrollRectSelectableChild : MonoBehaviour, ISelectHandler, IEventSystemHandler
 {
-	public bool useCustomEdgePadding;
+	public bool useCustomEdgePadding = false;
 
 	public float customEdgePadding = 50f;
 
@@ -36,19 +36,19 @@ public class ScrollRectSelectableChild : MonoBehaviour, ISelectHandler, IEventSy
 	{
 		if (!(parentScrollRect == null) && eventData is AxisEventData)
 		{
-			RectTransform rectTransform = parentScrollRect.transform as RectTransform;
-			Rect child = MathTools.TransformRect(this.rectTransform.rect, this.rectTransform, rectTransform);
-			Rect rect = rectTransform.rect;
-			Rect rect2 = rectTransform.rect;
-			float num = ((!useCustomEdgePadding) ? child.height : customEdgePadding);
-			rect2.yMax -= num;
-			rect2.yMin += num;
-			if (!MathTools.RectContains(rect2, child) && MathTools.GetOffsetToContainRect(rect2, child, out var offset))
+			RectTransform parentScrollRectTransform = parentScrollRect.transform as RectTransform;
+			Rect relSelectableRect = MathTools.TransformRect(rectTransform.rect, rectTransform, parentScrollRectTransform);
+			Rect viewRect = parentScrollRectTransform.rect;
+			Rect paddedViewRect = parentScrollRectTransform.rect;
+			float yPad = ((!useCustomEdgePadding) ? relSelectableRect.height : customEdgePadding);
+			paddedViewRect.yMax -= yPad;
+			paddedViewRect.yMin += yPad;
+			if (!MathTools.RectContains(paddedViewRect, relSelectableRect) && MathTools.GetOffsetToContainRect(paddedViewRect, relSelectableRect, out var offset))
 			{
-				Vector2 anchoredPosition = parentScrollRectContentTransform.anchoredPosition;
-				anchoredPosition.x = Mathf.Clamp(anchoredPosition.x + offset.x, 0f, Mathf.Abs(rect.width - parentScrollRectContentTransform.sizeDelta.x));
-				anchoredPosition.y = Mathf.Clamp(anchoredPosition.y + offset.y, 0f, Mathf.Abs(rect.height - parentScrollRectContentTransform.sizeDelta.y));
-				parentScrollRectContentTransform.anchoredPosition = anchoredPosition;
+				Vector2 newPos = parentScrollRectContentTransform.anchoredPosition;
+				newPos.x = Mathf.Clamp(newPos.x + offset.x, 0f, Mathf.Abs(viewRect.width - parentScrollRectContentTransform.sizeDelta.x));
+				newPos.y = Mathf.Clamp(newPos.y + offset.y, 0f, Mathf.Abs(viewRect.height - parentScrollRectContentTransform.sizeDelta.y));
+				parentScrollRectContentTransform.anchoredPosition = newPos;
 			}
 		}
 	}

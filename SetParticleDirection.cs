@@ -6,11 +6,11 @@ public class SetParticleDirection : MonoBehaviour
 {
 	private ParticleSystem PS;
 
-	public bool trackParent;
+	public bool trackParent = false;
 
-	public bool invertRotation;
+	public bool invertRotation = false;
 
-	public float offset;
+	public float offset = 0f;
 
 	private void Start()
 	{

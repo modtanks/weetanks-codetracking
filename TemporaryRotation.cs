@@ -2,13 +2,13 @@ using UnityEngine;
 
 public class TemporaryRotation : MonoBehaviour
 {
-	public bool xAxis;
+	public bool xAxis = false;
 
-	public bool zAxis;
+	public bool zAxis = false;
 
 	public float RotateSpeed;
 
-	public float RotationTimeLeft;
+	public float RotationTimeLeft = 0f;
 
 	private void Update()
 	{

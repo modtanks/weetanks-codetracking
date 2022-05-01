@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class DestroySecondPlayer : MonoBehaviour
 {
-	public bool disabled;
+	public bool disabled = false;
 
 	public GameObject magicBurst;
 
-	public bool joined;
+	public bool joined = false;
 
 	public int PlayerID = 1;
 
@@ -32,9 +32,9 @@ public class DestroySecondPlayer : MonoBehaviour
 		{
 			GameMaster.instance.AmountGoodTanks--;
 		}
-		foreach (Transform item in base.transform)
+		foreach (Transform child in base.transform)
 		{
-			item.gameObject.SetActive(value: false);
+			child.gameObject.SetActive(value: false);
 		}
 	}
 
@@ -100,9 +100,9 @@ public class DestroySecondPlayer : MonoBehaviour
 			else if (!MapEditorMaster.instance.isTesting && !MapEditorMaster.instance.inPlayingMode && disabled)
 			{
 				disabled = false;
-				foreach (Transform item in base.transform)
+				foreach (Transform child in base.transform)
 				{
-					item.gameObject.SetActive(value: true);
+					child.gameObject.SetActive(value: true);
 				}
 			}
 		}
@@ -112,17 +112,18 @@ public class DestroySecondPlayer : MonoBehaviour
 		}
 		if (!joined && GameMaster.instance.PlayerJoined[PlayerID])
 		{
-			GameObject obj = Object.Instantiate(magicBurst, base.transform.position, Quaternion.identity);
-			ParticleSystem component = obj.GetComponent<ParticleSystem>();
-			obj.GetComponent<Play2DClipOnce>().overrideGameStarted = true;
-			component.Play();
-			obj.transform.Rotate(new Vector3(-90f, 0f, 0f));
-			obj.transform.parent = null;
+			GameObject poof = Object.Instantiate(magicBurst, base.transform.position, Quaternion.identity);
+			ParticleSystem poofie = poof.GetComponent<ParticleSystem>();
+			Play2DClipOnce PCO = poof.GetComponent<Play2DClipOnce>();
+			PCO.overrideGameStarted = true;
+			poofie.Play();
+			poof.transform.Rotate(new Vector3(-90f, 0f, 0f));
+			poof.transform.parent = null;
 			joined = true;
 			disabled = false;
-			foreach (Transform item2 in base.transform)
+			foreach (Transform child4 in base.transform)
 			{
-				item2.gameObject.SetActive(value: true);
+				child4.gameObject.SetActive(value: true);
 			}
 			GameMaster.instance.FindPlayers();
 			GameMaster.instance.StartCoroutine(GameMaster.instance.GetTankTeamData(fast: false));
@@ -130,33 +131,33 @@ public class DestroySecondPlayer : MonoBehaviour
 		if (GameMaster.instance.PlayerModeWithAI[1] == 1 && PlayerID == 1 && disabled)
 		{
 			disabled = false;
-			foreach (Transform item3 in base.transform)
+			foreach (Transform child5 in base.transform)
 			{
-				item3.gameObject.SetActive(value: true);
+				child5.gameObject.SetActive(value: true);
 			}
 		}
 		else if (GameMaster.instance.PlayerModeWithAI[2] == 1 && PlayerID == 2 && disabled)
 		{
 			disabled = false;
-			foreach (Transform item4 in base.transform)
+			foreach (Transform child3 in base.transform)
 			{
-				item4.gameObject.SetActive(value: true);
+				child3.gameObject.SetActive(value: true);
 			}
 		}
 		else if (GameMaster.instance.PlayerModeWithAI[3] == 1 && PlayerID == 3 && disabled)
 		{
 			disabled = false;
-			foreach (Transform item5 in base.transform)
+			foreach (Transform child2 in base.transform)
 			{
-				item5.gameObject.SetActive(value: true);
+				child2.gameObject.SetActive(value: true);
 			}
 		}
 		if (!GameMaster.instance.isZombieMode && GameMaster.instance.CurrentMission != 0)
 		{
-			MoveTankScript componentInChildren = GetComponentInChildren<MoveTankScript>();
-			if ((bool)componentInChildren)
+			MoveTankScript MTS = GetComponentInChildren<MoveTankScript>();
+			if ((bool)MTS)
 			{
-				componentInChildren.enabled = false;
+				MTS.enabled = false;
 			}
 		}
 		else if ((bool)ZombieTankSpawner.instance && ZombieTankSpawner.instance.Wave > 0)

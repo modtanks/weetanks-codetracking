@@ -8,28 +8,28 @@ public class PathfindingAI : MonoBehaviour
 
 	public List<PathGridPieceClass> BlockScripts = new List<PathGridPieceClass>();
 
-	public bool canReset;
+	public bool canReset = false;
 
-	public bool callFinished;
+	public bool callFinished = false;
 
 	public EnemyAI myAI;
 
 	public List<int> PathIDS = new List<int>();
 
-	public bool SearchForPlayer;
+	public bool SearchForPlayer = false;
 
 	public int ScanRange = 24;
 
-	private int amountOfScans;
+	private int amountOfScans = 0;
 
 	private int scannedDone = 1;
 
-	private int amountToScan;
+	private int amountToScan = 0;
 
 	private void Start()
 	{
-		float repeatRate = Random.Range(2f, 3f);
-		InvokeRepeating("SearchAIblock", 0.5f, repeatRate);
+		float RandomStartTimer = Random.Range(2f, 3f);
+		InvokeRepeating("SearchAIblock", 0.5f, RandomStartTimer);
 		myAI = GetComponent<EnemyAI>();
 	}
 
@@ -39,76 +39,76 @@ public class PathfindingAI : MonoBehaviour
 
 	private void AddPGPC(PathfindingBlock PAB, PathGridPieceClass ClassCaller, int hasAlreadyPGPC, bool diagonal, bool overwrite)
 	{
-		PathGridPieceClass pathGridPieceClass;
+		PathGridPieceClass PGPC;
 		if (hasAlreadyPGPC == 1)
 		{
-			pathGridPieceClass = PAB.PGPC;
+			PGPC = PAB.PGPC;
 		}
 		else
 		{
-			pathGridPieceClass = new PathGridPieceClass();
-			pathGridPieceClass.ID = BlockScripts.Count;
-			pathGridPieceClass.GridID = PAB.GridID;
-			pathGridPieceClass.myPAB = PAB;
-			pathGridPieceClass.position = PAB.transform.position;
-			pathGridPieceClass.AmountCalls = amountOfScans;
-			pathGridPieceClass.Score = 2;
+			PGPC = new PathGridPieceClass();
+			PGPC.ID = BlockScripts.Count;
+			PGPC.GridID = PAB.GridID;
+			PGPC.myPAB = PAB;
+			PGPC.position = PAB.transform.position;
+			PGPC.AmountCalls = amountOfScans;
+			PGPC.Score = 2;
 			if (PAB.ElectricInMe)
 			{
-				pathGridPieceClass.Score = ((!myAI.isElectric) ? 20 : 0);
+				PGPC.Score = ((!myAI.isElectric) ? 20 : 0);
 			}
 			if (myAI.isWallHugger)
 			{
-				pathGridPieceClass.Score += (PAB.SouthOnTop ? (-1) : 0);
+				PGPC.Score += (PAB.SouthOnTop ? (-1) : 0);
 			}
 			if (myAI.isAggressive)
 			{
-				pathGridPieceClass.Score += (PAB.SolidInMeIsCork ? Random.Range(8, 12) : 0);
+				PGPC.Score += (PAB.SolidInMeIsCork ? Random.Range(8, 12) : 0);
 			}
-			BlockScripts.Add(pathGridPieceClass);
+			BlockScripts.Add(PGPC);
 		}
-		if (ClassCaller != null && pathGridPieceClass.ID != 0)
+		if (ClassCaller != null && PGPC.ID != 0)
 		{
-			PrevCallers prevCallers = new PrevCallers();
-			prevCallers.IDcaller = ClassCaller.ID;
-			int num = 0;
-			num = ((ClassCaller.PrevCalls.Count <= 0) ? ClassCaller.AmountCalls : ClassCaller.PrevCalls.OrderBy((PrevCallers x) => x.OurScore).ToList()[0].AmountPieces);
-			prevCallers.AmountPieces = num + 1;
-			int num2 = 0;
-			int num3 = (diagonal ? 1 : 0);
+			PrevCallers newCallClass = new PrevCallers();
+			newCallClass.IDcaller = ClassCaller.ID;
+			int ClassCallerCalls = 0;
+			ClassCallerCalls = ((ClassCaller.PrevCalls.Count <= 0) ? ClassCaller.AmountCalls : ClassCaller.PrevCalls.OrderBy((PrevCallers x) => x.OurScore).ToList()[0].AmountPieces);
+			newCallClass.AmountPieces = ClassCallerCalls + 1;
+			int lowestScore = 0;
+			int AdditionalScore = (diagonal ? 1 : 0);
 			if (ClassCaller.PrevCalls.Count > 0)
 			{
 				ClassCaller.PrevCalls = ClassCaller.PrevCalls.OrderBy((PrevCallers x) => x.OurScore).ToList();
-				num2 = ClassCaller.PrevCalls[0].OurScore;
+				lowestScore = ClassCaller.PrevCalls[0].OurScore;
 			}
 			else
 			{
-				num2 = ClassCaller.Score;
+				lowestScore = ClassCaller.Score;
 			}
-			prevCallers.OurScore = pathGridPieceClass.Score + num2 + num3;
-			if (pathGridPieceClass.PrevCalls.Count > 0)
+			newCallClass.OurScore = PGPC.Score + lowestScore + AdditionalScore;
+			if (PGPC.PrevCalls.Count > 0)
 			{
-				pathGridPieceClass.PrevCalls = pathGridPieceClass.PrevCalls.OrderBy((PrevCallers x) => x.OurScore).ToList();
-				if (prevCallers.OurScore < pathGridPieceClass.PrevCalls[0].OurScore)
+				PGPC.PrevCalls = PGPC.PrevCalls.OrderBy((PrevCallers x) => x.OurScore).ToList();
+				if (newCallClass.OurScore < PGPC.PrevCalls[0].OurScore)
 				{
-					pathGridPieceClass.PrevCalls.Add(prevCallers);
-					pathGridPieceClass.PrevCalls = pathGridPieceClass.PrevCalls.OrderBy((PrevCallers x) => x.OurScore).ToList();
-					CheckAllDirections(pathGridPieceClass, IsOverwrite: true);
+					PGPC.PrevCalls.Add(newCallClass);
+					PGPC.PrevCalls = PGPC.PrevCalls.OrderBy((PrevCallers x) => x.OurScore).ToList();
+					CheckAllDirections(PGPC, IsOverwrite: true);
 				}
-				else if (!overwrite && pathGridPieceClass.ID != 0)
+				else if (!overwrite && PGPC.ID != 0)
 				{
-					pathGridPieceClass.PrevCalls.Add(prevCallers);
-					pathGridPieceClass.PrevCalls = pathGridPieceClass.PrevCalls.OrderBy((PrevCallers x) => x.OurScore).ToList();
+					PGPC.PrevCalls.Add(newCallClass);
+					PGPC.PrevCalls = PGPC.PrevCalls.OrderBy((PrevCallers x) => x.OurScore).ToList();
 				}
 			}
 			else if (!overwrite)
 			{
-				pathGridPieceClass.PrevCalls.Add(prevCallers);
+				PGPC.PrevCalls.Add(newCallClass);
 			}
-			PAB.MyPreviousCallers.Add(prevCallers);
+			PAB.MyPreviousCallers.Add(newCallClass);
 		}
-		SetPABcolor(PAB, pathGridPieceClass.Score);
-		PAB.PGPC = pathGridPieceClass;
+		SetPABcolor(PAB, PGPC.Score);
+		PAB.PGPC = PGPC;
 	}
 
 	public void SearchAIblock()
@@ -122,20 +122,21 @@ public class PathfindingAI : MonoBehaviour
 			BlockScripts.Clear();
 			return;
 		}
-		Collider[] array = Physics.OverlapSphere(base.transform.position + new Vector3(0f, 1f, 0f), 0.2f);
-		foreach (Collider collider in array)
+		Collider[] Hits = Physics.OverlapSphere(base.transform.position + new Vector3(0f, 1f, 0f), 0.2f);
+		Collider[] array = Hits;
+		foreach (Collider coll in array)
 		{
-			if (!(collider.tag == "TeleportBlock"))
+			if (!(coll.tag == "TeleportBlock"))
 			{
 				continue;
 			}
-			PathfindingBlock component = collider.GetComponent<PathfindingBlock>();
-			if (!component)
+			PathfindingBlock PAB = coll.GetComponent<PathfindingBlock>();
+			if (!PAB)
 			{
 				continue;
 			}
 			BlockScripts.Clear();
-			AddPGPC(component, null, 2, diagonal: false, overwrite: false);
+			AddPGPC(PAB, null, 2, diagonal: false, overwrite: false);
 			amountOfScans = 0;
 			scannedDone = 1;
 			PathIDS.Clear();
@@ -143,31 +144,32 @@ public class PathfindingAI : MonoBehaviour
 			amountOfScans++;
 			while (scannedDone != amountToScan && amountOfScans < ScanRange)
 			{
-				int num = 0;
+				int toadd = 0;
 				int i;
 				for (i = scannedDone; i < amountToScan; i++)
 				{
-					num += CheckAllDirections(BlockScripts.Find((PathGridPieceClass x) => x.ID == i), IsOverwrite: false);
+					toadd += CheckAllDirections(BlockScripts.Find((PathGridPieceClass x) => x.ID == i), IsOverwrite: false);
 					scannedDone++;
 				}
-				amountToScan += num;
+				amountToScan += toadd;
 				amountOfScans++;
 			}
 			BlockScripts = BlockScripts.OrderBy((PathGridPieceClass w) => w.Score).ToList();
-			PathGridPieceClass pathGridPieceClass = null;
-			List<PathGridPieceClass> blockScripts = BlockScripts;
-			bool flag = false;
+			PathGridPieceClass thePGPC = null;
+			List<PathGridPieceClass> TempList = BlockScripts;
+			int tries = 0;
+			bool canContinue = false;
 			do
 			{
-				if (blockScripts.Count < 1)
+				if (TempList.Count < 1)
 				{
 					myAI.isPathfinding = false;
 					myAI.hasGottenPath = false;
 					return;
 				}
-				if (pathGridPieceClass != null)
+				if (thePGPC != null)
 				{
-					blockScripts.Remove(pathGridPieceClass);
+					TempList.Remove(thePGPC);
 				}
 				if (SearchForPlayer)
 				{
@@ -178,27 +180,27 @@ public class PathfindingAI : MonoBehaviour
 						SearchForPlayer = false;
 						return;
 					}
-					pathGridPieceClass = blockScripts.Find((PathGridPieceClass x) => x.myPAB.inMe.Contains(myAI.DownedPlayer));
+					thePGPC = TempList.Find((PathGridPieceClass x) => x.myPAB.inMe.Contains(myAI.DownedPlayer));
 					myAI.GoingToPlayer = true;
-					flag = true;
+					canContinue = true;
 				}
 				else if (myAI.isWallHugger)
 				{
-					if (blockScripts.Count < 1)
+					if (TempList.Count < 1)
 					{
 						return;
 					}
-					pathGridPieceClass = blockScripts.Find((PathGridPieceClass x) => x.myPAB.SolidSouthOfMe && !x.myPAB.inMe.Contains(myAI.gameObject));
-					flag = true;
+					thePGPC = TempList.Find((PathGridPieceClass x) => x.myPAB.SolidSouthOfMe && !x.myPAB.inMe.Contains(myAI.gameObject));
+					canContinue = true;
 				}
 				else if (myAI.StaysCloseToAllies)
 				{
-					if (blockScripts.Count < 1)
+					if (TempList.Count < 1)
 					{
 						return;
 					}
-					pathGridPieceClass = blockScripts.Find((PathGridPieceClass x) => x.myPAB.TanksInMe.Find((PathfindingBlock.TankInfo y) => y.EnemyTeam == myAI.MyTeam && y.TankObject != base.gameObject) != null);
-					flag = true;
+					thePGPC = TempList.Find((PathGridPieceClass x) => x.myPAB.TanksInMe.Find((PathfindingBlock.TankInfo y) => y.EnemyTeam == myAI.MyTeam && y.TankObject != base.gameObject) != null);
+					canContinue = true;
 				}
 				else if (myAI.isAggressive && (bool)myAI.ETSN)
 				{
@@ -208,64 +210,66 @@ public class PathfindingAI : MonoBehaviour
 						myAI.hasGottenPath = false;
 						return;
 					}
-					pathGridPieceClass = blockScripts.Find((PathGridPieceClass x) => x.myPAB.inMe.Contains(myAI.ETSN.currentTarget));
-					flag = true;
+					thePGPC = TempList.Find((PathGridPieceClass x) => x.myPAB.inMe.Contains(myAI.ETSN.currentTarget));
+					canContinue = true;
 				}
 				else if (myAI.ETSN == null)
 				{
 					return;
 				}
-				if (pathGridPieceClass == null)
+				if (thePGPC == null)
 				{
-					flag = false;
+					canContinue = false;
 					myAI.isPathfinding = false;
 					myAI.hasGottenPath = false;
 					return;
 				}
-				if (pathGridPieceClass != null && (float)pathGridPieceClass.Score < 1f)
+				if (thePGPC != null && (float)thePGPC.Score < 1f)
 				{
-					flag = false;
+					canContinue = false;
 				}
 			}
-			while (!flag);
-			pathGridPieceClass.myPAB.MR.material.color = Color.blue;
-			PathIDS.Add(pathGridPieceClass.ID);
-			pathGridPieceClass.PrevCalls = pathGridPieceClass.PrevCalls.OrderBy((PrevCallers w) => w.OurScore).ToList();
-			if (pathGridPieceClass.PrevCalls.Count < 1)
+			while (!canContinue);
+			thePGPC.myPAB.MR.material.color = Color.blue;
+			PathIDS.Add(thePGPC.ID);
+			thePGPC.PrevCalls = thePGPC.PrevCalls.OrderBy((PrevCallers w) => w.OurScore).ToList();
+			if (thePGPC.PrevCalls.Count < 1)
 			{
 				myAI.isPathfinding = false;
 				myAI.hasGottenPath = false;
 				break;
 			}
-			int prevCallerID = pathGridPieceClass.PrevCalls[0].IDcaller;
-			for (int k = 0; k < pathGridPieceClass.PrevCalls[0].AmountPieces; k++)
+			int prevCallerID = thePGPC.PrevCalls[0].IDcaller;
+			for (int j = 0; j < thePGPC.PrevCalls[0].AmountPieces; j++)
 			{
-				PathGridPieceClass pathGridPieceClass2 = BlockScripts.Find((PathGridPieceClass x) => x.ID == prevCallerID);
-				if (pathGridPieceClass2 != null)
+				PathGridPieceClass PrevClass = BlockScripts.Find((PathGridPieceClass x) => x.ID == prevCallerID);
+				if (PrevClass != null)
 				{
-					_ = myAI.isWallHugger;
-					PathIDS.Add(pathGridPieceClass2.ID);
-					pathGridPieceClass2.PrevCalls = pathGridPieceClass2.PrevCalls.OrderBy((PrevCallers w) => w.OurScore).ToList();
-					if (pathGridPieceClass2.PrevCalls.Count <= 0)
+					if (myAI.isWallHugger)
+					{
+					}
+					PathIDS.Add(PrevClass.ID);
+					PrevClass.PrevCalls = PrevClass.PrevCalls.OrderBy((PrevCallers w) => w.OurScore).ToList();
+					if (PrevClass.PrevCalls.Count <= 0)
 					{
 						break;
 					}
-					prevCallerID = pathGridPieceClass2.PrevCalls[0].IDcaller;
+					prevCallerID = PrevClass.PrevCalls[0].IDcaller;
 					if (prevCallerID == 0)
 					{
 						break;
 					}
-					pathGridPieceClass2.myPAB.MR.material.color = Color.blue;
+					PrevClass.myPAB.MR.material.color = Color.blue;
 				}
 			}
-			PathfindingBlock myPAB = BlockScripts.Find((PathGridPieceClass x) => x.ID == PathIDS[PathIDS.Count - 1]).myPAB;
-			if ((bool)myPAB)
+			PathfindingBlock closestBlock = BlockScripts.Find((PathGridPieceClass x) => x.ID == PathIDS[PathIDS.Count - 1]).myPAB;
+			if ((bool)closestBlock)
 			{
-				Color green = Color.green;
-				myPAB.MR.material.color = green;
+				Color clr = Color.green;
+				closestBlock.MR.material.color = clr;
 				myAI.hasGottenPath = true;
 				myAI.isPathfinding = true;
-				myAI.preferredLocation = myPAB.transform.position + new Vector3(Random.Range(-0.5f, 0.5f), 0f, Random.Range(-0.5f, 0.5f));
+				myAI.preferredLocation = closestBlock.transform.position + new Vector3(Random.Range(-0.5f, 0.5f), 0f, Random.Range(-0.5f, 0.5f));
 				if (myAI.isWallHugger)
 				{
 					myAI.TankSpeed = myAI.OriginalTankSpeed;
@@ -281,12 +285,12 @@ public class PathfindingAI : MonoBehaviour
 		{
 			return;
 		}
-		PathfindingBlock myPAB = BlockScripts.Find((PathGridPieceClass x) => x.ID == PathIDS[PathIDS.Count - 1]).myPAB;
-		if ((bool)myPAB)
+		PathfindingBlock prevBlock = BlockScripts.Find((PathGridPieceClass x) => x.ID == PathIDS[PathIDS.Count - 1]).myPAB;
+		if ((bool)prevBlock)
 		{
-			Color clear = Color.clear;
-			clear.a = 0f;
-			myPAB.MR.material.color = clear;
+			Color clr2 = Color.clear;
+			clr2.a = 0f;
+			prevBlock.MR.material.color = clr2;
 		}
 		PathIDS.RemoveAt(PathIDS.Count - 1);
 		if (PathIDS.Count < 1)
@@ -305,13 +309,13 @@ public class PathfindingAI : MonoBehaviour
 			SearchAIblock();
 			return;
 		}
-		PathfindingBlock myPAB2 = BlockScripts.Find((PathGridPieceClass x) => x.ID == PathIDS[PathIDS.Count - 1]).myPAB;
-		if ((bool)myPAB2)
+		PathfindingBlock closestBlock = BlockScripts.Find((PathGridPieceClass x) => x.ID == PathIDS[PathIDS.Count - 1]).myPAB;
+		if ((bool)closestBlock)
 		{
-			Color green = Color.green;
-			myPAB2.MR.material.color = green;
+			Color clr = Color.green;
+			closestBlock.MR.material.color = clr;
 			myAI.hasGottenPath = true;
-			myAI.preferredLocation = myPAB2.transform.position + new Vector3(Random.Range(-0.5f, 0.5f), 0f, Random.Range(-0.5f, 0.5f));
+			myAI.preferredLocation = closestBlock.transform.position + new Vector3(Random.Range(-0.5f, 0.5f), 0f, Random.Range(-0.5f, 0.5f));
 			myAI.SetDestination(myAI.preferredLocation);
 		}
 	}
@@ -326,103 +330,99 @@ public class PathfindingAI : MonoBehaviour
 		{
 			return 0;
 		}
-		PathGridPieceClass pathGridPieceClass = BlockScripts.Find((PathGridPieceClass x) => x.myPAB == BlockOnSide);
-		int num = 0;
-		if (pathGridPieceClass != null)
-		{
-			return 1;
-		}
-		return 2;
+		PathGridPieceClass Test = BlockScripts.Find((PathGridPieceClass x) => x.myPAB == BlockOnSide);
+		int canCheck = 0;
+		return (Test != null) ? 1 : 2;
 	}
 
 	private int CheckAllDirections(PathGridPieceClass PGPC, bool IsOverwrite)
 	{
-		int num = 0;
-		PathfindingBlock pathfindingBlock = CheckAdjacent(PGPC, 0);
-		int num2 = CheckPrevCalls(pathfindingBlock, PGPC);
-		if (pathfindingBlock != null && num2 > 0)
+		int AmountToAddToTotal = 0;
+		PathfindingBlock Left = CheckAdjacent(PGPC, 0);
+		int canCheck = CheckPrevCalls(Left, PGPC);
+		if (Left != null && canCheck > 0)
 		{
-			num2 = (IsOverwrite ? 1 : num2);
-			AddPGPC(pathfindingBlock, PGPC, num2, diagonal: false, IsOverwrite);
+			canCheck = (IsOverwrite ? 1 : canCheck);
+			AddPGPC(Left, PGPC, canCheck, diagonal: false, IsOverwrite);
 			PGPC.LeftID = BlockScripts.Count;
-			if (num2 == 2)
+			if (canCheck == 2)
 			{
-				num++;
+				AmountToAddToTotal++;
 			}
 		}
 		else
 		{
 			PGPC.LeftID = -1;
 		}
-		PathfindingBlock pathfindingBlock2 = CheckAdjacent(PGPC, 2);
-		num2 = CheckPrevCalls(pathfindingBlock2, PGPC);
-		if (pathfindingBlock2 != null && num2 > 0)
+		PathfindingBlock Up = CheckAdjacent(PGPC, 2);
+		canCheck = CheckPrevCalls(Up, PGPC);
+		if (Up != null && canCheck > 0)
 		{
-			num2 = (IsOverwrite ? 1 : num2);
-			AddPGPC(pathfindingBlock2, PGPC, num2, diagonal: false, IsOverwrite);
+			canCheck = (IsOverwrite ? 1 : canCheck);
+			AddPGPC(Up, PGPC, canCheck, diagonal: false, IsOverwrite);
 			PGPC.UpID = BlockScripts.Count;
-			if (num2 == 2)
+			if (canCheck == 2)
 			{
-				num++;
+				AmountToAddToTotal++;
 			}
 		}
 		else
 		{
 			PGPC.UpID = -1;
 		}
-		PathfindingBlock pathfindingBlock3 = CheckAdjacent(PGPC, 4);
-		num2 = CheckPrevCalls(pathfindingBlock3, PGPC);
-		if (pathfindingBlock3 != null && num2 > 0)
+		PathfindingBlock Right = CheckAdjacent(PGPC, 4);
+		canCheck = CheckPrevCalls(Right, PGPC);
+		if (Right != null && canCheck > 0)
 		{
-			num2 = (IsOverwrite ? 1 : num2);
-			AddPGPC(pathfindingBlock3, PGPC, num2, diagonal: false, IsOverwrite);
+			canCheck = (IsOverwrite ? 1 : canCheck);
+			AddPGPC(Right, PGPC, canCheck, diagonal: false, IsOverwrite);
 			PGPC.RightID = BlockScripts.Count;
-			if (num2 == 2)
+			if (canCheck == 2)
 			{
-				num++;
+				AmountToAddToTotal++;
 			}
 		}
 		else
 		{
 			PGPC.RightID = -1;
 		}
-		PathfindingBlock pathfindingBlock4 = CheckAdjacent(PGPC, 6);
-		num2 = CheckPrevCalls(pathfindingBlock4, PGPC);
-		if (pathfindingBlock4 != null && num2 > 0)
+		PathfindingBlock Down = CheckAdjacent(PGPC, 6);
+		canCheck = CheckPrevCalls(Down, PGPC);
+		if (Down != null && canCheck > 0)
 		{
-			num2 = (IsOverwrite ? 1 : num2);
-			AddPGPC(pathfindingBlock4, PGPC, num2, diagonal: false, IsOverwrite);
+			canCheck = (IsOverwrite ? 1 : canCheck);
+			AddPGPC(Down, PGPC, canCheck, diagonal: false, IsOverwrite);
 			PGPC.BottomID = BlockScripts.Count;
-			if (num2 == 2)
+			if (canCheck == 2)
 			{
-				num++;
+				AmountToAddToTotal++;
 			}
 		}
 		else
 		{
 			PGPC.BottomID = -1;
 		}
-		PathfindingBlock pathfindingBlock5 = CheckAdjacent(PGPC, 1);
-		num2 = CheckPrevCalls(pathfindingBlock5, PGPC);
-		if (pathfindingBlock5 != null && num2 > 0)
+		PathfindingBlock LeftTop = CheckAdjacent(PGPC, 1);
+		canCheck = CheckPrevCalls(LeftTop, PGPC);
+		if (LeftTop != null && canCheck > 0)
 		{
-			bool flag = false;
+			bool skip4 = false;
 			if (CheckForSolid(PGPC, 0))
 			{
-				flag = true;
+				skip4 = true;
 			}
 			if (CheckForSolid(PGPC, 2))
 			{
-				flag = true;
+				skip4 = true;
 			}
-			if (!flag)
+			if (!skip4)
 			{
-				num2 = (IsOverwrite ? 1 : num2);
-				AddPGPC(pathfindingBlock5, PGPC, num2, diagonal: true, IsOverwrite);
+				canCheck = (IsOverwrite ? 1 : canCheck);
+				AddPGPC(LeftTop, PGPC, canCheck, diagonal: true, IsOverwrite);
 				PGPC.LeftTopID = BlockScripts.Count;
-				if (num2 == 2)
+				if (canCheck == 2)
 				{
-					num++;
+					AmountToAddToTotal++;
 				}
 			}
 			else
@@ -434,27 +434,27 @@ public class PathfindingAI : MonoBehaviour
 		{
 			PGPC.LeftTopID = -1;
 		}
-		PathfindingBlock pathfindingBlock6 = CheckAdjacent(PGPC, 3);
-		num2 = CheckPrevCalls(pathfindingBlock6, PGPC);
-		if (pathfindingBlock6 != null && num2 > 0)
+		PathfindingBlock RightTop = CheckAdjacent(PGPC, 3);
+		canCheck = CheckPrevCalls(RightTop, PGPC);
+		if (RightTop != null && canCheck > 0)
 		{
-			bool flag2 = false;
+			bool skip3 = false;
 			if (CheckForSolid(PGPC, 4))
 			{
-				flag2 = true;
+				skip3 = true;
 			}
 			if (CheckForSolid(PGPC, 2))
 			{
-				flag2 = true;
+				skip3 = true;
 			}
-			if (!flag2)
+			if (!skip3)
 			{
-				num2 = (IsOverwrite ? 1 : num2);
-				AddPGPC(pathfindingBlock6, PGPC, num2, diagonal: true, IsOverwrite);
+				canCheck = (IsOverwrite ? 1 : canCheck);
+				AddPGPC(RightTop, PGPC, canCheck, diagonal: true, IsOverwrite);
 				PGPC.RightTopID = BlockScripts.Count;
-				if (num2 == 2)
+				if (canCheck == 2)
 				{
-					num++;
+					AmountToAddToTotal++;
 				}
 			}
 			else
@@ -466,27 +466,27 @@ public class PathfindingAI : MonoBehaviour
 		{
 			PGPC.RightTopID = -1;
 		}
-		PathfindingBlock pathfindingBlock7 = CheckAdjacent(PGPC, 5);
-		num2 = CheckPrevCalls(pathfindingBlock7, PGPC);
-		if (pathfindingBlock7 != null && num2 > 0)
+		PathfindingBlock RightBottom = CheckAdjacent(PGPC, 5);
+		canCheck = CheckPrevCalls(RightBottom, PGPC);
+		if (RightBottom != null && canCheck > 0)
 		{
-			bool flag3 = false;
+			bool skip2 = false;
 			if (CheckForSolid(PGPC, 4))
 			{
-				flag3 = true;
+				skip2 = true;
 			}
 			if (CheckForSolid(PGPC, 6))
 			{
-				flag3 = true;
+				skip2 = true;
 			}
-			if (!flag3)
+			if (!skip2)
 			{
-				num2 = (IsOverwrite ? 1 : num2);
-				AddPGPC(pathfindingBlock7, PGPC, num2, diagonal: true, IsOverwrite);
+				canCheck = (IsOverwrite ? 1 : canCheck);
+				AddPGPC(RightBottom, PGPC, canCheck, diagonal: true, IsOverwrite);
 				PGPC.RightBottomID = BlockScripts.Count;
-				if (num2 == 2)
+				if (canCheck == 2)
 				{
-					num++;
+					AmountToAddToTotal++;
 				}
 			}
 			else
@@ -498,27 +498,27 @@ public class PathfindingAI : MonoBehaviour
 		{
 			PGPC.RightBottomID = -1;
 		}
-		PathfindingBlock pathfindingBlock8 = CheckAdjacent(PGPC, 7);
-		num2 = CheckPrevCalls(pathfindingBlock8, PGPC);
-		if (pathfindingBlock8 != null && num2 > 0)
+		PathfindingBlock LeftBottom = CheckAdjacent(PGPC, 7);
+		canCheck = CheckPrevCalls(LeftBottom, PGPC);
+		if (LeftBottom != null && canCheck > 0)
 		{
-			bool flag4 = false;
+			bool skip = false;
 			if (CheckForSolid(PGPC, 0))
 			{
-				flag4 = true;
+				skip = true;
 			}
 			if (CheckForSolid(PGPC, 6))
 			{
-				flag4 = true;
+				skip = true;
 			}
-			if (!flag4)
+			if (!skip)
 			{
-				num2 = (IsOverwrite ? 1 : num2);
-				AddPGPC(pathfindingBlock8, PGPC, num2, diagonal: true, IsOverwrite);
+				canCheck = (IsOverwrite ? 1 : canCheck);
+				AddPGPC(LeftBottom, PGPC, canCheck, diagonal: true, IsOverwrite);
 				PGPC.LeftBottomID = BlockScripts.Count;
-				if (num2 == 2)
+				if (canCheck == 2)
 				{
-					num++;
+					AmountToAddToTotal++;
 				}
 			}
 			else
@@ -530,27 +530,27 @@ public class PathfindingAI : MonoBehaviour
 		{
 			PGPC.LeftBottomID = -1;
 		}
-		return num;
+		return AmountToAddToTotal;
 	}
 
 	private PathfindingBlock CheckAdjacent(PathGridPieceClass caller, int direction)
 	{
-		PathfindingBlock pathfindingBlock = PathfindingBlocksMaster.instance.FindBlock(caller.GridID, direction);
-		if ((bool)pathfindingBlock && !pathfindingBlock.SolidInMe)
+		PathfindingBlock other = PathfindingBlocksMaster.instance.FindBlock(caller.GridID, direction);
+		if ((bool)other && !other.SolidInMe)
 		{
-			return pathfindingBlock;
+			return other;
 		}
-		if ((bool)pathfindingBlock && pathfindingBlock.SolidInMe && pathfindingBlock.SolidInMeIsCork && myAI.LayMines && !SearchForPlayer)
+		if ((bool)other && other.SolidInMe && other.SolidInMeIsCork && myAI.LayMines && !SearchForPlayer)
 		{
-			return pathfindingBlock;
+			return other;
 		}
 		return null;
 	}
 
 	private bool CheckForSolid(PathGridPieceClass caller, int direction)
 	{
-		PathfindingBlock pathfindingBlock = PathfindingBlocksMaster.instance.FindBlock(caller.GridID, direction);
-		if ((bool)pathfindingBlock && pathfindingBlock.SolidInMe)
+		PathfindingBlock other = PathfindingBlocksMaster.instance.FindBlock(caller.GridID, direction);
+		if ((bool)other && other.SolidInMe)
 		{
 			return true;
 		}
