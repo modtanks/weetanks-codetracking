@@ -181,21 +181,21 @@ public class CustomButton : Button, ICustomSelectable, ICancelHandler, IEventSys
 	{
 		if (isHighlightDisabled)
 		{
-			Color tintColor = _disabledHighlightedColor;
-			Sprite transitionSprite = _disabledHighlightedSprite;
-			string triggerName = _disabledHighlightedTrigger;
+			Color color = _disabledHighlightedColor;
+			Sprite newSprite = _disabledHighlightedSprite;
+			string triggername = _disabledHighlightedTrigger;
 			if (base.gameObject.activeInHierarchy)
 			{
 				switch (base.transition)
 				{
 				case Transition.ColorTint:
-					StartColorTween(tintColor * base.colors.colorMultiplier, instant);
+					StartColorTween(color * base.colors.colorMultiplier, instant);
 					break;
 				case Transition.SpriteSwap:
-					DoSpriteSwap(transitionSprite);
+					DoSpriteSwap(newSprite);
 					break;
 				case Transition.Animation:
-					TriggerAnimation(triggerName);
+					TriggerAnimation(triggername);
 					break;
 				}
 			}

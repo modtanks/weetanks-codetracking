@@ -19,7 +19,11 @@ public class GamepadTemplateUI : MonoBehaviour
 		{
 			get
 			{
-				return (_transform != null) ? (_transform.anchoredPosition - _origPosition) : Vector2.zero;
+				if (!(_transform != null))
+				{
+					return Vector2.zero;
+				}
+				return _transform.anchoredPosition - _origPosition;
 			}
 			set
 			{
@@ -55,23 +59,27 @@ public class GamepadTemplateUI : MonoBehaviour
 			{
 				return false;
 			}
-			return elementId == _xAxisElementId || elementId == _yAxisElementId;
+			if (elementId != _xAxisElementId)
+			{
+				return elementId == _yAxisElementId;
+			}
+			return true;
 		}
 
 		public void SetAxisPosition(int elementId, float value)
 		{
 			if (!(_transform == null))
 			{
-				Vector2 position = this.position;
+				Vector2 vector = position;
 				if (elementId == _xAxisElementId)
 				{
-					position.x = value;
+					vector.x = value;
 				}
 				else if (elementId == _yAxisElementId)
 				{
-					position.y = value;
+					vector.y = value;
 				}
-				this.position = position;
+				position = vector;
 			}
 		}
 	}
@@ -91,7 +99,7 @@ public class GamepadTemplateUI : MonoBehaviour
 
 	private const float stickRadius = 20f;
 
-	public int playerId = 0;
+	public int playerId;
 
 	[SerializeField]
 	private RectTransform leftStick;
@@ -243,86 +251,86 @@ public class GamepadTemplateUI : MonoBehaviour
 
 	private void DrawActiveElements()
 	{
-		for (int k = 0; k < _uiElementsArray.Length; k++)
+		for (int i = 0; i < _uiElementsArray.Length; i++)
 		{
-			_uiElementsArray[k].element.Deactivate();
+			_uiElementsArray[i].element.Deactivate();
 		}
 		for (int j = 0; j < _sticks.Length; j++)
 		{
 			_sticks[j].Reset();
 		}
 		IList<InputAction> actions = ReInput.mapping.Actions;
-		for (int i = 0; i < actions.Count; i++)
+		for (int k = 0; k < actions.Count; k++)
 		{
-			ActivateElements(player, actions[i].id);
+			ActivateElements(player, actions[k].id);
 		}
 	}
 
 	private void ActivateElements(Player player, int actionId)
 	{
-		float axisValue = player.GetAxis(actionId);
-		if (axisValue == 0f)
+		float axis = player.GetAxis(actionId);
+		if (axis == 0f)
 		{
 			return;
 		}
-		IList<InputActionSourceData> sources = player.GetCurrentInputSources(actionId);
-		for (int i = 0; i < sources.Count; i++)
+		IList<InputActionSourceData> currentInputSources = player.GetCurrentInputSources(actionId);
+		for (int i = 0; i < currentInputSources.Count; i++)
 		{
-			InputActionSourceData source = sources[i];
-			IGamepadTemplate gamepad = source.controller.GetTemplate<IGamepadTemplate>();
-			if (gamepad == null)
+			InputActionSourceData inputActionSourceData = currentInputSources[i];
+			IGamepadTemplate template = inputActionSourceData.controller.GetTemplate<IGamepadTemplate>();
+			if (template == null)
 			{
 				continue;
 			}
-			gamepad.GetElementTargets(source.actionElementMap, _tempTargetList);
+			template.GetElementTargets(inputActionSourceData.actionElementMap, _tempTargetList);
 			for (int j = 0; j < _tempTargetList.Count; j++)
 			{
-				ControllerTemplateElementTarget target = _tempTargetList[j];
-				int templateElementId = target.element.id;
-				ControllerUIElement uiElement = _uiElements[templateElementId];
-				if (target.elementType == ControllerTemplateElementType.Axis)
+				ControllerTemplateElementTarget controllerTemplateElementTarget = _tempTargetList[j];
+				int id = controllerTemplateElementTarget.element.id;
+				ControllerUIElement controllerUIElement = _uiElements[id];
+				if (controllerTemplateElementTarget.elementType == ControllerTemplateElementType.Axis)
 				{
-					uiElement.Activate(axisValue);
+					controllerUIElement.Activate(axis);
 				}
-				else if (target.elementType == ControllerTemplateElementType.Button && (player.GetButton(actionId) || player.GetNegativeButton(actionId)))
+				else if (controllerTemplateElementTarget.elementType == ControllerTemplateElementType.Button && (player.GetButton(actionId) || player.GetNegativeButton(actionId)))
 				{
-					uiElement.Activate(1f);
+					controllerUIElement.Activate(1f);
 				}
-				GetStick(templateElementId)?.SetAxisPosition(templateElementId, axisValue * 20f);
+				GetStick(id)?.SetAxisPosition(id, axis * 20f);
 			}
 		}
 	}
 
 	private void DrawLabels()
 	{
-		for (int j = 0; j < _uiElementsArray.Length; j++)
+		for (int i = 0; i < _uiElementsArray.Length; i++)
 		{
-			_uiElementsArray[j].element.ClearLabels();
+			_uiElementsArray[i].element.ClearLabels();
 		}
 		IList<InputAction> actions = ReInput.mapping.Actions;
-		for (int i = 0; i < actions.Count; i++)
+		for (int j = 0; j < actions.Count; j++)
 		{
-			DrawLabels(player, actions[i]);
+			DrawLabels(player, actions[j]);
 		}
 	}
 
 	private void DrawLabels(Player player, InputAction action)
 	{
-		Controller controller = player.controllers.GetFirstControllerWithTemplate<IGamepadTemplate>();
-		if (controller == null)
+		Controller firstControllerWithTemplate = player.controllers.GetFirstControllerWithTemplate<IGamepadTemplate>();
+		if (firstControllerWithTemplate == null)
 		{
 			return;
 		}
-		IGamepadTemplate gamepad = controller.GetTemplate<IGamepadTemplate>();
-		ControllerMap controllerMap = player.controllers.maps.GetMap(controller, "Default", "Default");
-		if (controllerMap != null)
+		IGamepadTemplate template = firstControllerWithTemplate.GetTemplate<IGamepadTemplate>();
+		ControllerMap map = player.controllers.maps.GetMap(firstControllerWithTemplate, "Default", "Default");
+		if (map != null)
 		{
 			for (int i = 0; i < _uiElementsArray.Length; i++)
 			{
-				ControllerUIElement uiElement = _uiElementsArray[i].element;
-				int elementId = _uiElementsArray[i].id;
-				IControllerTemplateElement element = gamepad.GetElement(elementId);
-				DrawLabel(uiElement, action, controllerMap, gamepad, element);
+				ControllerUIElement element = _uiElementsArray[i].element;
+				int id = _uiElementsArray[i].id;
+				IControllerTemplateElement element2 = template.GetElement(id);
+				DrawLabel(element, action, map, template, element2);
 			}
 		}
 	}
@@ -335,52 +343,52 @@ public class GamepadTemplateUI : MonoBehaviour
 		}
 		if (element.source.type == ControllerTemplateElementSourceType.Axis)
 		{
-			IControllerTemplateAxisSource source2 = element.source as IControllerTemplateAxisSource;
-			ActionElementMap aem;
-			if (source2.splitAxis)
+			IControllerTemplateAxisSource controllerTemplateAxisSource = element.source as IControllerTemplateAxisSource;
+			ActionElementMap firstElementMapWithElementTarget;
+			if (controllerTemplateAxisSource.splitAxis)
 			{
-				aem = controllerMap.GetFirstElementMapWithElementTarget(source2.positiveTarget, action.id, skipDisabledMaps: true);
-				if (aem != null)
+				firstElementMapWithElementTarget = controllerMap.GetFirstElementMapWithElementTarget(controllerTemplateAxisSource.positiveTarget, action.id, skipDisabledMaps: true);
+				if (firstElementMapWithElementTarget != null)
 				{
-					uiElement.SetLabel(aem.actionDescriptiveName, AxisRange.Positive);
+					uiElement.SetLabel(firstElementMapWithElementTarget.actionDescriptiveName, AxisRange.Positive);
 				}
-				aem = controllerMap.GetFirstElementMapWithElementTarget(source2.negativeTarget, action.id, skipDisabledMaps: true);
-				if (aem != null)
+				firstElementMapWithElementTarget = controllerMap.GetFirstElementMapWithElementTarget(controllerTemplateAxisSource.negativeTarget, action.id, skipDisabledMaps: true);
+				if (firstElementMapWithElementTarget != null)
 				{
-					uiElement.SetLabel(aem.actionDescriptiveName, AxisRange.Negative);
+					uiElement.SetLabel(firstElementMapWithElementTarget.actionDescriptiveName, AxisRange.Negative);
 				}
 				return;
 			}
-			aem = controllerMap.GetFirstElementMapWithElementTarget(source2.fullTarget, action.id, skipDisabledMaps: true);
-			if (aem != null)
+			firstElementMapWithElementTarget = controllerMap.GetFirstElementMapWithElementTarget(controllerTemplateAxisSource.fullTarget, action.id, skipDisabledMaps: true);
+			if (firstElementMapWithElementTarget != null)
 			{
-				uiElement.SetLabel(aem.actionDescriptiveName, AxisRange.Full);
+				uiElement.SetLabel(firstElementMapWithElementTarget.actionDescriptiveName, AxisRange.Full);
 				return;
 			}
-			aem = controllerMap.GetFirstElementMapWithElementTarget(new ControllerElementTarget(source2.fullTarget)
+			firstElementMapWithElementTarget = controllerMap.GetFirstElementMapWithElementTarget(new ControllerElementTarget(controllerTemplateAxisSource.fullTarget)
 			{
 				axisRange = AxisRange.Positive
 			}, action.id, skipDisabledMaps: true);
-			if (aem != null)
+			if (firstElementMapWithElementTarget != null)
 			{
-				uiElement.SetLabel(aem.actionDescriptiveName, AxisRange.Positive);
+				uiElement.SetLabel(firstElementMapWithElementTarget.actionDescriptiveName, AxisRange.Positive);
 			}
-			aem = controllerMap.GetFirstElementMapWithElementTarget(new ControllerElementTarget(source2.fullTarget)
+			firstElementMapWithElementTarget = controllerMap.GetFirstElementMapWithElementTarget(new ControllerElementTarget(controllerTemplateAxisSource.fullTarget)
 			{
 				axisRange = AxisRange.Negative
 			}, action.id, skipDisabledMaps: true);
-			if (aem != null)
+			if (firstElementMapWithElementTarget != null)
 			{
-				uiElement.SetLabel(aem.actionDescriptiveName, AxisRange.Negative);
+				uiElement.SetLabel(firstElementMapWithElementTarget.actionDescriptiveName, AxisRange.Negative);
 			}
 		}
 		else if (element.source.type == ControllerTemplateElementSourceType.Button)
 		{
-			IControllerTemplateButtonSource source = element.source as IControllerTemplateButtonSource;
-			ActionElementMap aem = controllerMap.GetFirstElementMapWithElementTarget(source.target, action.id, skipDisabledMaps: true);
-			if (aem != null)
+			IControllerTemplateButtonSource controllerTemplateButtonSource = element.source as IControllerTemplateButtonSource;
+			ActionElementMap firstElementMapWithElementTarget = controllerMap.GetFirstElementMapWithElementTarget(controllerTemplateButtonSource.target, action.id, skipDisabledMaps: true);
+			if (firstElementMapWithElementTarget != null)
 			{
-				uiElement.SetLabel(aem.actionDescriptiveName, AxisRange.Full);
+				uiElement.SetLabel(firstElementMapWithElementTarget.actionDescriptiveName, AxisRange.Full);
 			}
 		}
 	}

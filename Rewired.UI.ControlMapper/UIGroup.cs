@@ -16,7 +16,11 @@ public class UIGroup : MonoBehaviour
 	{
 		get
 		{
-			return (_label != null) ? _label.text : string.Empty;
+			if (!(_label != null))
+			{
+				return string.Empty;
+			}
+			return _label.text;
 		}
 		set
 		{

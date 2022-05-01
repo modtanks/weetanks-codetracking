@@ -95,12 +95,12 @@ public class ControlMapper : MonoBehaviour
 		{
 			if (!(text == null))
 			{
-				LayoutElement e = text.GetComponent<LayoutElement>();
-				if (e == null)
+				LayoutElement layoutElement = text.GetComponent<LayoutElement>();
+				if (layoutElement == null)
 				{
-					e = text.gameObject.AddComponent<LayoutElement>();
+					layoutElement = text.gameObject.AddComponent<LayoutElement>();
 				}
-				e.preferredWidth = value;
+				layoutElement.preferredWidth = value;
 			}
 		}
 
@@ -109,18 +109,18 @@ public class ControlMapper : MonoBehaviour
 			if (rectTransform.childCount != 0)
 			{
 				Transform child = rectTransform.GetChild(0);
-				LayoutElement e = child.GetComponent<LayoutElement>();
-				if (e == null)
+				LayoutElement layoutElement = child.GetComponent<LayoutElement>();
+				if (layoutElement == null)
 				{
-					e = child.gameObject.AddComponent<LayoutElement>();
+					layoutElement = child.gameObject.AddComponent<LayoutElement>();
 				}
 				switch (type)
 				{
 				case LayoutElementSizeType.MinSize:
-					e.minWidth = value;
+					layoutElement.minWidth = value;
 					break;
 				case LayoutElementSizeType.PreferredSize:
-					e.preferredWidth = value;
+					layoutElement.preferredWidth = value;
 					break;
 				default:
 					throw new NotImplementedException();
@@ -205,17 +205,13 @@ public class ControlMapper : MonoBehaviour
 		public GUIButton(GameObject gameObject)
 			: base(gameObject)
 		{
-			if (Init())
-			{
-			}
+			Init();
 		}
 
 		public GUIButton(Button button, TMP_Text label)
 			: base(button, label)
 		{
-			if (Init())
-			{
-			}
+			Init();
 		}
 
 		public void SetButtonInfoData(string identifier, int intData)
@@ -286,17 +282,13 @@ public class ControlMapper : MonoBehaviour
 		public GUIInputField(GameObject gameObject)
 			: base(gameObject)
 		{
-			if (Init())
-			{
-			}
+			Init();
 		}
 
 		public GUIInputField(Button button, TMP_Text label)
 			: base(button, label)
 		{
-			if (Init())
-			{
-			}
+			Init();
 		}
 
 		public void SetFieldInfoData(int actionId, AxisRange axisRange, ControllerType controllerType, int intData)
@@ -370,17 +362,13 @@ public class ControlMapper : MonoBehaviour
 		public GUIToggle(GameObject gameObject)
 			: base(gameObject)
 		{
-			if (Init())
-			{
-			}
+			Init();
 		}
 
 		public GUIToggle(Toggle toggle, TMP_Text label)
 			: base(toggle, label)
 		{
-			if (Init())
-			{
-			}
+			Init();
 		}
 
 		public void SetToggleInfoData(int actionId, AxisRange axisRange, ControllerType controllerType, int intData)
@@ -400,10 +388,10 @@ public class ControlMapper : MonoBehaviour
 			{
 				return;
 			}
-			EventTrigger trigger = toggle.GetComponent<EventTrigger>();
-			if (trigger == null)
+			EventTrigger eventTrigger = toggle.GetComponent<EventTrigger>();
+			if (eventTrigger == null)
 			{
-				trigger = toggle.gameObject.AddComponent<EventTrigger>();
+				eventTrigger = toggle.gameObject.AddComponent<EventTrigger>();
 			}
 			EventTrigger.TriggerEvent triggerEvent = new EventTrigger.TriggerEvent();
 			triggerEvent.AddListener(delegate(BaseEventData data)
@@ -413,26 +401,26 @@ public class ControlMapper : MonoBehaviour
 					callback(toggleInfo, toggle.isOn);
 				}
 			});
-			EventTrigger.Entry entry = new EventTrigger.Entry
+			EventTrigger.Entry item = new EventTrigger.Entry
 			{
 				callback = triggerEvent,
 				eventID = EventTriggerType.Submit
 			};
-			EventTrigger.Entry entry2 = new EventTrigger.Entry
+			EventTrigger.Entry item2 = new EventTrigger.Entry
 			{
 				callback = triggerEvent,
 				eventID = EventTriggerType.PointerClick
 			};
-			if (trigger.triggers != null)
+			if (eventTrigger.triggers != null)
 			{
-				trigger.triggers.Clear();
+				eventTrigger.triggers.Clear();
 			}
 			else
 			{
-				trigger.triggers = new List<EventTrigger.Entry>();
+				eventTrigger.triggers = new List<EventTrigger.Entry>();
 			}
-			trigger.triggers.Add(entry);
-			trigger.triggers.Add(entry2);
+			eventTrigger.triggers.Add(item);
+			eventTrigger.triggers.Add(item2);
 		}
 
 		public void SetToggleState(bool state)
@@ -466,9 +454,7 @@ public class ControlMapper : MonoBehaviour
 		public GUILabel(TMP_Text label)
 		{
 			text = label;
-			if (Check())
-			{
-			}
+			Check();
 		}
 
 		public void SetSize(int width, int height)
@@ -673,7 +659,7 @@ public class ControlMapper : MonoBehaviour
 
 		[SerializeField]
 		[Tooltip("Minimum value the user is allowed to set for this property.")]
-		private float _joystickAxisSensitivityMin = 0f;
+		private float _joystickAxisSensitivityMin;
 
 		[SerializeField]
 		[Tooltip("Maximum value the user is allowed to set for this property.")]
@@ -681,7 +667,7 @@ public class ControlMapper : MonoBehaviour
 
 		[SerializeField]
 		[Tooltip("Minimum value the user is allowed to set for this property.")]
-		private float _mouseXYAxisSensitivityMin = 0f;
+		private float _mouseXYAxisSensitivityMin;
 
 		[SerializeField]
 		[Tooltip("Maximum value the user is allowed to set for this property.")]
@@ -711,7 +697,21 @@ public class ControlMapper : MonoBehaviour
 
 		public float mouseXYAxisSensitivityMax => _mouseXYAxisSensitivityMax;
 
-		public bool isValid => _inputBehaviorId >= 0 && (_showJoystickAxisSensitivity || _showMouseXYAxisSensitivity);
+		public bool isValid
+		{
+			get
+			{
+				if (_inputBehaviorId >= 0)
+				{
+					if (!_showJoystickAxisSensitivity)
+					{
+						return _showMouseXYAxisSensitivity;
+					}
+					return true;
+				}
+				return false;
+			}
+		}
 	}
 
 	[Serializable]
@@ -1002,12 +1002,12 @@ public class ControlMapper : MonoBehaviour
 		{
 			get
 			{
-				AxisRange axisRange = AxisRange.Positive;
+				AxisRange result = AxisRange.Positive;
 				if (pollingInfo.elementType == ControllerElementType.Axis)
 				{
-					axisRange = ((fieldInfo.axisRange != 0) ? ((pollingInfo.axisPole == Pole.Positive) ? AxisRange.Positive : AxisRange.Negative) : AxisRange.Full);
+					result = ((fieldInfo.axisRange != 0) ? ((pollingInfo.axisPole == Pole.Positive) ? AxisRange.Positive : AxisRange.Negative) : AxisRange.Full);
 				}
-				return axisRange;
+				return result;
 			}
 		}
 
@@ -1108,10 +1108,10 @@ public class ControlMapper : MonoBehaviour
 		{
 			if (axis != null)
 			{
-				AxisCalibration calibration = joystick.calibrationMap.GetAxis(axisIndex);
-				if (calibration != null && !((double)Mathf.Abs(data.max - data.min) < 0.1))
+				AxisCalibration axisCalibration = joystick.calibrationMap.GetAxis(axisIndex);
+				if (axisCalibration != null && !((double)Mathf.Abs(data.max - data.min) < 0.1))
 				{
-					calibration.SetData(data);
+					axisCalibration.SetData(data);
 				}
 			}
 		}
@@ -1145,23 +1145,23 @@ public class ControlMapper : MonoBehaviour
 
 		public TValue Get(TKey key)
 		{
-			int index = IndexOfKey(key);
-			if (index < 0)
+			int num = IndexOfKey(key);
+			if (num < 0)
 			{
 				throw new Exception("Key does not exist!");
 			}
-			return list[index].value;
+			return list[num].value;
 		}
 
 		public bool TryGet(TKey key, out TValue value)
 		{
 			value = default(TValue);
-			int index = IndexOfKey(key);
-			if (index < 0)
+			int num = IndexOfKey(key);
+			if (num < 0)
 			{
 				return false;
 			}
-			value = list[index].value;
+			value = list[num].value;
 			return true;
 		}
 
@@ -1396,12 +1396,12 @@ public class ControlMapper : MonoBehaviour
 
 			public ActionEntry GetActionEntry(int actionId, AxisRange axisRange)
 			{
-				int index = IndexOfActionEntry(actionId, axisRange);
-				if (index < 0)
+				int num = IndexOfActionEntry(actionId, axisRange);
+				if (num < 0)
 				{
 					return null;
 				}
-				return _actionList[index];
+				return _actionList[num];
 			}
 
 			public int IndexOfActionEntry(int actionId, AxisRange axisRange)
@@ -1461,13 +1461,13 @@ public class ControlMapper : MonoBehaviour
 
 			public void SetAllActive(bool state)
 			{
-				for (int j = 0; j < _actionCategoryList.Count; j++)
+				for (int i = 0; i < _actionCategoryList.Count; i++)
 				{
-					_actionCategoryList[j].SetActive(state);
+					_actionCategoryList[i].SetActive(state);
 				}
-				for (int i = 0; i < _actionList.Count; i++)
+				for (int j = 0; j < _actionList.Count; j++)
 				{
-					_actionList[i].SetActive(state);
+					_actionList[j].SetActive(state);
 				}
 			}
 		}
@@ -1568,15 +1568,15 @@ public class ControlMapper : MonoBehaviour
 			{
 				if (fieldSets.ContainsKey((int)controllerType) && fieldSets.Get((int)controllerType).fields.ContainsKey(index))
 				{
-					GUIInputField field = fieldSets.Get((int)controllerType).fields.Get(index);
-					field.SetLabel(label);
-					field.actionElementMapId = actionElementMapId;
-					field.controllerId = controllerId;
-					if (field.hasToggle)
+					GUIInputField gUIInputField = fieldSets.Get((int)controllerType).fields.Get(index);
+					gUIInputField.SetLabel(label);
+					gUIInputField.actionElementMapId = actionElementMapId;
+					gUIInputField.controllerId = controllerId;
+					if (gUIInputField.hasToggle)
 					{
-						field.toggle.SetInteractible(state: true, playTransition: false);
-						field.toggle.SetToggleState(invert);
-						field.toggle.actionElementMapId = actionElementMapId;
+						gUIInputField.toggle.SetInteractible(state: true, playTransition: false);
+						gUIInputField.toggle.SetToggleState(invert);
+						gUIInputField.toggle.actionElementMapId = actionElementMapId;
 					}
 				}
 			}
@@ -1585,11 +1585,11 @@ public class ControlMapper : MonoBehaviour
 			{
 				if (fieldSets.ContainsKey((int)controllerType))
 				{
-					FieldSet setEntries = fieldSets.Get((int)controllerType);
-					int count = setEntries.fields.Count;
+					FieldSet fieldSet = fieldSets.Get((int)controllerType);
+					int count = fieldSet.fields.Count;
 					for (int i = 0; i < count; i++)
 					{
-						setEntries.fields[i].controllerId = controllerId;
+						fieldSet.fields[i].controllerId = controllerId;
 					}
 				}
 			}
@@ -1602,16 +1602,16 @@ public class ControlMapper : MonoBehaviour
 					int count = fieldSet.fields.Count;
 					for (int j = 0; j < count; j++)
 					{
-						GUIInputField field = fieldSet.fields[j];
-						if (field.hasToggle)
+						GUIInputField gUIInputField = fieldSet.fields[j];
+						if (gUIInputField.hasToggle)
 						{
-							field.toggle.SetInteractible(state: false, playTransition: false);
-							field.toggle.SetToggleState(state: false);
-							field.toggle.actionElementMapId = -1;
+							gUIInputField.toggle.SetInteractible(state: false, playTransition: false);
+							gUIInputField.toggle.SetToggleState(state: false);
+							gUIInputField.toggle.actionElementMapId = -1;
 						}
-						field.SetLabel("");
-						field.actionElementMapId = -1;
-						field.controllerId = -1;
+						gUIInputField.SetLabel("");
+						gUIInputField.actionElementMapId = -1;
+						gUIInputField.controllerId = -1;
 					}
 				}
 			}
@@ -1637,8 +1637,7 @@ public class ControlMapper : MonoBehaviour
 					int count = fieldSet.fields.Count;
 					for (int j = 0; j < count; j++)
 					{
-						GUIInputField field = fieldSet.fields[j];
-						field.SetLabel("");
+						fieldSet.fields[j].SetLabel("");
 					}
 				}
 			}
@@ -1651,11 +1650,11 @@ public class ControlMapper : MonoBehaviour
 					int count = fieldSet.fields.Count;
 					for (int j = 0; j < count; j++)
 					{
-						GUIInputField field = fieldSet.fields[j];
-						field.SetInteractible(state, playTransition: false);
-						if (field.hasToggle && (!state || field.toggle.actionElementMapId >= 0))
+						GUIInputField gUIInputField = fieldSet.fields[j];
+						gUIInputField.SetInteractible(state, playTransition: false);
+						if (gUIInputField.hasToggle && (!state || gUIInputField.toggle.actionElementMapId >= 0))
 						{
-							field.toggle.SetInteractible(state, playTransition: false);
+							gUIInputField.toggle.SetInteractible(state, playTransition: false);
 						}
 					}
 				}
@@ -1726,18 +1725,18 @@ public class ControlMapper : MonoBehaviour
 			{
 				return null;
 			}
-			if (!entries.TryGet(mapCategoryId, out var entry))
+			if (!entries.TryGet(mapCategoryId, out var value))
 			{
 				return null;
 			}
-			return entry.AddAction(action, axisRange);
+			return value.AddAction(action, axisRange);
 		}
 
 		public void AddActionLabel(int mapCategoryId, int actionId, AxisRange axisRange, GUILabel label)
 		{
-			if (entries.TryGet(mapCategoryId, out var entry))
+			if (entries.TryGet(mapCategoryId, out var value))
 			{
-				entry.GetActionEntry(actionId, axisRange)?.SetLabel(label);
+				value.GetActionEntry(actionId, axisRange)?.SetLabel(label);
 			}
 		}
 
@@ -1748,18 +1747,18 @@ public class ControlMapper : MonoBehaviour
 
 		private ActionCategoryEntry AddActionCategoryEntry(int mapCategoryId, int actionCategoryId)
 		{
-			if (!entries.TryGet(mapCategoryId, out var entry))
+			if (!entries.TryGet(mapCategoryId, out var value))
 			{
 				return null;
 			}
-			return entry.AddActionCategory(actionCategoryId);
+			return value.AddActionCategory(actionCategoryId);
 		}
 
 		public void AddActionCategoryLabel(int mapCategoryId, int actionCategoryId, GUILabel label)
 		{
-			if (entries.TryGet(mapCategoryId, out var entry))
+			if (entries.TryGet(mapCategoryId, out var value))
 			{
-				entry.GetActionCategoryEntry(actionCategoryId)?.SetLabel(label);
+				value.GetActionCategoryEntry(actionCategoryId)?.SetLabel(label);
 			}
 		}
 
@@ -1785,19 +1784,19 @@ public class ControlMapper : MonoBehaviour
 
 		public void SetColumnHeight(int mapCategoryId, float height)
 		{
-			if (entries.TryGet(mapCategoryId, out var entry))
+			if (entries.TryGet(mapCategoryId, out var value))
 			{
-				entry.columnHeight = height;
+				value.columnHeight = height;
 			}
 		}
 
 		public float GetColumnHeight(int mapCategoryId)
 		{
-			if (!entries.TryGet(mapCategoryId, out var entry))
+			if (!entries.TryGet(mapCategoryId, out var value))
 			{
 				return 0f;
 			}
-			return entry.columnHeight;
+			return value.columnHeight;
 		}
 
 		public GUIInputField GetGUIInputField(int mapCategoryId, int actionId, AxisRange axisRange, ControllerType controllerType, int fieldIndex)
@@ -1811,11 +1810,11 @@ public class ControlMapper : MonoBehaviour
 			{
 				return null;
 			}
-			if (!entries.TryGet(mapCategoryId, out var entry))
+			if (!entries.TryGet(mapCategoryId, out var value))
 			{
 				return null;
 			}
-			return entry.GetActionEntry(actionId, axisRange);
+			return value.GetActionEntry(actionId, axisRange);
 		}
 
 		private ActionEntry GetActionEntry(int mapCategoryId, InputAction action, AxisRange axisRange)
@@ -1829,9 +1828,9 @@ public class ControlMapper : MonoBehaviour
 
 		public IEnumerable<InputActionSet> GetActionSets(int mapCategoryId)
 		{
-			if (entries.TryGet(mapCategoryId, out var entry))
+			if (entries.TryGet(mapCategoryId, out var value))
 			{
-				List<ActionEntry> list = entry.actionList;
+				List<ActionEntry> list = value.actionList;
 				int count = list?.Count ?? 0;
 				for (int i = 0; i < count; i++)
 				{
@@ -1842,13 +1841,13 @@ public class ControlMapper : MonoBehaviour
 
 		public void SetFieldsActive(int mapCategoryId, bool state)
 		{
-			if (entries.TryGet(mapCategoryId, out var entry))
+			if (entries.TryGet(mapCategoryId, out var value))
 			{
-				List<ActionEntry> list = entry.actionList;
-				int count = list?.Count ?? 0;
-				for (int i = 0; i < count; i++)
+				List<ActionEntry> actionList = value.actionList;
+				int num = actionList?.Count ?? 0;
+				for (int i = 0; i < num; i++)
 				{
-					list[i].SetFieldsActive(state);
+					actionList[i].SetFieldsActive(state);
 				}
 			}
 		}
@@ -1870,22 +1869,22 @@ public class ControlMapper : MonoBehaviour
 
 		public void InitializeFields(int mapCategoryId)
 		{
-			if (entries.TryGet(mapCategoryId, out var entry))
+			if (entries.TryGet(mapCategoryId, out var value))
 			{
-				List<ActionEntry> list = entry.actionList;
-				int count = list?.Count ?? 0;
-				for (int i = 0; i < count; i++)
+				List<ActionEntry> actionList = value.actionList;
+				int num = actionList?.Count ?? 0;
+				for (int i = 0; i < num; i++)
 				{
-					list[i].Initialize();
+					actionList[i].Initialize();
 				}
 			}
 		}
 
 		public void Show(int mapCategoryId)
 		{
-			if (entries.TryGet(mapCategoryId, out var entry))
+			if (entries.TryGet(mapCategoryId, out var value))
 			{
-				entry.SetAllActive(state: true);
+				value.SetAllActive(state: true);
 			}
 		}
 
@@ -1899,13 +1898,13 @@ public class ControlMapper : MonoBehaviour
 
 		public void ClearLabels(int mapCategoryId)
 		{
-			if (entries.TryGet(mapCategoryId, out var entry))
+			if (entries.TryGet(mapCategoryId, out var value))
 			{
-				List<ActionEntry> list = entry.actionList;
-				int count = list?.Count ?? 0;
-				for (int i = 0; i < count; i++)
+				List<ActionEntry> actionList = value.actionList;
+				int num = actionList?.Count ?? 0;
+				for (int i = 0; i < num; i++)
 				{
-					list[i].ClearLabels();
+					actionList[i].ClearLabels();
 				}
 			}
 		}
@@ -1926,15 +1925,15 @@ public class ControlMapper : MonoBehaviour
 
 		private GameObject fader;
 
-		private int idCounter = 0;
+		private int idCounter;
 
 		public bool isWindowOpen
 		{
 			get
 			{
-				for (int i = windows.Count - 1; i >= 0; i--)
+				for (int num = windows.Count - 1; num >= 0; num--)
 				{
-					if (!(windows[i] == null))
+					if (!(windows[num] == null))
 					{
 						return true;
 					}
@@ -1947,11 +1946,11 @@ public class ControlMapper : MonoBehaviour
 		{
 			get
 			{
-				for (int i = windows.Count - 1; i >= 0; i--)
+				for (int num = windows.Count - 1; num >= 0; num--)
 				{
-					if (!(windows[i] == null))
+					if (!(windows[num] == null))
 					{
-						return windows[i];
+						return windows[num];
 					}
 				}
 				return null;
@@ -1971,9 +1970,9 @@ public class ControlMapper : MonoBehaviour
 
 		public Window OpenWindow(string name, int width, int height)
 		{
-			Window window = InstantiateWindow(name, width, height);
+			Window result = InstantiateWindow(name, width, height);
 			UpdateFader();
-			return window;
+			return result;
 		}
 
 		public Window OpenWindow(GameObject windowPrefab, string name)
@@ -1983,24 +1982,24 @@ public class ControlMapper : MonoBehaviour
 				Debug.LogError("Rewired Control Mapper: Window Prefab is null!");
 				return null;
 			}
-			Window window = InstantiateWindow(name, windowPrefab);
+			Window result = InstantiateWindow(name, windowPrefab);
 			UpdateFader();
-			return window;
+			return result;
 		}
 
 		public void CloseTop()
 		{
-			int i = windows.Count - 1;
-			while (i >= 0)
+			int num = windows.Count - 1;
+			while (num >= 0)
 			{
-				if (windows[i] == null)
+				if (windows[num] == null)
 				{
-					windows.RemoveAt(i);
-					i--;
+					windows.RemoveAt(num);
+					num--;
 					continue;
 				}
-				DestroyWindow(windows[i]);
-				windows.RemoveAt(i);
+				DestroyWindow(windows[num]);
+				windows.RemoveAt(num);
 				break;
 			}
 			UpdateFader();
@@ -2017,16 +2016,16 @@ public class ControlMapper : MonoBehaviour
 			{
 				return;
 			}
-			for (int i = windows.Count - 1; i >= 0; i--)
+			for (int num = windows.Count - 1; num >= 0; num--)
 			{
-				if (windows[i] == null)
+				if (windows[num] == null)
 				{
-					windows.RemoveAt(i);
+					windows.RemoveAt(num);
 				}
-				else if (!(windows[i] != window))
+				else if (!(windows[num] != window))
 				{
-					DestroyWindow(windows[i]);
-					windows.RemoveAt(i);
+					DestroyWindow(windows[num]);
+					windows.RemoveAt(num);
 					break;
 				}
 			}
@@ -2037,16 +2036,16 @@ public class ControlMapper : MonoBehaviour
 		public void CloseAll()
 		{
 			SetFaderActive(state: false);
-			for (int i = windows.Count - 1; i >= 0; i--)
+			for (int num = windows.Count - 1; num >= 0; num--)
 			{
-				if (windows[i] == null)
+				if (windows[num] == null)
 				{
-					windows.RemoveAt(i);
+					windows.RemoveAt(num);
 				}
 				else
 				{
-					DestroyWindow(windows[i]);
-					windows.RemoveAt(i);
+					DestroyWindow(windows[num]);
+					windows.RemoveAt(num);
 				}
 			}
 			UpdateFader();
@@ -2058,11 +2057,11 @@ public class ControlMapper : MonoBehaviour
 			{
 				return;
 			}
-			for (int i = windows.Count - 1; i >= 0; i--)
+			for (int num = windows.Count - 1; num >= 0; num--)
 			{
-				if (!(windows[i] == null))
+				if (!(windows[num] == null))
 				{
-					windows[i].Cancel();
+					windows[num].Cancel();
 				}
 			}
 			CloseAll();
@@ -2074,11 +2073,11 @@ public class ControlMapper : MonoBehaviour
 			{
 				return null;
 			}
-			for (int i = windows.Count - 1; i >= 0; i--)
+			for (int num = windows.Count - 1; num >= 0; num--)
 			{
-				if (!(windows[i] == null) && windows[i].id == windowId)
+				if (!(windows[num] == null) && windows[num].id == windowId)
 				{
-					return windows[i];
+					return windows[num];
 				}
 			}
 			return null;
@@ -2117,11 +2116,11 @@ public class ControlMapper : MonoBehaviour
 			{
 				return;
 			}
-			for (int i = windows.Count - 1; i >= 0; i--)
+			for (int num = windows.Count - 1; num >= 0; num--)
 			{
-				if (!(windows[i] == null) && windows[i].id != focusedWindowId)
+				if (!(windows[num] == null) && windows[num].id != focusedWindowId)
 				{
-					windows[i].Disable();
+					windows[num].Disable();
 				}
 			}
 		}
@@ -2131,15 +2130,13 @@ public class ControlMapper : MonoBehaviour
 			if (!isWindowOpen)
 			{
 				SetFaderActive(state: false);
-				return;
 			}
-			Transform windowParent = topWindow.transform.parent;
-			if (!(windowParent == null))
+			else if (!(topWindow.transform.parent == null))
 			{
 				SetFaderActive(state: true);
 				fader.transform.SetAsLastSibling();
-				int topWindowIndex = topWindow.transform.GetSiblingIndex();
-				fader.transform.SetSiblingIndex(topWindowIndex);
+				int siblingIndex = topWindow.transform.GetSiblingIndex();
+				fader.transform.SetSiblingIndex(siblingIndex);
 			}
 		}
 
@@ -2162,19 +2159,19 @@ public class ControlMapper : MonoBehaviour
 			{
 				name = "Window";
 			}
-			GameObject instance = UITools.InstantiateGUIObject<Window>(windowPrefab, parent, name);
-			if (instance == null)
+			GameObject gameObject = UITools.InstantiateGUIObject<Window>(windowPrefab, parent, name);
+			if (gameObject == null)
 			{
 				return null;
 			}
-			Window window = instance.GetComponent<Window>();
-			if (window != null)
+			Window component = gameObject.GetComponent<Window>();
+			if (component != null)
 			{
-				window.Initialize(GetNewId(), IsFocused);
-				windows.Add(window);
-				window.SetSize(width, height);
+				component.Initialize(GetNewId(), IsFocused);
+				windows.Add(component);
+				component.SetSize(width, height);
 			}
-			return window;
+			return component;
 		}
 
 		private Window InstantiateWindow(string name, GameObject windowPrefab)
@@ -2187,18 +2184,18 @@ public class ControlMapper : MonoBehaviour
 			{
 				return null;
 			}
-			GameObject instance = UITools.InstantiateGUIObject<Window>(windowPrefab, parent, name);
-			if (instance == null)
+			GameObject gameObject = UITools.InstantiateGUIObject<Window>(windowPrefab, parent, name);
+			if (gameObject == null)
 			{
 				return null;
 			}
-			Window window = instance.GetComponent<Window>();
-			if (window != null)
+			Window component = gameObject.GetComponent<Window>();
+			if (component != null)
 			{
-				window.Initialize(GetNewId(), IsFocused);
-				windows.Add(window);
+				component.Initialize(GetNewId(), IsFocused);
+				windows.Add(component);
 			}
-			return window;
+			return component;
 		}
 
 		private void DestroyWindow(Window window)
@@ -2211,9 +2208,9 @@ public class ControlMapper : MonoBehaviour
 
 		private int GetNewId()
 		{
-			int id = idCounter;
+			int result = idCounter;
 			idCounter++;
-			return id;
+			return result;
 		}
 
 		public void ClearCompletely()
@@ -2262,19 +2259,19 @@ public class ControlMapper : MonoBehaviour
 
 	[SerializeField]
 	[Tooltip("Open the control mapping screen immediately on start. Mainly used for testing.")]
-	private bool _openOnStart = false;
+	private bool _openOnStart;
 
 	[SerializeField]
 	[Tooltip("The Layout of the Keyboard Maps to be displayed.")]
-	private int _keyboardMapDefaultLayout = 0;
+	private int _keyboardMapDefaultLayout;
 
 	[SerializeField]
 	[Tooltip("The Layout of the Mouse Maps to be displayed.")]
-	private int _mouseMapDefaultLayout = 0;
+	private int _mouseMapDefaultLayout;
 
 	[SerializeField]
 	[Tooltip("The Layout of the Mouse Maps to be displayed.")]
-	private int _joystickMapDefaultLayout = 0;
+	private int _joystickMapDefaultLayout;
 
 	[SerializeField]
 	private MappingSet[] _mappingSets = new MappingSet[1] { MappingSet.Default };
@@ -2301,7 +2298,7 @@ public class ControlMapper : MonoBehaviour
 
 	[SerializeField]
 	[Tooltip("Display section labels for each Action Category in the input field grid. Only applies if Action Categories are used to display the Action list.")]
-	private bool _showActionCategoryLabels = false;
+	private bool _showActionCategoryLabels;
 
 	[SerializeField]
 	[Tooltip("The number of input fields to display for the keyboard. If you want to support alternate mappings on the same device, set this to 2 or more.")]
@@ -2325,11 +2322,11 @@ public class ControlMapper : MonoBehaviour
 
 	[SerializeField]
 	[Tooltip("If enabled, when an element assignment conflict is found, an option will be displayed that allows the user to make the conflicting assignment anyway.")]
-	private bool _allowElementAssignmentConflicts = false;
+	private bool _allowElementAssignmentConflicts;
 
 	[SerializeField]
 	[Tooltip("If enabled, when an element assignment conflict is found, an option will be displayed that allows the user to swap conflicting assignments. This only applies to the first conflicting assignment found. This option will not be displayed if allowElementAssignmentConflicts is true.")]
-	private bool _allowElementAssignmentSwap = false;
+	private bool _allowElementAssignmentSwap;
 
 	[SerializeField]
 	[Tooltip("The width in relative pixels of the Action label column.")]
@@ -2357,7 +2354,7 @@ public class ControlMapper : MonoBehaviour
 
 	[SerializeField]
 	[Tooltip("The width in relative pixels of spacing between input fields in a single column.")]
-	private int _inputRowFieldSpacing = 0;
+	private int _inputRowFieldSpacing;
 
 	[SerializeField]
 	[Tooltip("The width in relative pixels of spacing between columns.")]
@@ -2631,7 +2628,11 @@ public class ControlMapper : MonoBehaviour
 	{
 		get
 		{
-			return _showPlayers && ReInput.players.playerCount > 1;
+			if (_showPlayers)
+			{
+				return ReInput.players.playerCount > 1;
+			}
+			return false;
 		}
 		set
 		{
@@ -3169,7 +3170,11 @@ public class ControlMapper : MonoBehaviour
 		{
 			if (!initialized)
 			{
-				return references.canvas != null && references.canvas.gameObject.activeInHierarchy;
+				if (!(references.canvas != null))
+				{
+					return false;
+				}
+				return references.canvas.gameObject.activeInHierarchy;
 			}
 			return canvas.activeInHierarchy;
 		}
@@ -3203,20 +3208,20 @@ public class ControlMapper : MonoBehaviour
 	{
 		get
 		{
-			int count = 1;
+			int num = 1;
 			if (_showKeyboard)
 			{
-				count++;
+				num++;
 			}
 			if (_showMouse)
 			{
-				count++;
+				num++;
 			}
 			if (_showControllers)
 			{
-				count++;
+				num++;
 			}
-			return count;
+			return num;
 		}
 	}
 
@@ -3249,9 +3254,29 @@ public class ControlMapper : MonoBehaviour
 
 	private bool isJoystickSelected => currentJoystickId >= 0;
 
-	private GameObject currentUISelection => (EventSystem.current != null) ? EventSystem.current.currentSelectedGameObject : null;
+	private GameObject currentUISelection
+	{
+		get
+		{
+			if (!(EventSystem.current != null))
+			{
+				return null;
+			}
+			return EventSystem.current.currentSelectedGameObject;
+		}
+	}
 
-	private bool showSettings => _showInputBehaviorSettings && _inputBehaviorSettings.Length != 0;
+	private bool showSettings
+	{
+		get
+		{
+			if (_showInputBehaviorSettings)
+			{
+				return _inputBehaviorSettings.Length != 0;
+			}
+			return false;
+		}
+	}
 
 	private bool showMapCategories
 	{
@@ -3571,8 +3596,9 @@ public class ControlMapper : MonoBehaviour
 
 	private void OnJoystickPreDisconnect(ControllerStatusChangedEventArgs args)
 	{
-		if (initialized && _showControllers)
+		if (initialized)
 		{
+			_ = _showControllers;
 		}
 	}
 
@@ -3624,19 +3650,19 @@ public class ControlMapper : MonoBehaviour
 		{
 			return;
 		}
-		AxisRange range = ((action.type == InputActionType.Axis) ? fieldInfo.axisRange : AxisRange.Full);
-		string actionName = _language.GetActionName(action.id, range);
-		ControllerMap map = GetControllerMap(fieldInfo.controllerType);
-		if (map != null)
+		AxisRange axisRange = ((action.type == InputActionType.Axis) ? fieldInfo.axisRange : AxisRange.Full);
+		string actionName = _language.GetActionName(action.id, axisRange);
+		ControllerMap controllerMap = GetControllerMap(fieldInfo.controllerType);
+		if (controllerMap != null)
 		{
-			ActionElementMap aem = ((fieldInfo.actionElementMapId >= 0) ? map.GetElementMap(fieldInfo.actionElementMapId) : null);
-			if (aem != null)
+			ActionElementMap actionElementMap = ((fieldInfo.actionElementMapId >= 0) ? controllerMap.GetElementMap(fieldInfo.actionElementMapId) : null);
+			if (actionElementMap != null)
 			{
-				ShowBeginElementAssignmentReplacementWindow(fieldInfo, action, map, aem, actionName);
+				ShowBeginElementAssignmentReplacementWindow(fieldInfo, action, controllerMap, actionElementMap, actionName);
 			}
 			else
 			{
-				ShowCreateNewElementAssignmentWindow(fieldInfo, action, map, actionName);
+				ShowCreateNewElementAssignmentWindow(fieldInfo, action, controllerMap, actionName);
 			}
 		}
 	}
@@ -3801,12 +3827,12 @@ public class ControlMapper : MonoBehaviour
 		{
 			return;
 		}
-		IList<Player> playes = ReInput.players.Players;
-		for (int i = 0; i < playes.Count; i++)
+		IList<Player> players = ReInput.players.Players;
+		for (int i = 0; i < players.Count; i++)
 		{
-			if (playes[i] != player)
+			if (players[i] != player)
 			{
-				playes[i].controllers.hasMouse = false;
+				players[i].controllers.hasMouse = false;
 			}
 		}
 		player.controllers.hasMouse = true;
@@ -3825,15 +3851,15 @@ public class ControlMapper : MonoBehaviour
 			CloseWindow(windowId);
 			return;
 		}
-		ElementAssignmentConflictInfo firstConflict = default(ElementAssignmentConflictInfo);
-		ActionElementMap firstConflictAEM = null;
-		ActionElementMap origAemToReplaceCopy = null;
-		bool swap = false;
-		if (allowSwap && mapping.aem != null && GetFirstElementAssignmentConflict(conflictCheck, out firstConflict, skipOtherPlayers))
+		ElementAssignmentConflictInfo conflict = default(ElementAssignmentConflictInfo);
+		ActionElementMap actionElementMap = null;
+		ActionElementMap actionElementMap2 = null;
+		bool flag = false;
+		if (allowSwap && mapping.aem != null && GetFirstElementAssignmentConflict(conflictCheck, out conflict, skipOtherPlayers))
 		{
-			swap = true;
-			origAemToReplaceCopy = new ActionElementMap(mapping.aem);
-			firstConflictAEM = new ActionElementMap(firstConflict.elementMap);
+			flag = true;
+			actionElementMap2 = new ActionElementMap(mapping.aem);
+			actionElementMap = new ActionElementMap(conflict.elementMap);
 		}
 		IList<Player> allPlayers = ReInput.players.AllPlayers;
 		for (int i = 0; i < allPlayers.Count; i++)
@@ -3845,48 +3871,48 @@ public class ControlMapper : MonoBehaviour
 			}
 		}
 		mapping.map.ReplaceOrCreateElementMap(assignment);
-		if (allowSwap && swap)
+		if (allowSwap && flag)
 		{
-			int swapActionId = firstConflictAEM.actionId;
-			Pole swapAxisContribution = firstConflictAEM.axisContribution;
-			bool swapInvert = firstConflictAEM.invert;
-			AxisRange swapAxisRange = origAemToReplaceCopy.axisRange;
-			ControllerElementType swapElementType = origAemToReplaceCopy.elementType;
-			int swapElementIdentifierId = origAemToReplaceCopy.elementIdentifierId;
-			KeyCode swapKeyCode = origAemToReplaceCopy.keyCode;
-			ModifierKeyFlags swapModifierKeyFlags = origAemToReplaceCopy.modifierKeyFlags;
-			if (swapElementType == firstConflictAEM.elementType && swapElementType == ControllerElementType.Axis)
+			int actionId = actionElementMap.actionId;
+			Pole axisContribution = actionElementMap.axisContribution;
+			bool invert = actionElementMap.invert;
+			AxisRange axisRange = actionElementMap2.axisRange;
+			ControllerElementType elementType = actionElementMap2.elementType;
+			int elementIdentifierId = actionElementMap2.elementIdentifierId;
+			KeyCode keyCode = actionElementMap2.keyCode;
+			ModifierKeyFlags modifierKeyFlags = actionElementMap2.modifierKeyFlags;
+			if (elementType == actionElementMap.elementType && elementType == ControllerElementType.Axis)
 			{
-				if (swapAxisRange != firstConflictAEM.axisRange)
+				if (axisRange != actionElementMap.axisRange)
 				{
-					if (swapAxisRange == AxisRange.Full)
+					if (axisRange == AxisRange.Full)
 					{
-						swapAxisRange = AxisRange.Positive;
+						axisRange = AxisRange.Positive;
 					}
-					else if (firstConflictAEM.axisRange != 0)
+					else if (actionElementMap.axisRange != 0)
 					{
 					}
 				}
 			}
-			else if (swapElementType == ControllerElementType.Axis && (firstConflictAEM.elementType == ControllerElementType.Button || (firstConflictAEM.elementType == ControllerElementType.Axis && firstConflictAEM.axisRange != 0)) && swapAxisRange == AxisRange.Full)
+			else if (elementType == ControllerElementType.Axis && (actionElementMap.elementType == ControllerElementType.Button || (actionElementMap.elementType == ControllerElementType.Axis && actionElementMap.axisRange != 0)) && axisRange == AxisRange.Full)
 			{
-				swapAxisRange = AxisRange.Positive;
+				axisRange = AxisRange.Positive;
 			}
-			if (swapElementType != 0 || swapAxisRange != 0)
+			if (elementType != 0 || axisRange != 0)
 			{
-				swapInvert = false;
+				invert = false;
 			}
-			int usedFieldCount = 0;
-			foreach (ActionElementMap aem in firstConflict.controllerMap.ElementMapsWithAction(swapActionId))
+			int num = 0;
+			foreach (ActionElementMap item in conflict.controllerMap.ElementMapsWithAction(actionId))
 			{
-				if (SwapIsSameInputRange(swapElementType, swapAxisRange, swapAxisContribution, aem.elementType, aem.axisRange, aem.axisContribution))
+				if (SwapIsSameInputRange(elementType, axisRange, axisContribution, item.elementType, item.axisRange, item.axisContribution))
 				{
-					usedFieldCount++;
+					num++;
 				}
 			}
-			if (usedFieldCount < GetControllerInputFieldCount(mapping.controllerType))
+			if (num < GetControllerInputFieldCount(mapping.controllerType))
 			{
-				firstConflict.controllerMap.ReplaceOrCreateElementMap(ElementAssignment.CompleteAssignment(mapping.controllerType, swapElementType, swapElementIdentifierId, swapAxisRange, swapKeyCode, swapModifierKeyFlags, swapActionId, swapAxisContribution, swapInvert));
+				conflict.controllerMap.ReplaceOrCreateElementMap(ElementAssignment.CompleteAssignment(mapping.controllerType, elementType, elementIdentifierId, axisRange, keyCode, modifierKeyFlags, actionId, axisContribution, invert));
 			}
 		}
 		CloseWindow(windowId);
@@ -3948,17 +3974,17 @@ public class ControlMapper : MonoBehaviour
 			CloseWindow(windowId);
 			return;
 		}
-		ControllerPollingInfo info = ReInput.controllers.polling.PollAllControllersOfTypeForFirstElementDown(ControllerType.Joystick);
-		if (info.success)
+		ControllerPollingInfo controllerPollingInfo = ReInput.controllers.polling.PollAllControllersOfTypeForFirstElementDown(ControllerType.Joystick);
+		if (controllerPollingInfo.success)
 		{
 			InputPollingStopped();
-			if (ReInput.controllers.IsControllerAssigned(ControllerType.Joystick, info.controllerId) && !currentPlayer.controllers.ContainsController(ControllerType.Joystick, info.controllerId))
+			if (ReInput.controllers.IsControllerAssigned(ControllerType.Joystick, controllerPollingInfo.controllerId) && !currentPlayer.controllers.ContainsController(ControllerType.Joystick, controllerPollingInfo.controllerId))
 			{
-				ShowControllerAssignmentConflictWindow(info.controllerId);
+				ShowControllerAssignmentConflictWindow(controllerPollingInfo.controllerId);
 			}
 			else
 			{
-				OnControllerAssignmentConfirmed(windowId, currentPlayer, info.controllerId);
+				OnControllerAssignmentConfirmed(windowId, currentPlayer, controllerPollingInfo.controllerId);
 			}
 		}
 		else
@@ -3982,7 +4008,7 @@ public class ControlMapper : MonoBehaviour
 		if (!window.timer.finished)
 		{
 			window.SetContentText(Mathf.CeilToInt(window.timer.remaining).ToString(), 1);
-			ControllerPollingInfo pollingInfo;
+			ControllerPollingInfo controllerPollingInfo;
 			switch (pendingInputMapping.controllerType)
 			{
 			case ControllerType.Joystick:
@@ -3990,16 +4016,16 @@ public class ControlMapper : MonoBehaviour
 				{
 					return;
 				}
-				pollingInfo = ReInput.controllers.polling.PollControllerForFirstButtonDown(pendingInputMapping.controllerType, currentJoystick.id);
+				controllerPollingInfo = ReInput.controllers.polling.PollControllerForFirstButtonDown(pendingInputMapping.controllerType, currentJoystick.id);
 				break;
 			case ControllerType.Keyboard:
 			case ControllerType.Mouse:
-				pollingInfo = ReInput.controllers.polling.PollControllerForFirstButtonDown(pendingInputMapping.controllerType, 0);
+				controllerPollingInfo = ReInput.controllers.polling.PollControllerForFirstButtonDown(pendingInputMapping.controllerType, 0);
 				break;
 			default:
 				throw new NotImplementedException();
 			}
-			if (!pollingInfo.success)
+			if (!controllerPollingInfo.success)
 			{
 				return;
 			}
@@ -4033,17 +4059,17 @@ public class ControlMapper : MonoBehaviour
 		ControllerPollingInfo pollingInfo = ReInput.controllers.polling.PollControllerForFirstElementDown(ControllerType.Joystick, currentJoystick.id);
 		if (pollingInfo.success && IsAllowedAssignment(pendingInputMapping, pollingInfo))
 		{
-			ElementAssignment assignment = pendingInputMapping.ToElementAssignment(pollingInfo);
-			if (!HasElementAssignmentConflicts(currentPlayer, pendingInputMapping, assignment, skipOtherPlayers: false))
+			ElementAssignment elementAssignment = pendingInputMapping.ToElementAssignment(pollingInfo);
+			if (!HasElementAssignmentConflicts(currentPlayer, pendingInputMapping, elementAssignment, skipOtherPlayers: false))
 			{
-				pendingInputMapping.map.ReplaceOrCreateElementMap(assignment);
+				pendingInputMapping.map.ReplaceOrCreateElementMap(elementAssignment);
 				InputPollingStopped();
 				CloseWindow(windowId);
 			}
 			else
 			{
 				InputPollingStopped();
-				ShowElementAssignmentConflictWindow(assignment, skipOtherPlayers: false);
+				ShowElementAssignmentConflictWindow(elementAssignment, skipOtherPlayers: false);
 			}
 		}
 	}
@@ -4075,17 +4101,17 @@ public class ControlMapper : MonoBehaviour
 		window.SetContentText(label, 1);
 		if (pollingInfo.success && IsAllowedAssignment(pendingInputMapping, pollingInfo))
 		{
-			ElementAssignment assignment = pendingInputMapping.ToElementAssignment(pollingInfo, modifierFlags);
-			if (!HasElementAssignmentConflicts(currentPlayer, pendingInputMapping, assignment, skipOtherPlayers: false))
+			ElementAssignment elementAssignment = pendingInputMapping.ToElementAssignment(pollingInfo, modifierFlags);
+			if (!HasElementAssignmentConflicts(currentPlayer, pendingInputMapping, elementAssignment, skipOtherPlayers: false))
 			{
-				pendingInputMapping.map.ReplaceOrCreateElementMap(assignment);
+				pendingInputMapping.map.ReplaceOrCreateElementMap(elementAssignment);
 				InputPollingStopped();
 				CloseWindow(windowId);
 			}
 			else
 			{
 				InputPollingStopped();
-				ShowElementAssignmentConflictWindow(assignment, skipOtherPlayers: false);
+				ShowElementAssignmentConflictWindow(elementAssignment, skipOtherPlayers: false);
 			}
 		}
 	}
@@ -4113,14 +4139,13 @@ public class ControlMapper : MonoBehaviour
 		if (_ignoreMouseXAxisAssignment || _ignoreMouseYAxisAssignment)
 		{
 			pollingInfo = default(ControllerPollingInfo);
-			foreach (ControllerPollingInfo p in ReInput.controllers.polling.PollControllerForAllElementsDown(ControllerType.Mouse, 0))
+			foreach (ControllerPollingInfo item in ReInput.controllers.polling.PollControllerForAllElementsDown(ControllerType.Mouse, 0))
 			{
-				if (p.elementType == ControllerElementType.Axis && ((_ignoreMouseXAxisAssignment && p.elementIndex == 0) || (_ignoreMouseYAxisAssignment && p.elementIndex == 1)))
+				if (item.elementType != 0 || ((!_ignoreMouseXAxisAssignment || item.elementIndex != 0) && (!_ignoreMouseYAxisAssignment || item.elementIndex != 1)))
 				{
-					continue;
+					pollingInfo = item;
+					break;
 				}
-				pollingInfo = p;
-				break;
 			}
 		}
 		else
@@ -4129,17 +4154,17 @@ public class ControlMapper : MonoBehaviour
 		}
 		if (pollingInfo.success && IsAllowedAssignment(pendingInputMapping, pollingInfo))
 		{
-			ElementAssignment assignment = pendingInputMapping.ToElementAssignment(pollingInfo);
-			if (!HasElementAssignmentConflicts(currentPlayer, pendingInputMapping, assignment, skipOtherPlayers: true))
+			ElementAssignment elementAssignment = pendingInputMapping.ToElementAssignment(pollingInfo);
+			if (!HasElementAssignmentConflicts(currentPlayer, pendingInputMapping, elementAssignment, skipOtherPlayers: true))
 			{
-				pendingInputMapping.map.ReplaceOrCreateElementMap(assignment);
+				pendingInputMapping.map.ReplaceOrCreateElementMap(elementAssignment);
 				InputPollingStopped();
 				CloseWindow(windowId);
 			}
 			else
 			{
 				InputPollingStopped();
-				ShowElementAssignmentConflictWindow(assignment, skipOtherPlayers: true);
+				ShowElementAssignmentConflictWindow(elementAssignment, skipOtherPlayers: true);
 			}
 		}
 	}
@@ -4222,36 +4247,36 @@ public class ControlMapper : MonoBehaviour
 		{
 			return;
 		}
-		string otherPlayer = string.Empty;
+		string otherPlayerName = string.Empty;
 		IList<Player> players = ReInput.players.Players;
 		for (int i = 0; i < players.Count; i++)
 		{
 			if (players[i] != currentPlayer && players[i].controllers.ContainsController(ControllerType.Joystick, controllerId))
 			{
-				otherPlayer = _language.GetPlayerName(players[i].id);
+				otherPlayerName = _language.GetPlayerName(players[i].id);
 				break;
 			}
 		}
 		Joystick joystick = ReInput.controllers.GetJoystick(controllerId);
 		window.CreateTitleText(prefabs.windowTitleText, Vector2.zero, _language.controllerAssignmentConflictWindowTitle);
-		window.AddContentText(prefabs.windowContentText, UIPivot.TopCenter, UIAnchor.TopHStretch, new Vector2(0f, -100f), _language.GetControllerAssignmentConflictWindowMessage(_language.GetControllerName(joystick), otherPlayer, _language.GetPlayerName(currentPlayer.id)));
-		UnityAction cancelCallback = delegate
+		window.AddContentText(prefabs.windowContentText, UIPivot.TopCenter, UIAnchor.TopHStretch, new Vector2(0f, -100f), _language.GetControllerAssignmentConflictWindowMessage(_language.GetControllerName(joystick), otherPlayerName, _language.GetPlayerName(currentPlayer.id)));
+		UnityAction unityAction = delegate
 		{
 			OnWindowCancel(window.id);
 		};
-		window.cancelCallback = cancelCallback;
+		window.cancelCallback = unityAction;
 		window.CreateButton(prefabs.fitButton, UIPivot.BottomLeft, UIAnchor.BottomLeft, Vector2.zero, _language.yes, delegate
 		{
 			OnControllerAssignmentConfirmed(window.id, currentPlayer, controllerId);
-		}, cancelCallback, setDefault: true);
-		window.CreateButton(prefabs.fitButton, UIPivot.BottomRight, UIAnchor.BottomRight, Vector2.zero, _language.no, cancelCallback, cancelCallback, setDefault: false);
+		}, unityAction, setDefault: true);
+		window.CreateButton(prefabs.fitButton, UIPivot.BottomRight, UIAnchor.BottomRight, Vector2.zero, _language.no, unityAction, unityAction, setDefault: false);
 		windowManager.Focus(window);
 	}
 
 	private void ShowBeginElementAssignmentReplacementWindow(InputFieldInfo fieldInfo, InputAction action, ControllerMap map, ActionElementMap aem, string actionName)
 	{
-		GUIInputField field = inputGrid.GetGUIInputField(currentMapCategoryId, action.id, fieldInfo.axisRange, fieldInfo.controllerType, fieldInfo.intData);
-		if (field == null)
+		GUIInputField gUIInputField = inputGrid.GetGUIInputField(currentMapCategoryId, action.id, fieldInfo.axisRange, fieldInfo.controllerType, fieldInfo.intData);
+		if (gUIInputField == null)
 		{
 			return;
 		}
@@ -4259,29 +4284,28 @@ public class ControlMapper : MonoBehaviour
 		if (!(window == null))
 		{
 			window.CreateTitleText(prefabs.windowTitleText, Vector2.zero, actionName);
-			window.AddContentText(prefabs.windowContentText, UIPivot.TopCenter, UIAnchor.TopHStretch, new Vector2(0f, -100f), field.GetLabel());
-			UnityAction cancelCallback = delegate
+			window.AddContentText(prefabs.windowContentText, UIPivot.TopCenter, UIAnchor.TopHStretch, new Vector2(0f, -100f), gUIInputField.GetLabel());
+			UnityAction unityAction = delegate
 			{
 				OnWindowCancel(window.id);
 			};
-			window.cancelCallback = cancelCallback;
+			window.cancelCallback = unityAction;
 			window.CreateButton(prefabs.fitButton, UIPivot.BottomLeft, UIAnchor.BottomLeft, Vector2.zero, _language.replace, delegate
 			{
 				OnBeginElementAssignment(fieldInfo, map, aem, actionName);
-			}, cancelCallback, setDefault: true);
+			}, unityAction, setDefault: true);
 			window.CreateButton(prefabs.fitButton, UIPivot.BottomCenter, UIAnchor.BottomCenter, Vector2.zero, _language.remove, delegate
 			{
 				OnRemoveElementAssignment(window.id, map, aem);
-			}, cancelCallback, setDefault: false);
-			window.CreateButton(prefabs.fitButton, UIPivot.BottomRight, UIAnchor.BottomRight, Vector2.zero, _language.cancel, cancelCallback, cancelCallback, setDefault: false);
+			}, unityAction, setDefault: false);
+			window.CreateButton(prefabs.fitButton, UIPivot.BottomRight, UIAnchor.BottomRight, Vector2.zero, _language.cancel, unityAction, unityAction, setDefault: false);
 			windowManager.Focus(window);
 		}
 	}
 
 	private void ShowCreateNewElementAssignmentWindow(InputFieldInfo fieldInfo, InputAction action, ControllerMap map, string actionName)
 	{
-		GUIInputField field = inputGrid.GetGUIInputField(currentMapCategoryId, action.id, fieldInfo.axisRange, fieldInfo.controllerType, fieldInfo.intData);
-		if (field != null)
+		if (inputGrid.GetGUIInputField(currentMapCategoryId, action.id, fieldInfo.axisRange, fieldInfo.controllerType, fieldInfo.intData) != null)
 		{
 			OnBeginElementAssignment(fieldInfo, map, null, actionName);
 		}
@@ -4345,9 +4369,9 @@ public class ControlMapper : MonoBehaviour
 			Window window = OpenWindow(closeOthers: true);
 			if (!(window == null))
 			{
-				string message = ((pendingInputMapping.axisRange == AxisRange.Full && _showFullAxisInputFields && !_showSplitAxisInputFields) ? _language.GetJoystickElementAssignmentPollingWindowMessage_FullAxisFieldOnly(pendingInputMapping.actionName) : _language.GetJoystickElementAssignmentPollingWindowMessage(pendingInputMapping.actionName));
+				string text = ((pendingInputMapping.axisRange == AxisRange.Full && _showFullAxisInputFields && !_showSplitAxisInputFields) ? _language.GetJoystickElementAssignmentPollingWindowMessage_FullAxisFieldOnly(pendingInputMapping.actionName) : _language.GetJoystickElementAssignmentPollingWindowMessage(pendingInputMapping.actionName));
 				window.CreateTitleText(prefabs.windowTitleText, Vector2.zero, pendingInputMapping.actionName);
-				window.AddContentText(prefabs.windowContentText, UIPivot.TopCenter, UIAnchor.TopHStretch, new Vector2(0f, -100f), message);
+				window.AddContentText(prefabs.windowContentText, UIPivot.TopCenter, UIAnchor.TopHStretch, new Vector2(0f, -100f), text);
 				window.AddContentText(prefabs.windowContentText, UIPivot.BottomCenter, UIAnchor.BottomHStretch, Vector2.zero, "");
 				window.SetUpdateCallback(OnJoystickElementAssignmentPollingWindowUpdate);
 				window.timer.Start(_inputAssignmentTimeout);
@@ -4381,9 +4405,9 @@ public class ControlMapper : MonoBehaviour
 			Window window = OpenWindow(closeOthers: true);
 			if (!(window == null))
 			{
-				string message = ((pendingInputMapping.axisRange == AxisRange.Full && _showFullAxisInputFields && !_showSplitAxisInputFields) ? _language.GetMouseElementAssignmentPollingWindowMessage_FullAxisFieldOnly(pendingInputMapping.actionName) : _language.GetMouseElementAssignmentPollingWindowMessage(pendingInputMapping.actionName));
+				string text = ((pendingInputMapping.axisRange == AxisRange.Full && _showFullAxisInputFields && !_showSplitAxisInputFields) ? _language.GetMouseElementAssignmentPollingWindowMessage_FullAxisFieldOnly(pendingInputMapping.actionName) : _language.GetMouseElementAssignmentPollingWindowMessage(pendingInputMapping.actionName));
 				window.CreateTitleText(prefabs.windowTitleText, Vector2.zero, pendingInputMapping.actionName);
-				window.AddContentText(prefabs.windowContentText, UIPivot.TopCenter, UIAnchor.TopHStretch, new Vector2(0f, -100f), message);
+				window.AddContentText(prefabs.windowContentText, UIPivot.TopCenter, UIAnchor.TopHStretch, new Vector2(0f, -100f), text);
 				window.AddContentText(prefabs.windowContentText, UIPivot.BottomCenter, UIAnchor.BottomHStretch, Vector2.zero, "");
 				window.SetUpdateCallback(OnMouseElementAssignmentPollingWindowUpdate);
 				window.timer.Start(_inputAssignmentTimeout);
@@ -4398,45 +4422,45 @@ public class ControlMapper : MonoBehaviour
 		{
 			return;
 		}
-		bool blocked = IsBlockingAssignmentConflict(pendingInputMapping, assignment, skipOtherPlayers);
-		string message = (blocked ? _language.GetElementAlreadyInUseBlocked(pendingInputMapping.elementName) : _language.GetElementAlreadyInUseCanReplace(pendingInputMapping.elementName, _allowElementAssignmentConflicts));
+		bool flag = IsBlockingAssignmentConflict(pendingInputMapping, assignment, skipOtherPlayers);
+		string text = (flag ? _language.GetElementAlreadyInUseBlocked(pendingInputMapping.elementName) : _language.GetElementAlreadyInUseCanReplace(pendingInputMapping.elementName, _allowElementAssignmentConflicts));
 		Window window = OpenWindow(closeOthers: true);
 		if (window == null)
 		{
 			return;
 		}
 		window.CreateTitleText(prefabs.windowTitleText, Vector2.zero, _language.elementAssignmentConflictWindowMessage);
-		window.AddContentText(prefabs.windowContentText, UIPivot.TopCenter, UIAnchor.TopHStretch, new Vector2(0f, -100f), message);
-		UnityAction cancelCallback = delegate
+		window.AddContentText(prefabs.windowContentText, UIPivot.TopCenter, UIAnchor.TopHStretch, new Vector2(0f, -100f), text);
+		UnityAction unityAction = delegate
 		{
 			OnWindowCancel(window.id);
 		};
-		window.cancelCallback = cancelCallback;
-		if (blocked)
+		window.cancelCallback = unityAction;
+		if (flag)
 		{
-			window.CreateButton(prefabs.fitButton, UIPivot.BottomCenter, UIAnchor.BottomCenter, Vector2.zero, _language.okay, cancelCallback, cancelCallback, setDefault: true);
+			window.CreateButton(prefabs.fitButton, UIPivot.BottomCenter, UIAnchor.BottomCenter, Vector2.zero, _language.okay, unityAction, unityAction, setDefault: true);
 		}
 		else
 		{
 			window.CreateButton(prefabs.fitButton, UIPivot.BottomLeft, UIAnchor.BottomLeft, Vector2.zero, _language.replace, delegate
 			{
 				OnElementAssignmentConflictReplaceConfirmed(window.id, pendingInputMapping, assignment, skipOtherPlayers, allowSwap: false);
-			}, cancelCallback, setDefault: true);
+			}, unityAction, setDefault: true);
 			if (_allowElementAssignmentConflicts)
 			{
 				window.CreateButton(prefabs.fitButton, UIPivot.BottomCenter, UIAnchor.BottomCenter, Vector2.zero, _language.add, delegate
 				{
 					OnElementAssignmentAddConfirmed(window.id, pendingInputMapping, assignment);
-				}, cancelCallback, setDefault: false);
+				}, unityAction, setDefault: false);
 			}
 			else if (ShowSwapButton(window.id, pendingInputMapping, assignment, skipOtherPlayers))
 			{
 				window.CreateButton(prefabs.fitButton, UIPivot.BottomCenter, UIAnchor.BottomCenter, Vector2.zero, _language.swap, delegate
 				{
 					OnElementAssignmentConflictReplaceConfirmed(window.id, pendingInputMapping, assignment, skipOtherPlayers, allowSwap: true);
-				}, cancelCallback, setDefault: false);
+				}, unityAction, setDefault: false);
 			}
-			window.CreateButton(prefabs.fitButton, UIPivot.BottomRight, UIAnchor.BottomRight, Vector2.zero, _language.cancel, cancelCallback, cancelCallback, setDefault: false);
+			window.CreateButton(prefabs.fitButton, UIPivot.BottomRight, UIAnchor.BottomRight, Vector2.zero, _language.cancel, unityAction, unityAction, setDefault: false);
 		}
 		windowManager.Focus(window);
 	}
@@ -4452,28 +4476,28 @@ public class ControlMapper : MonoBehaviour
 		{
 			return;
 		}
-		string otherPlayer = string.Empty;
+		string otherPlayerName = string.Empty;
 		IList<Player> players = ReInput.players.Players;
 		for (int i = 0; i < players.Count; i++)
 		{
 			if (players[i] != currentPlayer && players[i].controllers.hasMouse)
 			{
-				otherPlayer = _language.GetPlayerName(players[i].id);
+				otherPlayerName = _language.GetPlayerName(players[i].id);
 				break;
 			}
 		}
 		window.CreateTitleText(prefabs.windowTitleText, Vector2.zero, _language.mouseAssignmentConflictWindowTitle);
-		window.AddContentText(prefabs.windowContentText, UIPivot.TopCenter, UIAnchor.TopHStretch, new Vector2(0f, -100f), _language.GetMouseAssignmentConflictWindowMessage(otherPlayer, _language.GetPlayerName(currentPlayer.id)));
-		UnityAction cancelCallback = delegate
+		window.AddContentText(prefabs.windowContentText, UIPivot.TopCenter, UIAnchor.TopHStretch, new Vector2(0f, -100f), _language.GetMouseAssignmentConflictWindowMessage(otherPlayerName, _language.GetPlayerName(currentPlayer.id)));
+		UnityAction unityAction = delegate
 		{
 			OnWindowCancel(window.id);
 		};
-		window.cancelCallback = cancelCallback;
+		window.cancelCallback = unityAction;
 		window.CreateButton(prefabs.fitButton, UIPivot.BottomLeft, UIAnchor.BottomLeft, Vector2.zero, _language.yes, delegate
 		{
 			OnMouseAssignmentConfirmed(window.id, currentPlayer);
-		}, cancelCallback, setDefault: true);
-		window.CreateButton(prefabs.fitButton, UIPivot.BottomRight, UIAnchor.BottomRight, Vector2.zero, _language.no, cancelCallback, cancelCallback, setDefault: false);
+		}, unityAction, setDefault: true);
+		window.CreateButton(prefabs.fitButton, UIPivot.BottomRight, UIAnchor.BottomRight, Vector2.zero, _language.no, unityAction, unityAction, setDefault: false);
 		windowManager.Focus(window);
 	}
 
@@ -4481,16 +4505,16 @@ public class ControlMapper : MonoBehaviour
 	{
 		if (currentPlayer != null && currentPlayer.controllers.joystickCount != 0)
 		{
-			CalibrationWindow window = OpenWindow(prefabs.calibrationWindow, "CalibrationWindow", closeOthers: true) as CalibrationWindow;
-			if (!(window == null))
+			CalibrationWindow calibrationWindow = OpenWindow(prefabs.calibrationWindow, "CalibrationWindow", closeOthers: true) as CalibrationWindow;
+			if (!(calibrationWindow == null))
 			{
 				Joystick joystick = currentJoystick;
-				window.CreateTitleText(prefabs.windowTitleText, Vector2.zero, _language.calibrateControllerWindowTitle);
-				window.SetJoystick(currentPlayer.id, joystick);
-				window.SetButtonCallback(CalibrationWindow.ButtonIdentifier.Done, CloseWindow);
-				window.SetButtonCallback(CalibrationWindow.ButtonIdentifier.Calibrate, StartAxisCalibration);
-				window.SetButtonCallback(CalibrationWindow.ButtonIdentifier.Cancel, CloseWindow);
-				windowManager.Focus(window);
+				calibrationWindow.CreateTitleText(prefabs.windowTitleText, Vector2.zero, _language.calibrateControllerWindowTitle);
+				calibrationWindow.SetJoystick(currentPlayer.id, joystick);
+				calibrationWindow.SetButtonCallback(CalibrationWindow.ButtonIdentifier.Done, CloseWindow);
+				calibrationWindow.SetButtonCallback(CalibrationWindow.ButtonIdentifier.Calibrate, StartAxisCalibration);
+				calibrationWindow.SetButtonCallback(CalibrationWindow.ButtonIdentifier.Cancel, CloseWindow);
+				windowManager.Focus(calibrationWindow);
 			}
 		}
 	}
@@ -4563,14 +4587,14 @@ public class ControlMapper : MonoBehaviour
 	{
 		if (currentPlayer != null && _inputBehaviorSettings != null)
 		{
-			InputBehaviorWindow window = OpenWindow(prefabs.inputBehaviorsWindow, "EditInputBehaviorsWindow", closeOthers: true) as InputBehaviorWindow;
-			if (!(window == null))
+			InputBehaviorWindow inputBehaviorWindow = OpenWindow(prefabs.inputBehaviorsWindow, "EditInputBehaviorsWindow", closeOthers: true) as InputBehaviorWindow;
+			if (!(inputBehaviorWindow == null))
 			{
-				window.CreateTitleText(prefabs.windowTitleText, Vector2.zero, _language.inputBehaviorSettingsWindowTitle);
-				window.SetData(currentPlayer.id, _inputBehaviorSettings);
-				window.SetButtonCallback(InputBehaviorWindow.ButtonIdentifier.Done, CloseWindow);
-				window.SetButtonCallback(InputBehaviorWindow.ButtonIdentifier.Cancel, CloseWindow);
-				windowManager.Focus(window);
+				inputBehaviorWindow.CreateTitleText(prefabs.windowTitleText, Vector2.zero, _language.inputBehaviorSettingsWindowTitle);
+				inputBehaviorWindow.SetData(currentPlayer.id, _inputBehaviorSettings);
+				inputBehaviorWindow.SetButtonCallback(InputBehaviorWindow.ButtonIdentifier.Done, CloseWindow);
+				inputBehaviorWindow.SetButtonCallback(InputBehaviorWindow.ButtonIdentifier.Cancel, CloseWindow);
+				windowManager.Focus(inputBehaviorWindow);
 			}
 		}
 	}
@@ -4609,55 +4633,55 @@ public class ControlMapper : MonoBehaviour
 		}
 		for (int i = 0; i < _mappingSets.Length; i++)
 		{
-			MappingSet set = _mappingSets[i];
-			if (set == null || !set.isValid)
+			MappingSet mappingSet = _mappingSets[i];
+			if (mappingSet == null || !mappingSet.isValid)
 			{
 				continue;
 			}
-			InputMapCategory mapCat = ReInput.mapping.GetMapCategory(set.mapCategoryId);
-			if (mapCat == null || !mapCat.userAssignable)
+			InputMapCategory mapCategory = ReInput.mapping.GetMapCategory(mappingSet.mapCategoryId);
+			if (mapCategory == null || !mapCategory.userAssignable)
 			{
 				continue;
 			}
-			inputGrid.AddMapCategory(set.mapCategoryId);
-			if (set.actionListMode == MappingSet.ActionListMode.ActionCategory)
+			inputGrid.AddMapCategory(mappingSet.mapCategoryId);
+			if (mappingSet.actionListMode == MappingSet.ActionListMode.ActionCategory)
 			{
-				IList<int> actionCategoryIds = set.actionCategoryIds;
-				for (int k = 0; k < actionCategoryIds.Count; k++)
+				IList<int> actionCategoryIds = mappingSet.actionCategoryIds;
+				for (int j = 0; j < actionCategoryIds.Count; j++)
 				{
-					int actionCatId = actionCategoryIds[k];
-					InputCategory actionCat = ReInput.mapping.GetActionCategory(actionCatId);
-					if (actionCat == null || !actionCat.userAssignable)
+					int num = actionCategoryIds[j];
+					InputCategory actionCategory = ReInput.mapping.GetActionCategory(num);
+					if (actionCategory == null || !actionCategory.userAssignable)
 					{
 						continue;
 					}
-					inputGrid.AddActionCategory(set.mapCategoryId, actionCatId);
-					foreach (InputAction action2 in ReInput.mapping.UserAssignableActionsInCategory(actionCatId))
+					inputGrid.AddActionCategory(mappingSet.mapCategoryId, num);
+					foreach (InputAction item in ReInput.mapping.UserAssignableActionsInCategory(num))
 					{
-						if (action2.type == InputActionType.Axis)
+						if (item.type == InputActionType.Axis)
 						{
 							if (_showFullAxisInputFields)
 							{
-								inputGrid.AddAction(set.mapCategoryId, action2, AxisRange.Full);
+								inputGrid.AddAction(mappingSet.mapCategoryId, item, AxisRange.Full);
 							}
 							if (_showSplitAxisInputFields)
 							{
-								inputGrid.AddAction(set.mapCategoryId, action2, AxisRange.Positive);
-								inputGrid.AddAction(set.mapCategoryId, action2, AxisRange.Negative);
+								inputGrid.AddAction(mappingSet.mapCategoryId, item, AxisRange.Positive);
+								inputGrid.AddAction(mappingSet.mapCategoryId, item, AxisRange.Negative);
 							}
 						}
-						else if (action2.type == InputActionType.Button)
+						else if (item.type == InputActionType.Button)
 						{
-							inputGrid.AddAction(set.mapCategoryId, action2, AxisRange.Positive);
+							inputGrid.AddAction(mappingSet.mapCategoryId, item, AxisRange.Positive);
 						}
 					}
 				}
 				continue;
 			}
-			IList<int> actionIds = set.actionIds;
-			for (int j = 0; j < actionIds.Count; j++)
+			IList<int> actionIds = mappingSet.actionIds;
+			for (int k = 0; k < actionIds.Count; k++)
 			{
-				InputAction action = ReInput.mapping.GetAction(actionIds[j]);
+				InputAction action = ReInput.mapping.GetAction(actionIds[k]);
 				if (action == null)
 				{
 					continue;
@@ -4666,17 +4690,17 @@ public class ControlMapper : MonoBehaviour
 				{
 					if (_showFullAxisInputFields)
 					{
-						inputGrid.AddAction(set.mapCategoryId, action, AxisRange.Full);
+						inputGrid.AddAction(mappingSet.mapCategoryId, action, AxisRange.Full);
 					}
 					if (_showSplitAxisInputFields)
 					{
-						inputGrid.AddAction(set.mapCategoryId, action, AxisRange.Positive);
-						inputGrid.AddAction(set.mapCategoryId, action, AxisRange.Negative);
+						inputGrid.AddAction(mappingSet.mapCategoryId, action, AxisRange.Positive);
+						inputGrid.AddAction(mappingSet.mapCategoryId, action, AxisRange.Negative);
 					}
 				}
 				else if (action.type == InputActionType.Button)
 				{
-					inputGrid.AddAction(set.mapCategoryId, action, AxisRange.Positive);
+					inputGrid.AddAction(mappingSet.mapCategoryId, action, AxisRange.Positive);
 				}
 			}
 		}
@@ -4698,31 +4722,28 @@ public class ControlMapper : MonoBehaviour
 	private void CreateHeaderLabels()
 	{
 		references.inputGridHeader1 = CreateNewColumnGroup("ActionsHeader", references.inputGridHeadersGroup, _actionLabelWidth).transform;
-		GUILabel label = CreateLabel(prefabs.inputGridHeaderLabel, _language.actionColumnLabel, references.inputGridHeader1, Vector2.zero);
+		CreateLabel(prefabs.inputGridHeaderLabel, _language.actionColumnLabel, references.inputGridHeader1, Vector2.zero);
 		if (_showKeyboard)
 		{
 			references.inputGridHeader2 = CreateNewColumnGroup("KeybordHeader", references.inputGridHeadersGroup, _keyboardColMaxWidth).transform;
-			label = CreateLabel(prefabs.inputGridHeaderLabel, _language.keyboardColumnLabel, references.inputGridHeader2, Vector2.zero);
-			label.SetTextAlignment(TextAlignmentOptions.Center);
+			CreateLabel(prefabs.inputGridHeaderLabel, _language.keyboardColumnLabel, references.inputGridHeader2, Vector2.zero).SetTextAlignment(TextAlignmentOptions.Center);
 		}
 		if (_showMouse)
 		{
 			references.inputGridHeader3 = CreateNewColumnGroup("MouseHeader", references.inputGridHeadersGroup, _mouseColMaxWidth).transform;
-			label = CreateLabel(prefabs.inputGridHeaderLabel, _language.mouseColumnLabel, references.inputGridHeader3, Vector2.zero);
-			label.SetTextAlignment(TextAlignmentOptions.Center);
+			CreateLabel(prefabs.inputGridHeaderLabel, _language.mouseColumnLabel, references.inputGridHeader3, Vector2.zero).SetTextAlignment(TextAlignmentOptions.Center);
 		}
 		if (_showControllers)
 		{
 			references.inputGridHeader4 = CreateNewColumnGroup("ControllerHeader", references.inputGridHeadersGroup, _controllerColMaxWidth).transform;
-			label = CreateLabel(prefabs.inputGridHeaderLabel, _language.controllerColumnLabel, references.inputGridHeader4, Vector2.zero);
-			label.SetTextAlignment(TextAlignmentOptions.Center);
+			CreateLabel(prefabs.inputGridHeaderLabel, _language.controllerColumnLabel, references.inputGridHeader4, Vector2.zero).SetTextAlignment(TextAlignmentOptions.Center);
 		}
 	}
 
 	private void CreateActionLabelColumn()
 	{
-		Transform columnXform = CreateNewColumnGroup("ActionLabelColumn", references.inputGridInnerGroup, _actionLabelWidth).transform;
-		references.inputGridActionColumn = columnXform;
+		Transform inputGridActionColumn = CreateNewColumnGroup("ActionLabelColumn", references.inputGridInnerGroup, _actionLabelWidth).transform;
+		references.inputGridActionColumn = inputGridActionColumn;
 	}
 
 	private void CreateKeyboardInputFieldColumn()
@@ -4751,17 +4772,17 @@ public class ControlMapper : MonoBehaviour
 
 	private void CreateInputFieldColumn(string name, ControllerType controllerType, int maxWidth, int cols, bool disableFullAxis)
 	{
-		Transform columnXform = CreateNewColumnGroup(name, references.inputGridInnerGroup, maxWidth).transform;
+		Transform transform = CreateNewColumnGroup(name, references.inputGridInnerGroup, maxWidth).transform;
 		switch (controllerType)
 		{
 		case ControllerType.Joystick:
-			references.inputGridControllerColumn = columnXform;
+			references.inputGridControllerColumn = transform;
 			break;
 		case ControllerType.Keyboard:
-			references.inputGridKeyboardColumn = columnXform;
+			references.inputGridKeyboardColumn = transform;
 			break;
 		case ControllerType.Mouse:
-			references.inputGridMouseColumn = columnXform;
+			references.inputGridMouseColumn = transform;
 			break;
 		default:
 			throw new NotImplementedException();
@@ -4770,86 +4791,86 @@ public class ControlMapper : MonoBehaviour
 
 	private void CreateInputActionLabels()
 	{
-		Transform columnXform = references.inputGridActionColumn;
-		for (int mappingSetIndex = 0; mappingSetIndex < _mappingSets.Length; mappingSetIndex++)
+		Transform inputGridActionColumn = references.inputGridActionColumn;
+		for (int i = 0; i < _mappingSets.Length; i++)
 		{
-			MappingSet set = _mappingSets[mappingSetIndex];
-			if (set == null || !set.isValid)
+			MappingSet mappingSet = _mappingSets[i];
+			if (mappingSet == null || !mappingSet.isValid)
 			{
 				continue;
 			}
-			int yPos = 0;
-			if (set.actionListMode == MappingSet.ActionListMode.ActionCategory)
+			int num = 0;
+			if (mappingSet.actionListMode == MappingSet.ActionListMode.ActionCategory)
 			{
-				int categoryCount = 0;
-				IList<int> actionCategoryIds = set.actionCategoryIds;
+				int num2 = 0;
+				IList<int> actionCategoryIds = mappingSet.actionCategoryIds;
 				for (int j = 0; j < actionCategoryIds.Count; j++)
 				{
-					InputCategory category2 = ReInput.mapping.GetActionCategory(actionCategoryIds[j]);
-					if (category2 == null || !category2.userAssignable || CountIEnumerable(ReInput.mapping.UserAssignableActionsInCategory(category2.id)) == 0)
+					InputCategory actionCategory = ReInput.mapping.GetActionCategory(actionCategoryIds[j]);
+					if (actionCategory == null || !actionCategory.userAssignable || CountIEnumerable(ReInput.mapping.UserAssignableActionsInCategory(actionCategory.id)) == 0)
 					{
 						continue;
 					}
 					if (_showActionCategoryLabels)
 					{
-						if (categoryCount > 0)
+						if (num2 > 0)
 						{
-							yPos -= _inputRowCategorySpacing;
+							num -= _inputRowCategorySpacing;
 						}
-						GUILabel label3 = CreateLabel(_language.GetActionCategoryName(category2.id), columnXform, new Vector2(0f, yPos));
-						label3.SetFontStyle(FontStyles.Bold);
-						label3.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _inputRowHeight);
-						inputGrid.AddActionCategoryLabel(set.mapCategoryId, category2.id, label3);
-						yPos -= _inputRowHeight;
+						GUILabel gUILabel = CreateLabel(_language.GetActionCategoryName(actionCategory.id), inputGridActionColumn, new Vector2(0f, num));
+						gUILabel.SetFontStyle(FontStyles.Bold);
+						gUILabel.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _inputRowHeight);
+						inputGrid.AddActionCategoryLabel(mappingSet.mapCategoryId, actionCategory.id, gUILabel);
+						num -= _inputRowHeight;
 					}
-					foreach (InputAction action2 in ReInput.mapping.UserAssignableActionsInCategory(category2.id, sort: true))
+					foreach (InputAction item in ReInput.mapping.UserAssignableActionsInCategory(actionCategory.id, sort: true))
 					{
-						if (action2.type == InputActionType.Axis)
+						if (item.type == InputActionType.Axis)
 						{
 							if (_showFullAxisInputFields)
 							{
-								GUILabel label2 = CreateLabel(_language.GetActionName(action2.id, AxisRange.Full), columnXform, new Vector2(0f, yPos));
-								label2.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _inputRowHeight);
-								inputGrid.AddActionLabel(set.mapCategoryId, action2.id, AxisRange.Full, label2);
-								yPos -= _inputRowHeight;
+								GUILabel gUILabel2 = CreateLabel(_language.GetActionName(item.id, AxisRange.Full), inputGridActionColumn, new Vector2(0f, num));
+								gUILabel2.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _inputRowHeight);
+								inputGrid.AddActionLabel(mappingSet.mapCategoryId, item.id, AxisRange.Full, gUILabel2);
+								num -= _inputRowHeight;
 							}
 							if (_showSplitAxisInputFields)
 							{
-								string positiveDescriptiveName = _language.GetActionName(action2.id, AxisRange.Positive);
-								GUILabel label2 = CreateLabel(positiveDescriptiveName, columnXform, new Vector2(0f, yPos));
-								label2.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _inputRowHeight);
-								inputGrid.AddActionLabel(set.mapCategoryId, action2.id, AxisRange.Positive, label2);
-								yPos -= _inputRowHeight;
-								string negativeDescriptiveName = _language.GetActionName(action2.id, AxisRange.Negative);
-								label2 = CreateLabel(negativeDescriptiveName, columnXform, new Vector2(0f, yPos));
-								label2.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _inputRowHeight);
-								inputGrid.AddActionLabel(set.mapCategoryId, action2.id, AxisRange.Negative, label2);
-								yPos -= _inputRowHeight;
+								string actionName = _language.GetActionName(item.id, AxisRange.Positive);
+								GUILabel gUILabel2 = CreateLabel(actionName, inputGridActionColumn, new Vector2(0f, num));
+								gUILabel2.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _inputRowHeight);
+								inputGrid.AddActionLabel(mappingSet.mapCategoryId, item.id, AxisRange.Positive, gUILabel2);
+								num -= _inputRowHeight;
+								string actionName2 = _language.GetActionName(item.id, AxisRange.Negative);
+								gUILabel2 = CreateLabel(actionName2, inputGridActionColumn, new Vector2(0f, num));
+								gUILabel2.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _inputRowHeight);
+								inputGrid.AddActionLabel(mappingSet.mapCategoryId, item.id, AxisRange.Negative, gUILabel2);
+								num -= _inputRowHeight;
 							}
 						}
-						else if (action2.type == InputActionType.Button)
+						else if (item.type == InputActionType.Button)
 						{
-							GUILabel label2 = CreateLabel(_language.GetActionName(action2.id), columnXform, new Vector2(0f, yPos));
-							label2.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _inputRowHeight);
-							inputGrid.AddActionLabel(set.mapCategoryId, action2.id, AxisRange.Positive, label2);
-							yPos -= _inputRowHeight;
+							GUILabel gUILabel2 = CreateLabel(_language.GetActionName(item.id), inputGridActionColumn, new Vector2(0f, num));
+							gUILabel2.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _inputRowHeight);
+							inputGrid.AddActionLabel(mappingSet.mapCategoryId, item.id, AxisRange.Positive, gUILabel2);
+							num -= _inputRowHeight;
 						}
 					}
-					categoryCount++;
+					num2++;
 				}
 			}
 			else
 			{
-				IList<int> actionIds = set.actionIds;
-				for (int i = 0; i < actionIds.Count; i++)
+				IList<int> actionIds = mappingSet.actionIds;
+				for (int k = 0; k < actionIds.Count; k++)
 				{
-					InputAction action = ReInput.mapping.GetAction(actionIds[i]);
+					InputAction action = ReInput.mapping.GetAction(actionIds[k]);
 					if (action == null || !action.userAssignable)
 					{
 						continue;
 					}
-					InputCategory category = ReInput.mapping.GetActionCategory(action.categoryId);
-					if (category == null || !category.userAssignable)
+					InputCategory actionCategory2 = ReInput.mapping.GetActionCategory(action.categoryId);
+					if (actionCategory2 == null || !actionCategory2.userAssignable)
 					{
 						continue;
 					}
@@ -4857,33 +4878,33 @@ public class ControlMapper : MonoBehaviour
 					{
 						if (_showFullAxisInputFields)
 						{
-							GUILabel label = CreateLabel(_language.GetActionName(action.id, AxisRange.Full), columnXform, new Vector2(0f, yPos));
-							label.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _inputRowHeight);
-							inputGrid.AddActionLabel(set.mapCategoryId, action.id, AxisRange.Full, label);
-							yPos -= _inputRowHeight;
+							GUILabel gUILabel3 = CreateLabel(_language.GetActionName(action.id, AxisRange.Full), inputGridActionColumn, new Vector2(0f, num));
+							gUILabel3.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _inputRowHeight);
+							inputGrid.AddActionLabel(mappingSet.mapCategoryId, action.id, AxisRange.Full, gUILabel3);
+							num -= _inputRowHeight;
 						}
 						if (_showSplitAxisInputFields)
 						{
-							GUILabel label = CreateLabel(_language.GetActionName(action.id, AxisRange.Positive), columnXform, new Vector2(0f, yPos));
-							label.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _inputRowHeight);
-							inputGrid.AddActionLabel(set.mapCategoryId, action.id, AxisRange.Positive, label);
-							yPos -= _inputRowHeight;
-							label = CreateLabel(_language.GetActionName(action.id, AxisRange.Negative), columnXform, new Vector2(0f, yPos));
-							label.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _inputRowHeight);
-							inputGrid.AddActionLabel(set.mapCategoryId, action.id, AxisRange.Negative, label);
-							yPos -= _inputRowHeight;
+							GUILabel gUILabel3 = CreateLabel(_language.GetActionName(action.id, AxisRange.Positive), inputGridActionColumn, new Vector2(0f, num));
+							gUILabel3.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _inputRowHeight);
+							inputGrid.AddActionLabel(mappingSet.mapCategoryId, action.id, AxisRange.Positive, gUILabel3);
+							num -= _inputRowHeight;
+							gUILabel3 = CreateLabel(_language.GetActionName(action.id, AxisRange.Negative), inputGridActionColumn, new Vector2(0f, num));
+							gUILabel3.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _inputRowHeight);
+							inputGrid.AddActionLabel(mappingSet.mapCategoryId, action.id, AxisRange.Negative, gUILabel3);
+							num -= _inputRowHeight;
 						}
 					}
 					else if (action.type == InputActionType.Button)
 					{
-						GUILabel label = CreateLabel(_language.GetActionName(action.id), columnXform, new Vector2(0f, yPos));
-						label.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _inputRowHeight);
-						inputGrid.AddActionLabel(set.mapCategoryId, action.id, AxisRange.Positive, label);
-						yPos -= _inputRowHeight;
+						GUILabel gUILabel3 = CreateLabel(_language.GetActionName(action.id), inputGridActionColumn, new Vector2(0f, num));
+						gUILabel3.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _inputRowHeight);
+						inputGrid.AddActionLabel(mappingSet.mapCategoryId, action.id, AxisRange.Positive, gUILabel3);
+						num -= _inputRowHeight;
 					}
 				}
 			}
-			inputGrid.SetColumnHeight(set.mapCategoryId, -yPos);
+			inputGrid.SetColumnHeight(mappingSet.mapCategoryId, -num);
 		}
 	}
 
@@ -4905,63 +4926,63 @@ public class ControlMapper : MonoBehaviour
 
 	private void CreateInputFields(Transform columnXform, ControllerType controllerType, int maxWidth, int cols, bool disableFullAxis)
 	{
-		for (int mappingSetIndex = 0; mappingSetIndex < _mappingSets.Length; mappingSetIndex++)
+		for (int i = 0; i < _mappingSets.Length; i++)
 		{
-			MappingSet set = _mappingSets[mappingSetIndex];
-			if (set == null || !set.isValid)
+			MappingSet mappingSet = _mappingSets[i];
+			if (mappingSet == null || !mappingSet.isValid)
 			{
 				continue;
 			}
 			int fieldWidth = maxWidth / cols;
 			int yPos = 0;
-			int categoryCount = 0;
-			if (set.actionListMode == MappingSet.ActionListMode.ActionCategory)
+			int num = 0;
+			if (mappingSet.actionListMode == MappingSet.ActionListMode.ActionCategory)
 			{
-				IList<int> actionCategoryIds = set.actionCategoryIds;
+				IList<int> actionCategoryIds = mappingSet.actionCategoryIds;
 				for (int j = 0; j < actionCategoryIds.Count; j++)
 				{
-					InputCategory category2 = ReInput.mapping.GetActionCategory(actionCategoryIds[j]);
-					if (category2 == null || !category2.userAssignable || CountIEnumerable(ReInput.mapping.UserAssignableActionsInCategory(category2.id)) == 0)
+					InputCategory actionCategory = ReInput.mapping.GetActionCategory(actionCategoryIds[j]);
+					if (actionCategory == null || !actionCategory.userAssignable || CountIEnumerable(ReInput.mapping.UserAssignableActionsInCategory(actionCategory.id)) == 0)
 					{
 						continue;
 					}
 					if (_showActionCategoryLabels)
 					{
-						yPos -= ((categoryCount > 0) ? (_inputRowHeight + _inputRowCategorySpacing) : _inputRowHeight);
+						yPos -= ((num > 0) ? (_inputRowHeight + _inputRowCategorySpacing) : _inputRowHeight);
 					}
-					foreach (InputAction action2 in ReInput.mapping.UserAssignableActionsInCategory(category2.id, sort: true))
+					foreach (InputAction item in ReInput.mapping.UserAssignableActionsInCategory(actionCategory.id, sort: true))
 					{
-						if (action2.type == InputActionType.Axis)
+						if (item.type == InputActionType.Axis)
 						{
 							if (_showFullAxisInputFields)
 							{
-								CreateInputFieldSet(columnXform, set.mapCategoryId, action2, AxisRange.Full, controllerType, cols, fieldWidth, ref yPos, disableFullAxis);
+								CreateInputFieldSet(columnXform, mappingSet.mapCategoryId, item, AxisRange.Full, controllerType, cols, fieldWidth, ref yPos, disableFullAxis);
 							}
 							if (_showSplitAxisInputFields)
 							{
-								CreateInputFieldSet(columnXform, set.mapCategoryId, action2, AxisRange.Positive, controllerType, cols, fieldWidth, ref yPos, disableFullAxis: false);
-								CreateInputFieldSet(columnXform, set.mapCategoryId, action2, AxisRange.Negative, controllerType, cols, fieldWidth, ref yPos, disableFullAxis: false);
+								CreateInputFieldSet(columnXform, mappingSet.mapCategoryId, item, AxisRange.Positive, controllerType, cols, fieldWidth, ref yPos, disableFullAxis: false);
+								CreateInputFieldSet(columnXform, mappingSet.mapCategoryId, item, AxisRange.Negative, controllerType, cols, fieldWidth, ref yPos, disableFullAxis: false);
 							}
 						}
-						else if (action2.type == InputActionType.Button)
+						else if (item.type == InputActionType.Button)
 						{
-							CreateInputFieldSet(columnXform, set.mapCategoryId, action2, AxisRange.Positive, controllerType, cols, fieldWidth, ref yPos, disableFullAxis: false);
+							CreateInputFieldSet(columnXform, mappingSet.mapCategoryId, item, AxisRange.Positive, controllerType, cols, fieldWidth, ref yPos, disableFullAxis: false);
 						}
-						categoryCount++;
+						num++;
 					}
 				}
 				continue;
 			}
-			IList<int> actionIds = set.actionIds;
-			for (int i = 0; i < actionIds.Count; i++)
+			IList<int> actionIds = mappingSet.actionIds;
+			for (int k = 0; k < actionIds.Count; k++)
 			{
-				InputAction action = ReInput.mapping.GetAction(actionIds[i]);
+				InputAction action = ReInput.mapping.GetAction(actionIds[k]);
 				if (action == null || !action.userAssignable)
 				{
 					continue;
 				}
-				InputCategory category = ReInput.mapping.GetActionCategory(action.categoryId);
-				if (category == null || !category.userAssignable)
+				InputCategory actionCategory2 = ReInput.mapping.GetActionCategory(action.categoryId);
+				if (actionCategory2 == null || !actionCategory2.userAssignable)
 				{
 					continue;
 				}
@@ -4969,17 +4990,17 @@ public class ControlMapper : MonoBehaviour
 				{
 					if (_showFullAxisInputFields)
 					{
-						CreateInputFieldSet(columnXform, set.mapCategoryId, action, AxisRange.Full, controllerType, cols, fieldWidth, ref yPos, disableFullAxis);
+						CreateInputFieldSet(columnXform, mappingSet.mapCategoryId, action, AxisRange.Full, controllerType, cols, fieldWidth, ref yPos, disableFullAxis);
 					}
 					if (_showSplitAxisInputFields)
 					{
-						CreateInputFieldSet(columnXform, set.mapCategoryId, action, AxisRange.Positive, controllerType, cols, fieldWidth, ref yPos, disableFullAxis: false);
-						CreateInputFieldSet(columnXform, set.mapCategoryId, action, AxisRange.Negative, controllerType, cols, fieldWidth, ref yPos, disableFullAxis: false);
+						CreateInputFieldSet(columnXform, mappingSet.mapCategoryId, action, AxisRange.Positive, controllerType, cols, fieldWidth, ref yPos, disableFullAxis: false);
+						CreateInputFieldSet(columnXform, mappingSet.mapCategoryId, action, AxisRange.Negative, controllerType, cols, fieldWidth, ref yPos, disableFullAxis: false);
 					}
 				}
 				else if (action.type == InputActionType.Button)
 				{
-					CreateInputFieldSet(columnXform, set.mapCategoryId, action, AxisRange.Positive, controllerType, cols, fieldWidth, ref yPos, disableFullAxis: false);
+					CreateInputFieldSet(columnXform, mappingSet.mapCategoryId, action, AxisRange.Positive, controllerType, cols, fieldWidth, ref yPos, disableFullAxis: false);
 				}
 			}
 		}
@@ -4987,34 +5008,34 @@ public class ControlMapper : MonoBehaviour
 
 	private void CreateInputFieldSet(Transform parent, int mapCategoryId, InputAction action, AxisRange axisRange, ControllerType controllerType, int cols, int fieldWidth, ref int yPos, bool disableFullAxis)
 	{
-		GameObject layoutGroup = CreateNewGUIObject("FieldLayoutGroup", parent, new Vector2(0f, yPos));
-		HorizontalLayoutGroup hLayoutGroup = layoutGroup.AddComponent<HorizontalLayoutGroup>();
-		hLayoutGroup.padding = _inputRowPadding;
-		hLayoutGroup.spacing = _inputRowFieldSpacing;
-		RectTransform rt = layoutGroup.GetComponent<RectTransform>();
-		rt.anchorMin = new Vector2(0f, 1f);
-		rt.anchorMax = new Vector2(1f, 1f);
-		rt.pivot = new Vector2(0f, 1f);
-		rt.sizeDelta = Vector2.zero;
-		rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _inputRowHeight);
-		inputGrid.AddInputFieldSet(mapCategoryId, action, axisRange, controllerType, layoutGroup);
-		for (int fieldIndex = 0; fieldIndex < cols; fieldIndex++)
+		GameObject gameObject = CreateNewGUIObject("FieldLayoutGroup", parent, new Vector2(0f, yPos));
+		HorizontalLayoutGroup horizontalLayoutGroup = gameObject.AddComponent<HorizontalLayoutGroup>();
+		horizontalLayoutGroup.padding = _inputRowPadding;
+		horizontalLayoutGroup.spacing = _inputRowFieldSpacing;
+		RectTransform component = gameObject.GetComponent<RectTransform>();
+		component.anchorMin = new Vector2(0f, 1f);
+		component.anchorMax = new Vector2(1f, 1f);
+		component.pivot = new Vector2(0f, 1f);
+		component.sizeDelta = Vector2.zero;
+		component.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _inputRowHeight);
+		inputGrid.AddInputFieldSet(mapCategoryId, action, axisRange, controllerType, gameObject);
+		for (int i = 0; i < cols; i++)
 		{
-			int toggleWidth = ((axisRange == AxisRange.Full) ? _invertToggleWidth : 0);
-			GUIInputField field = CreateInputField(hLayoutGroup.transform, Vector2.zero, "", action.id, axisRange, controllerType, fieldIndex);
-			field.SetFirstChildObjectWidth(LayoutElementSizeType.PreferredSize, fieldWidth - toggleWidth);
-			inputGrid.AddInputField(mapCategoryId, action, axisRange, controllerType, fieldIndex, field);
+			int num = ((axisRange == AxisRange.Full) ? _invertToggleWidth : 0);
+			GUIInputField gUIInputField = CreateInputField(horizontalLayoutGroup.transform, Vector2.zero, "", action.id, axisRange, controllerType, i);
+			gUIInputField.SetFirstChildObjectWidth(LayoutElementSizeType.PreferredSize, fieldWidth - num);
+			inputGrid.AddInputField(mapCategoryId, action, axisRange, controllerType, i, gUIInputField);
 			if (axisRange == AxisRange.Full)
 			{
 				if (!disableFullAxis)
 				{
-					GUIToggle toggle = CreateToggle(prefabs.inputGridFieldInvertToggle, hLayoutGroup.transform, Vector2.zero, "", action.id, axisRange, controllerType, fieldIndex);
-					toggle.SetFirstChildObjectWidth(LayoutElementSizeType.MinSize, toggleWidth);
-					field.AddToggle(toggle);
+					GUIToggle gUIToggle = CreateToggle(prefabs.inputGridFieldInvertToggle, horizontalLayoutGroup.transform, Vector2.zero, "", action.id, axisRange, controllerType, i);
+					gUIToggle.SetFirstChildObjectWidth(LayoutElementSizeType.MinSize, num);
+					gUIInputField.AddToggle(gUIToggle);
 				}
 				else
 				{
-					field.SetInteractible(state: false, playTransition: false, permanent: true);
+					gUIInputField.SetInteractible(state: false, playTransition: false, permanent: true);
 				}
 			}
 		}
@@ -5036,20 +5057,20 @@ public class ControlMapper : MonoBehaviour
 				ControllerType controllerType = ControllerType.Keyboard;
 				int controllerId = 0;
 				int layoutId = _keyboardMapDefaultLayout;
-				int fieldCount = _keyboardInputFieldCount;
-				ControllerMap map3 = GetControllerMapOrCreateNew(controllerType, controllerId, layoutId);
-				PopulateInputFieldGroup(actionSet, map3, controllerType, controllerId, fieldCount);
+				int maxFields = _keyboardInputFieldCount;
+				ControllerMap controllerMapOrCreateNew = GetControllerMapOrCreateNew(controllerType, controllerId, layoutId);
+				PopulateInputFieldGroup(actionSet, controllerMapOrCreateNew, controllerType, controllerId, maxFields);
 			}
 			if (_showMouse)
 			{
 				ControllerType controllerType = ControllerType.Mouse;
 				int controllerId = 0;
 				int layoutId = _mouseMapDefaultLayout;
-				int fieldCount = _mouseInputFieldCount;
-				ControllerMap map2 = GetControllerMapOrCreateNew(controllerType, controllerId, layoutId);
+				int maxFields = _mouseInputFieldCount;
+				ControllerMap controllerMapOrCreateNew2 = GetControllerMapOrCreateNew(controllerType, controllerId, layoutId);
 				if (currentPlayer.controllers.hasMouse)
 				{
-					PopulateInputFieldGroup(actionSet, map2, controllerType, controllerId, fieldCount);
+					PopulateInputFieldGroup(actionSet, controllerMapOrCreateNew2, controllerType, controllerId, maxFields);
 				}
 			}
 			if (isJoystickSelected && currentPlayer.controllers.joystickCount > 0)
@@ -5057,9 +5078,9 @@ public class ControlMapper : MonoBehaviour
 				ControllerType controllerType = ControllerType.Joystick;
 				int controllerId = currentJoystick.id;
 				int layoutId = _joystickMapDefaultLayout;
-				int fieldCount = _controllerInputFieldCount;
-				ControllerMap map = GetControllerMapOrCreateNew(controllerType, controllerId, layoutId);
-				PopulateInputFieldGroup(actionSet, map, controllerType, controllerId, fieldCount);
+				int maxFields = _controllerInputFieldCount;
+				ControllerMap controllerMapOrCreateNew3 = GetControllerMapOrCreateNew(controllerType, controllerId, layoutId);
+				PopulateInputFieldGroup(actionSet, controllerMapOrCreateNew3, controllerType, controllerId, maxFields);
 			}
 			else
 			{
@@ -5074,11 +5095,11 @@ public class ControlMapper : MonoBehaviour
 		{
 			return;
 		}
-		int count = 0;
+		int num = 0;
 		inputGrid.SetFixedFieldData(currentMapCategoryId, actionSet.actionId, actionSet.axisRange, controllerType, controllerId);
-		foreach (ActionElementMap aem in controllerMap.ElementMapsWithAction(actionSet.actionId))
+		foreach (ActionElementMap item in controllerMap.ElementMapsWithAction(actionSet.actionId))
 		{
-			if (aem.elementType == ControllerElementType.Button)
+			if (item.elementType == ControllerElementType.Button)
 			{
 				if (actionSet.axisRange == AxisRange.Full)
 				{
@@ -5086,46 +5107,46 @@ public class ControlMapper : MonoBehaviour
 				}
 				if (actionSet.axisRange == AxisRange.Positive)
 				{
-					if (aem.axisContribution == Pole.Negative)
+					if (item.axisContribution == Pole.Negative)
 					{
 						continue;
 					}
 				}
-				else if (actionSet.axisRange == AxisRange.Negative && aem.axisContribution == Pole.Positive)
+				else if (actionSet.axisRange == AxisRange.Negative && item.axisContribution == Pole.Positive)
 				{
 					continue;
 				}
-				inputGrid.PopulateField(currentMapCategoryId, actionSet.actionId, actionSet.axisRange, controllerType, controllerId, count, aem.id, _language.GetElementIdentifierName(aem), invert: false);
+				inputGrid.PopulateField(currentMapCategoryId, actionSet.actionId, actionSet.axisRange, controllerType, controllerId, num, item.id, _language.GetElementIdentifierName(item), invert: false);
 			}
-			else if (aem.elementType == ControllerElementType.Axis)
+			else if (item.elementType == ControllerElementType.Axis)
 			{
 				if (actionSet.axisRange == AxisRange.Full)
 				{
-					if (aem.axisRange != 0)
+					if (item.axisRange != 0)
 					{
 						continue;
 					}
-					inputGrid.PopulateField(currentMapCategoryId, actionSet.actionId, actionSet.axisRange, controllerType, controllerId, count, aem.id, _language.GetElementIdentifierName(aem), aem.invert);
+					inputGrid.PopulateField(currentMapCategoryId, actionSet.actionId, actionSet.axisRange, controllerType, controllerId, num, item.id, _language.GetElementIdentifierName(item), item.invert);
 				}
 				else if (actionSet.axisRange == AxisRange.Positive)
 				{
-					if ((aem.axisRange == AxisRange.Full && ReInput.mapping.GetAction(actionSet.actionId).type != InputActionType.Button) || aem.axisContribution == Pole.Negative)
+					if ((item.axisRange == AxisRange.Full && ReInput.mapping.GetAction(actionSet.actionId).type != InputActionType.Button) || item.axisContribution == Pole.Negative)
 					{
 						continue;
 					}
-					inputGrid.PopulateField(currentMapCategoryId, actionSet.actionId, actionSet.axisRange, controllerType, controllerId, count, aem.id, _language.GetElementIdentifierName(aem), invert: false);
+					inputGrid.PopulateField(currentMapCategoryId, actionSet.actionId, actionSet.axisRange, controllerType, controllerId, num, item.id, _language.GetElementIdentifierName(item), invert: false);
 				}
 				else if (actionSet.axisRange == AxisRange.Negative)
 				{
-					if (aem.axisRange == AxisRange.Full || aem.axisContribution == Pole.Positive)
+					if (item.axisRange == AxisRange.Full || item.axisContribution == Pole.Positive)
 					{
 						continue;
 					}
-					inputGrid.PopulateField(currentMapCategoryId, actionSet.actionId, actionSet.axisRange, controllerType, controllerId, count, aem.id, _language.GetElementIdentifierName(aem), invert: false);
+					inputGrid.PopulateField(currentMapCategoryId, actionSet.actionId, actionSet.axisRange, controllerType, controllerId, num, item.id, _language.GetElementIdentifierName(item), invert: false);
 				}
 			}
-			count++;
-			if (count > maxFields)
+			num++;
+			if (num > maxFields)
 			{
 				break;
 			}
@@ -5179,13 +5200,12 @@ public class ControlMapper : MonoBehaviour
 			Player player = ReInput.players.GetPlayer(i);
 			if (player != null)
 			{
-				GameObject instance = UITools.InstantiateGUIObject<ButtonInfo>(prefabs.button, references.playersGroup.content, "Player" + i + "Button");
-				GUIButton button = new GUIButton(instance);
-				button.SetLabel(_language.GetPlayerName(player.id));
-				button.SetButtonInfoData("PlayerSelection", player.id);
-				button.SetOnClickCallback(OnButtonActivated);
-				button.buttonInfo.OnSelectedEvent += OnUIElementSelected;
-				playerButtons.Add(button);
+				GUIButton gUIButton = new GUIButton(UITools.InstantiateGUIObject<ButtonInfo>(prefabs.button, references.playersGroup.content, "Player" + i + "Button"));
+				gUIButton.SetLabel(_language.GetPlayerName(player.id));
+				gUIButton.SetButtonInfoData("PlayerSelection", player.id);
+				gUIButton.SetOnClickCallback(OnButtonActivated);
+				gUIButton.buttonInfo.OnSelectedEvent += OnUIElementSelected;
+				playerButtons.Add(gUIButton);
 			}
 		}
 	}
@@ -5203,15 +5223,12 @@ public class ControlMapper : MonoBehaviour
 				references.assignedControllersGroup.labelText = _language.assignedControllersGroupLabel;
 				references.assignedControllersGroup.SetLabelActive(_showAssignedControllersGroupLabel);
 			}
-			ButtonInfo buttonInfo = references.removeControllerButton.GetComponent<ButtonInfo>();
-			buttonInfo.text.text = _language.removeControllerButtonLabel;
-			buttonInfo = references.calibrateControllerButton.GetComponent<ButtonInfo>();
-			buttonInfo.text.text = _language.calibrateControllerButtonLabel;
-			buttonInfo = references.assignControllerButton.GetComponent<ButtonInfo>();
-			buttonInfo.text.text = _language.assignControllerButtonLabel;
-			GUIButton guiButton = CreateButton(_language.none, references.assignedControllersGroup.content, Vector2.zero);
-			guiButton.SetInteractible(state: false, playTransition: false, permanent: true);
-			assignedControllerButtonsPlaceholder = guiButton;
+			references.removeControllerButton.GetComponent<ButtonInfo>().text.text = _language.removeControllerButtonLabel;
+			references.calibrateControllerButton.GetComponent<ButtonInfo>().text.text = _language.calibrateControllerButtonLabel;
+			references.assignControllerButton.GetComponent<ButtonInfo>().text.text = _language.assignControllerButtonLabel;
+			GUIButton gUIButton = CreateButton(_language.none, references.assignedControllersGroup.content, Vector2.zero);
+			gUIButton.SetInteractible(state: false, playTransition: false, permanent: true);
+			assignedControllerButtonsPlaceholder = gUIButton;
 		}
 	}
 
@@ -5221,11 +5238,11 @@ public class ControlMapper : MonoBehaviour
 		{
 			references.settingsGroup.labelText = _language.settingsGroupLabel;
 			references.settingsGroup.SetLabelActive(_showSettingsGroupLabel);
-			GUIButton button = CreateButton(_language.inputBehaviorSettingsButtonLabel, references.settingsGroup.content, Vector2.zero);
-			miscInstantiatedObjects.Add(button.gameObject);
-			button.buttonInfo.OnSelectedEvent += OnUIElementSelected;
-			button.SetButtonInfoData("EditInputBehaviors", 0);
-			button.SetOnClickCallback(OnButtonActivated);
+			GUIButton gUIButton = CreateButton(_language.inputBehaviorSettingsButtonLabel, references.settingsGroup.content, Vector2.zero);
+			miscInstantiatedObjects.Add(gUIButton.gameObject);
+			gUIButton.buttonInfo.OnSelectedEvent += OnUIElementSelected;
+			gUIButton.SetButtonInfoData("EditInputBehaviors", 0);
+			gUIButton.SetOnClickCallback(OnButtonActivated);
 		}
 	}
 
@@ -5239,19 +5256,18 @@ public class ControlMapper : MonoBehaviour
 		references.mapCategoriesGroup.SetLabelActive(_showMapCategoriesGroupLabel);
 		for (int i = 0; i < _mappingSets.Length; i++)
 		{
-			MappingSet set = _mappingSets[i];
-			if (set != null)
+			MappingSet mappingSet = _mappingSets[i];
+			if (mappingSet != null)
 			{
-				InputMapCategory cat = ReInput.mapping.GetMapCategory(set.mapCategoryId);
-				if (cat != null)
+				InputMapCategory mapCategory = ReInput.mapping.GetMapCategory(mappingSet.mapCategoryId);
+				if (mapCategory != null)
 				{
-					GameObject instance = UITools.InstantiateGUIObject<ButtonInfo>(prefabs.button, references.mapCategoriesGroup.content, cat.name + "Button");
-					GUIButton button = new GUIButton(instance);
-					button.SetLabel(_language.GetMapCategoryName(cat.id));
-					button.SetButtonInfoData("MapCategorySelection", cat.id);
-					button.SetOnClickCallback(OnButtonActivated);
-					button.buttonInfo.OnSelectedEvent += OnUIElementSelected;
-					mapCategoryButtons.Add(button);
+					GUIButton gUIButton = new GUIButton(UITools.InstantiateGUIObject<ButtonInfo>(prefabs.button, references.mapCategoriesGroup.content, mapCategory.name + "Button"));
+					gUIButton.SetLabel(_language.GetMapCategoryName(mapCategory.id));
+					gUIButton.SetButtonInfoData("MapCategorySelection", mapCategory.id);
+					gUIButton.SetOnClickCallback(OnButtonActivated);
+					gUIButton.buttonInfo.OnSelectedEvent += OnUIElementSelected;
+					mapCategoryButtons.Add(gUIButton);
 				}
 			}
 		}
@@ -5289,22 +5305,22 @@ public class ControlMapper : MonoBehaviour
 
 	private void RedrawControllerGroup()
 	{
-		int prevSelectedButtonJoyId = -1;
+		int num = -1;
 		references.controllerNameLabel.text = _language.none;
 		UITools.SetInteractable(references.removeControllerButton, state: false, playTransition: false);
 		UITools.SetInteractable(references.assignControllerButton, state: false, playTransition: false);
 		UITools.SetInteractable(references.calibrateControllerButton, state: false, playTransition: false);
 		if (ShowAssignedControllers())
 		{
-			foreach (GUIButton button in assignedControllerButtons)
+			foreach (GUIButton assignedControllerButton in assignedControllerButtons)
 			{
-				if (!(button.gameObject == null))
+				if (!(assignedControllerButton.gameObject == null))
 				{
-					if (currentUISelection == button.gameObject)
+					if (currentUISelection == assignedControllerButton.gameObject)
 					{
-						prevSelectedButtonJoyId = button.buttonInfo.intData;
+						num = assignedControllerButton.buttonInfo.intData;
 					}
-					UnityEngine.Object.Destroy(button.gameObject);
+					UnityEngine.Object.Destroy(assignedControllerButton.gameObject);
 				}
 			}
 			assignedControllerButtons.Clear();
@@ -5323,14 +5339,14 @@ public class ControlMapper : MonoBehaviour
 			}
 			foreach (Joystick joystick in player.controllers.Joysticks)
 			{
-				GUIButton button3 = CreateButton(_language.GetControllerName(joystick), references.assignedControllersGroup.content, Vector2.zero);
-				button3.SetButtonInfoData("AssignedControllerSelection", joystick.id);
-				button3.SetOnClickCallback(OnButtonActivated);
-				button3.buttonInfo.OnSelectedEvent += OnUIElementSelected;
-				assignedControllerButtons.Add(button3);
+				GUIButton gUIButton = CreateButton(_language.GetControllerName(joystick), references.assignedControllersGroup.content, Vector2.zero);
+				gUIButton.SetButtonInfoData("AssignedControllerSelection", joystick.id);
+				gUIButton.SetOnClickCallback(OnButtonActivated);
+				gUIButton.buttonInfo.OnSelectedEvent += OnUIElementSelected;
+				assignedControllerButtons.Add(gUIButton);
 				if (joystick.id == currentJoystickId)
 				{
-					button3.SetInteractible(state: false, playTransition: true);
+					gUIButton.SetInteractible(state: false, playTransition: true);
 				}
 			}
 			if (player.controllers.joystickCount > 0 && !isJoystickSelected)
@@ -5338,13 +5354,13 @@ public class ControlMapper : MonoBehaviour
 				currentJoystickId = player.controllers.Joysticks[0].id;
 				assignedControllerButtons[0].SetInteractible(state: false, playTransition: false);
 			}
-			if (prevSelectedButtonJoyId >= 0)
+			if (num >= 0)
 			{
-				foreach (GUIButton button2 in assignedControllerButtons)
+				foreach (GUIButton assignedControllerButton2 in assignedControllerButtons)
 				{
-					if (button2.buttonInfo.intData == prevSelectedButtonJoyId)
+					if (assignedControllerButton2.buttonInfo.intData == num)
 					{
-						SetUISelection(button2.gameObject);
+						SetUISelection(assignedControllerButton2.gameObject);
 						break;
 					}
 				}
@@ -5363,11 +5379,11 @@ public class ControlMapper : MonoBehaviour
 				references.calibrateControllerButton.interactable = true;
 			}
 		}
-		int playerJoystickCount = player.controllers.joystickCount;
-		int totalJoystickCount = ReInput.controllers.joystickCount;
-		int maxJoysticksPerPlayer = GetMaxControllersPerPlayer();
-		bool infiniteJoysticksPerPlayer = maxJoysticksPerPlayer == 0;
-		if (totalJoystickCount > 0 && playerJoystickCount < totalJoystickCount && (maxJoysticksPerPlayer == 1 || infiniteJoysticksPerPlayer || playerJoystickCount < maxJoysticksPerPlayer))
+		int joystickCount = player.controllers.joystickCount;
+		int joystickCount2 = ReInput.controllers.joystickCount;
+		int num2 = GetMaxControllersPerPlayer();
+		bool flag = num2 == 0;
+		if (joystickCount2 > 0 && joystickCount < joystickCount2 && (num2 == 1 || flag || joystickCount < num2))
 		{
 			UITools.SetInteractable(references.assignControllerButton, state: true, playTransition: false);
 		}
@@ -5423,39 +5439,39 @@ public class ControlMapper : MonoBehaviour
 
 	private GUILabel CreateLabel(GameObject prefab, string labelText, Transform parent, Vector2 offset)
 	{
-		GameObject instance = InstantiateGUIObject(prefab, parent, offset);
-		TMP_Text text = UnityTools.GetComponentInSelfOrChildren<TMP_Text>(instance);
-		if (text == null)
+		GameObject gameObject = InstantiateGUIObject(prefab, parent, offset);
+		TMP_Text componentInSelfOrChildren = UnityTools.GetComponentInSelfOrChildren<TMP_Text>(gameObject);
+		if (componentInSelfOrChildren == null)
 		{
 			Debug.LogError("Rewired Control Mapper: Label prefab is missing Text component!");
 			return null;
 		}
-		text.text = labelText;
-		return new GUILabel(instance);
+		componentInSelfOrChildren.text = labelText;
+		return new GUILabel(gameObject);
 	}
 
 	private GUIButton CreateButton(string labelText, Transform parent, Vector2 offset)
 	{
-		GUIButton button = new GUIButton(InstantiateGUIObject(prefabs.button, parent, offset));
-		button.SetLabel(labelText);
-		return button;
+		GUIButton gUIButton = new GUIButton(InstantiateGUIObject(prefabs.button, parent, offset));
+		gUIButton.SetLabel(labelText);
+		return gUIButton;
 	}
 
 	private GUIButton CreateFitButton(string labelText, Transform parent, Vector2 offset)
 	{
-		GUIButton button = new GUIButton(InstantiateGUIObject(prefabs.fitButton, parent, offset));
-		button.SetLabel(labelText);
-		return button;
+		GUIButton gUIButton = new GUIButton(InstantiateGUIObject(prefabs.fitButton, parent, offset));
+		gUIButton.SetLabel(labelText);
+		return gUIButton;
 	}
 
 	private GUIInputField CreateInputField(Transform parent, Vector2 offset, string label, int actionId, AxisRange axisRange, ControllerType controllerType, int fieldIndex)
 	{
-		GUIInputField field = CreateInputField(parent, offset);
-		field.SetLabel("");
-		field.SetFieldInfoData(actionId, axisRange, controllerType, fieldIndex);
-		field.SetOnClickCallback(inputFieldActivatedDelegate);
-		field.fieldInfo.OnSelectedEvent += OnUIElementSelected;
-		return field;
+		GUIInputField gUIInputField = CreateInputField(parent, offset);
+		gUIInputField.SetLabel("");
+		gUIInputField.SetFieldInfoData(actionId, axisRange, controllerType, fieldIndex);
+		gUIInputField.SetOnClickCallback(inputFieldActivatedDelegate);
+		gUIInputField.fieldInfo.OnSelectedEvent += OnUIElementSelected;
+		return gUIInputField;
 	}
 
 	private GUIInputField CreateInputField(Transform parent, Vector2 offset)
@@ -5465,11 +5481,11 @@ public class ControlMapper : MonoBehaviour
 
 	private GUIToggle CreateToggle(GameObject prefab, Transform parent, Vector2 offset, string label, int actionId, AxisRange axisRange, ControllerType controllerType, int fieldIndex)
 	{
-		GUIToggle toggle = CreateToggle(prefab, parent, offset);
-		toggle.SetToggleInfoData(actionId, axisRange, controllerType, fieldIndex);
-		toggle.SetOnSubmitCallback(inputFieldInvertToggleStateChangedDelegate);
-		toggle.toggleInfo.OnSelectedEvent += OnUIElementSelected;
-		return toggle;
+		GUIToggle gUIToggle = CreateToggle(prefab, parent, offset);
+		gUIToggle.SetToggleInfoData(actionId, axisRange, controllerType, fieldIndex);
+		gUIToggle.SetOnSubmitCallback(inputFieldInvertToggleStateChangedDelegate);
+		gUIToggle.toggleInfo.OnSelectedEvent += OnUIElementSelected;
+		return gUIToggle;
 	}
 
 	private GUIToggle CreateToggle(GameObject prefab, Transform parent, Vector2 offset)
@@ -5484,16 +5500,16 @@ public class ControlMapper : MonoBehaviour
 			Debug.LogError("Rewired Control Mapper: Prefab is null!");
 			return null;
 		}
-		GameObject instance = UnityEngine.Object.Instantiate(prefab);
-		return InitializeNewGUIGameObject(instance, parent, offset);
+		GameObject gameObject = UnityEngine.Object.Instantiate(prefab);
+		return InitializeNewGUIGameObject(gameObject, parent, offset);
 	}
 
 	private GameObject CreateNewGUIObject(string name, Transform parent, Vector2 offset)
 	{
-		GameObject instance = new GameObject();
-		instance.name = name;
-		instance.AddComponent<RectTransform>();
-		return InitializeNewGUIGameObject(instance, parent, offset);
+		GameObject gameObject = new GameObject();
+		gameObject.name = name;
+		gameObject.AddComponent<RectTransform>();
+		return InitializeNewGUIGameObject(gameObject, parent, offset);
 	}
 
 	private GameObject InitializeNewGUIGameObject(GameObject gameObject, Transform parent, Vector2 offset)
@@ -5503,33 +5519,33 @@ public class ControlMapper : MonoBehaviour
 			Debug.LogError("Rewired Control Mapper: GameObject is null!");
 			return null;
 		}
-		RectTransform instanceXform = gameObject.GetComponent<RectTransform>();
-		if (instanceXform == null)
+		RectTransform component = gameObject.GetComponent<RectTransform>();
+		if (component == null)
 		{
 			Debug.LogError("Rewired Control Mapper: GameObject does not have a RectTransform component!");
 			return gameObject;
 		}
 		if (parent != null)
 		{
-			instanceXform.SetParent(parent, worldPositionStays: false);
+			component.SetParent(parent, worldPositionStays: false);
 		}
-		instanceXform.anchoredPosition = offset;
+		component.anchoredPosition = offset;
 		return gameObject;
 	}
 
 	private GameObject CreateNewColumnGroup(string name, Transform parent, int maxWidth)
 	{
-		GameObject group = CreateNewGUIObject(name, parent, Vector2.zero);
-		inputGrid.AddGroup(group);
-		LayoutElement layout = group.AddComponent<LayoutElement>();
+		GameObject gameObject = CreateNewGUIObject(name, parent, Vector2.zero);
+		inputGrid.AddGroup(gameObject);
+		LayoutElement layoutElement = gameObject.AddComponent<LayoutElement>();
 		if (maxWidth >= 0)
 		{
-			layout.preferredWidth = maxWidth;
+			layoutElement.preferredWidth = maxWidth;
 		}
-		RectTransform rectXForm = group.GetComponent<RectTransform>();
-		rectXForm.anchorMin = new Vector2(0f, 0f);
-		rectXForm.anchorMax = new Vector2(1f, 0f);
-		return group;
+		RectTransform component = gameObject.GetComponent<RectTransform>();
+		component.anchorMin = new Vector2(0f, 0f);
+		component.anchorMax = new Vector2(1f, 0f);
+		return gameObject;
 	}
 
 	private Window OpenWindow(bool closeOthers)
@@ -5579,16 +5595,16 @@ public class ControlMapper : MonoBehaviour
 		{
 			window.CreateTitleText(prefabs.windowTitleText, Vector2.zero, title);
 			window.AddContentText(prefabs.windowContentText, UIPivot.TopCenter, UIAnchor.TopHStretch, new Vector2(0f, -100f), message);
-			UnityAction cancelCallback = delegate
+			UnityAction unityAction = delegate
 			{
 				OnWindowCancel(window.id);
 			};
-			window.cancelCallback = cancelCallback;
+			window.cancelCallback = unityAction;
 			window.CreateButton(prefabs.fitButton, UIPivot.BottomLeft, UIAnchor.BottomLeft, Vector2.zero, confirmText, delegate
 			{
 				OnRestoreDefaultsConfirmed(window.id);
-			}, cancelCallback, setDefault: false);
-			window.CreateButton(prefabs.fitButton, UIPivot.BottomRight, UIAnchor.BottomRight, Vector2.zero, cancelText, cancelCallback, cancelCallback, setDefault: true);
+			}, unityAction, setDefault: false);
+			window.CreateButton(prefabs.fitButton, UIPivot.BottomRight, UIAnchor.BottomRight, Vector2.zero, cancelText, unityAction, unityAction, setDefault: true);
 			windowManager.Focus(window);
 		}
 	}
@@ -5722,27 +5738,27 @@ public class ControlMapper : MonoBehaviour
 		}
 		if (skipOtherPlayers)
 		{
-			foreach (ElementAssignmentConflictInfo conflict3 in ReInput.players.SystemPlayer.controllers.conflictChecking.ElementAssignmentConflicts(conflictCheck))
+			foreach (ElementAssignmentConflictInfo item in ReInput.players.SystemPlayer.controllers.conflictChecking.ElementAssignmentConflicts(conflictCheck))
 			{
-				if (!conflict3.isUserAssignable)
+				if (!item.isUserAssignable)
 				{
-					yield return conflict3;
+					yield return item;
 				}
 			}
-			foreach (ElementAssignmentConflictInfo conflict2 in player.controllers.conflictChecking.ElementAssignmentConflicts(conflictCheck))
+			foreach (ElementAssignmentConflictInfo item2 in player.controllers.conflictChecking.ElementAssignmentConflicts(conflictCheck))
 			{
-				if (!conflict2.isUserAssignable)
+				if (!item2.isUserAssignable)
 				{
-					yield return conflict2;
+					yield return item2;
 				}
 			}
 			yield break;
 		}
-		foreach (ElementAssignmentConflictInfo conflict in ReInput.controllers.conflictChecking.ElementAssignmentConflicts(conflictCheck))
+		foreach (ElementAssignmentConflictInfo item3 in ReInput.controllers.conflictChecking.ElementAssignmentConflicts(conflictCheck))
 		{
-			if (!conflict.isUserAssignable)
+			if (!item3.isUserAssignable)
 			{
-				yield return conflict;
+				yield return item3;
 			}
 		}
 	}
@@ -5773,65 +5789,65 @@ public class ControlMapper : MonoBehaviour
 		label = string.Empty;
 		modifierKeyPressed = false;
 		modifierFlags = ModifierKeyFlags.None;
-		int modifierPressedCount = 0;
-		ControllerPollingInfo nonModifierKeyInfo = default(ControllerPollingInfo);
-		ControllerPollingInfo firstModifierKeyInfo = default(ControllerPollingInfo);
-		ModifierKeyFlags curModifiers = ModifierKeyFlags.None;
-		foreach (ControllerPollingInfo info in ReInput.controllers.Keyboard.PollForAllKeys())
+		int num = 0;
+		ControllerPollingInfo controllerPollingInfo = default(ControllerPollingInfo);
+		ControllerPollingInfo controllerPollingInfo2 = default(ControllerPollingInfo);
+		ModifierKeyFlags modifierKeyFlags = ModifierKeyFlags.None;
+		foreach (ControllerPollingInfo item in ReInput.controllers.Keyboard.PollForAllKeys())
 		{
-			KeyCode key = info.keyboardKey;
-			if (key == KeyCode.AltGr)
+			KeyCode keyboardKey = item.keyboardKey;
+			if (keyboardKey == KeyCode.AltGr)
 			{
 				continue;
 			}
-			if (Keyboard.IsModifierKey(info.keyboardKey))
+			if (Keyboard.IsModifierKey(item.keyboardKey))
 			{
-				if (modifierPressedCount == 0)
+				if (num == 0)
 				{
-					firstModifierKeyInfo = info;
+					controllerPollingInfo2 = item;
 				}
-				curModifiers |= Keyboard.KeyCodeToModifierKeyFlags(key);
-				modifierPressedCount++;
+				modifierKeyFlags |= Keyboard.KeyCodeToModifierKeyFlags(keyboardKey);
+				num++;
 			}
-			else if (nonModifierKeyInfo.keyboardKey == KeyCode.None)
+			else if (controllerPollingInfo.keyboardKey == KeyCode.None)
 			{
-				nonModifierKeyInfo = info;
+				controllerPollingInfo = item;
 			}
 		}
-		if (nonModifierKeyInfo.keyboardKey != 0)
+		if (controllerPollingInfo.keyboardKey != 0)
 		{
-			if (ReInput.controllers.Keyboard.GetKeyDown(nonModifierKeyInfo.keyboardKey))
+			if (ReInput.controllers.Keyboard.GetKeyDown(controllerPollingInfo.keyboardKey))
 			{
-				if (modifierPressedCount == 0)
+				if (num == 0)
 				{
-					pollingInfo = nonModifierKeyInfo;
+					pollingInfo = controllerPollingInfo;
 					return;
 				}
-				pollingInfo = nonModifierKeyInfo;
-				modifierFlags = curModifiers;
+				pollingInfo = controllerPollingInfo;
+				modifierFlags = modifierKeyFlags;
 			}
 		}
 		else
 		{
-			if (modifierPressedCount <= 0)
+			if (num <= 0)
 			{
 				return;
 			}
 			modifierKeyPressed = true;
-			if (modifierPressedCount == 1)
+			if (num == 1)
 			{
-				if (ReInput.controllers.Keyboard.GetKeyTimePressed(firstModifierKeyInfo.keyboardKey) > 1.0)
+				if (ReInput.controllers.Keyboard.GetKeyTimePressed(controllerPollingInfo2.keyboardKey) > 1.0)
 				{
-					pollingInfo = firstModifierKeyInfo;
+					pollingInfo = controllerPollingInfo2;
 				}
 				else
 				{
-					label = Keyboard.GetKeyName(firstModifierKeyInfo.keyboardKey);
+					label = Keyboard.GetKeyName(controllerPollingInfo2.keyboardKey);
 				}
 			}
 			else
 			{
-				label = _language.ModifierKeyFlagsToString(curModifiers);
+				label = _language.ModifierKeyFlagsToString(modifierKeyFlags);
 			}
 		}
 	}
@@ -5867,7 +5883,7 @@ public class ControlMapper : MonoBehaviour
 		{
 			if (enumerator.MoveNext())
 			{
-				ElementAssignmentConflictInfo c = (conflict = enumerator.Current);
+				ElementAssignmentConflictInfo elementAssignmentConflictInfo = (conflict = enumerator.Current);
 				return true;
 			}
 		}
@@ -5942,8 +5958,7 @@ public class ControlMapper : MonoBehaviour
 		}
 		for (int i = 0; i < _mappingSets.Length; i++)
 		{
-			InputMapCategory cat = ReInput.mapping.GetMapCategory(_mappingSets[i].mapCategoryId);
-			if (cat != null)
+			if (ReInput.mapping.GetMapCategory(_mappingSets[i].mapCategoryId) != null)
 			{
 				currentMapCategoryId = _mappingSets[i].mapCategoryId;
 				break;
@@ -6067,19 +6082,19 @@ public class ControlMapper : MonoBehaviour
 	{
 		windowManager.ClearCompletely();
 		inputGrid.ClearAll();
-		foreach (GUIButton item4 in playerButtons)
+		foreach (GUIButton playerButton in playerButtons)
 		{
-			UnityEngine.Object.Destroy(item4.gameObject);
+			UnityEngine.Object.Destroy(playerButton.gameObject);
 		}
 		playerButtons.Clear();
-		foreach (GUIButton item3 in mapCategoryButtons)
+		foreach (GUIButton mapCategoryButton in mapCategoryButtons)
 		{
-			UnityEngine.Object.Destroy(item3.gameObject);
+			UnityEngine.Object.Destroy(mapCategoryButton.gameObject);
 		}
 		mapCategoryButtons.Clear();
-		foreach (GUIButton item2 in assignedControllerButtons)
+		foreach (GUIButton assignedControllerButton in assignedControllerButtons)
 		{
-			UnityEngine.Object.Destroy(item2.gameObject);
+			UnityEngine.Object.Destroy(assignedControllerButton.gameObject);
 		}
 		assignedControllerButtons.Clear();
 		if (assignedControllerButtonsPlaceholder != null)
@@ -6087,9 +6102,9 @@ public class ControlMapper : MonoBehaviour
 			UnityEngine.Object.Destroy(assignedControllerButtonsPlaceholder.gameObject);
 			assignedControllerButtonsPlaceholder = null;
 		}
-		foreach (GameObject item in miscInstantiatedObjects)
+		foreach (GameObject miscInstantiatedObject in miscInstantiatedObjects)
 		{
-			UnityEngine.Object.Destroy(item);
+			UnityEngine.Object.Destroy(miscInstantiatedObject);
 		}
 		miscInstantiatedObjects.Clear();
 	}
@@ -6141,12 +6156,12 @@ public class ControlMapper : MonoBehaviour
 
 	private void SetActionAxisInverted(bool state, ControllerType controllerType, int actionElementMapId)
 	{
-		if (currentPlayer != null && GetControllerMap(controllerType) is ControllerMapWithAxes map)
+		if (currentPlayer != null && GetControllerMap(controllerType) is ControllerMapWithAxes controllerMapWithAxes)
 		{
-			ActionElementMap aem = map.GetElementMap(actionElementMapId);
-			if (aem != null)
+			ActionElementMap elementMap = controllerMapWithAxes.GetElementMap(actionElementMapId);
+			if (elementMap != null)
 			{
-				aem.invert = state;
+				elementMap.invert = state;
 			}
 		}
 	}
@@ -6178,13 +6193,13 @@ public class ControlMapper : MonoBehaviour
 
 	private ControllerMap GetControllerMapOrCreateNew(ControllerType controllerType, int controllerId, int layoutId)
 	{
-		ControllerMap map = GetControllerMap(controllerType);
-		if (map == null)
+		ControllerMap controllerMap = GetControllerMap(controllerType);
+		if (controllerMap == null)
 		{
 			currentPlayer.controllers.maps.AddEmptyMap(controllerType, controllerId, currentMapCategoryId, layoutId);
-			map = currentPlayer.controllers.maps.GetMap(controllerType, controllerId, currentMapCategoryId, layoutId);
+			controllerMap = currentPlayer.controllers.maps.GetMap(controllerType, controllerId, currentMapCategoryId, layoutId);
 		}
-		return map;
+		return controllerMap;
 	}
 
 	private int CountIEnumerable<T>(IEnumerable<T> enumerable)
@@ -6198,12 +6213,12 @@ public class ControlMapper : MonoBehaviour
 		{
 			return 0;
 		}
-		int count = 0;
+		int num = 0;
 		while (enumerator.MoveNext())
 		{
-			count++;
+			num++;
 		}
-		return count;
+		return num;
 	}
 
 	private int GetDefaultMapCategoryId()
@@ -6229,12 +6244,12 @@ public class ControlMapper : MonoBehaviour
 			return;
 		}
 		GameObject[] fixedSelectableUIElements = references.fixedSelectableUIElements;
-		foreach (GameObject go in fixedSelectableUIElements)
+		for (int i = 0; i < fixedSelectableUIElements.Length; i++)
 		{
-			UIElementInfo elementInfo = UnityTools.GetComponent<UIElementInfo>(go);
-			if (!(elementInfo == null))
+			UIElementInfo component = UnityTools.GetComponent<UIElementInfo>(fixedSelectableUIElements[i]);
+			if (!(component == null))
 			{
-				elementInfo.OnSelectedEvent += OnUIElementSelected;
+				component.OnSelectedEvent += OnUIElementSelected;
 			}
 		}
 	}
@@ -6266,9 +6281,9 @@ public class ControlMapper : MonoBehaviour
 			Debug.LogWarning("Rewired Control Mapper: " + actionId + " is not a valid Action id!");
 			return;
 		}
-		foreach (Player p in ReInput.players.AllPlayers)
+		foreach (Player allPlayer in ReInput.players.AllPlayers)
 		{
-			p.AddInputEventDelegate(callback, UpdateLoopType.Update, InputActionEventType.ButtonJustPressed, actionId);
+			allPlayer.AddInputEventDelegate(callback, UpdateLoopType.Update, InputActionEventType.ButtonJustPressed, actionId);
 		}
 	}
 
@@ -6283,9 +6298,9 @@ public class ControlMapper : MonoBehaviour
 			Debug.LogWarning("Rewired Control Mapper: " + actionId + " is not a valid Action id!");
 			return;
 		}
-		foreach (Player p in ReInput.players.AllPlayers)
+		foreach (Player allPlayer in ReInput.players.AllPlayers)
 		{
-			p.RemoveInputEventDelegate(callback, UpdateLoopType.Update, InputActionEventType.ButtonJustPressed, actionId);
+			allPlayer.RemoveInputEventDelegate(callback, UpdateLoopType.Update, InputActionEventType.ButtonJustPressed, actionId);
 		}
 	}
 
@@ -6334,11 +6349,11 @@ public class ControlMapper : MonoBehaviour
 			RemoveAllControllers(player);
 			ClearVarsOnJoystickChange();
 		}
-		foreach (Player p in ReInput.players.Players)
+		foreach (Player player2 in ReInput.players.Players)
 		{
-			if (p != player)
+			if (player2 != player)
 			{
-				RemoveController(p, controllerId);
+				RemoveController(player2, controllerId);
 			}
 		}
 		player.controllers.AddController(ControllerType.Joystick, controllerId, removeFromOtherPlayers: false);
@@ -6353,9 +6368,9 @@ public class ControlMapper : MonoBehaviour
 		if (player != null)
 		{
 			IList<Joystick> joysticks = player.controllers.Joysticks;
-			for (int i = joysticks.Count - 1; i >= 0; i--)
+			for (int num = joysticks.Count - 1; num >= 0; num--)
 			{
-				RemoveController(player, joysticks[i].id);
+				RemoveController(player, joysticks[num].id);
 			}
 		}
 	}
@@ -6387,9 +6402,9 @@ public class ControlMapper : MonoBehaviour
 
 	private void InputPollingStarted()
 	{
-		bool prev = isPollingForInput;
+		bool num = isPollingForInput;
 		isPollingForInput = true;
-		if (!prev)
+		if (!num)
 		{
 			if (_InputPollingStartedEvent != null)
 			{
@@ -6404,9 +6419,9 @@ public class ControlMapper : MonoBehaviour
 
 	private void InputPollingStopped()
 	{
-		bool prev = isPollingForInput;
+		bool num = isPollingForInput;
 		isPollingForInput = false;
-		if (prev)
+		if (num)
 		{
 			if (_InputPollingEndedEvent != null)
 			{
@@ -6449,53 +6464,53 @@ public class ControlMapper : MonoBehaviour
 			Debug.LogError("Rewired Control Mapper: Error creating conflict check!");
 			return false;
 		}
-		List<ElementAssignmentConflictInfo> conflicts = new List<ElementAssignmentConflictInfo>();
-		conflicts.AddRange(currentPlayer.controllers.conflictChecking.ElementAssignmentConflicts(conflictCheck));
-		conflicts.AddRange(ReInput.players.SystemPlayer.controllers.conflictChecking.ElementAssignmentConflicts(conflictCheck));
-		if (conflicts.Count == 0)
+		List<ElementAssignmentConflictInfo> list = new List<ElementAssignmentConflictInfo>();
+		list.AddRange(currentPlayer.controllers.conflictChecking.ElementAssignmentConflicts(conflictCheck));
+		list.AddRange(ReInput.players.SystemPlayer.controllers.conflictChecking.ElementAssignmentConflicts(conflictCheck));
+		if (list.Count == 0)
 		{
 			return false;
 		}
-		ActionElementMap origAemToReplace = mapping.aem;
-		ElementAssignmentConflictInfo firstConflict = conflicts[0];
-		int swapActionId = firstConflict.elementMap.actionId;
-		Pole swapAxisContribution = firstConflict.elementMap.axisContribution;
-		AxisRange swapAxisRange = origAemToReplace.axisRange;
-		ControllerElementType swapElementType = origAemToReplace.elementType;
-		if (swapElementType == firstConflict.elementMap.elementType && swapElementType == ControllerElementType.Axis)
+		ActionElementMap aem2 = mapping.aem;
+		ElementAssignmentConflictInfo elementAssignmentConflictInfo = list[0];
+		int actionId = elementAssignmentConflictInfo.elementMap.actionId;
+		Pole axisContribution = elementAssignmentConflictInfo.elementMap.axisContribution;
+		AxisRange axisRange = aem2.axisRange;
+		ControllerElementType elementType = aem2.elementType;
+		if (elementType == elementAssignmentConflictInfo.elementMap.elementType && elementType == ControllerElementType.Axis)
 		{
-			if (swapAxisRange != firstConflict.elementMap.axisRange)
+			if (axisRange != elementAssignmentConflictInfo.elementMap.axisRange)
 			{
-				if (swapAxisRange == AxisRange.Full)
+				if (axisRange == AxisRange.Full)
 				{
-					swapAxisRange = AxisRange.Positive;
+					axisRange = AxisRange.Positive;
 				}
-				else if (firstConflict.elementMap.axisRange != 0)
+				else if (elementAssignmentConflictInfo.elementMap.axisRange != 0)
 				{
 				}
 			}
 		}
-		else if (swapElementType == ControllerElementType.Axis && (firstConflict.elementMap.elementType == ControllerElementType.Button || (firstConflict.elementMap.elementType == ControllerElementType.Axis && firstConflict.elementMap.axisRange != 0)) && swapAxisRange == AxisRange.Full)
+		else if (elementType == ControllerElementType.Axis && (elementAssignmentConflictInfo.elementMap.elementType == ControllerElementType.Button || (elementAssignmentConflictInfo.elementMap.elementType == ControllerElementType.Axis && elementAssignmentConflictInfo.elementMap.axisRange != 0)) && axisRange == AxisRange.Full)
 		{
-			swapAxisRange = AxisRange.Positive;
+			axisRange = AxisRange.Positive;
 		}
-		int usedFieldCount = 0;
-		if (assignment.actionId == firstConflict.actionId && mapping.map == firstConflict.controllerMap)
+		int num = 0;
+		if (assignment.actionId == elementAssignmentConflictInfo.actionId && mapping.map == elementAssignmentConflictInfo.controllerMap)
 		{
 			Controller controller = ReInput.controllers.GetController(mapping.controllerType, mapping.controllerId);
-			if (SwapIsSameInputRange(swapElementType, swapAxisRange, swapAxisContribution, controller.GetElementById(assignment.elementIdentifierId).type, assignment.axisRange, assignment.axisContribution))
+			if (SwapIsSameInputRange(elementType, axisRange, axisContribution, controller.GetElementById(assignment.elementIdentifierId).type, assignment.axisRange, assignment.axisContribution))
 			{
-				usedFieldCount++;
+				num++;
 			}
 		}
-		foreach (ActionElementMap aem in firstConflict.controllerMap.ElementMapsWithAction(swapActionId))
+		foreach (ActionElementMap aem in elementAssignmentConflictInfo.controllerMap.ElementMapsWithAction(actionId))
 		{
-			if (aem.id != origAemToReplace.id && conflicts.FindIndex((ElementAssignmentConflictInfo x) => x.elementMapId == aem.id) < 0 && SwapIsSameInputRange(swapElementType, swapAxisRange, swapAxisContribution, aem.elementType, aem.axisRange, aem.axisContribution))
+			if (aem.id != aem2.id && list.FindIndex((ElementAssignmentConflictInfo x) => x.elementMapId == aem.id) < 0 && SwapIsSameInputRange(elementType, axisRange, axisContribution, aem.elementType, aem.axisRange, aem.axisContribution))
 			{
-				usedFieldCount++;
+				num++;
 			}
 		}
-		return usedFieldCount < GetControllerInputFieldCount(mapping.controllerType);
+		return num < GetControllerInputFieldCount(mapping.controllerType);
 	}
 
 	private bool SwapIsSameInputRange(ControllerElementType origElementType, AxisRange origAxisRange, Pole origAxisContribution, ControllerElementType conflictElementType, AxisRange conflictAxisRange, Pole conflictAxisContribution)

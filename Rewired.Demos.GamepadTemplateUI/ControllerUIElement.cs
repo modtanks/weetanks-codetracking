@@ -37,7 +37,17 @@ public class ControllerUIElement : MonoBehaviour
 
 	private float _highlightAmount;
 
-	private bool hasEffects => _positiveUIEffect != null || _negativeUIEffect != null;
+	private bool hasEffects
+	{
+		get
+		{
+			if (!(_positiveUIEffect != null))
+			{
+				return _negativeUIEffect != null;
+			}
+			return true;
+		}
+	}
 
 	private void Awake()
 	{
@@ -118,16 +128,16 @@ public class ControllerUIElement : MonoBehaviour
 
 	public void SetLabel(string text, AxisRange labelType)
 	{
-		Text label = labelType switch
+		Text text2 = labelType switch
 		{
 			AxisRange.Full => _label, 
 			AxisRange.Positive => _positiveLabel, 
 			AxisRange.Negative => _negativeLabel, 
 			_ => null, 
 		};
-		if (label != null)
+		if (text2 != null)
 		{
-			label.text = text;
+			text2.text = text;
 		}
 		if (_childElements.Length == 0)
 		{

@@ -66,10 +66,10 @@ public class TankeyTownMaster : MonoBehaviour
 
 	public IEnumerator GetLatestTankeyTownStock(bool IsUpdate)
 	{
-		WWWForm form = new WWWForm();
-		form.AddField("userid", AccountMaster.instance.UserID);
-		form.AddField("key", AccountMaster.instance.Key);
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/get_tankey_town_stock.php", form);
+		WWWForm wWWForm = new WWWForm();
+		wWWForm.AddField("userid", AccountMaster.instance.UserID);
+		wWWForm.AddField("key", AccountMaster.instance.Key);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/get_tankey_town_stock.php", wWWForm);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
@@ -83,14 +83,14 @@ public class TankeyTownMaster : MonoBehaviour
 			SceneManager.LoadScene(0);
 			yield break;
 		}
-		string[] splitArray = uwr.downloadHandler.text.Split(char.Parse("/"));
-		TankeyTownShopData TTS1 = JsonUtility.FromJson<TankeyTownShopData>("{\"ShopData\":" + splitArray[0] + "}");
-		TankeyTownShopData TTS2 = JsonUtility.FromJson<TankeyTownShopData>("{\"ShopData\":" + splitArray[1] + "}");
-		TankeyTownShopData TTS3 = JsonUtility.FromJson<TankeyTownShopData>("{\"ShopData\":" + splitArray[2] + "}");
+		string[] array = uwr.downloadHandler.text.Split(char.Parse("/"));
+		TankeyTownShopData item = JsonUtility.FromJson<TankeyTownShopData>("{\"ShopData\":" + array[0] + "}");
+		TankeyTownShopData item2 = JsonUtility.FromJson<TankeyTownShopData>("{\"ShopData\":" + array[1] + "}");
+		TankeyTownShopData item3 = JsonUtility.FromJson<TankeyTownShopData>("{\"ShopData\":" + array[2] + "}");
 		TTS_Shops.Clear();
-		TTS_Shops.Add(TTS1);
-		TTS_Shops.Add(TTS2);
-		TTS_Shops.Add(TTS3);
+		TTS_Shops.Add(item);
+		TTS_Shops.Add(item2);
+		TTS_Shops.Add(item3);
 		AssignDataToShops(IsUpdate);
 	}
 }

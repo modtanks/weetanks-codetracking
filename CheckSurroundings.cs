@@ -50,24 +50,24 @@ public class CheckSurroundings : MonoBehaviour
 		}
 		if (EastCollider == null && !GameMaster.instance.GameHasStarted)
 		{
-			Collider[] intersecting = Physics.OverlapSphere(base.transform.position + new Vector3(2f, 0f, 0f), 0.1f);
-			if (intersecting.Length == 0)
+			Collider[] array = Physics.OverlapSphere(base.transform.position + new Vector3(2f, 0f, 0f), 0.1f);
+			if (array.Length == 0)
 			{
 				ElectricPartEast.SetActive(value: false);
 			}
 			else
 			{
-				bool GotSolid = false;
-				Collider[] array = intersecting;
-				foreach (Collider intersect2 in array)
+				bool flag = false;
+				Collider[] array2 = array;
+				foreach (Collider collider in array2)
 				{
-					if ((intersect2.tag == "Solid" || intersect2.tag == "MapBorder") && (intersect2.gameObject.layer == LayerMask.NameToLayer("Wall") || intersect2.gameObject.layer == LayerMask.NameToLayer("NoBounceWall") || intersect2.gameObject.layer == LayerMask.NameToLayer("CorkWall")))
+					if ((collider.tag == "Solid" || collider.tag == "MapBorder") && (collider.gameObject.layer == LayerMask.NameToLayer("Wall") || collider.gameObject.layer == LayerMask.NameToLayer("NoBounceWall") || collider.gameObject.layer == LayerMask.NameToLayer("CorkWall")))
 					{
-						EastCollider = intersect2;
-						GotSolid = true;
+						EastCollider = collider;
+						flag = true;
 					}
 				}
-				if (GotSolid)
+				if (flag)
 				{
 					ElectricPartEast.SetActive(value: true);
 				}
@@ -83,24 +83,24 @@ public class CheckSurroundings : MonoBehaviour
 		}
 		if (WestCollider == null && !GameMaster.instance.GameHasStarted)
 		{
-			Collider[] intersecting = Physics.OverlapSphere(base.transform.position + new Vector3(-2f, 0f, 0f), 0.1f);
-			if (intersecting.Length == 0)
+			Collider[] array = Physics.OverlapSphere(base.transform.position + new Vector3(-2f, 0f, 0f), 0.1f);
+			if (array.Length == 0)
 			{
 				ElectricPartWest.SetActive(value: false);
 			}
 			else
 			{
-				bool GotSolid4 = false;
-				Collider[] array2 = intersecting;
-				foreach (Collider intersect4 in array2)
+				bool flag2 = false;
+				Collider[] array2 = array;
+				foreach (Collider collider2 in array2)
 				{
-					if ((intersect4.tag == "Solid" || intersect4.tag == "MapBorder") && (intersect4.gameObject.layer == LayerMask.NameToLayer("Wall") || intersect4.gameObject.layer == LayerMask.NameToLayer("NoBounceWall") || intersect4.gameObject.layer == LayerMask.NameToLayer("CorkWall")))
+					if ((collider2.tag == "Solid" || collider2.tag == "MapBorder") && (collider2.gameObject.layer == LayerMask.NameToLayer("Wall") || collider2.gameObject.layer == LayerMask.NameToLayer("NoBounceWall") || collider2.gameObject.layer == LayerMask.NameToLayer("CorkWall")))
 					{
-						WestCollider = intersect4;
-						GotSolid4 = true;
+						WestCollider = collider2;
+						flag2 = true;
 					}
 				}
-				if (GotSolid4)
+				if (flag2)
 				{
 					ElectricPartWest.SetActive(value: true);
 				}
@@ -116,24 +116,24 @@ public class CheckSurroundings : MonoBehaviour
 		}
 		if (NorthCollider == null && !GameMaster.instance.GameHasStarted)
 		{
-			Collider[] intersecting = Physics.OverlapSphere(base.transform.position + new Vector3(0f, 0f, 2f), 0.1f);
-			if (intersecting.Length == 0)
+			Collider[] array = Physics.OverlapSphere(base.transform.position + new Vector3(0f, 0f, 2f), 0.1f);
+			if (array.Length == 0)
 			{
 				ElectricPartNorth.SetActive(value: false);
 			}
 			else
 			{
-				bool GotSolid3 = false;
-				Collider[] array3 = intersecting;
-				foreach (Collider intersect3 in array3)
+				bool flag3 = false;
+				Collider[] array2 = array;
+				foreach (Collider collider3 in array2)
 				{
-					if ((intersect3.tag == "Solid" || intersect3.tag == "MapBorder") && (intersect3.gameObject.layer == LayerMask.NameToLayer("Wall") || intersect3.gameObject.layer == LayerMask.NameToLayer("NoBounceWall") || intersect3.gameObject.layer == LayerMask.NameToLayer("CorkWall")))
+					if ((collider3.tag == "Solid" || collider3.tag == "MapBorder") && (collider3.gameObject.layer == LayerMask.NameToLayer("Wall") || collider3.gameObject.layer == LayerMask.NameToLayer("NoBounceWall") || collider3.gameObject.layer == LayerMask.NameToLayer("CorkWall")))
 					{
-						NorthCollider = intersect3;
-						GotSolid3 = true;
+						NorthCollider = collider3;
+						flag3 = true;
 					}
 				}
-				if (GotSolid3)
+				if (flag3)
 				{
 					ElectricPartNorth.SetActive(value: true);
 				}
@@ -149,23 +149,23 @@ public class CheckSurroundings : MonoBehaviour
 		}
 		if (SouthCollider == null && !GameMaster.instance.GameHasStarted)
 		{
-			Collider[] intersecting = Physics.OverlapSphere(base.transform.position + new Vector3(0f, 0f, -2f), 0.1f);
-			if (intersecting.Length == 0)
+			Collider[] array = Physics.OverlapSphere(base.transform.position + new Vector3(0f, 0f, -2f), 0.1f);
+			if (array.Length == 0)
 			{
 				ElectricPartSouth.SetActive(value: false);
 				return;
 			}
-			bool GotSolid2 = false;
-			Collider[] array4 = intersecting;
-			foreach (Collider intersect in array4)
+			bool flag4 = false;
+			Collider[] array2 = array;
+			foreach (Collider collider4 in array2)
 			{
-				if ((intersect.tag == "Solid" || intersect.tag == "MapBorder") && (intersect.gameObject.layer == LayerMask.NameToLayer("Wall") || intersect.gameObject.layer == LayerMask.NameToLayer("NoBounceWall") || intersect.gameObject.layer == LayerMask.NameToLayer("CorkWall")))
+				if ((collider4.tag == "Solid" || collider4.tag == "MapBorder") && (collider4.gameObject.layer == LayerMask.NameToLayer("Wall") || collider4.gameObject.layer == LayerMask.NameToLayer("NoBounceWall") || collider4.gameObject.layer == LayerMask.NameToLayer("CorkWall")))
 				{
-					SouthCollider = intersect;
-					GotSolid2 = true;
+					SouthCollider = collider4;
+					flag4 = true;
 				}
 			}
-			if (GotSolid2)
+			if (flag4)
 			{
 				ElectricPartSouth.SetActive(value: true);
 			}

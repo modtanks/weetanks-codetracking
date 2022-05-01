@@ -18,7 +18,7 @@ public class UpgradeField : MonoBehaviour
 
 	public Transform followObject;
 
-	public float posYoffset = 0f;
+	public float posYoffset;
 
 	[Header("Texts")]
 	public TextMeshProUGUI UpgradeText;
@@ -33,17 +33,17 @@ public class UpgradeField : MonoBehaviour
 
 	private WeeTurret myTurret;
 
-	private int upgradeType = 0;
+	private int upgradeType;
 
-	private int UpgradeLevel = 0;
+	private int UpgradeLevel;
 
 	public ObjectPlacing OP;
 
-	public bool Show = false;
+	public bool Show;
 
 	public bool canShow = true;
 
-	public bool inPlacingMode = false;
+	public bool inPlacingMode;
 
 	private void Start()
 	{
@@ -61,7 +61,7 @@ public class UpgradeField : MonoBehaviour
 		{
 			return;
 		}
-		string button = "<sprite=2>";
+		string text = "<sprite=2>";
 		myMTS = MTS;
 		if ((bool)WT)
 		{
@@ -75,14 +75,14 @@ public class UpgradeField : MonoBehaviour
 		if (isBuild && MTS.Upgrades[0] <= 3)
 		{
 			UpgradeLevel = MTS.Upgrades[0];
-			string I = ((UpgradeLevel + 1 == 1) ? "I" : ((UpgradeLevel + 1 == 2) ? "II" : ((UpgradeLevel + 1 == 3) ? "III" : "IV")));
+			string text2 = ((UpgradeLevel + 1 == 1) ? "I" : ((UpgradeLevel + 1 == 2) ? "II" : ((UpgradeLevel + 1 == 3) ? "III" : "IV")));
 			if (GameMaster.instance.isPlayingWithController || isPlayer2)
 			{
-				UpgradeText.text = "Press " + button + " to buy: Build Upgrade " + I;
+				UpgradeText.text = "Press " + text + " to buy: Build Upgrade " + text2;
 			}
 			else
 			{
-				UpgradeText.text = "Press " + myMTS.player.controllers.maps.GetFirstButtonMapWithAction("Use", skipDisabledMaps: true).elementIdentifierName + " to buy: Build Upgrade " + I;
+				UpgradeText.text = "Press " + myMTS.player.controllers.maps.GetFirstButtonMapWithAction("Use", skipDisabledMaps: true).elementIdentifierName + " to buy: Build Upgrade " + text2;
 			}
 			CostText.text = "(cost x " + ZombieTankSpawner.instance.BuildPrices[UpgradeLevel] + ")";
 			theCost = ZombieTankSpawner.instance.BuildPrices[UpgradeLevel];
@@ -91,14 +91,14 @@ public class UpgradeField : MonoBehaviour
 		else if (isSpeed && MTS.Upgrades[1] <= 3)
 		{
 			UpgradeLevel = MTS.Upgrades[1];
-			string I2 = ((UpgradeLevel + 1 == 1) ? "I" : ((UpgradeLevel + 1 == 2) ? "II" : ((UpgradeLevel + 1 == 3) ? "III" : "IV")));
+			string text3 = ((UpgradeLevel + 1 == 1) ? "I" : ((UpgradeLevel + 1 == 2) ? "II" : ((UpgradeLevel + 1 == 3) ? "III" : "IV")));
 			if (GameMaster.instance.isPlayingWithController || isPlayer2)
 			{
-				UpgradeText.text = "Press " + button + " to buy: Speed Upgrade " + I2;
+				UpgradeText.text = "Press " + text + " to buy: Speed Upgrade " + text3;
 			}
 			else
 			{
-				UpgradeText.text = "Press " + myMTS.player.controllers.maps.GetFirstButtonMapWithAction("Use", skipDisabledMaps: true).elementIdentifierName + " to buy: Speed Upgrade " + I2;
+				UpgradeText.text = "Press " + myMTS.player.controllers.maps.GetFirstButtonMapWithAction("Use", skipDisabledMaps: true).elementIdentifierName + " to buy: Speed Upgrade " + text3;
 			}
 			CostText.text = "(cost x " + ZombieTankSpawner.instance.SpeedPrices[UpgradeLevel] + ")";
 			theCost = ZombieTankSpawner.instance.SpeedPrices[UpgradeLevel];
@@ -107,14 +107,14 @@ public class UpgradeField : MonoBehaviour
 		else if (isShield && MTS.Upgrades[2] <= 3)
 		{
 			UpgradeLevel = MTS.Upgrades[2];
-			string I3 = ((UpgradeLevel + 1 == 1) ? "I" : ((UpgradeLevel + 1 == 2) ? "II" : ((UpgradeLevel + 1 == 3) ? "III" : "IV")));
+			string text4 = ((UpgradeLevel + 1 == 1) ? "I" : ((UpgradeLevel + 1 == 2) ? "II" : ((UpgradeLevel + 1 == 3) ? "III" : "IV")));
 			if (GameMaster.instance.isPlayingWithController || isPlayer2)
 			{
-				UpgradeText.text = "Press " + button + " to buy: Armour Upgrade " + I3;
+				UpgradeText.text = "Press " + text + " to buy: Armour Upgrade " + text4;
 			}
 			else
 			{
-				UpgradeText.text = "Press " + myMTS.player.controllers.maps.GetFirstButtonMapWithAction("Use", skipDisabledMaps: true).elementIdentifierName + " to buy: Armour Upgrade " + I3;
+				UpgradeText.text = "Press " + myMTS.player.controllers.maps.GetFirstButtonMapWithAction("Use", skipDisabledMaps: true).elementIdentifierName + " to buy: Armour Upgrade " + text4;
 			}
 			CostText.text = "(cost x " + ZombieTankSpawner.instance.ShieldPrices[UpgradeLevel] + ")";
 			theCost = ZombieTankSpawner.instance.ShieldPrices[UpgradeLevel];
@@ -125,7 +125,7 @@ public class UpgradeField : MonoBehaviour
 			UpgradeLevel = MTS.Upgrades[3];
 			if (GameMaster.instance.isPlayingWithController || isPlayer2)
 			{
-				UpgradeText.text = "Press " + button + " to buy: Rocket Upgrade ";
+				UpgradeText.text = "Press " + text + " to buy: Rocket Upgrade ";
 			}
 			else
 			{
@@ -140,7 +140,7 @@ public class UpgradeField : MonoBehaviour
 			UpgradeLevel = MTS.Upgrades[4];
 			if (GameMaster.instance.isPlayingWithController || isPlayer2)
 			{
-				UpgradeText.text = "Press " + button + " to buy: Tripmine Upgrade ";
+				UpgradeText.text = "Press " + text + " to buy: Tripmine Upgrade ";
 			}
 			else
 			{
@@ -155,7 +155,7 @@ public class UpgradeField : MonoBehaviour
 			UpgradeLevel = MTS.Upgrades[5];
 			if (GameMaster.instance.isPlayingWithController || isPlayer2)
 			{
-				UpgradeText.text = "Press " + button + " to buy: Turret";
+				UpgradeText.text = "Press " + text + " to buy: Turret";
 			}
 			else
 			{
@@ -178,7 +178,7 @@ public class UpgradeField : MonoBehaviour
 				{
 					if (GameMaster.instance.isPlayingWithController || isPlayer2)
 					{
-						UpgradeText.text = "Press " + button + " to upgrade Turret";
+						UpgradeText.text = "Press " + text + " to upgrade Turret";
 					}
 					else
 					{
@@ -190,17 +190,17 @@ public class UpgradeField : MonoBehaviour
 			}
 			else
 			{
-				int price = ((myTurret.upgradeLevel < 1) ? ZombieTankSpawner.instance.TurretRepairPrice : (ZombieTankSpawner.instance.TurretRepairPrice * 2));
+				int num = ((myTurret.upgradeLevel < 1) ? ZombieTankSpawner.instance.TurretRepairPrice : (ZombieTankSpawner.instance.TurretRepairPrice * 2));
 				if (GameMaster.instance.isPlayingWithController || isPlayer2)
 				{
-					UpgradeText.text = "Press " + button + " to buy: Repair Turret";
+					UpgradeText.text = "Press " + text + " to buy: Repair Turret";
 				}
 				else
 				{
 					UpgradeText.text = "Press " + myMTS.player.controllers.maps.GetFirstButtonMapWithAction("Use", skipDisabledMaps: true).elementIdentifierName + " to buy: Repair Turret";
 				}
-				CostText.text = "(cost x " + price + ")";
-				theCost = price;
+				CostText.text = "(cost x " + num + ")";
+				theCost = num;
 			}
 			upgradeType = 6;
 		}
@@ -322,27 +322,20 @@ public class UpgradeField : MonoBehaviour
 					GameMaster.instance.PKU.StartCoroutine("StartPlayerDeniedAnimation", myMTS.playerId + 1);
 				}
 			}
-			float distanceNow2 = Vector3.Distance(myRect.localScale, newpos);
-			if (distanceNow2 > 0.01f)
+			if (Vector3.Distance(myRect.localScale, newpos) > 0.01f)
 			{
-				float distCovered2 = (Time.time - startTime) * speed;
-				float fractionOfJourney2 = distCovered2 / journeyLength;
-				myRect.localScale = Vector3.Lerp(myRect.localScale, newpos, fractionOfJourney2);
+				float t = (Time.time - startTime) * speed / journeyLength;
+				myRect.localScale = Vector3.Lerp(myRect.localScale, newpos, t);
 			}
+		}
+		else if (Vector3.Distance(myRect.localScale, oldpos) > 0.01f)
+		{
+			float t2 = (Time.time - startTime) * speed / journeyLength;
+			myRect.localScale = Vector3.Lerp(myRect.localScale, oldpos, t2);
 		}
 		else
 		{
-			float distanceNow = Vector3.Distance(myRect.localScale, oldpos);
-			if (distanceNow > 0.01f)
-			{
-				float distCovered = (Time.time - startTime) * speed;
-				float fractionOfJourney = distCovered / journeyLength;
-				myRect.localScale = Vector3.Lerp(myRect.localScale, oldpos, fractionOfJourney);
-			}
-			else
-			{
-				myRect.localScale = Vector3.zero;
-			}
+			myRect.localScale = Vector3.zero;
 		}
 	}
 
@@ -355,12 +348,12 @@ public class UpgradeField : MonoBehaviour
 
 	public void Play2DClipAtPoint(AudioClip clip)
 	{
-		GameObject tempAudioSource = new GameObject("TempAudio");
-		AudioSource audioSource = tempAudioSource.AddComponent<AudioSource>();
+		GameObject obj = new GameObject("TempAudio");
+		AudioSource audioSource = obj.AddComponent<AudioSource>();
 		audioSource.clip = clip;
 		audioSource.volume = 2f;
 		audioSource.spatialBlend = 0f;
 		audioSource.Play();
-		Object.Destroy(tempAudioSource, clip.length);
+		Object.Destroy(obj, clip.length);
 	}
 }

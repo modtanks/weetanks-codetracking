@@ -4,7 +4,7 @@ public class ElectricWall : MonoBehaviour
 {
 	public ParticleSystem PS;
 
-	private bool isCharged = false;
+	private bool isCharged;
 
 	public MeshRenderer MR;
 
@@ -48,16 +48,15 @@ public class ElectricWall : MonoBehaviour
 
 	public void ActivateAroundMe()
 	{
-		Collider[] objectsInRange = Physics.OverlapSphere(base.transform.position, 5f);
-		Collider[] array = objectsInRange;
-		foreach (Collider col in array)
+		Collider[] array = Physics.OverlapSphere(base.transform.position, 5f);
+		foreach (Collider collider in array)
 		{
-			if (col.tag == "ElectricWall")
+			if (collider.tag == "ElectricWall")
 			{
-				ElectricWall EW = col.GetComponent<ElectricWall>();
-				if ((bool)EW)
+				ElectricWall component = collider.GetComponent<ElectricWall>();
+				if ((bool)component)
 				{
-					EW.ActivateWall();
+					component.ActivateWall();
 				}
 			}
 		}
@@ -67,39 +66,39 @@ public class ElectricWall : MonoBehaviour
 	{
 		if (other.tag == "Player" && isCharged)
 		{
-			MoveTankScript MTS = other.GetComponent<MoveTankScript>();
-			if ((bool)MTS)
+			MoveTankScript component = other.GetComponent<MoveTankScript>();
+			if ((bool)component)
 			{
-				MTS.StunMe(2f);
+				component.StunMe(2f);
 				return;
 			}
-			EnemyAI AIscript = other.GetComponent<EnemyAI>();
-			if ((bool)AIscript)
+			EnemyAI component2 = other.GetComponent<EnemyAI>();
+			if ((bool)component2)
 			{
-				AIscript.StunMe(2f);
+				component2.StunMe(2f);
 			}
 		}
 		else if (other.tag == "Enemy" && isCharged && GameMaster.instance.CurrentMission != 69)
 		{
-			EnemyAI EA = other.GetComponent<EnemyAI>();
-			if ((bool)EA && !EA.isElectric)
+			EnemyAI component3 = other.GetComponent<EnemyAI>();
+			if ((bool)component3 && !component3.isElectric)
 			{
-				EA.StunMe(2f);
+				component3.StunMe(2f);
 			}
 		}
 		else if (other.tag == "Bullet")
 		{
-			PlayerBulletScript PBS = other.GetComponent<PlayerBulletScript>();
-			if ((bool)PBS)
+			PlayerBulletScript component4 = other.GetComponent<PlayerBulletScript>();
+			if ((bool)component4)
 			{
-				if (PBS.isElectric && !isCharged)
+				if (component4.isElectric && !isCharged)
 				{
 					ActivateWall();
 					ActivateAroundMe();
 				}
 				if (isCharged)
 				{
-					PBS.ChargeElectric();
+					component4.ChargeElectric();
 				}
 			}
 		}

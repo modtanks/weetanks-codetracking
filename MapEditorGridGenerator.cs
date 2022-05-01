@@ -8,7 +8,7 @@ public class MapEditorGridGenerator : MonoBehaviour
 
 	public int[] GridY;
 
-	public bool generated = false;
+	public bool generated;
 
 	private int selection = 1;
 
@@ -59,25 +59,25 @@ public class MapEditorGridGenerator : MonoBehaviour
 		{
 			for (int j = 0; j <= GridY[selection]; j++)
 			{
-				GameObject piece = Object.Instantiate(gridPiece, new Vector3(base.transform.position.x + (float)(i * 2), base.transform.position.y, base.transform.position.z - (float)(j * 2)), Quaternion.identity);
-				piece.transform.parent = base.transform.parent;
-				MapEditorGridPiece MEGP = piece.GetComponent<MapEditorGridPiece>();
-				MEGP.mission = GameMaster.instance.CurrentMission;
-				MapPiecesClass oneMPC = new MapPiecesClass();
-				oneMPC.ID = MapEditorMaster.instance.ID;
-				oneMPC.offsetX = i;
-				oneMPC.offsetY = j;
+				GameObject obj = Object.Instantiate(gridPiece, new Vector3(base.transform.position.x + (float)(i * 2), base.transform.position.y, base.transform.position.z - (float)(j * 2)), Quaternion.identity);
+				obj.transform.parent = base.transform.parent;
+				MapEditorGridPiece component = obj.GetComponent<MapEditorGridPiece>();
+				component.mission = GameMaster.instance.CurrentMission;
+				MapPiecesClass mapPiecesClass = new MapPiecesClass();
+				mapPiecesClass.ID = MapEditorMaster.instance.ID;
+				mapPiecesClass.offsetX = i;
+				mapPiecesClass.offsetY = j;
 				for (int k = 0; k < 5; k++)
 				{
-					oneMPC.propID[k] = -1;
+					mapPiecesClass.propID[k] = -1;
 				}
-				oneMPC.missionNumber = GameMaster.instance.CurrentMission;
-				MEGP.mission = GameMaster.instance.CurrentMission;
-				MEGP.ID = MapEditorMaster.instance.ID;
-				MEGP.offsetX = i;
-				MEGP.offsetY = j;
+				mapPiecesClass.missionNumber = GameMaster.instance.CurrentMission;
+				component.mission = GameMaster.instance.CurrentMission;
+				component.ID = MapEditorMaster.instance.ID;
+				component.offsetX = i;
+				component.offsetY = j;
 				MapEditorMaster.instance.ID++;
-				MapEditorMaster.instance.MissionsData.Add(oneMPC);
+				MapEditorMaster.instance.MissionsData.Add(mapPiecesClass);
 			}
 		}
 		generated = true;

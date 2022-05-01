@@ -30,14 +30,14 @@ public class AccountMenuHandler : MonoBehaviour
 		if (AccountMaster.instance.Username != null && AccountMaster.instance.UserID != null && AccountMaster.instance.Key != null)
 		{
 			GameObject[] signedInObjects = SignedInObjects;
-			foreach (GameObject obj3 in signedInObjects)
+			for (int i = 0; i < signedInObjects.Length; i++)
 			{
-				obj3.SetActive(value: true);
+				signedInObjects[i].SetActive(value: true);
 			}
-			GameObject[] signedOutObjects = SignedOutObjects;
-			foreach (GameObject obj4 in signedOutObjects)
+			signedInObjects = SignedOutObjects;
+			for (int i = 0; i < signedInObjects.Length; i++)
 			{
-				obj4.SetActive(value: false);
+				signedInObjects[i].SetActive(value: false);
 			}
 			if (AccountMaster.instance.CanSetNewPassword)
 			{
@@ -53,15 +53,15 @@ public class AccountMenuHandler : MonoBehaviour
 		}
 		else
 		{
-			GameObject[] signedInObjects2 = SignedInObjects;
-			foreach (GameObject obj in signedInObjects2)
+			GameObject[] signedInObjects = SignedInObjects;
+			for (int i = 0; i < signedInObjects.Length; i++)
 			{
-				obj.SetActive(value: false);
+				signedInObjects[i].SetActive(value: false);
 			}
-			GameObject[] signedOutObjects2 = SignedOutObjects;
-			foreach (GameObject obj2 in signedOutObjects2)
+			signedInObjects = SignedOutObjects;
+			for (int i = 0; i < signedInObjects.Length; i++)
 			{
-				obj2.SetActive(value: true);
+				signedInObjects[i].SetActive(value: true);
 			}
 			BackButton.Place = 2;
 			CurrentlySignedInAs.gameObject.SetActive(value: false);

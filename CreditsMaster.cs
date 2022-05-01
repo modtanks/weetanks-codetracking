@@ -9,13 +9,13 @@ public class CreditsMaster : MonoBehaviour
 
 	public GameObject CanvasPaper;
 
-	public int currentLvl = 0;
+	public int currentLvl;
 
-	private bool movingPaper = false;
+	private bool movingPaper;
 
 	public Collider[] mapSolids;
 
-	public bool atTheEnd = false;
+	public bool atTheEnd;
 
 	public AudioClip Completed;
 
@@ -23,9 +23,9 @@ public class CreditsMaster : MonoBehaviour
 
 	private void Awake()
 	{
-		foreach (GameObject Level in Levels)
+		foreach (GameObject level in Levels)
 		{
-			Level.SetActive(value: false);
+			level.SetActive(value: false);
 		}
 	}
 
@@ -62,9 +62,9 @@ public class CreditsMaster : MonoBehaviour
 			movingPaper = true;
 			SFXManager.instance.PlaySFX(Completed, 1f, null);
 			Collider[] array = mapSolids;
-			foreach (Collider col2 in array)
+			for (int i = 0; i < array.Length; i++)
 			{
-				col2.enabled = false;
+				array[i].enabled = false;
 			}
 			StartCoroutine(LerpPosition(targetPos, 8f));
 		}
@@ -79,10 +79,10 @@ public class CreditsMaster : MonoBehaviour
 			}
 			GameMaster.instance.GameHasStarted = true;
 			GameMaster.instance.StartGame();
-			Collider[] array2 = mapSolids;
-			foreach (Collider col in array2)
+			Collider[] array = mapSolids;
+			for (int i = 0; i < array.Length; i++)
 			{
-				col.enabled = true;
+				array[i].enabled = true;
 			}
 		}
 	}

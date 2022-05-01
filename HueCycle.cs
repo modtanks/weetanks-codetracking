@@ -9,7 +9,7 @@ public class HueCycle : MonoBehaviour
 
 	public Color theColor;
 
-	public float amount = 0f;
+	public float amount;
 
 	private void Start()
 	{

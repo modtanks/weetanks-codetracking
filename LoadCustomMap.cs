@@ -16,21 +16,21 @@ public class LoadCustomMap : MonoBehaviour
 
 	public void LoadData()
 	{
-		MapEditorData theData = SavingMapEditorData.LoadData(OptionsMainMenu.instance.MapEditorMapName);
-		if (theData == null)
+		MapEditorData mapEditorData = SavingMapEditorData.LoadData(OptionsMainMenu.instance.MapEditorMapName);
+		if (mapEditorData == null)
 		{
 			SceneManager.LoadScene(0);
 		}
-		int missions = theData.missionAmount;
-		if (missions < 1)
+		int missionAmount = mapEditorData.missionAmount;
+		if (missionAmount < 1)
 		{
 			SceneManager.LoadScene(0);
 		}
-		GameMaster.instance.NightLevels = theData.nightMissions;
-		List<string> thenames = theData.missionNames.ToList();
-		List<MapPiecesClass> allPropData = theData.MissionDataProps;
-		GameMaster.instance.Lives = theData.StartingLives;
-		if (theData.VersionCreated == "v0.7.9" || theData.VersionCreated == "v0.7.8")
+		GameMaster.instance.NightLevels = mapEditorData.nightMissions;
+		List<string> list = mapEditorData.missionNames.ToList();
+		_ = mapEditorData.MissionDataProps;
+		GameMaster.instance.Lives = mapEditorData.StartingLives;
+		if (mapEditorData.VersionCreated == "v0.7.9" || mapEditorData.VersionCreated == "v0.7.8")
 		{
 			MapEditorMaster.instance.PlayerSpeed = 65;
 			MapEditorMaster.instance.PlayerMaxBullets = 5;
@@ -41,39 +41,39 @@ public class LoadCustomMap : MonoBehaviour
 		}
 		else
 		{
-			MapEditorMaster.instance.PlayerSpeed = theData.PTS;
-			MapEditorMaster.instance.PlayerMaxBullets = theData.PMB;
-			MapEditorMaster.instance.PlayerCanLayMines = theData.PCLM;
-			MapEditorMaster.instance.PlayerArmourPoints = theData.PAP;
-			MapEditorMaster.instance.PlayerBulletType = theData.PBT;
-			MapEditorMaster.instance.PlayerAmountBounces = theData.PAB;
-			if (theData.TeamColorsShowing != null)
+			MapEditorMaster.instance.PlayerSpeed = mapEditorData.PTS;
+			MapEditorMaster.instance.PlayerMaxBullets = mapEditorData.PMB;
+			MapEditorMaster.instance.PlayerCanLayMines = mapEditorData.PCLM;
+			MapEditorMaster.instance.PlayerArmourPoints = mapEditorData.PAP;
+			MapEditorMaster.instance.PlayerBulletType = mapEditorData.PBT;
+			MapEditorMaster.instance.PlayerAmountBounces = mapEditorData.PAB;
+			if (mapEditorData.TeamColorsShowing != null)
 			{
-				for (int j = 0; j < theData.TeamColorsShowing.Length; j++)
+				for (int j = 0; j < mapEditorData.TeamColorsShowing.Length; j++)
 				{
-					MapEditorMaster.instance.TeamColorEnabled[j] = theData.TeamColorsShowing[j];
+					MapEditorMaster.instance.TeamColorEnabled[j] = mapEditorData.TeamColorsShowing[j];
 				}
 			}
 		}
-		MapEditorMaster.instance.SetCustomTankData(theData);
-		GameObject newLevel = UnityEngine.Object.Instantiate(LevelPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
-		GameMaster.instance.Levels.Add(newLevel);
+		MapEditorMaster.instance.SetCustomTankData(mapEditorData);
+		GameObject item = UnityEngine.Object.Instantiate(LevelPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
+		GameMaster.instance.Levels.Add(item);
 		int i;
-		for (i = 0; i < missions; i++)
+		for (i = 0; i < missionAmount; i++)
 		{
-			SingleMapEditorData newSMED = new SingleMapEditorData(null, null);
-			newSMED.MissionDataProps = theData.MissionDataProps.FindAll((MapPiecesClass x) => x.missionNumber == i);
-			newSMED.MissionMessage = theData.MissionMessages[i];
+			SingleMapEditorData singleMapEditorData = new SingleMapEditorData(null, null);
+			singleMapEditorData.MissionDataProps = mapEditorData.MissionDataProps.FindAll((MapPiecesClass x) => x.missionNumber == i);
+			singleMapEditorData.MissionMessage = mapEditorData.MissionMessages[i];
 			for (int k = 0; k < OptionsMainMenu.instance.MapSize; k++)
 			{
-				newSMED.MissionDataProps[k].ID = k;
+				singleMapEditorData.MissionDataProps[k].ID = k;
 			}
 			GameMaster.instance.MissionNames.Add("Level " + MapEditorMaster.instance.Levels.Count);
-			MapEditorMaster.instance.Levels.Add(newSMED);
+			MapEditorMaster.instance.Levels.Add(singleMapEditorData);
 			MapEditorMaster.instance.CreateNewLevel(isBrandNew: false);
-			if (thenames.ElementAtOrDefault(i) != null)
+			if (list.ElementAtOrDefault(i) != null)
 			{
-				GameMaster.instance.MissionNames[i] = thenames[i];
+				GameMaster.instance.MissionNames[i] = list[i];
 			}
 			else
 			{
@@ -81,22 +81,22 @@ public class LoadCustomMap : MonoBehaviour
 			}
 		}
 		bool oldVersion = false;
-		if (theData.VersionCreated == "v0.7.9" || theData.VersionCreated == "v0.7.8" || theData.VersionCreated == "v0.7.10" || theData.VersionCreated == "v0.7.11" || theData.VersionCreated == "v0.7.12" || theData.VersionCreated == "v0.8.0a" || theData.VersionCreated == "v0.8.0b" || theData.VersionCreated == "v0.8.0c")
+		if (mapEditorData.VersionCreated == "v0.7.9" || mapEditorData.VersionCreated == "v0.7.8" || mapEditorData.VersionCreated == "v0.7.10" || mapEditorData.VersionCreated == "v0.7.11" || mapEditorData.VersionCreated == "v0.7.12" || mapEditorData.VersionCreated == "v0.8.0a" || mapEditorData.VersionCreated == "v0.8.0b" || mapEditorData.VersionCreated == "v0.8.0c")
 		{
 			oldVersion = true;
 		}
 		MapEditorMaster.instance.StartCoroutine(MapEditorMaster.instance.PlaceAllProps(MapEditorMaster.instance.Levels[0].MissionDataProps, oldVersion, 0));
-		if (theData.WeatherTypes != null && theData.WeatherTypes.Length != 0)
+		if (mapEditorData.WeatherTypes != null && mapEditorData.WeatherTypes.Length != 0)
 		{
-			MapEditorMaster.instance.WeatherTypes = theData.WeatherTypes;
+			MapEditorMaster.instance.WeatherTypes = mapEditorData.WeatherTypes;
 		}
-		if (theData.MissionFloorTextures != null && theData.MissionFloorTextures.Length != 0)
+		if (mapEditorData.MissionFloorTextures != null && mapEditorData.MissionFloorTextures.Length != 0)
 		{
-			MapEditorMaster.instance.MissionFloorTextures = theData.MissionFloorTextures;
+			MapEditorMaster.instance.MissionFloorTextures = mapEditorData.MissionFloorTextures;
 		}
-		if (theData.NoBordersMissions != null)
+		if (mapEditorData.NoBordersMissions != null)
 		{
-			MapEditorMaster.instance.NoBordersMissions = theData.NoBordersMissions;
+			MapEditorMaster.instance.NoBordersMissions = mapEditorData.NoBordersMissions;
 		}
 		GameMaster.instance.Levels[0].SetActive(value: false);
 		StartCoroutine(DisableTheGame());
@@ -111,91 +111,89 @@ public class LoadCustomMap : MonoBehaviour
 	private IEnumerator PlaceAllProps(List<MapPiecesClass> allPropData, bool oldVersion)
 	{
 		yield return new WaitForSeconds(0.2f);
-		foreach (GameObject level2 in GameMaster.instance.Levels)
+		foreach (GameObject level in GameMaster.instance.Levels)
 		{
-			level2.SetActive(value: true);
+			level.SetActive(value: true);
 		}
-		GameObject[] allGridPieces = GameObject.FindGameObjectsWithTag("MapeditorField");
-		GameObject[] array = allGridPieces;
-		foreach (GameObject piece in array)
+		GameObject[] array = GameObject.FindGameObjectsWithTag("MapeditorField");
+		foreach (GameObject gameObject in array)
 		{
-			MapEditorGridPiece MEGP = piece.GetComponent<MapEditorGridPiece>();
-			MapPiecesClass myClass = allPropData.Find((MapPiecesClass x) => x.ID == MEGP.ID);
-			if (myClass == null)
+			MapEditorGridPiece MEGP = gameObject.GetComponent<MapEditorGridPiece>();
+			MapPiecesClass mapPiecesClass = allPropData.Find((MapPiecesClass x) => x.ID == MEGP.ID);
+			if (mapPiecesClass == null)
 			{
 				continue;
 			}
-			if (myClass.propID.Length < 3 || oldVersion)
+			if (mapPiecesClass.propID.Length < 3 || oldVersion)
 			{
-				int propID = Convert.ToInt32(myClass.propID);
-				if (propID == -1)
+				int num = Convert.ToInt32(mapPiecesClass.propID);
+				if (num == -1)
 				{
 					continue;
 				}
-				int propRotation = Convert.ToInt32(myClass.propRotation);
-				int propTeam = Convert.ToInt32(myClass.TeamColor);
-				if (propID > -1)
+				int direction = Convert.ToInt32(mapPiecesClass.propRotation);
+				int num2 = Convert.ToInt32(mapPiecesClass.TeamColor);
+				if (num > -1)
 				{
-					MEGP.MyTeamNumber = propTeam;
-					switch (propID)
+					MEGP.MyTeamNumber = num2;
+					switch (num)
 					{
 					case 41:
-						MEGP.SpawnInProps(0, propRotation, propTeam, 0, 0);
-						MEGP.SpawnInProps(41, propRotation, propTeam, 1, 0);
+						MEGP.SpawnInProps(0, direction, num2, 0, 0);
+						MEGP.SpawnInProps(41, direction, num2, 1, 0);
 						break;
 					case 42:
-						MEGP.SpawnInProps(1, propRotation, propTeam, 0, 0);
-						MEGP.SpawnInProps(42, propRotation, propTeam, 1, 0);
+						MEGP.SpawnInProps(1, direction, num2, 0, 0);
+						MEGP.SpawnInProps(42, direction, num2, 1, 0);
 						break;
 					case 43:
-						MEGP.SpawnInProps(1, propRotation, propTeam, 0, 0);
-						MEGP.SpawnInProps(1, propRotation, propTeam, 1, 0);
+						MEGP.SpawnInProps(1, direction, num2, 0, 0);
+						MEGP.SpawnInProps(1, direction, num2, 1, 0);
 						break;
 					case 44:
-						MEGP.SpawnInProps(0, propRotation, propTeam, 0, 0);
-						MEGP.SpawnInProps(0, propRotation, propTeam, 1, 0);
+						MEGP.SpawnInProps(0, direction, num2, 0, 0);
+						MEGP.SpawnInProps(0, direction, num2, 1, 0);
 						break;
 					default:
-						MEGP.SpawnInProps(propID, propRotation, propTeam, 0, 0);
+						MEGP.SpawnInProps(num, direction, num2, 0, 0);
 						break;
 					}
 				}
 				continue;
 			}
-			for (int i = 0; i < 5; i++)
+			for (int j = 0; j < 5; j++)
 			{
-				if (myClass.propID[i] > -1)
+				if (mapPiecesClass.propID[j] > -1)
 				{
-					MEGP.MyTeamNumber = myClass.TeamColor[i];
-					MEGP.SpawnDifficulty = myClass.SpawnDifficulty;
-					MEGP.SpawnInProps(myClass.propID[i], myClass.propRotation[i], myClass.TeamColor[i], i, myClass.SpawnDifficulty);
+					MEGP.MyTeamNumber = mapPiecesClass.TeamColor[j];
+					MEGP.SpawnDifficulty = mapPiecesClass.SpawnDifficulty;
+					MEGP.SpawnInProps(mapPiecesClass.propID[j], mapPiecesClass.propRotation[j], mapPiecesClass.TeamColor[j], j, mapPiecesClass.SpawnDifficulty);
 				}
 			}
 		}
-		foreach (GameObject level in GameMaster.instance.Levels)
+		foreach (GameObject level2 in GameMaster.instance.Levels)
 		{
-			level.SetActive(value: false);
+			level2.SetActive(value: false);
 		}
 		GameMaster.instance.CurrentMission = 0;
 	}
 
 	public void CreateNewLevel()
 	{
-		GameObject newLevel = UnityEngine.Object.Instantiate(LevelPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
-		GameMaster.instance.Levels.Add(newLevel);
+		GameObject gameObject = UnityEngine.Object.Instantiate(LevelPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
+		GameMaster.instance.Levels.Add(gameObject);
 		if (GameMaster.instance.Levels.Count > 0)
 		{
-			newLevel.name = "Custom Level " + GameMaster.instance.Levels.Count;
+			gameObject.name = "Custom Level " + GameMaster.instance.Levels.Count;
 			GameMaster.instance.Levels[GameMaster.instance.Levels.Count - 1].SetActive(value: false);
 			GameMaster.instance.CurrentMission = GameMaster.instance.Levels.Count - 1;
 		}
 		else
 		{
-			newLevel.name = "Custom Level 1";
+			gameObject.name = "Custom Level 1";
 			GameMaster.instance.Levels[0].SetActive(value: false);
 			GameMaster.instance.CurrentMission = 0;
 		}
-		MapEditorGridGenerator MEGG = newLevel.GetComponentInChildren<MapEditorGridGenerator>();
-		MEGG.GenerateFields();
+		gameObject.GetComponentInChildren<MapEditorGridGenerator>().GenerateFields();
 	}
 }

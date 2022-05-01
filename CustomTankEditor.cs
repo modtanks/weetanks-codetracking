@@ -72,71 +72,70 @@ public class CustomTankEditor : MonoBehaviour
 	public void OnLoadTank()
 	{
 		LoadTankStatsButton.SetActive(value: false);
-		string directory = "";
-		directory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
-		directory += "/My Games/Wee Tanks/custom_tanks/";
-		if (!Directory.Exists(directory))
+		string text = "";
+		text = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
+		text += "/My Games/Wee Tanks/custom_tanks/";
+		if (!Directory.Exists(text))
 		{
-			Directory.CreateDirectory(directory);
+			Directory.CreateDirectory(text);
 		}
 		CTDs.Clear();
-		DirectoryInfo dataPathMap = new DirectoryInfo(directory);
-		FileInfo[] mapFiles = dataPathMap.GetFiles("*.customtank");
+		FileInfo[] files = new DirectoryInfo(text).GetFiles("*.customtank");
 		FilesDropdown.ClearOptions();
-		List<TMP_Dropdown.OptionData> NewOptions = new List<TMP_Dropdown.OptionData>();
-		if (mapFiles.Length != 0)
+		List<TMP_Dropdown.OptionData> list = new List<TMP_Dropdown.OptionData>();
+		if (files.Length != 0)
 		{
-			FileInfo[] array = mapFiles;
-			foreach (FileInfo mapFile in array)
+			FileInfo[] array = files;
+			for (int i = 0; i < array.Length; i++)
 			{
-				string mapname = mapFile.Name.Replace(".customtank", "");
-				if (mapname.Length >= 1 && mapname.Length <= 25)
+				string text2 = array[i].Name.Replace(".customtank", "");
+				if (text2.Length >= 1 && text2.Length <= 25)
 				{
-					CustomTankData CTD = LoadData(mapname);
-					if (CTD != null)
+					CustomTankData customTankData = LoadData(text2);
+					if (customTankData != null)
 					{
 						LoadTankStatsButton.SetActive(value: true);
-						CTDs.Add(CTD);
-						TMP_Dropdown.OptionData Option = new TMP_Dropdown.OptionData();
-						Option.text = CTD.CustomTankName;
-						NewOptions.Add(Option);
+						CTDs.Add(customTankData);
+						TMP_Dropdown.OptionData optionData = new TMP_Dropdown.OptionData();
+						optionData.text = customTankData.CustomTankName;
+						list.Add(optionData);
 					}
 				}
 			}
 		}
-		FilesDropdown.AddOptions(NewOptions);
+		FilesDropdown.AddOptions(list);
 		FilesMenu.SetActive(value: true);
 		ButtonsMenu.SetActive(value: false);
 	}
 
 	private CustomTankData LoadData(string filename)
 	{
-		string savePath = Application.persistentDataPath + "/custom_tanks/" + filename + ".customtank";
-		savePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
-		savePath = savePath + "/My Games/Wee Tanks/custom_tanks/" + filename + ".customtank";
-		if (File.Exists(savePath))
+		string text = Application.persistentDataPath + "/custom_tanks/" + filename + ".customtank";
+		text = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
+		text = text + "/My Games/Wee Tanks/custom_tanks/" + filename + ".customtank";
+		if (File.Exists(text))
 		{
-			BinaryFormatter formatter = new BinaryFormatter();
-			FileStream stream = new FileStream(savePath, FileMode.Open);
-			stream.Seek(0L, SeekOrigin.Begin);
-			CustomTankData data = formatter.Deserialize(stream) as CustomTankData;
-			stream.Close();
-			return data;
+			BinaryFormatter binaryFormatter = new BinaryFormatter();
+			FileStream fileStream = new FileStream(text, FileMode.Open);
+			fileStream.Seek(0L, SeekOrigin.Begin);
+			CustomTankData result = binaryFormatter.Deserialize(fileStream) as CustomTankData;
+			fileStream.Close();
+			return result;
 		}
 		return null;
 	}
 
 	public void OnSaveThisTank()
 	{
-		string directory = "";
-		directory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
-		directory += "/My Games/Wee Tanks/custom_tanks/";
-		if (!Directory.Exists(directory))
+		string text = "";
+		text = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
+		text += "/My Games/Wee Tanks/custom_tanks/";
+		if (!Directory.Exists(text))
 		{
-			Directory.CreateDirectory(directory);
+			Directory.CreateDirectory(text);
 		}
-		MapEditorMaster MEM = MapEditorMaster.instance;
-		theName = MEM.CustomTankDatas[MEM.SelectedCustomTank].CustomTankName;
+		MapEditorMaster instance = MapEditorMaster.instance;
+		theName = instance.CustomTankDatas[instance.SelectedCustomTank].CustomTankName;
 		if (theName.Length > 1)
 		{
 			thePath = "";
@@ -153,7 +152,7 @@ public class CustomTankEditor : MonoBehaviour
 			else
 			{
 				ButtonsMenu.SetActive(value: false);
-				SaveData(MEM.CustomTankDatas[MEM.SelectedCustomTank], thePath);
+				SaveData(instance.CustomTankDatas[instance.SelectedCustomTank], thePath);
 			}
 		}
 		else
@@ -182,9 +181,9 @@ public class CustomTankEditor : MonoBehaviour
 		ReplaceMenu.SetActive(value: false);
 		FilesMenu.SetActive(value: false);
 		MessageText.gameObject.SetActive(value: true);
-		string uniqueID = MapEditorMaster.instance.CustomTankDatas[MapEditorMaster.instance.SelectedCustomTank].UniqueTankID;
+		string uniqueTankID = MapEditorMaster.instance.CustomTankDatas[MapEditorMaster.instance.SelectedCustomTank].UniqueTankID;
 		MapEditorMaster.instance.CustomTankDatas[MapEditorMaster.instance.SelectedCustomTank] = CTDs[FilesDropdown.value];
-		MapEditorMaster.instance.CustomTankDatas[MapEditorMaster.instance.SelectedCustomTank].UniqueTankID = uniqueID;
+		MapEditorMaster.instance.CustomTankDatas[MapEditorMaster.instance.SelectedCustomTank].UniqueTankID = uniqueTankID;
 		MapEditorMaster.instance.CustomMaterial[MapEditorMaster.instance.SelectedCustomTank].color = MapEditorMaster.instance.CustomTankDatas[MapEditorMaster.instance.SelectedCustomTank].CustomTankColor.Color;
 		MapEditorMaster.instance.LoadCustomTankDataUI(MapEditorMaster.instance.SelectedCustomTank);
 		StartCoroutine(ResetMenu());
@@ -219,10 +218,10 @@ public class CustomTankEditor : MonoBehaviour
 
 	private void SaveData(CustomTankData DATA, string savePath)
 	{
-		BinaryFormatter formatter = new BinaryFormatter();
-		FileStream stream = new FileStream(savePath, FileMode.Create);
-		formatter.Serialize(stream, DATA);
-		stream.Close();
+		BinaryFormatter binaryFormatter = new BinaryFormatter();
+		FileStream fileStream = new FileStream(savePath, FileMode.Create);
+		binaryFormatter.Serialize(fileStream, DATA);
+		fileStream.Close();
 		MessageText.gameObject.SetActive(value: true);
 		MessageText.color = GreenText;
 		MessageText.text = "File \"" + DATA.CustomTankName + "\" saved!";

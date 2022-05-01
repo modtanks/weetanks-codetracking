@@ -8,13 +8,13 @@ public class HealthbarScript : MonoBehaviour
 
 	private float OriginalX;
 
-	private bool HasBeenEnabled = false;
+	private bool HasBeenEnabled;
 
-	private bool HealthBarEnabled = false;
+	private bool HealthBarEnabled;
 
 	private MapEditorProp MEP;
 
-	private int LatestKnownHealth = 0;
+	private int LatestKnownHealth;
 
 	private void Start()
 	{
@@ -34,18 +34,18 @@ public class HealthbarScript : MonoBehaviour
 	private void Disable()
 	{
 		HealthBarEnabled = false;
-		foreach (Transform child in base.transform)
+		foreach (Transform item in base.transform)
 		{
-			child.gameObject.SetActive(value: false);
+			item.gameObject.SetActive(value: false);
 		}
 	}
 
 	private void Enable()
 	{
 		HealthBarEnabled = true;
-		foreach (Transform child in base.transform)
+		foreach (Transform item in base.transform)
 		{
-			child.gameObject.SetActive(value: true);
+			item.gameObject.SetActive(value: true);
 		}
 	}
 
@@ -71,10 +71,10 @@ public class HealthbarScript : MonoBehaviour
 				{
 					HasBeenEnabled = true;
 					Enable();
-					float health = myHT.health + myHT.health_armour;
-					float maxhealth = myHT.maxHealth + myHT.maxArmour;
-					float calc = health / maxhealth * OriginalX;
-					GreenBar.transform.localScale = new Vector3(calc, GreenBar.transform.localScale.y, GreenBar.transform.localScale.x);
+					float num = myHT.health + myHT.health_armour;
+					float num2 = myHT.maxHealth + myHT.maxArmour;
+					float x = num / num2 * OriginalX;
+					GreenBar.transform.localScale = new Vector3(x, GreenBar.transform.localScale.y, GreenBar.transform.localScale.x);
 					LatestKnownHealth = myHT.health + myHT.health_armour;
 				}
 			}

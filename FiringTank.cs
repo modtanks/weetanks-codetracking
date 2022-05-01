@@ -9,13 +9,13 @@ public class FiringTank : MonoBehaviour
 	[Header("Settings")]
 	public float fireRate = 1f;
 
-	public float fireCountdown = 0f;
+	public float fireCountdown;
 
 	public int maxFiredBullets = 5;
 
-	public int firedBullets = 0;
+	public int firedBullets;
 
-	public int amountBounces = 0;
+	public int amountBounces;
 
 	public bool canShoot = true;
 
@@ -23,9 +23,9 @@ public class FiringTank : MonoBehaviour
 
 	public bool canLayMine = true;
 
-	public float mineCountdown = 0f;
+	public float mineCountdown;
 
-	public int minesPlaced = 0;
+	public int minesPlaced;
 
 	public int maxMinesPlaced = 2;
 
@@ -45,7 +45,7 @@ public class FiringTank : MonoBehaviour
 
 	public Vector3 target;
 
-	public bool mobileMine = false;
+	public bool mobileMine;
 
 	public MousePosition mousescript;
 
@@ -81,8 +81,9 @@ public class FiringTank : MonoBehaviour
 		{
 			controllerReleased = true;
 		}
-		else if ((tankMovingScript.player.GetAxis("Look Horizontal") > 0.5f || tankMovingScript.player.GetAxis("Look Horizontal") < -0.5f || tankMovingScript.player.GetAxis("Look Vertically") > 0.5f || tankMovingScript.player.GetAxis("Look Vertically") < -0.5f) && tankMovingScript.playerId != 0)
+		else if (tankMovingScript.player.GetAxis("Look Horizontal") > 0.5f || tankMovingScript.player.GetAxis("Look Horizontal") < -0.5f || tankMovingScript.player.GetAxis("Look Vertically") > 0.5f || tankMovingScript.player.GetAxis("Look Vertically") < -0.5f)
 		{
+			_ = tankMovingScript.playerId;
 		}
 		if ((bool)MapEditorMaster.instance)
 		{
@@ -152,33 +153,33 @@ public class FiringTank : MonoBehaviour
 			else if (tankMovingScript.playerId == 0)
 			{
 				RawImage[] bullets = GameMaster.instance.PKU.Bullets;
-				foreach (RawImage Bullet4 in bullets)
+				for (int m = 0; m < bullets.Length; m++)
 				{
-					Bullet4.gameObject.SetActive(value: true);
+					bullets[m].gameObject.SetActive(value: true);
 				}
 			}
 			else if (tankMovingScript.playerId == 1)
 			{
-				RawImage[] bulletsP = GameMaster.instance.PKU.BulletsP2;
-				foreach (RawImage Bullet3 in bulletsP)
+				RawImage[] bullets = GameMaster.instance.PKU.BulletsP2;
+				for (int m = 0; m < bullets.Length; m++)
 				{
-					Bullet3.gameObject.SetActive(value: true);
+					bullets[m].gameObject.SetActive(value: true);
 				}
 			}
 			else if (tankMovingScript.playerId == 2)
 			{
-				RawImage[] bulletsP2 = GameMaster.instance.PKU.BulletsP3;
-				foreach (RawImage Bullet2 in bulletsP2)
+				RawImage[] bullets = GameMaster.instance.PKU.BulletsP3;
+				for (int m = 0; m < bullets.Length; m++)
 				{
-					Bullet2.gameObject.SetActive(value: true);
+					bullets[m].gameObject.SetActive(value: true);
 				}
 			}
 			else if (tankMovingScript.playerId == 3)
 			{
-				RawImage[] bulletsP3 = GameMaster.instance.PKU.BulletsP4;
-				foreach (RawImage Bullet in bulletsP3)
+				RawImage[] bullets = GameMaster.instance.PKU.BulletsP4;
+				for (int m = 0; m < bullets.Length; m++)
 				{
-					Bullet.gameObject.SetActive(value: true);
+					bullets[m].gameObject.SetActive(value: true);
 				}
 			}
 		}
@@ -211,21 +212,21 @@ public class FiringTank : MonoBehaviour
 		{
 			GameMaster.instance.mission3HasMined = true;
 		}
-		GameObject mine = ((tankMovingScript.Upgrades[4] >= 1) ? Object.Instantiate(tripminePrefab, base.transform.position, Quaternion.identity) : Object.Instantiate(minePrefab, base.transform.position, Quaternion.identity));
-		mine.transform.position = new Vector3(mine.transform.position.x, base.transform.position.y, mine.transform.position.z);
-		MineScript mineScript = mine.GetComponent<MineScript>();
-		mineScript.placedByEnemies = false;
-		mineScript.isMineByPlayer = tankMovingScript.playerId;
+		GameObject gameObject = ((tankMovingScript.Upgrades[4] >= 1) ? Object.Instantiate(tripminePrefab, base.transform.position, Quaternion.identity) : Object.Instantiate(minePrefab, base.transform.position, Quaternion.identity));
+		gameObject.transform.position = new Vector3(gameObject.transform.position.x, base.transform.position.y, gameObject.transform.position.z);
+		MineScript component = gameObject.GetComponent<MineScript>();
+		component.placedByEnemies = false;
+		component.isMineByPlayer = tankMovingScript.playerId;
 		if ((bool)GameMaster.instance.CM)
 		{
-			mine.transform.SetParent(GameMaster.instance.CM.transform);
+			gameObject.transform.SetParent(GameMaster.instance.CM.transform);
 		}
 		else
 		{
-			mine.transform.parent = null;
+			gameObject.transform.parent = null;
 		}
-		mineScript.myPapa = this;
-		mineScript.MyPlacer = tankMovingScript.gameObject;
+		component.myPapa = this;
+		component.MyPlacer = tankMovingScript.gameObject;
 		minesPlaced++;
 		canMine = false;
 		mineCountdown = 0.4f;
@@ -239,10 +240,10 @@ public class FiringTank : MonoBehaviour
 
 	public bool PointIsOverUI(float x, float y)
 	{
-		PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
-		eventDataCurrentPosition.position = new Vector2(x, y);
+		PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
+		pointerEventData.position = new Vector2(x, y);
 		tempRaycastResults.Clear();
-		EventSystem.current.RaycastAll(eventDataCurrentPosition, tempRaycastResults);
+		EventSystem.current.RaycastAll(pointerEventData, tempRaycastResults);
 		foreach (RaycastResult tempRaycastResult in tempRaycastResults)
 		{
 			if (tempRaycastResult.gameObject.transform.tag == "IgnoreMobile")
@@ -270,11 +271,11 @@ public class FiringTank : MonoBehaviour
 			}
 		}
 		StartCoroutine(shootAgain());
-		GameObject prefab = ((!GameMaster.instance) ? bulletPrefab : ((tankMovingScript.Upgrades[3] <= 0) ? bulletPrefab : bulletPrefabUpgraded));
-		GameObject bulletGO = Object.Instantiate(prefab, firePoint.position, firePoint.transform.rotation);
-		PlayerBulletScript bullet = bulletGO.GetComponent<PlayerBulletScript>();
-		Physics.IgnoreCollision(bullet.GetComponent<Collider>(), GetComponent<Collider>());
-		bullet.CollidersIgnoring.Add(GetComponent<Collider>());
+		GameObject original = ((!GameMaster.instance) ? bulletPrefab : ((tankMovingScript.Upgrades[3] <= 0) ? bulletPrefab : bulletPrefabUpgraded));
+		GameObject obj = Object.Instantiate(original, firePoint.position, firePoint.transform.rotation);
+		PlayerBulletScript component = obj.GetComponent<PlayerBulletScript>();
+		Physics.IgnoreCollision(component.GetComponent<Collider>(), GetComponent<Collider>());
+		component.CollidersIgnoring.Add(GetComponent<Collider>());
 		if ((bool)AchievementsTracker.instance)
 		{
 			AchievementsTracker.instance.HasShooted = true;
@@ -282,22 +283,21 @@ public class FiringTank : MonoBehaviour
 		}
 		if ((bool)tankMovingScript)
 		{
-			bullet.isTowerCharged = tankMovingScript.isBeingTowerBoosted;
-			InstantiateOneParticle IOP = bullet.GetComponent<InstantiateOneParticle>();
-			if ((bool)IOP)
+			component.isTowerCharged = tankMovingScript.isBeingTowerBoosted;
+			InstantiateOneParticle component2 = component.GetComponent<InstantiateOneParticle>();
+			if ((bool)component2)
 			{
-				IOP.IsTowerCharged = tankMovingScript.isBeingTowerBoosted;
+				component2.IsTowerCharged = tankMovingScript.isBeingTowerBoosted;
 			}
 		}
-		bullet.MyTeam = tankMovingScript.MyTeam;
-		bullet.ShotByPlayer = tankMovingScript.playerId;
-		bullet.TankScript = this;
-		bullet.papaTank = base.gameObject;
-		bullet.MaxBounces = amountBounces;
-		bullet.StartingVelocity = firePoint.forward * 6f;
-		bulletGO.transform.Rotate(Vector3.right * 90f);
-		Rigidbody bulletBody = bulletGO.GetComponent<Rigidbody>();
-		bulletBody.AddForce(firePoint.forward * 6f);
+		component.MyTeam = tankMovingScript.MyTeam;
+		component.ShotByPlayer = tankMovingScript.playerId;
+		component.TankScript = this;
+		component.papaTank = base.gameObject;
+		component.MaxBounces = amountBounces;
+		component.StartingVelocity = firePoint.forward * 6f;
+		obj.transform.Rotate(Vector3.right * 90f);
+		obj.GetComponent<Rigidbody>().AddForce(firePoint.forward * 6f);
 		SFXManager.instance.PlaySFX(shootSound);
 	}
 }

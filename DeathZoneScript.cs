@@ -6,19 +6,19 @@ public class DeathZoneScript : MonoBehaviour
 	{
 		if (other.transform.tag == "Enemy" || other.transform.tag == "Player")
 		{
-			HealthTanks HTcol = other.GetComponent<HealthTanks>();
-			HTcol.health = -999;
+			other.GetComponent<HealthTanks>().health = -999;
 		}
 		else if (other.transform.tag == "Bullet")
 		{
-			PlayerBulletScript bs = other.GetComponent<PlayerBulletScript>();
-			if ((bool)bs)
+			PlayerBulletScript component = other.GetComponent<PlayerBulletScript>();
+			if ((bool)component)
 			{
-				bs.TimesBounced = 99;
-				return;
+				component.TimesBounced = 99;
 			}
-			PlayerBulletScript myBullet = other.GetComponent<PlayerBulletScript>();
-			myBullet.TimesBounced = 99;
+			else
+			{
+				other.GetComponent<PlayerBulletScript>().TimesBounced = 99;
+			}
 		}
 	}
 }

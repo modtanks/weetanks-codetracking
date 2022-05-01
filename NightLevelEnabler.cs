@@ -4,13 +4,13 @@ public class NightLevelEnabler : MonoBehaviour
 {
 	public GameObject LightObject;
 
-	public bool isOn = false;
+	public bool isOn;
 
-	private bool isEnemy = false;
+	private bool isEnemy;
 
 	public Light theLight;
 
-	public float originalItensity = 0f;
+	public float originalItensity;
 
 	public float P1dist;
 
@@ -85,12 +85,12 @@ public class NightLevelEnabler : MonoBehaviour
 
 	private void blinking()
 	{
-		bool OverRide = false;
+		bool flag = false;
 		if ((bool)CloudGeneration.instance && (CloudGeneration.instance.CurrentWeatherType == 1 || CloudGeneration.instance.CurrentWeatherType == 2 || CloudGeneration.instance.CurrentWeatherType == 3))
 		{
-			OverRide = true;
+			flag = true;
 		}
-		if (RenderSettings.ambientLight == Color.black || OverRide)
+		if (RenderSettings.ambientLight == Color.black || flag)
 		{
 			if (!isOn)
 			{
@@ -103,21 +103,21 @@ public class NightLevelEnabler : MonoBehaviour
 						LightObject.SetActive(value: true);
 						return;
 					}
-					float minDistToPlayer = 30f;
-					float closestPos = 999999f;
+					float num = 30f;
+					float num2 = 999999f;
 					for (int i = 0; i < GameMaster.instance.Players.Count; i++)
 					{
 						if (GameMaster.instance.Players[i] == null)
 						{
 							continue;
 						}
-						float Playerdist = Vector3.Distance(base.transform.position, GameMaster.instance.Players[i].transform.position);
-						if (Playerdist < closestPos)
+						float num3 = Vector3.Distance(base.transform.position, GameMaster.instance.Players[i].transform.position);
+						if (num3 < num2)
 						{
-							closestPos = Playerdist;
-							if (Playerdist < minDistToPlayer)
+							num2 = num3;
+							if (num3 < num)
 							{
-								theLight.intensity = originalItensity - Playerdist * originalItensity / minDistToPlayer;
+								theLight.intensity = originalItensity - num3 * originalItensity / num;
 								LightObject.SetActive(value: true);
 							}
 							else
@@ -127,7 +127,7 @@ public class NightLevelEnabler : MonoBehaviour
 							}
 						}
 					}
-					if (closestPos >= minDistToPlayer)
+					if (num2 >= num)
 					{
 						theLight.intensity = 0f;
 						LightObject.SetActive(value: false);

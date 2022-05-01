@@ -9,13 +9,13 @@ public class BloodScript : MonoBehaviour
 		if (other.tag == "Player")
 		{
 			Debug.Log("player entered!");
-			MoveTankScript MTS = other.gameObject.GetComponent<MoveTankScript>();
-			if ((bool)MTS && MTS.skidMarkCreator != null)
+			MoveTankScript component = other.gameObject.GetComponent<MoveTankScript>();
+			if ((bool)component && component.skidMarkCreator != null)
 			{
-				SkidmarkController SC2 = MTS.skidMarkCreator.GetComponent<SkidmarkController>();
-				if ((bool)SC2)
+				SkidmarkController component2 = component.skidMarkCreator.GetComponent<SkidmarkController>();
+				if ((bool)component2)
 				{
-					SC2.ActivateBlood(myColor);
+					component2.ActivateBlood(myColor);
 				}
 			}
 		}
@@ -25,13 +25,13 @@ public class BloodScript : MonoBehaviour
 			{
 				return;
 			}
-			EnemyAI EA = other.gameObject.GetComponent<EnemyAI>();
-			if ((bool)EA && EA.skidMarkCreator != null)
+			EnemyAI component3 = other.gameObject.GetComponent<EnemyAI>();
+			if ((bool)component3 && component3.skidMarkCreator != null)
 			{
-				SkidmarkController SC = EA.skidMarkCreator.GetComponent<SkidmarkController>();
-				if ((bool)SC)
+				SkidmarkController component4 = component3.skidMarkCreator.GetComponent<SkidmarkController>();
+				if ((bool)component4)
 				{
-					SC.ActivateBlood(myColor);
+					component4.ActivateBlood(myColor);
 				}
 			}
 		}

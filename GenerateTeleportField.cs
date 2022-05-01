@@ -4,11 +4,11 @@ public class GenerateTeleportField : MonoBehaviour
 {
 	public GameObject StartPoint;
 
-	public bool isMainMenu = false;
+	public bool isMainMenu;
 
-	private bool Generated = false;
+	private bool Generated;
 
-	public bool isMission100Field = false;
+	public bool isMission100Field;
 
 	public int[] Mission100Skipfields;
 
@@ -22,44 +22,44 @@ public class GenerateTeleportField : MonoBehaviour
 
 	private void GenerateFields()
 	{
-		PathfindingBlocksMaster PBM = GetComponent<PathfindingBlocksMaster>();
-		int SizeX = 0;
-		int SizeY = 0;
+		PathfindingBlocksMaster component = GetComponent<PathfindingBlocksMaster>();
+		int num = 0;
+		int num2 = 0;
 		if (OptionsMainMenu.instance.MapSize == 180)
 		{
-			SizeX = 14;
-			SizeY = 11;
+			num = 14;
+			num2 = 11;
 		}
 		else if (OptionsMainMenu.instance.MapSize == 285)
 		{
-			SizeX = 18;
-			SizeY = 14;
+			num = 18;
+			num2 = 14;
 		}
 		else if (OptionsMainMenu.instance.MapSize == 374)
 		{
-			SizeX = 21;
-			SizeY = 16;
+			num = 21;
+			num2 = 16;
 		}
 		else if (OptionsMainMenu.instance.MapSize == 475)
 		{
-			SizeX = 24;
-			SizeY = 18;
+			num = 24;
+			num2 = 18;
 		}
 		Generated = true;
-		for (int z = 0; z < SizeY + 1; z++)
+		for (int i = 0; i < num2 + 1; i++)
 		{
-			for (int x = 0; x < SizeX + 1; x++)
+			for (int j = 0; j < num + 1; j++)
 			{
-				if (x != 0 || z != 0)
+				if (j != 0 || i != 0)
 				{
-					GameObject NewTeleportField = Object.Instantiate(StartPoint, StartPoint.transform.position + new Vector3(x * 2, 0f, -z * 2), Quaternion.identity, base.transform);
+					Object.Instantiate(StartPoint, StartPoint.transform.position + new Vector3(j * 2, 0f, -i * 2), Quaternion.identity, base.transform);
 				}
 			}
 		}
-		if ((bool)PBM)
+		if ((bool)component)
 		{
-			PBM.MapSizeX = SizeX;
-			PBM.FindAllBlocks();
+			component.MapSizeX = num;
+			component.FindAllBlocks();
 		}
 	}
 

@@ -11,7 +11,7 @@ public class SteamManager : MonoBehaviour
 
 	protected static SteamManager s_instance;
 
-	protected bool m_bInitialized = false;
+	protected bool m_bInitialized;
 
 	protected SteamAPIWarningMessageHook_t m_SteamAPIWarningMessageHook;
 

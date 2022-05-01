@@ -8,7 +8,7 @@ public class CursorTrail : MonoBehaviour
 
 	public float startWidth = 0.1f;
 
-	public float endWidth = 0f;
+	public float endWidth;
 
 	public float trailTime = 0.24f;
 
@@ -19,19 +19,19 @@ public class CursorTrail : MonoBehaviour
 	private void Start()
 	{
 		thisCamera = GetComponent<Camera>();
-		GameObject trailObj = new GameObject("Mouse Trail");
-		trailTransform = trailObj.transform;
-		TrailRenderer trail = trailObj.AddComponent<TrailRenderer>();
-		trail.time = -1f;
+		GameObject gameObject = new GameObject("Mouse Trail");
+		trailTransform = gameObject.transform;
+		TrailRenderer trailRenderer = gameObject.AddComponent<TrailRenderer>();
+		trailRenderer.time = -1f;
 		MoveTrailToCursor(Input.mousePosition);
-		trail.time = trailTime;
-		trail.startWidth = startWidth;
-		trail.endWidth = endWidth;
-		trail.numCapVertices = 2;
-		trail.sharedMaterial = new Material(Shader.Find("Unlit/Color"));
-		trail.sharedMaterial.color = trailColor;
-		trail.sortingOrder = 2;
-		trail.sortingLayerName = "Trails";
+		trailRenderer.time = trailTime;
+		trailRenderer.startWidth = startWidth;
+		trailRenderer.endWidth = endWidth;
+		trailRenderer.numCapVertices = 2;
+		trailRenderer.sharedMaterial = new Material(Shader.Find("Unlit/Color"));
+		trailRenderer.sharedMaterial.color = trailColor;
+		trailRenderer.sortingOrder = 2;
+		trailRenderer.sortingLayerName = "Trails";
 	}
 
 	private void Update()

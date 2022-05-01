@@ -32,8 +32,14 @@ public sealed class InputManager : InputManager_Base
 		platform = Platform.Unknown;
 		webplayerPlatform = WebplayerPlatform.None;
 		isEditor = false;
-		string deviceName = SystemInfo.deviceName ?? string.Empty;
-		string deviceModel = SystemInfo.deviceModel ?? string.Empty;
+		if (SystemInfo.deviceName == null)
+		{
+			_ = string.Empty;
+		}
+		if (SystemInfo.deviceModel == null)
+		{
+			_ = string.Empty;
+		}
 		platform = Platform.Windows;
 		scriptingBackend = ScriptingBackend.Mono;
 		scriptingAPILevel = ScriptingAPILevel.NetStandard20;
@@ -50,7 +56,11 @@ public sealed class InputManager : InputManager_Base
 
 	private bool CheckDeviceName(string searchPattern, string deviceName, string deviceModel)
 	{
-		return Regex.IsMatch(deviceName, searchPattern, RegexOptions.IgnoreCase) || Regex.IsMatch(deviceModel, searchPattern, RegexOptions.IgnoreCase);
+		if (!Regex.IsMatch(deviceName, searchPattern, RegexOptions.IgnoreCase))
+		{
+			return Regex.IsMatch(deviceModel, searchPattern, RegexOptions.IgnoreCase);
+		}
+		return true;
 	}
 
 	private void SubscribeEvents()

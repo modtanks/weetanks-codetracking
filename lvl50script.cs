@@ -6,16 +6,16 @@ public class lvl50script : MonoBehaviour
 {
 	public List<Transform> myBlocks = new List<Transform>();
 
-	public bool isOverlays = false;
+	public bool isOverlays;
 
 	public float yHeight;
 
 	private void Start()
 	{
 		myBlocks.Clear();
-		foreach (Transform child in base.transform)
+		foreach (Transform item in base.transform)
 		{
-			myBlocks.Add(child);
+			myBlocks.Add(item);
 		}
 		yHeight = myBlocks[0].position.y;
 	}
@@ -26,19 +26,19 @@ public class lvl50script : MonoBehaviour
 		{
 			return;
 		}
-		foreach (Transform block in myBlocks)
+		foreach (Transform myBlock in myBlocks)
 		{
-			DestroyableBlock DB = block.GetComponent<DestroyableBlock>();
-			if (DB.destroyed)
+			DestroyableBlock component = myBlock.GetComponent<DestroyableBlock>();
+			if (component.destroyed)
 			{
-				DB.destroyed = false;
-				DB.blockHealth = DB.maxBlockHealth;
-				block.transform.position = new Vector3(block.position.x, -20f, block.position.z);
-				StartCoroutine("BackUp", block.gameObject);
+				component.destroyed = false;
+				component.blockHealth = component.maxBlockHealth;
+				myBlock.transform.position = new Vector3(myBlock.position.x, -20f, myBlock.position.z);
+				StartCoroutine("BackUp", myBlock.gameObject);
 			}
 			else
 			{
-				DB.blockHealth = DB.maxBlockHealth;
+				component.blockHealth = component.maxBlockHealth;
 			}
 		}
 	}

@@ -1,7 +1,37 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GlobalHealthTanks : MonoBehaviour
 {
+	[Serializable]
+	public class TankStats
+	{
+		public int TankID;
+
+		public int TankSpeed;
+
+		public int BodyTurnSpeed;
+
+		public int DifficultyDodging;
+
+		public int NotSeeBulletChancePercentage;
+
+		public int Accuracy;
+
+		public int MineLaySpeed;
+
+		public bool CanLayMines;
+
+		public bool HasRockets;
+
+		public float RocketShootSpeed;
+
+		public int maxFiredBullets;
+
+		public int HeadTurnSpeed;
+	}
+
 	private static GlobalHealthTanks _instance;
 
 	public GameObject[] BloodSplatters;
@@ -10,13 +40,15 @@ public class GlobalHealthTanks : MonoBehaviour
 
 	public AudioClip[] InPain;
 
+	public List<TankStats> GlobalTankStats = new List<TankStats>();
+
 	public static GlobalHealthTanks instance => _instance;
 
 	private void Awake()
 	{
 		if (_instance != null && _instance != this)
 		{
-			Object.Destroy(base.gameObject);
+			UnityEngine.Object.Destroy(base.gameObject);
 		}
 		else
 		{
@@ -26,6 +58,6 @@ public class GlobalHealthTanks : MonoBehaviour
 
 	private void Update()
 	{
-		Object.DontDestroyOnLoad(base.transform.gameObject);
+		UnityEngine.Object.DontDestroyOnLoad(base.transform.gameObject);
 	}
 }

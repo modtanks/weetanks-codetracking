@@ -64,10 +64,10 @@ public class TouchJoystickExample : MonoBehaviour, IPointerDownHandler, IEventSy
 
 	private void UpdateValue(Vector3 value)
 	{
-		Vector3 delta = origWorldPosition - value;
-		delta.y = 0f - delta.y;
-		delta /= (float)radius;
-		position = new Vector2(0f - delta.x, delta.y);
+		Vector3 vector = origWorldPosition - value;
+		vector.y = 0f - vector.y;
+		vector /= (float)radius;
+		position = new Vector2(0f - vector.x, vector.y);
 	}
 
 	void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
@@ -91,16 +91,20 @@ public class TouchJoystickExample : MonoBehaviour, IPointerDownHandler, IEventSy
 	{
 		if (hasFinger && eventData.pointerId == lastFingerId)
 		{
-			Vector3 delta = new Vector3(eventData.position.x - origWorldPosition.x, eventData.position.y - origWorldPosition.y);
-			delta = Vector3.ClampMagnitude(delta, radius);
-			Vector3 newPos = origWorldPosition + delta;
-			base.transform.position = newPos;
-			UpdateValue(newPos);
+			Vector3 vector = new Vector3(eventData.position.x - origWorldPosition.x, eventData.position.y - origWorldPosition.y);
+			vector = Vector3.ClampMagnitude(vector, radius);
+			Vector3 value = origWorldPosition + vector;
+			base.transform.position = value;
+			UpdateValue(value);
 		}
 	}
 
 	private static bool IsMousePointerId(int id)
 	{
-		return id == -1 || id == -2 || id == -3;
+		if (id != -1 && id != -2)
+		{
+			return id == -3;
+		}
+		return true;
 	}
 }

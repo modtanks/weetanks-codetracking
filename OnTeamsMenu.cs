@@ -4,15 +4,15 @@ using UnityEngine.UI;
 
 public class OnTeamsMenu : MonoBehaviour
 {
-	public int CurrentTeamNumber = 0;
+	public int CurrentTeamNumber;
 
-	private int PrevNumber = 0;
+	private int PrevNumber;
 
-	public int MenuType = 0;
+	public int MenuType;
 
 	public GameObject[] Menus;
 
-	public int CurrentDifficulty = 0;
+	public int CurrentDifficulty;
 
 	public int PreviousDifficulty = -1;
 
@@ -22,11 +22,11 @@ public class OnTeamsMenu : MonoBehaviour
 
 	public TMP_Dropdown DifficultyPick;
 
-	public bool PointOnMe = false;
+	public bool PointOnMe;
 
 	public float DisableMenuAtDistance = 100f;
 
-	public bool IsOpen = false;
+	public bool IsOpen;
 
 	private Animator myAnimator;
 
@@ -44,9 +44,7 @@ public class OnTeamsMenu : MonoBehaviour
 
 	public void OnPointerEnter()
 	{
-		if (GameMaster.instance.GameHasPaused)
-		{
-		}
+		_ = GameMaster.instance.GameHasPaused;
 	}
 
 	public void OnOpenMenu(int MenuType, MapEditorProp Selected)
@@ -54,9 +52,9 @@ public class OnTeamsMenu : MonoBehaviour
 		Debug.Log("Opening animatino Teams menu!");
 		myAnimator.SetBool("ShowMenu", value: true);
 		GameObject[] menus = Menus;
-		foreach (GameObject Menu in menus)
+		for (int i = 0; i < menus.Length; i++)
 		{
-			Menu.SetActive(value: false);
+			menus[i].SetActive(value: false);
 		}
 		Menus[MenuType].SetActive(value: true);
 		DifficultyPick.SetValueWithoutNotify(CurrentDifficulty);
@@ -70,9 +68,9 @@ public class OnTeamsMenu : MonoBehaviour
 		PrevNumber = CurrentTeamNumber;
 		DifficultyPick.value = CurrentDifficulty;
 		Toggle[] colorToggles = ColorToggles;
-		foreach (Toggle toggl in colorToggles)
+		for (int i = 0; i < colorToggles.Length; i++)
 		{
-			toggl.isOn = false;
+			colorToggles[i].isOn = false;
 		}
 		ColorToggles[CurrentTeamNumber].isOn = true;
 	}
@@ -114,13 +112,14 @@ public class OnTeamsMenu : MonoBehaviour
 			}
 			if (SelectedMEP.CanBeColored)
 			{
-				Color newColor = FCP_mat.material.GetColor("_Color1");
-				SelectedMEP.SetMaterials(newColor, reset: false);
-				MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[SelectedMEP.myMEGP.ID].CustomColor[SelectedMEP.LayerNumber].Color = newColor;
+				Color color = FCP_mat.material.GetColor("_Color1");
+				SelectedMEP.SetMaterials(color, reset: false);
+				MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[SelectedMEP.myMEGP.ID].CustomColor[SelectedMEP.LayerNumber].Color = color;
 			}
 		}
-		if (!GameMaster.instance.GameHasPaused || PointOnMe)
+		if (GameMaster.instance.GameHasPaused)
 		{
+			_ = PointOnMe;
 		}
 		if (PrevNumber != CurrentTeamNumber)
 		{

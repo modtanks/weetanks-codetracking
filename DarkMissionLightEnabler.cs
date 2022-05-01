@@ -12,7 +12,7 @@ public class DarkMissionLightEnabler : MonoBehaviour
 
 	public GameObject[] Lamps;
 
-	public bool isSpotlights = false;
+	public bool isSpotlights;
 
 	private void Awake()
 	{
@@ -80,9 +80,9 @@ public class DarkMissionLightEnabler : MonoBehaviour
 			else
 			{
 				GameObject[] lamps = Lamps;
-				foreach (GameObject Lamp2 in lamps)
+				for (int i = 0; i < lamps.Length; i++)
 				{
-					Lamp2.SetActive(value: true);
+					lamps[i].SetActive(value: true);
 				}
 			}
 			return;
@@ -97,10 +97,10 @@ public class DarkMissionLightEnabler : MonoBehaviour
 		}
 		if (Lamps.Length != 0)
 		{
-			GameObject[] lamps2 = Lamps;
-			foreach (GameObject Lamp in lamps2)
+			GameObject[] lamps = Lamps;
+			for (int i = 0; i < lamps.Length; i++)
 			{
-				Lamp.SetActive(value: false);
+				lamps[i].SetActive(value: false);
 			}
 		}
 	}

@@ -96,39 +96,40 @@ public class PlayerKillsUI : MonoBehaviour
 		for (int j = 0; j < P1Boosts.Length; j++)
 		{
 			P1Boosts[j].transform.localPosition = new Vector3(P1Boosts[j].transform.localPosition.x, BoostPosYdown, P1Boosts[j].transform.localPosition.z);
-			RawImage img = P1Boosts[j].GetComponent<RawImage>();
-			SetBoostText(j, 0, img);
+			RawImage component = P1Boosts[j].GetComponent<RawImage>();
+			SetBoostText(j, 0, component);
 		}
-		for (int m = 0; m < P2Boosts.Length; m++)
+		for (int k = 0; k < P2Boosts.Length; k++)
 		{
-			P2Boosts[m].transform.localPosition = new Vector3(P2Boosts[m].transform.localPosition.x, BoostPosYdown, P2Boosts[m].transform.localPosition.z);
-			RawImage img2 = P2Boosts[m].GetComponent<RawImage>();
-			SetBoostText(m, 0, img2);
+			P2Boosts[k].transform.localPosition = new Vector3(P2Boosts[k].transform.localPosition.x, BoostPosYdown, P2Boosts[k].transform.localPosition.z);
+			RawImage component2 = P2Boosts[k].GetComponent<RawImage>();
+			SetBoostText(k, 0, component2);
 		}
 		for (int l = 0; l < P3Boosts.Length; l++)
 		{
 			P3Boosts[l].transform.localPosition = new Vector3(P3Boosts[l].transform.localPosition.x, BoostPosYdown, P3Boosts[l].transform.localPosition.z);
-			RawImage img3 = P3Boosts[l].GetComponent<RawImage>();
-			SetBoostText(l, 0, img3);
+			RawImage component3 = P3Boosts[l].GetComponent<RawImage>();
+			SetBoostText(l, 0, component3);
 		}
-		for (int k = 0; k < P4Boosts.Length; k++)
+		for (int m = 0; m < P4Boosts.Length; m++)
 		{
-			P4Boosts[k].transform.localPosition = new Vector3(P4Boosts[k].transform.localPosition.x, BoostPosYdown, P4Boosts[k].transform.localPosition.z);
-			RawImage img4 = P4Boosts[k].GetComponent<RawImage>();
-			SetBoostText(k, 0, img4);
+			P4Boosts[m].transform.localPosition = new Vector3(P4Boosts[m].transform.localPosition.x, BoostPosYdown, P4Boosts[m].transform.localPosition.z);
+			RawImage component4 = P4Boosts[m].GetComponent<RawImage>();
+			SetBoostText(m, 0, component4);
 		}
+		Transform[] statsTanks;
 		if ((bool)GameMaster.instance && GameMaster.instance.isZombieMode)
 		{
-			Transform[] statsTanks = StatsTanks;
+			statsTanks = StatsTanks;
 			for (int n = 0; n < statsTanks.Length; n++)
 			{
 				statsTanks[n].localPosition += new Vector3(0f, 50f, 0f);
 			}
 		}
-		Transform[] statsTanks2 = StatsTanks;
-		foreach (Transform T in statsTanks2)
+		statsTanks = StatsTanks;
+		for (int n = 0; n < statsTanks.Length; n++)
 		{
-			T.gameObject.SetActive(value: false);
+			statsTanks[n].gameObject.SetActive(value: false);
 		}
 	}
 
@@ -141,28 +142,28 @@ public class PlayerKillsUI : MonoBehaviour
 			for (int l = 0; l < P1Boosts.Length; l++)
 			{
 				P1Boosts[l].transform.localPosition = new Vector3(P1Boosts[l].transform.localPosition.x, BoostPosYdown, P1Boosts[l].transform.localPosition.z);
-				RawImage img4 = P1Boosts[l].GetComponent<RawImage>();
-				SetBoostText(l, 0, img4);
+				RawImage component4 = P1Boosts[l].GetComponent<RawImage>();
+				SetBoostText(l, 0, component4);
 			}
 			break;
 		}
 		case 2:
 		{
-			for (int k = 0; k < P2Boosts.Length; k++)
+			for (int j = 0; j < P2Boosts.Length; j++)
 			{
-				P2Boosts[k].transform.localPosition = new Vector3(P2Boosts[k].transform.localPosition.x, BoostPosYdown, P2Boosts[k].transform.localPosition.z);
-				RawImage img3 = P2Boosts[k].GetComponent<RawImage>();
-				SetBoostText(k, 0, img3);
+				P2Boosts[j].transform.localPosition = new Vector3(P2Boosts[j].transform.localPosition.x, BoostPosYdown, P2Boosts[j].transform.localPosition.z);
+				RawImage component2 = P2Boosts[j].GetComponent<RawImage>();
+				SetBoostText(j, 0, component2);
 			}
 			break;
 		}
 		case 3:
 		{
-			for (int j = 0; j < P3Boosts.Length; j++)
+			for (int k = 0; k < P3Boosts.Length; k++)
 			{
-				P3Boosts[j].transform.localPosition = new Vector3(P3Boosts[j].transform.localPosition.x, BoostPosYdown, P3Boosts[j].transform.localPosition.z);
-				RawImage img2 = P3Boosts[j].GetComponent<RawImage>();
-				SetBoostText(j, 0, img2);
+				P3Boosts[k].transform.localPosition = new Vector3(P3Boosts[k].transform.localPosition.x, BoostPosYdown, P3Boosts[k].transform.localPosition.z);
+				RawImage component3 = P3Boosts[k].GetComponent<RawImage>();
+				SetBoostText(k, 0, component3);
 			}
 			break;
 		}
@@ -171,8 +172,8 @@ public class PlayerKillsUI : MonoBehaviour
 			for (int i = 0; i < P4Boosts.Length; i++)
 			{
 				P4Boosts[i].transform.localPosition = new Vector3(P4Boosts[i].transform.localPosition.x, BoostPosYdown, P4Boosts[i].transform.localPosition.z);
-				RawImage img = P4Boosts[i].GetComponent<RawImage>();
-				SetBoostText(i, 0, img);
+				RawImage component = P4Boosts[i].GetComponent<RawImage>();
+				SetBoostText(i, 0, component);
 			}
 			break;
 		}
@@ -215,8 +216,8 @@ public class PlayerKillsUI : MonoBehaviour
 				destination = new Vector3(P1Boosts[type].transform.localPosition.x, BoostPosYup, P1Boosts[type].transform.localPosition.z);
 				journeyLength = Vector3.Distance(P1Boosts[type].transform.localPosition, destination);
 				StartCoroutine(MoveUpgradeUp(player, type, destination, journeyLength, startTime));
-				RawImage img4 = P1Boosts[type].GetComponent<RawImage>();
-				SetBoostText(type, lvl, img4);
+				RawImage component = P1Boosts[type].GetComponent<RawImage>();
+				SetBoostText(type, lvl, component);
 			}
 			if (player == 1)
 			{
@@ -224,8 +225,8 @@ public class PlayerKillsUI : MonoBehaviour
 				destination = new Vector3(P2Boosts[type].transform.localPosition.x, BoostPosYup, P2Boosts[type].transform.localPosition.z);
 				journeyLength = Vector3.Distance(P2Boosts[type].transform.localPosition, destination);
 				StartCoroutine(MoveUpgradeUp(player, type, destination, journeyLength, startTime));
-				RawImage img3 = P2Boosts[type].GetComponent<RawImage>();
-				SetBoostText(type, lvl, img3);
+				RawImage component2 = P2Boosts[type].GetComponent<RawImage>();
+				SetBoostText(type, lvl, component2);
 			}
 			if (player == 2)
 			{
@@ -233,8 +234,8 @@ public class PlayerKillsUI : MonoBehaviour
 				destination = new Vector3(P3Boosts[type].transform.localPosition.x, BoostPosYup, P3Boosts[type].transform.localPosition.z);
 				journeyLength = Vector3.Distance(P3Boosts[type].transform.localPosition, destination);
 				StartCoroutine(MoveUpgradeUp(player, type, destination, journeyLength, startTime));
-				RawImage img2 = P3Boosts[type].GetComponent<RawImage>();
-				SetBoostText(type, lvl, img2);
+				RawImage component3 = P3Boosts[type].GetComponent<RawImage>();
+				SetBoostText(type, lvl, component3);
 			}
 			if (player == 3)
 			{
@@ -242,8 +243,8 @@ public class PlayerKillsUI : MonoBehaviour
 				destination = new Vector3(P4Boosts[type].transform.localPosition.x, BoostPosYup, P4Boosts[type].transform.localPosition.z);
 				journeyLength = Vector3.Distance(P4Boosts[type].transform.localPosition, destination);
 				StartCoroutine(MoveUpgradeUp(player, type, destination, journeyLength, startTime));
-				RawImage img = P4Boosts[type].GetComponent<RawImage>();
-				SetBoostText(type, lvl, img);
+				RawImage component4 = P4Boosts[type].GetComponent<RawImage>();
+				SetBoostText(type, lvl, component4);
 			}
 		}
 	}
@@ -295,62 +296,46 @@ public class PlayerKillsUI : MonoBehaviour
 		switch (player)
 		{
 		case 0:
-		{
-			float distanceNow4 = Vector3.Distance(P1Boosts[type].transform.localPosition, Dest);
-			if (distanceNow4 > 0.01f)
+			if (Vector3.Distance(P1Boosts[type].transform.localPosition, Dest) > 0.01f)
 			{
-				float distCovered4 = (Time.time - myTime) * speed;
-				float fractionOfJourney4 = distCovered4 / Length;
-				P1Boosts[type].transform.localPosition = Vector3.Lerp(P1Boosts[type].transform.localPosition, Dest, fractionOfJourney4);
+				float t3 = (Time.time - myTime) * speed / Length;
+				P1Boosts[type].transform.localPosition = Vector3.Lerp(P1Boosts[type].transform.localPosition, Dest, t3);
 				yield return null;
 				break;
 			}
 			Debug.LogError("BREAK!");
 			P1Boosts[type].transform.localPosition = Dest;
 			yield break;
-		}
 		case 1:
-		{
-			float distanceNow3 = Vector3.Distance(P2Boosts[type].transform.localPosition, Dest);
-			if (distanceNow3 > 0.01f)
+			if (Vector3.Distance(P2Boosts[type].transform.localPosition, Dest) > 0.01f)
 			{
-				float distCovered3 = (Time.time - myTime) * speed;
-				float fractionOfJourney3 = distCovered3 / Length;
-				P2Boosts[type].transform.localPosition = Vector3.Lerp(P2Boosts[type].transform.localPosition, Dest, fractionOfJourney3);
+				float t2 = (Time.time - myTime) * speed / Length;
+				P2Boosts[type].transform.localPosition = Vector3.Lerp(P2Boosts[type].transform.localPosition, Dest, t2);
 				yield return null;
 				break;
 			}
 			P2Boosts[type].transform.localPosition = Dest;
 			yield break;
-		}
 		case 2:
-		{
-			float distanceNow2 = Vector3.Distance(P3Boosts[type].transform.localPosition, Dest);
-			if (distanceNow2 > 0.01f)
+			if (Vector3.Distance(P3Boosts[type].transform.localPosition, Dest) > 0.01f)
 			{
-				float distCovered2 = (Time.time - myTime) * speed;
-				float fractionOfJourney2 = distCovered2 / Length;
-				P3Boosts[type].transform.localPosition = Vector3.Lerp(P3Boosts[type].transform.localPosition, Dest, fractionOfJourney2);
+				float t4 = (Time.time - myTime) * speed / Length;
+				P3Boosts[type].transform.localPosition = Vector3.Lerp(P3Boosts[type].transform.localPosition, Dest, t4);
 				yield return null;
 				break;
 			}
 			P3Boosts[type].transform.localPosition = Dest;
 			yield break;
-		}
 		case 3:
-		{
-			float distanceNow = Vector3.Distance(P4Boosts[type].transform.localPosition, Dest);
-			if (distanceNow > 0.01f)
+			if (Vector3.Distance(P4Boosts[type].transform.localPosition, Dest) > 0.01f)
 			{
-				float distCovered = (Time.time - myTime) * speed;
-				float fractionOfJourney = distCovered / Length;
-				P4Boosts[type].transform.localPosition = Vector3.Lerp(P4Boosts[type].transform.localPosition, Dest, fractionOfJourney);
+				float t = (Time.time - myTime) * speed / Length;
+				P4Boosts[type].transform.localPosition = Vector3.Lerp(P4Boosts[type].transform.localPosition, Dest, t);
 				yield return null;
 				break;
 			}
 			P4Boosts[type].transform.localPosition = Dest;
 			yield break;
-		}
 		}
 		StartCoroutine(MoveUpgradeUp(player, type, Dest, Length, myTime));
 	}
@@ -377,8 +362,9 @@ public class PlayerKillsUI : MonoBehaviour
 		Pkills[0].text = "x " + GameMaster.instance.Playerkills[0];
 		for (int j = 1; j < GameMaster.instance.PlayerJoining.Count; j++)
 		{
-			if (GameMaster.instance.PlayerJoined[j] || !OptionsMainMenu.instance.AIcompanion[j])
+			if (!GameMaster.instance.PlayerJoined[j])
 			{
+				_ = OptionsMainMenu.instance.AIcompanion[j];
 			}
 		}
 	}
@@ -419,10 +405,10 @@ public class PlayerKillsUI : MonoBehaviour
 		}
 		foreach (GameObject player in GameMaster.instance.Players)
 		{
-			MoveTankScript thisPlayersMTS = player.GetComponent<MoveTankScript>();
-			if (thisPlayersMTS != null)
+			MoveTankScript component = player.GetComponent<MoveTankScript>();
+			if (component != null)
 			{
-				MTSplayers[thisPlayersMTS.playerId] = thisPlayersMTS;
+				MTSplayers[component.playerId] = component;
 			}
 		}
 	}

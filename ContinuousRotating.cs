@@ -5,15 +5,15 @@ public class ContinuousRotating : MonoBehaviour
 {
 	public float RotateSpeed = 5f;
 
-	public bool isLightHouse = false;
+	public bool isLightHouse;
 
 	private float originalIntensity;
 
-	public bool xAxis = false;
+	public bool xAxis;
 
-	public bool zAxis = false;
+	public bool zAxis;
 
-	public bool IsLoadingScreen = false;
+	public bool IsLoadingScreen;
 
 	public Player player;
 
@@ -24,32 +24,30 @@ public class ContinuousRotating : MonoBehaviour
 	private void Start()
 	{
 		player = ReInput.players.GetPlayer(0);
-		Light L = GetComponent<Light>();
-		if ((bool)L)
+		Light component = GetComponent<Light>();
+		if ((bool)component)
 		{
-			originalIntensity = L.intensity;
+			originalIntensity = component.intensity;
 		}
 		if (!IsLoadingScreen)
 		{
 			return;
 		}
 		SpawnedObject = Object.Instantiate(ObjToSpawn[Random.Range(0, ObjToSpawn.Length)], base.transform.position, Quaternion.Euler(0f, 180f, 0f), base.transform);
-		MonoBehaviour[] enemyscripts = SpawnedObject.GetComponentsInChildren<MonoBehaviour>();
-		MonoBehaviour[] array = enemyscripts;
-		foreach (MonoBehaviour script in array)
+		MonoBehaviour[] componentsInChildren = SpawnedObject.GetComponentsInChildren<MonoBehaviour>();
+		foreach (MonoBehaviour monoBehaviour in componentsInChildren)
 		{
-			script.enabled = false;
-			if (script.transform.name == "Shield")
+			monoBehaviour.enabled = false;
+			if (monoBehaviour.transform.name == "Shield")
 			{
-				script.gameObject.SetActive(value: false);
+				monoBehaviour.gameObject.SetActive(value: false);
 			}
 		}
-		ParticleSystem[] PS = SpawnedObject.GetComponentsInChildren<ParticleSystem>();
-		ParticleSystem[] array2 = PS;
-		foreach (ParticleSystem S in array2)
+		ParticleSystem[] componentsInChildren2 = SpawnedObject.GetComponentsInChildren<ParticleSystem>();
+		foreach (ParticleSystem obj in componentsInChildren2)
 		{
-			S.Stop();
-			S.gameObject.SetActive(value: false);
+			obj.Stop();
+			obj.gameObject.SetActive(value: false);
 		}
 	}
 
@@ -59,22 +57,21 @@ public class ContinuousRotating : MonoBehaviour
 		{
 			if (RenderSettings.ambientLight != Color.black)
 			{
-				Light L2 = GetComponent<Light>();
-				if ((bool)L2)
+				Light component = GetComponent<Light>();
+				if ((bool)component)
 				{
-					L2.intensity = 0f;
+					component.intensity = 0f;
 				}
 			}
 			else
 			{
-				Light L = GetComponent<Light>();
-				if ((bool)L)
+				Light component2 = GetComponent<Light>();
+				if ((bool)component2)
 				{
-					L.intensity = originalIntensity;
+					component2.intensity = originalIntensity;
 				}
 			}
 		}
-		float addition = 0f;
 		if (IsLoadingScreen)
 		{
 			SpawnedObject.transform.position = base.transform.position;

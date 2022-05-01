@@ -40,32 +40,32 @@ public abstract class RewiredPointerInputModule : BaseInputModule
 
 		public ButtonState GetButtonState(int button)
 		{
-			ButtonState tracked = null;
+			ButtonState buttonState = null;
 			for (int i = 0; i < m_TrackedButtons.Count; i++)
 			{
 				if (m_TrackedButtons[i].button == button)
 				{
-					tracked = m_TrackedButtons[i];
+					buttonState = m_TrackedButtons[i];
 					break;
 				}
 			}
-			if (tracked == null)
+			if (buttonState == null)
 			{
-				tracked = new ButtonState
+				buttonState = new ButtonState
 				{
 					button = button,
 					eventData = new MouseButtonEventData()
 				};
-				m_TrackedButtons.Add(tracked);
+				m_TrackedButtons.Add(buttonState);
 			}
-			return tracked;
+			return buttonState;
 		}
 
 		public void SetButtonState(int button, PointerEventData.FramePressState stateForMouseButton, PlayerPointerEventData data)
 		{
-			ButtonState toModify = GetButtonState(button);
-			toModify.eventData.buttonState = stateForMouseButton;
-			toModify.eventData.buttonData = data;
+			ButtonState buttonState = GetButtonState(button);
+			buttonState.eventData.buttonState = stateForMouseButton;
+			buttonState.eventData.buttonData = data;
 		}
 	}
 
@@ -77,18 +77,26 @@ public abstract class RewiredPointerInputModule : BaseInputModule
 
 		public bool PressedThisFrame()
 		{
-			return buttonState == PointerEventData.FramePressState.Pressed || buttonState == PointerEventData.FramePressState.PressedAndReleased;
+			if (buttonState != 0)
+			{
+				return buttonState == PointerEventData.FramePressState.PressedAndReleased;
+			}
+			return true;
 		}
 
 		public bool ReleasedThisFrame()
 		{
-			return buttonState == PointerEventData.FramePressState.Released || buttonState == PointerEventData.FramePressState.PressedAndReleased;
+			if (buttonState != PointerEventData.FramePressState.Released)
+			{
+				return buttonState == PointerEventData.FramePressState.PressedAndReleased;
+			}
+			return true;
 		}
 	}
 
 	protected class ButtonState
 	{
-		private int m_Button = 0;
+		private int m_Button;
 
 		private MouseButtonEventData m_EventData;
 
@@ -274,7 +282,17 @@ public abstract class RewiredPointerInputModule : BaseInputModule
 
 	private readonly MouseState m_MouseState = new MouseState();
 
-	private UnityInputSource defaultInputSource => (__m_DefaultInputSource != null) ? __m_DefaultInputSource : (__m_DefaultInputSource = new UnityInputSource());
+	private UnityInputSource defaultInputSource
+	{
+		get
+		{
+			if (__m_DefaultInputSource == null)
+			{
+				return __m_DefaultInputSource = new UnityInputSource();
+			}
+			return __m_DefaultInputSource;
+		}
+	}
 
 	private IMouseInputSource defaultMouseInputSource => defaultInputSource;
 
@@ -316,17 +334,17 @@ public abstract class RewiredPointerInputModule : BaseInputModule
 			return defaultMouseInputSource;
 		}
 		int count = m_MouseInputSourcesList.Count;
-		int pointerCount = 0;
+		int num = 0;
 		for (int i = 0; i < count; i++)
 		{
-			IMouseInputSource source = m_MouseInputSourcesList[i];
-			if (!UnityTools.IsNullOrDestroyed(source) && source.playerId == playerId)
+			IMouseInputSource mouseInputSource = m_MouseInputSourcesList[i];
+			if (!UnityTools.IsNullOrDestroyed(mouseInputSource) && mouseInputSource.playerId == playerId)
 			{
-				if (mouseIndex == pointerCount)
+				if (mouseIndex == num)
 				{
-					return source;
+					return mouseInputSource;
 				}
-				pointerCount++;
+				num++;
 			}
 		}
 		return null;
@@ -357,16 +375,16 @@ public abstract class RewiredPointerInputModule : BaseInputModule
 			return 1;
 		}
 		int count = m_MouseInputSourcesList.Count;
-		int pointerCount = 0;
+		int num = 0;
 		for (int i = 0; i < count; i++)
 		{
-			IMouseInputSource source = m_MouseInputSourcesList[i];
-			if (!UnityTools.IsNullOrDestroyed(source) && source.playerId == playerId)
+			IMouseInputSource mouseInputSource = m_MouseInputSourcesList[i];
+			if (!UnityTools.IsNullOrDestroyed(mouseInputSource) && mouseInputSource.playerId == playerId)
 			{
-				pointerCount++;
+				num++;
 			}
 		}
-		return pointerCount;
+		return num;
 	}
 
 	public ITouchInputSource GetTouchInputSource(int playerId, int sourceIndex)
@@ -401,7 +419,11 @@ public abstract class RewiredPointerInputModule : BaseInputModule
 
 	public int GetTouchInputSourceCount(int playerId)
 	{
-		return IsDefaultPlayer(playerId) ? 1 : 0;
+		if (!IsDefaultPlayer(playerId))
+		{
+			return 0;
+		}
+		return 1;
 	}
 
 	protected void ClearMouseInputSources()
@@ -413,35 +435,35 @@ public abstract class RewiredPointerInputModule : BaseInputModule
 
 	protected bool GetPointerData(int playerId, int pointerIndex, int pointerTypeId, out PlayerPointerEventData data, bool create, PointerEventType pointerEventType)
 	{
-		if (!m_PlayerPointerData.TryGetValue(playerId, out var pointerDataByIndex))
+		if (!m_PlayerPointerData.TryGetValue(playerId, out var value))
 		{
-			pointerDataByIndex = new Dictionary<int, PlayerPointerEventData>[pointerIndex + 1];
-			for (int i = 0; i < pointerDataByIndex.Length; i++)
+			value = new Dictionary<int, PlayerPointerEventData>[pointerIndex + 1];
+			for (int i = 0; i < value.Length; i++)
 			{
-				pointerDataByIndex[i] = new Dictionary<int, PlayerPointerEventData>();
+				value[i] = new Dictionary<int, PlayerPointerEventData>();
 			}
-			m_PlayerPointerData.Add(playerId, pointerDataByIndex);
+			m_PlayerPointerData.Add(playerId, value);
 		}
-		if (pointerIndex >= pointerDataByIndex.Length)
+		if (pointerIndex >= value.Length)
 		{
-			Dictionary<int, PlayerPointerEventData>[] newArray = new Dictionary<int, PlayerPointerEventData>[pointerIndex + 1];
-			for (int j = 0; j < pointerDataByIndex.Length; j++)
+			Dictionary<int, PlayerPointerEventData>[] array = new Dictionary<int, PlayerPointerEventData>[pointerIndex + 1];
+			for (int j = 0; j < value.Length; j++)
 			{
-				newArray[j] = pointerDataByIndex[j];
+				array[j] = value[j];
 			}
-			newArray[pointerIndex] = new Dictionary<int, PlayerPointerEventData>();
-			pointerDataByIndex = newArray;
-			m_PlayerPointerData[playerId] = pointerDataByIndex;
+			array[pointerIndex] = new Dictionary<int, PlayerPointerEventData>();
+			value = array;
+			m_PlayerPointerData[playerId] = value;
 		}
-		Dictionary<int, PlayerPointerEventData> byMouseIndexDict = pointerDataByIndex[pointerIndex];
-		if (!byMouseIndexDict.TryGetValue(pointerTypeId, out data))
+		Dictionary<int, PlayerPointerEventData> dictionary = value[pointerIndex];
+		if (!dictionary.TryGetValue(pointerTypeId, out data))
 		{
 			if (!create)
 			{
 				return false;
 			}
 			data = CreatePointerEventData(playerId, pointerIndex, pointerTypeId, pointerEventType);
-			byMouseIndexDict.Add(pointerTypeId, data);
+			dictionary.Add(pointerTypeId, data);
 			return true;
 		}
 		data.mouseSource = ((pointerEventType == PointerEventType.Mouse) ? GetMouseInputSource(playerId, pointerIndex) : null);
@@ -451,7 +473,7 @@ public abstract class RewiredPointerInputModule : BaseInputModule
 
 	private PlayerPointerEventData CreatePointerEventData(int playerId, int pointerIndex, int pointerTypeId, PointerEventType pointerEventType)
 	{
-		PlayerPointerEventData data = new PlayerPointerEventData(base.eventSystem)
+		PlayerPointerEventData playerPointerEventData = new PlayerPointerEventData(base.eventSystem)
 		{
 			playerId = playerId,
 			inputSourceIndex = pointerIndex,
@@ -461,64 +483,64 @@ public abstract class RewiredPointerInputModule : BaseInputModule
 		switch (pointerEventType)
 		{
 		case PointerEventType.Mouse:
-			data.mouseSource = GetMouseInputSource(playerId, pointerIndex);
+			playerPointerEventData.mouseSource = GetMouseInputSource(playerId, pointerIndex);
 			break;
 		case PointerEventType.Touch:
-			data.touchSource = GetTouchInputSource(playerId, pointerIndex);
+			playerPointerEventData.touchSource = GetTouchInputSource(playerId, pointerIndex);
 			break;
 		}
 		if (pointerTypeId == -1)
 		{
-			data.buttonIndex = 0;
+			playerPointerEventData.buttonIndex = 0;
 		}
 		else if (pointerTypeId == -2)
 		{
-			data.buttonIndex = 1;
+			playerPointerEventData.buttonIndex = 1;
 		}
 		else if (pointerTypeId == -3)
 		{
-			data.buttonIndex = 2;
+			playerPointerEventData.buttonIndex = 2;
 		}
 		else if (pointerTypeId >= -2147483520 && pointerTypeId <= -2147483392)
 		{
-			data.buttonIndex = pointerTypeId - -2147483520;
+			playerPointerEventData.buttonIndex = pointerTypeId - -2147483520;
 		}
-		return data;
+		return playerPointerEventData;
 	}
 
 	protected void RemovePointerData(PlayerPointerEventData data)
 	{
-		if (m_PlayerPointerData.TryGetValue(data.playerId, out var pointerDataByIndex) && (uint)data.inputSourceIndex < (uint)pointerDataByIndex.Length)
+		if (m_PlayerPointerData.TryGetValue(data.playerId, out var value) && (uint)data.inputSourceIndex < (uint)value.Length)
 		{
-			pointerDataByIndex[data.inputSourceIndex].Remove(data.pointerId);
+			value[data.inputSourceIndex].Remove(data.pointerId);
 		}
 	}
 
 	protected PlayerPointerEventData GetTouchPointerEventData(int playerId, int touchDeviceIndex, Touch input, out bool pressed, out bool released)
 	{
-		PlayerPointerEventData pointerData;
-		bool created = GetPointerData(playerId, touchDeviceIndex, input.fingerId, out pointerData, create: true, PointerEventType.Touch);
-		pointerData.Reset();
-		pressed = created || input.phase == TouchPhase.Began;
+		PlayerPointerEventData data;
+		bool pointerData = GetPointerData(playerId, touchDeviceIndex, input.fingerId, out data, create: true, PointerEventType.Touch);
+		data.Reset();
+		pressed = pointerData || input.phase == TouchPhase.Began;
 		released = input.phase == TouchPhase.Canceled || input.phase == TouchPhase.Ended;
-		if (created)
+		if (pointerData)
 		{
-			pointerData.position = input.position;
+			data.position = input.position;
 		}
 		if (pressed)
 		{
-			pointerData.delta = Vector2.zero;
+			data.delta = Vector2.zero;
 		}
 		else
 		{
-			pointerData.delta = input.position - pointerData.position;
+			data.delta = input.position - data.position;
 		}
-		pointerData.position = input.position;
-		pointerData.button = PointerEventData.InputButton.Left;
-		base.eventSystem.RaycastAll(pointerData, m_RaycastResultCache);
-		RaycastResult raycast = (pointerData.pointerCurrentRaycast = BaseInputModule.FindFirstRaycast(m_RaycastResultCache));
+		data.position = input.position;
+		data.button = PointerEventData.InputButton.Left;
+		base.eventSystem.RaycastAll(data, m_RaycastResultCache);
+		RaycastResult raycastResult2 = (data.pointerCurrentRaycast = BaseInputModule.FindFirstRaycast(m_RaycastResultCache));
 		m_RaycastResultCache.Clear();
-		return pointerData;
+		return data;
 	}
 
 	protected virtual MouseState GetMousePointerEventData(int playerId, int mouseIndex)
@@ -528,48 +550,48 @@ public abstract class RewiredPointerInputModule : BaseInputModule
 		{
 			return null;
 		}
-		PlayerPointerEventData leftData;
-		bool created = GetPointerData(playerId, mouseIndex, -1, out leftData, create: true, PointerEventType.Mouse);
-		leftData.Reset();
-		if (created)
+		PlayerPointerEventData data;
+		bool pointerData = GetPointerData(playerId, mouseIndex, -1, out data, create: true, PointerEventType.Mouse);
+		data.Reset();
+		if (pointerData)
 		{
-			leftData.position = mouseInputSource.screenPosition;
+			data.position = mouseInputSource.screenPosition;
 		}
-		Vector2 pos = mouseInputSource.screenPosition;
+		Vector2 screenPosition = mouseInputSource.screenPosition;
 		if (mouseInputSource.locked || !mouseInputSource.enabled)
 		{
-			leftData.position = new Vector2(-1f, -1f);
-			leftData.delta = Vector2.zero;
+			data.position = new Vector2(-1f, -1f);
+			data.delta = Vector2.zero;
 		}
 		else
 		{
-			leftData.delta = pos - leftData.position;
-			leftData.position = pos;
+			data.delta = screenPosition - data.position;
+			data.position = screenPosition;
 		}
-		leftData.scrollDelta = mouseInputSource.wheelDelta;
-		leftData.button = PointerEventData.InputButton.Left;
-		base.eventSystem.RaycastAll(leftData, m_RaycastResultCache);
-		RaycastResult raycast = (leftData.pointerCurrentRaycast = BaseInputModule.FindFirstRaycast(m_RaycastResultCache));
+		data.scrollDelta = mouseInputSource.wheelDelta;
+		data.button = PointerEventData.InputButton.Left;
+		base.eventSystem.RaycastAll(data, m_RaycastResultCache);
+		RaycastResult raycastResult2 = (data.pointerCurrentRaycast = BaseInputModule.FindFirstRaycast(m_RaycastResultCache));
 		m_RaycastResultCache.Clear();
-		GetPointerData(playerId, mouseIndex, -2, out var rightData, create: true, PointerEventType.Mouse);
-		CopyFromTo(leftData, rightData);
-		rightData.button = PointerEventData.InputButton.Right;
-		GetPointerData(playerId, mouseIndex, -3, out var middleData, create: true, PointerEventType.Mouse);
-		CopyFromTo(leftData, middleData);
-		middleData.button = PointerEventData.InputButton.Middle;
-		for (int j = 3; j < mouseInputSource.buttonCount; j++)
-		{
-			GetPointerData(playerId, mouseIndex, -2147483520 + j, out var data, create: true, PointerEventType.Mouse);
-			CopyFromTo(leftData, data);
-			data.button = (PointerEventData.InputButton)(-1);
-		}
-		m_MouseState.SetButtonState(0, StateForMouseButton(playerId, mouseIndex, 0), leftData);
-		m_MouseState.SetButtonState(1, StateForMouseButton(playerId, mouseIndex, 1), rightData);
-		m_MouseState.SetButtonState(2, StateForMouseButton(playerId, mouseIndex, 2), middleData);
+		GetPointerData(playerId, mouseIndex, -2, out var data2, create: true, PointerEventType.Mouse);
+		CopyFromTo(data, data2);
+		data2.button = PointerEventData.InputButton.Right;
+		GetPointerData(playerId, mouseIndex, -3, out var data3, create: true, PointerEventType.Mouse);
+		CopyFromTo(data, data3);
+		data3.button = PointerEventData.InputButton.Middle;
 		for (int i = 3; i < mouseInputSource.buttonCount; i++)
 		{
-			GetPointerData(playerId, mouseIndex, -2147483520 + i, out var data2, create: false, PointerEventType.Mouse);
-			m_MouseState.SetButtonState(i, StateForMouseButton(playerId, mouseIndex, i), data2);
+			GetPointerData(playerId, mouseIndex, -2147483520 + i, out var data4, create: true, PointerEventType.Mouse);
+			CopyFromTo(data, data4);
+			data4.button = (PointerEventData.InputButton)(-1);
+		}
+		m_MouseState.SetButtonState(0, StateForMouseButton(playerId, mouseIndex, 0), data);
+		m_MouseState.SetButtonState(1, StateForMouseButton(playerId, mouseIndex, 1), data2);
+		m_MouseState.SetButtonState(2, StateForMouseButton(playerId, mouseIndex, 2), data3);
+		for (int j = 3; j < mouseInputSource.buttonCount; j++)
+		{
+			GetPointerData(playerId, mouseIndex, -2147483520 + j, out var data5, create: false, PointerEventType.Mouse);
+			m_MouseState.SetButtonState(j, StateForMouseButton(playerId, mouseIndex, j), data5);
 		}
 		return m_MouseState;
 	}
@@ -581,15 +603,15 @@ public abstract class RewiredPointerInputModule : BaseInputModule
 			GetPointerData(playerId, pointerIndex, pointerTypeId, out var data, create: false, pointerEventType);
 			return data;
 		}
-		if (!m_PlayerPointerData.TryGetValue(playerId, out var pointerDataByIndex))
+		if (!m_PlayerPointerData.TryGetValue(playerId, out var value))
 		{
 			return null;
 		}
-		if ((uint)pointerIndex >= (uint)pointerDataByIndex.Length)
+		if ((uint)pointerIndex >= (uint)value.Length)
 		{
 			return null;
 		}
-		using (Dictionary<int, PlayerPointerEventData>.Enumerator enumerator = pointerDataByIndex[pointerIndex].GetEnumerator())
+		using (Dictionary<int, PlayerPointerEventData>.Enumerator enumerator = value[pointerIndex].GetEnumerator())
 		{
 			if (enumerator.MoveNext())
 			{
@@ -610,11 +632,11 @@ public abstract class RewiredPointerInputModule : BaseInputModule
 
 	protected virtual void ProcessMove(PlayerPointerEventData pointerEvent)
 	{
-		GameObject targetGO;
+		GameObject newEnterTarget;
 		if (pointerEvent.sourceType == PointerEventType.Mouse)
 		{
-			IMouseInputSource source = GetMouseInputSource(pointerEvent.playerId, pointerEvent.inputSourceIndex);
-			targetGO = ((source == null) ? null : ((!source.enabled || source.locked) ? null : pointerEvent.pointerCurrentRaycast.gameObject));
+			IMouseInputSource mouseInputSource = GetMouseInputSource(pointerEvent.playerId, pointerEvent.inputSourceIndex);
+			newEnterTarget = ((mouseInputSource == null) ? null : ((!mouseInputSource.enabled || mouseInputSource.locked) ? null : pointerEvent.pointerCurrentRaycast.gameObject));
 		}
 		else
 		{
@@ -622,9 +644,9 @@ public abstract class RewiredPointerInputModule : BaseInputModule
 			{
 				throw new NotImplementedException();
 			}
-			targetGO = pointerEvent.pointerCurrentRaycast.gameObject;
+			newEnterTarget = pointerEvent.pointerCurrentRaycast.gameObject;
 		}
-		HandlePointerExitAndEnter(pointerEvent, targetGO);
+		HandlePointerExitAndEnter(pointerEvent, newEnterTarget);
 	}
 
 	protected virtual void ProcessDrag(PlayerPointerEventData pointerEvent)
@@ -635,8 +657,8 @@ public abstract class RewiredPointerInputModule : BaseInputModule
 		}
 		if (pointerEvent.sourceType == PointerEventType.Mouse)
 		{
-			IMouseInputSource source = GetMouseInputSource(pointerEvent.playerId, pointerEvent.inputSourceIndex);
-			if (source == null || source.locked || !source.enabled)
+			IMouseInputSource mouseInputSource = GetMouseInputSource(pointerEvent.playerId, pointerEvent.inputSourceIndex);
+			if (mouseInputSource == null || mouseInputSource.locked || !mouseInputSource.enabled)
 			{
 				return;
 			}
@@ -664,9 +686,9 @@ public abstract class RewiredPointerInputModule : BaseInputModule
 		foreach (KeyValuePair<int, Dictionary<int, PlayerPointerEventData>[]> playerPointerDatum in m_PlayerPointerData)
 		{
 			Dictionary<int, PlayerPointerEventData>[] value = playerPointerDatum.Value;
-			foreach (Dictionary<int, PlayerPointerEventData> perIndex in value)
+			for (int i = 0; i < value.Length; i++)
 			{
-				if (perIndex.TryGetValue(pointerTypeId, out var data) && data.pointerEnter != null)
+				if (value[i].TryGetValue(pointerTypeId, out var value2) && value2.pointerEnter != null)
 				{
 					return true;
 				}
@@ -680,14 +702,14 @@ public abstract class RewiredPointerInputModule : BaseInputModule
 		BaseEventData baseEventData = GetBaseEventData();
 		foreach (KeyValuePair<int, Dictionary<int, PlayerPointerEventData>[]> playerPointerDatum in m_PlayerPointerData)
 		{
-			Dictionary<int, PlayerPointerEventData>[] byIndex = playerPointerDatum.Value;
-			for (int i = 0; i < byIndex.Length; i++)
+			Dictionary<int, PlayerPointerEventData>[] value = playerPointerDatum.Value;
+			for (int i = 0; i < value.Length; i++)
 			{
-				foreach (KeyValuePair<int, PlayerPointerEventData> item in byIndex[i])
+				foreach (KeyValuePair<int, PlayerPointerEventData> item in value[i])
 				{
 					HandlePointerExitAndEnter(item.Value, null);
 				}
-				byIndex[i].Clear();
+				value[i].Clear();
 			}
 		}
 		base.eventSystem.SetSelectedGameObject(null, baseEventData);
@@ -695,29 +717,28 @@ public abstract class RewiredPointerInputModule : BaseInputModule
 
 	public override string ToString()
 	{
-		StringBuilder sb = new StringBuilder("<b>Pointer Input Module of type: </b>" + GetType());
-		sb.AppendLine();
-		foreach (KeyValuePair<int, Dictionary<int, PlayerPointerEventData>[]> playerSetKVP in m_PlayerPointerData)
+		StringBuilder stringBuilder = new StringBuilder("<b>Pointer Input Module of type: </b>" + GetType());
+		stringBuilder.AppendLine();
+		foreach (KeyValuePair<int, Dictionary<int, PlayerPointerEventData>[]> playerPointerDatum in m_PlayerPointerData)
 		{
-			sb.AppendLine("<B>Player Id:</b> " + playerSetKVP.Key);
-			Dictionary<int, PlayerPointerEventData>[] byIndex = playerSetKVP.Value;
-			for (int i = 0; i < byIndex.Length; i++)
+			stringBuilder.AppendLine("<B>Player Id:</b> " + playerPointerDatum.Key);
+			Dictionary<int, PlayerPointerEventData>[] value = playerPointerDatum.Value;
+			for (int i = 0; i < value.Length; i++)
 			{
-				sb.AppendLine("<B>Pointer Index:</b> " + i);
-				foreach (KeyValuePair<int, PlayerPointerEventData> buttonSetKVP in byIndex[i])
+				stringBuilder.AppendLine("<B>Pointer Index:</b> " + i);
+				foreach (KeyValuePair<int, PlayerPointerEventData> item in value[i])
 				{
-					sb.AppendLine("<B>Button Id:</b> " + buttonSetKVP.Key);
-					sb.AppendLine(buttonSetKVP.Value.ToString());
+					stringBuilder.AppendLine("<B>Button Id:</b> " + item.Key);
+					stringBuilder.AppendLine(item.Value.ToString());
 				}
 			}
 		}
-		return sb.ToString();
+		return stringBuilder.ToString();
 	}
 
 	protected void DeselectIfSelectionChanged(GameObject currentOverGo, BaseEventData pointerEvent)
 	{
-		GameObject selectHandlerGO = ExecuteEvents.GetEventHandler<ISelectHandler>(currentOverGo);
-		if (selectHandlerGO != base.eventSystem.currentSelectedGameObject)
+		if (ExecuteEvents.GetEventHandler<ISelectHandler>(currentOverGo) != base.eventSystem.currentSelectedGameObject)
 		{
 			base.eventSystem.SetSelectedGameObject(null, pointerEvent);
 		}
@@ -739,17 +760,17 @@ public abstract class RewiredPointerInputModule : BaseInputModule
 		{
 			return PointerEventData.FramePressState.NotChanged;
 		}
-		bool pressed = mouseInputSource.GetButtonDown(buttonId);
-		bool released = mouseInputSource.GetButtonUp(buttonId);
-		if (pressed && released)
+		bool buttonDown = mouseInputSource.GetButtonDown(buttonId);
+		bool buttonUp = mouseInputSource.GetButtonUp(buttonId);
+		if (buttonDown && buttonUp)
 		{
 			return PointerEventData.FramePressState.PressedAndReleased;
 		}
-		if (pressed)
+		if (buttonDown)
 		{
 			return PointerEventData.FramePressState.Pressed;
 		}
-		if (released)
+		if (buttonUp)
 		{
 			return PointerEventData.FramePressState.Released;
 		}

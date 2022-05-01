@@ -22,13 +22,13 @@ public class MapEditorUIprop : MonoBehaviour, IPointerEnterHandler, IEventSystem
 
 	public Color unavailableColor;
 
-	private bool selected = false;
+	private bool selected;
 
-	public bool mouseOnMe = false;
+	public bool mouseOnMe;
 
 	public bool canSelectMe = true;
 
-	public bool BypassBobBuilderAchievement = false;
+	public bool BypassBobBuilderAchievement;
 
 	public int[] NeedCustomMissions;
 
@@ -43,16 +43,16 @@ public class MapEditorUIprop : MonoBehaviour, IPointerEnterHandler, IEventSystem
 		normalColor = myImage.color;
 		if (NeedCustomMissions.Length != 0)
 		{
-			int approved = 0;
+			int num = 0;
 			int[] needCustomMissions = NeedCustomMissions;
-			foreach (int check in needCustomMissions)
+			foreach (int item in needCustomMissions)
 			{
-				if (GameMaster.instance.FoundSecretMissions.Contains(check))
+				if (GameMaster.instance.FoundSecretMissions.Contains(item))
 				{
-					approved++;
+					num++;
 				}
 			}
-			if ((!OptionsMainMenu.instance.AMselected.Contains(60) || PropID != 49) && (!OptionsMainMenu.instance.AMselected.Contains(33) || PropID != 26) && approved != NeedCustomMissions.Length)
+			if ((!OptionsMainMenu.instance.AMselected.Contains(60) || PropID != 49) && (!OptionsMainMenu.instance.AMselected.Contains(33) || PropID != 26) && num != NeedCustomMissions.Length)
 			{
 				myImage.color = unavailableColor;
 				canSelectMe = false;
@@ -126,9 +126,9 @@ public class MapEditorUIprop : MonoBehaviour, IPointerEnterHandler, IEventSystem
 			return;
 		}
 		myImage.color = (canSelectMe ? hoverColor : unavailableColor);
-		Color tempColor = myImage.color;
-		tempColor.a = (canSelectMe ? 1f : 0.8f);
-		myImage.color = tempColor;
+		Color color = myImage.color;
+		color.a = (canSelectMe ? 1f : 0.8f);
+		myImage.color = color;
 		if (Input.GetMouseButtonDown(0) && !selected && canSelectMe)
 		{
 			SFXManager.instance.PlaySFX(MapEditorMaster.instance.MenuSelect);

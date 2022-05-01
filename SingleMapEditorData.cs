@@ -7,7 +7,7 @@ public class SingleMapEditorData
 {
 	public List<MapPiecesClass> MissionDataProps = new List<MapPiecesClass>();
 
-	public string MissionMessage = null;
+	public string MissionMessage;
 
 	public SingleMapEditorData(GameMaster GM, MapEditorMaster MEM)
 	{

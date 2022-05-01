@@ -14,13 +14,13 @@ public class AIkillBox : MonoBehaviour
 
 	private float journeyLength;
 
-	public bool Show = false;
+	public bool Show;
 
 	public Transform followObject;
 
-	public float posYoffset = 0f;
+	public float posYoffset;
 
-	public bool Changing = false;
+	public bool Changing;
 
 	private void Start()
 	{
@@ -56,25 +56,20 @@ public class AIkillBox : MonoBehaviour
 		}
 		if (Show)
 		{
-			float distanceNow2 = Vector3.Distance(myRect.localScale, newpos);
-			if (distanceNow2 > 0.01f)
+			if (Vector3.Distance(myRect.localScale, newpos) > 0.01f)
 			{
-				float distCovered2 = (Time.time - startTime) * speed;
-				float fractionOfJourney2 = distCovered2 / journeyLength;
-				myRect.localScale = Vector3.Lerp(myRect.localScale, newpos, fractionOfJourney2);
+				float t = (Time.time - startTime) * speed / journeyLength;
+				myRect.localScale = Vector3.Lerp(myRect.localScale, newpos, t);
 			}
 			else
 			{
 				Changing = false;
 			}
-			return;
 		}
-		float distanceNow = Vector3.Distance(myRect.localScale, oldpos);
-		if (distanceNow > 0.01f)
+		else if (Vector3.Distance(myRect.localScale, oldpos) > 0.01f)
 		{
-			float distCovered = (Time.time - startTime) * speed;
-			float fractionOfJourney = distCovered / journeyLength;
-			myRect.localScale = Vector3.Lerp(myRect.localScale, oldpos, fractionOfJourney);
+			float t2 = (Time.time - startTime) * speed / journeyLength;
+			myRect.localScale = Vector3.Lerp(myRect.localScale, oldpos, t2);
 		}
 		else
 		{

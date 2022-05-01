@@ -17,7 +17,7 @@ public class MapPiecesClass
 
 	public int[] TeamColor = new int[5];
 
-	public int SpawnDifficulty = 0;
+	public int SpawnDifficulty;
 
 	public SerializableColor[] CustomColor = new SerializableColor[5];
 }

@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class MoveTankScript : MonoBehaviour
 {
-	public bool DrivingBackwards = false;
+	public bool DrivingBackwards;
 
 	public float TankSpeed = 5000f;
 
@@ -18,13 +18,13 @@ public class MoveTankScript : MonoBehaviour
 
 	public int SpeedTime = 5;
 
-	public bool speedIsUpgraded = false;
+	public bool speedIsUpgraded;
 
 	public float turnSpeed = 10f;
 
-	public bool isPlayer2 = false;
+	public bool isPlayer2;
 
-	public int playerId = 0;
+	public int playerId;
 
 	public Joystick joystick;
 
@@ -52,7 +52,7 @@ public class MoveTankScript : MonoBehaviour
 
 	public AudioSource source;
 
-	public bool driving = false;
+	public bool driving;
 
 	public Transform skidMarkLocation;
 
@@ -72,15 +72,15 @@ public class MoveTankScript : MonoBehaviour
 
 	private float originalDurationParticles;
 
-	public bool boosting = false;
+	public bool boosting;
 
-	public bool mobileBoosting = false;
+	public bool mobileBoosting;
 
-	public bool isStunned = false;
+	public bool isStunned;
 
-	public float stunTimer = 0f;
+	public float stunTimer;
 
-	public bool isBeingTowerBoosted = false;
+	public bool isBeingTowerBoosted;
 
 	public ParticleSystem TowerBoostEffect;
 
@@ -104,7 +104,7 @@ public class MoveTankScript : MonoBehaviour
 
 	public Controller playerController;
 
-	public bool IsUsingController = false;
+	public bool IsUsingController;
 
 	public bool[] SolidDetection;
 
@@ -118,7 +118,7 @@ public class MoveTankScript : MonoBehaviour
 
 	private bool canHonkIt = true;
 
-	public float offset = 0f;
+	public float offset;
 
 	[Command("SetPlayerSpeed", Platform.AllPlatforms, MonoTargetType.Single)]
 	public void SetPlayerSpeed(int speed)
@@ -158,16 +158,15 @@ public class MoveTankScript : MonoBehaviour
 
 	private void AlertTeleportationFields()
 	{
-		Collider[] Hits = Physics.OverlapSphere(base.transform.position, 3f);
-		Collider[] array = Hits;
-		foreach (Collider coll in array)
+		Collider[] array = Physics.OverlapSphere(base.transform.position, 3f);
+		foreach (Collider collider in array)
 		{
-			if (coll.tag == "TeleportBlock")
+			if (collider.tag == "TeleportBlock")
 			{
-				TeleportationBlock TB = coll.GetComponent<TeleportationBlock>();
-				if ((bool)TB)
+				TeleportationBlock component = collider.GetComponent<TeleportationBlock>();
+				if ((bool)component)
 				{
-					TB.ActivateMe(2f);
+					component.ActivateMe(2f);
 				}
 			}
 		}
@@ -213,11 +212,11 @@ public class MoveTankScript : MonoBehaviour
 		{
 			rigi = GetComponent<Rigidbody>();
 		}
-		float dist = 1.1f;
-		LayerMask Solid = (1 << LayerMask.NameToLayer("Wall")) | (1 << LayerMask.NameToLayer("CorkWall"));
-		if (Physics.Raycast(base.transform.position, Vector3.forward * dist, out var hit, dist, Solid))
+		float num = 1.1f;
+		LayerMask layerMask = (1 << LayerMask.NameToLayer("Wall")) | (1 << LayerMask.NameToLayer("CorkWall"));
+		if (Physics.Raycast(base.transform.position, Vector3.forward * num, out var hitInfo, num, layerMask))
 		{
-			if (hit.transform.tag == "Solid" || hit.transform.tag == "MapBorder")
+			if (hitInfo.transform.tag == "Solid" || hitInfo.transform.tag == "MapBorder")
 			{
 				SolidDetection[0] = true;
 			}
@@ -230,9 +229,9 @@ public class MoveTankScript : MonoBehaviour
 		{
 			SolidDetection[0] = false;
 		}
-		if (Physics.Raycast(base.transform.position, -Vector3.left * dist, out hit, dist, Solid))
+		if (Physics.Raycast(base.transform.position, -Vector3.left * num, out hitInfo, num, layerMask))
 		{
-			if (hit.transform.tag == "Solid" || hit.transform.tag == "MapBorder")
+			if (hitInfo.transform.tag == "Solid" || hitInfo.transform.tag == "MapBorder")
 			{
 				SolidDetection[1] = true;
 			}
@@ -245,9 +244,9 @@ public class MoveTankScript : MonoBehaviour
 		{
 			SolidDetection[1] = false;
 		}
-		if (Physics.Raycast(base.transform.position, Vector3.left * dist, out hit, dist, Solid))
+		if (Physics.Raycast(base.transform.position, Vector3.left * num, out hitInfo, num, layerMask))
 		{
-			if (hit.transform.tag == "Solid" || hit.transform.tag == "MapBorder")
+			if (hitInfo.transform.tag == "Solid" || hitInfo.transform.tag == "MapBorder")
 			{
 				SolidDetection[3] = true;
 			}
@@ -260,9 +259,9 @@ public class MoveTankScript : MonoBehaviour
 		{
 			SolidDetection[3] = false;
 		}
-		if (Physics.Raycast(base.transform.position, -Vector3.forward * dist, out hit, dist, Solid))
+		if (Physics.Raycast(base.transform.position, -Vector3.forward * num, out hitInfo, num, layerMask))
 		{
-			if (hit.transform.tag == "Solid" || hit.transform.tag == "MapBorder")
+			if (hitInfo.transform.tag == "Solid" || hitInfo.transform.tag == "MapBorder")
 			{
 				SolidDetection[2] = true;
 			}
@@ -318,8 +317,8 @@ public class MoveTankScript : MonoBehaviour
 
 	private void CheckControllerType()
 	{
-		int amount = player.controllers.joystickCount;
-		if (playerId > 0 && amount < 1 && GameMaster.instance.GameHasStarted)
+		int joystickCount = player.controllers.joystickCount;
+		if (playerId > 0 && joystickCount < 1 && GameMaster.instance.GameHasStarted)
 		{
 			HTtanks.health = -100;
 		}
@@ -527,21 +526,21 @@ public class MoveTankScript : MonoBehaviour
 
 	private Vector2 SmoothInput(float targetH, float targetV)
 	{
-		float sensitivity = sensi;
-		float deadZone = 0.0001f;
-		slidingH = Mathf.MoveTowards(slidingH, targetH, sensitivity * Time.deltaTime);
-		slidingV = Mathf.MoveTowards(slidingV, targetV, sensitivity * Time.deltaTime);
-		return new Vector2((Mathf.Abs(slidingH) < deadZone) ? 0f : slidingH, (Mathf.Abs(slidingV) < deadZone) ? 0f : slidingV);
+		float num = sensi;
+		float num2 = 0.0001f;
+		slidingH = Mathf.MoveTowards(slidingH, targetH, num * Time.deltaTime);
+		slidingV = Mathf.MoveTowards(slidingV, targetV, num * Time.deltaTime);
+		return new Vector2((Mathf.Abs(slidingH) < num2) ? 0f : slidingH, (Mathf.Abs(slidingV) < num2) ? 0f : slidingV);
 	}
 
 	private void GetInput()
 	{
-		Vector3 moveVector = default(Vector3);
-		moveVector.x = player.GetAxis("Move Horizontal");
-		moveVector.y = player.GetAxis("Move Vertically");
-		Vector2 smoothedInput = SmoothInput(moveVector.x, moveVector.y);
-		input.x = smoothedInput.x;
-		input.y = smoothedInput.y;
+		Vector3 vector = default(Vector3);
+		vector.x = player.GetAxis("Move Horizontal");
+		vector.y = player.GetAxis("Move Vertically");
+		Vector2 vector2 = SmoothInput(vector.x, vector.y);
+		input.x = vector2.x;
+		input.y = vector2.y;
 		if ((bool)DetectionZone)
 		{
 			if (rigi.velocity.magnitude > 1f)
@@ -620,12 +619,12 @@ public class MoveTankScript : MonoBehaviour
 			return;
 		}
 		targetRotation = Quaternion.Euler(0f, angle, 0f);
-		float angleSize = Quaternion.Angle(base.transform.rotation, targetRotation);
-		if (angleSize > 1f && angleSize < 120f)
+		float num = Quaternion.Angle(base.transform.rotation, targetRotation);
+		if (num > 1f && num < 120f)
 		{
 			base.transform.rotation = Quaternion.Lerp(base.transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
 		}
-		else if (angleSize >= 120f)
+		else if (num >= 120f)
 		{
 			DrivingBackwards = ((!DrivingBackwards) ? true : false);
 		}
@@ -635,16 +634,16 @@ public class MoveTankScript : MonoBehaviour
 	{
 		if ((bool)GameMaster.instance.PKU && (bool)GameMaster.instance.PKU.BoostAmounts[playerId])
 		{
-			RectTransform RT = GameMaster.instance.PKU.BoostAmounts[playerId].rectTransform;
-			RT.localScale = new Vector3(boosterFluid * 2f / maxFluid, RT.localScale.y, RT.localScale.z);
+			RectTransform rectTransform = GameMaster.instance.PKU.BoostAmounts[playerId].rectTransform;
+			rectTransform.localScale = new Vector3(boosterFluid * 2f / maxFluid, rectTransform.localScale.y, rectTransform.localScale.z);
 		}
-		float speed = TankSpeed;
+		float num = TankSpeed;
 		if (canBoost)
 		{
 			if (driving && player.GetButton("Boost"))
 			{
 				boosterFluid -= Time.deltaTime;
-				speed *= 1.5f;
+				num *= 1.5f;
 				if (GameMaster.instance.CurrentMission == 1)
 				{
 					GameMaster.instance.mission2HasBoosted = true;
@@ -664,20 +663,20 @@ public class MoveTankScript : MonoBehaviour
 		{
 			if (DrivingBackwards)
 			{
-				rigi.AddRelativeForce(-Vector3.forward * speed * Time.deltaTime * 50f);
+				rigi.AddRelativeForce(-Vector3.forward * num * Time.deltaTime * 50f);
 			}
 			else
 			{
-				rigi.AddRelativeForce(Vector3.forward * speed * Time.deltaTime * 50f);
+				rigi.AddRelativeForce(Vector3.forward * num * Time.deltaTime * 50f);
 			}
 		}
 		else if (DrivingBackwards)
 		{
-			rigi.AddRelativeForce(-TankHead.forward * speed * Time.deltaTime * 50f);
+			rigi.AddRelativeForce(-TankHead.forward * num * Time.deltaTime * 50f);
 		}
 		else
 		{
-			rigi.AddRelativeForce(TankHead.forward * speed * Time.deltaTime * 50f);
+			rigi.AddRelativeForce(TankHead.forward * num * Time.deltaTime * 50f);
 		}
 	}
 
@@ -690,47 +689,47 @@ public class MoveTankScript : MonoBehaviour
 		}
 		if (!DrivingBackwards)
 		{
-			ParticleSystem[] PEbw2 = BackwardsRush.transform.GetComponentsInChildren<ParticleSystem>();
-			ParticleSystem[] PE2 = Rush.transform.GetComponentsInChildren<ParticleSystem>();
-			ParticleSystem[] array = PEbw2;
-			foreach (ParticleSystem ps3 in array)
+			ParticleSystem[] componentsInChildren = BackwardsRush.transform.GetComponentsInChildren<ParticleSystem>();
+			ParticleSystem[] componentsInChildren2 = Rush.transform.GetComponentsInChildren<ParticleSystem>();
+			ParticleSystem[] array = componentsInChildren;
+			foreach (ParticleSystem particleSystem in array)
 			{
-				if (ps3.isPlaying)
+				if (particleSystem.isPlaying)
 				{
-					ps3.Stop();
+					particleSystem.Stop();
 				}
 			}
-			ParticleSystem[] array2 = PE2;
-			foreach (ParticleSystem ps4 in array2)
+			array = componentsInChildren2;
+			foreach (ParticleSystem particleSystem2 in array)
 			{
-				if (!ps4.isPlaying)
+				if (!particleSystem2.isPlaying)
 				{
-					ps4.Play();
+					particleSystem2.Play();
 				}
 			}
 		}
 		else
 		{
-			ParticleSystem[] PEbw = BackwardsRush.transform.GetComponentsInChildren<ParticleSystem>();
-			ParticleSystem[] PE = Rush.transform.GetComponentsInChildren<ParticleSystem>();
-			ParticleSystem[] array3 = PEbw;
-			foreach (ParticleSystem ps in array3)
+			ParticleSystem[] componentsInChildren3 = BackwardsRush.transform.GetComponentsInChildren<ParticleSystem>();
+			ParticleSystem[] componentsInChildren4 = Rush.transform.GetComponentsInChildren<ParticleSystem>();
+			ParticleSystem[] array = componentsInChildren3;
+			foreach (ParticleSystem particleSystem3 in array)
 			{
-				if (!ps.isPlaying)
+				if (!particleSystem3.isPlaying)
 				{
-					ps.Play();
+					particleSystem3.Play();
 				}
 			}
-			ParticleSystem[] array4 = PE;
-			foreach (ParticleSystem ps2 in array4)
+			array = componentsInChildren4;
+			foreach (ParticleSystem particleSystem4 in array)
 			{
-				if (ps2.isPlaying)
+				if (particleSystem4.isPlaying)
 				{
-					ps2.Stop();
+					particleSystem4.Stop();
 				}
 			}
 		}
-		ParticleSystem.MainModule main = skidMarkCreator.main;
+		_ = skidMarkCreator.main;
 		if (!boosting)
 		{
 			if (GameMaster.instance.CurrentMission == 49)
@@ -758,16 +757,16 @@ public class MoveTankScript : MonoBehaviour
 			}
 			if (!skidMarkCreator.isEmitting && !skidMarkCreator.isPlaying)
 			{
-				ParticleSystem.MainModule main2 = skidMarkCreator.main;
-				main2.duration = dur;
+				ParticleSystem.MainModule main = skidMarkCreator.main;
+				main.duration = dur;
 				skidMarkCreator.Play();
 			}
 		}
 		else
 		{
 			skidMarkCreatorLvl50.Stop();
-			ParticleSystem.MainModule main = skidMarkCreatorLvl50.main;
-			main.duration = dur;
+			ParticleSystem.MainModule main2 = skidMarkCreatorLvl50.main;
+			main2.duration = dur;
 			skidMarkCreatorLvl50.Play();
 		}
 	}
@@ -779,22 +778,22 @@ public class MoveTankScript : MonoBehaviour
 			BoostSource.Stop();
 		}
 		Rush.GetComponent<AudioSource>().Stop();
-		ParticleSystem[] PEbw = BackwardsRush.transform.GetComponentsInChildren<ParticleSystem>();
-		ParticleSystem[] PE = Rush.transform.GetComponentsInChildren<ParticleSystem>();
-		ParticleSystem[] array = PEbw;
-		foreach (ParticleSystem ps in array)
+		ParticleSystem[] componentsInChildren = BackwardsRush.transform.GetComponentsInChildren<ParticleSystem>();
+		ParticleSystem[] componentsInChildren2 = Rush.transform.GetComponentsInChildren<ParticleSystem>();
+		ParticleSystem[] array = componentsInChildren;
+		foreach (ParticleSystem particleSystem in array)
 		{
-			if (ps.isPlaying)
+			if (particleSystem.isPlaying)
 			{
-				ps.Stop();
+				particleSystem.Stop();
 			}
 		}
-		ParticleSystem[] array2 = PE;
-		foreach (ParticleSystem ps2 in array2)
+		array = componentsInChildren2;
+		foreach (ParticleSystem particleSystem2 in array)
 		{
-			if (ps2.isPlaying)
+			if (particleSystem2.isPlaying)
 			{
-				ps2.Stop();
+				particleSystem2.Stop();
 			}
 		}
 		if (boosting)
@@ -816,12 +815,12 @@ public class MoveTankScript : MonoBehaviour
 
 	public void Play2DClipAtPoint(AudioClip clip, float Vol)
 	{
-		GameObject tempAudioSource = new GameObject("TempAudio");
-		AudioSource audioSource = tempAudioSource.AddComponent<AudioSource>();
+		GameObject obj = new GameObject("TempAudio");
+		AudioSource audioSource = obj.AddComponent<AudioSource>();
 		audioSource.clip = clip;
 		audioSource.volume = Vol;
 		audioSource.spatialBlend = 0f;
 		audioSource.Play();
-		UnityEngine.Object.Destroy(tempAudioSource, clip.length);
+		UnityEngine.Object.Destroy(obj, clip.length);
 	}
 }

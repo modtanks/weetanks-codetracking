@@ -6,9 +6,9 @@ using UnityEngine.SceneManagement;
 
 public class MissionHundredController : MonoBehaviour
 {
-	public bool DevMode = false;
+	public bool DevMode;
 
-	public int BossPhase = 0;
+	public int BossPhase;
 
 	public GameObject[] BlocksToMoveDown;
 
@@ -84,15 +84,15 @@ public class MissionHundredController : MonoBehaviour
 
 	public Transform[] DropLocations;
 
-	public float TimeInBattle = 0f;
+	public float TimeInBattle;
 
 	private static MissionHundredController _instance;
 
 	private NewOrchestra orchestra;
 
-	private bool MovedCameraToDefeat = false;
+	private bool MovedCameraToDefeat;
 
-	private bool MessageHasBeenShown = false;
+	private bool MessageHasBeenShown;
 
 	public static MissionHundredController instance => _instance;
 
@@ -115,9 +115,9 @@ public class MissionHundredController : MonoBehaviour
 		CameraObject = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
 		orchestra = GameObject.FindGameObjectWithTag("Orchestra").GetComponent<NewOrchestra>();
 		mySource = GetComponent<AudioSource>();
-		foreach (GameObject crate in DestroyableCratesToRespawn)
+		foreach (GameObject item in DestroyableCratesToRespawn)
 		{
-			CratesPositions.Add(crate.transform.position);
+			CratesPositions.Add(item.transform.position);
 		}
 		for (int i = 0; i < 4; i++)
 		{
@@ -152,8 +152,8 @@ public class MissionHundredController : MonoBehaviour
 		{
 			TimeInBattle = 0f;
 		}
-		float calc = 0.1f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
-		mySource.volume = calc;
+		float volume = 0.1f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
+		mySource.volume = volume;
 		if (KTS == null || KTS.BossDefeated)
 		{
 			if (!MovedCameraToDefeat)
@@ -180,9 +180,9 @@ public class MissionHundredController : MonoBehaviour
 		if (GameMaster.instance.AmountEnemyTanks <= 1 && !GameMaster.instance.HasGotten100Checkpoint)
 		{
 			GameObject[] blocksToMoveDown = BlocksToMoveDown;
-			foreach (GameObject Block in blocksToMoveDown)
+			foreach (GameObject value in blocksToMoveDown)
 			{
-				StartCoroutine("MoveBlockDown", Block);
+				StartCoroutine("MoveBlockDown", value);
 			}
 			Debug.Log("set points");
 			BossPhase = 0;
@@ -244,8 +244,8 @@ public class MissionHundredController : MonoBehaviour
 		while (t2 < 1f)
 		{
 			t2 += Time.deltaTime;
-			Color color = Color.Lerp(OG, Color.red, t2);
-			R.material.SetColor("_EmissionColor", color);
+			Color value = Color.Lerp(OG, Color.red, t2);
+			R.material.SetColor("_EmissionColor", value);
 			yield return null;
 		}
 		yield return new WaitForSeconds(4f);
@@ -253,34 +253,34 @@ public class MissionHundredController : MonoBehaviour
 		while (t2 < 1f)
 		{
 			t2 += Time.deltaTime;
-			Color color2 = Color.Lerp(Color.red, OG, t2);
-			R.material.SetColor("_EmissionColor", color2);
+			Color value2 = Color.Lerp(Color.red, OG, t2);
+			R.material.SetColor("_EmissionColor", value2);
 			yield return null;
 		}
 	}
 
 	private IEnumerator InitiateAirRaid()
 	{
-		float RandomWaitingTime = Random.Range(10f, 30f);
-		yield return new WaitForSeconds(RandomWaitingTime);
+		float seconds = Random.Range(10f, 30f);
+		yield return new WaitForSeconds(seconds);
 		if ((KTS.IsInBattle || KTS.IsInFinalBattle) && TimeInBattle > 10f && KTS.HT.health > 0 && OptionsMainMenu.instance.currentDifficulty > 0)
 		{
-			Vector3 Location = GameMaster.instance.GetValidLocation(CheckForDist: false, 0f, Vector3.zero, TargetPlayer: true);
-			if (Location != Vector3.zero)
+			Vector3 validLocation = GameMaster.instance.GetValidLocation(CheckForDist: false, 0f, Vector3.zero, TargetPlayer: true);
+			if (validLocation != Vector3.zero)
 			{
-				BomberPlane.TargetLocation = new Vector3(Location.x, 10f, Location.z);
+				BomberPlane.TargetLocation = new Vector3(validLocation.x, 10f, validLocation.z);
 			}
 			BomberPlane.StartFlyToTB(-1, -1);
 			SFXManager.instance.PlaySFX(AirRaid);
 			Light[] lights = Lights;
-			foreach (Light L in lights)
+			foreach (Light l in lights)
 			{
-				StartCoroutine(AirRaidLight(L));
+				StartCoroutine(AirRaidLight(l));
 			}
 			MeshRenderer[] lightBlocks = LightBlocks;
-			foreach (MeshRenderer R in lightBlocks)
+			foreach (MeshRenderer r in lightBlocks)
 			{
-				StartCoroutine(AirRaidBlock(R));
+				StartCoroutine(AirRaidBlock(r));
 			}
 		}
 		yield return new WaitForSeconds(8f);
@@ -291,13 +291,13 @@ public class MissionHundredController : MonoBehaviour
 	{
 		KTS.IsInBattle = true;
 		Debug.Log("starting phase 1a");
-		Animator Plane1Animator = Plane1.GetComponent<Animator>();
-		if (!Plane1Animator.GetBool("FlyAway"))
+		Animator component = Plane1.GetComponent<Animator>();
+		if (!component.GetBool("FlyAway"))
 		{
-			Plane1Animator.Play("MovePlaneForward", -1, 0f);
-			if ((bool)Plane1Animator)
+			component.Play("MovePlaneForward", -1, 0f);
+			if ((bool)component)
 			{
-				Plane1Animator.SetBool("FlyAway", value: true);
+				component.SetBool("FlyAway", value: true);
 			}
 		}
 		GameMaster.instance.musicScript.Orchestra.StopPlaying();
@@ -310,87 +310,87 @@ public class MissionHundredController : MonoBehaviour
 		{
 			yield break;
 		}
-		int AmountOfSpawns = Random.Range(2, 5);
-		List<int> DropsToAdd = new List<int>();
-		for (int i = 0; i < AmountOfSpawns; i++)
+		int num = Random.Range(2, 5);
+		List<int> list = new List<int>();
+		for (int i = 0; i < num; i++)
 		{
 			if (KTS.Throne.PlatformHealth <= 3)
 			{
-				int[] TanksDrops3 = null;
+				int[] array = null;
 				if (OptionsMainMenu.instance.currentDifficulty == 0)
 				{
-					TanksDrops3 = new int[5] { 3, 4, 5, 6, 8 };
+					array = new int[5] { 3, 4, 5, 6, 8 };
 				}
 				else if (OptionsMainMenu.instance.currentDifficulty == 1)
 				{
-					TanksDrops3 = new int[4] { 4, 5, 6, 8 };
+					array = new int[4] { 4, 5, 6, 8 };
 				}
 				else if (OptionsMainMenu.instance.currentDifficulty == 2)
 				{
-					TanksDrops3 = new int[5] { 6, 7, 8, 9, 11 };
+					array = new int[5] { 6, 7, 8, 9, 11 };
 				}
 				else if (OptionsMainMenu.instance.currentDifficulty == 3)
 				{
-					TanksDrops3 = new int[7] { 2, 6, 7, 8, 9, 11, 14 };
+					array = new int[7] { 2, 6, 7, 8, 9, 11, 14 };
 				}
-				int picked3 = TanksDrops3[Random.Range(0, TanksDrops3.Length)];
-				DropsToAdd.Add(picked3);
+				int item = array[Random.Range(0, array.Length)];
+				list.Add(item);
 			}
 			else if (KTS.Throne.PlatformHealth <= 6)
 			{
-				int[] TanksDrops2 = null;
+				int[] array2 = null;
 				if (OptionsMainMenu.instance.currentDifficulty == 0)
 				{
-					TanksDrops2 = new int[4] { 0, 1, 3, 4 };
+					array2 = new int[4] { 0, 1, 3, 4 };
 				}
 				else if (OptionsMainMenu.instance.currentDifficulty == 1)
 				{
-					TanksDrops2 = new int[4] { 1, 3, 4, 5 };
+					array2 = new int[4] { 1, 3, 4, 5 };
 				}
 				else if (OptionsMainMenu.instance.currentDifficulty == 2)
 				{
-					TanksDrops2 = new int[5] { 3, 4, 5, 6, 7 };
+					array2 = new int[5] { 3, 4, 5, 6, 7 };
 				}
 				else if (OptionsMainMenu.instance.currentDifficulty == 3)
 				{
-					TanksDrops2 = new int[8] { 4, 5, 6, 7, 8, 9, 11, 14 };
+					array2 = new int[8] { 4, 5, 6, 7, 8, 9, 11, 14 };
 				}
-				int picked2 = TanksDrops2[Random.Range(0, TanksDrops2.Length)];
-				DropsToAdd.Add(picked2);
+				int item2 = array2[Random.Range(0, array2.Length)];
+				list.Add(item2);
 			}
 			else
 			{
-				int[] TanksDrops = null;
+				int[] array3 = null;
 				if (OptionsMainMenu.instance.currentDifficulty == 0)
 				{
-					TanksDrops = new int[2] { 0, 1 };
+					array3 = new int[2] { 0, 1 };
 				}
 				else if (OptionsMainMenu.instance.currentDifficulty == 1)
 				{
-					TanksDrops = new int[4] { 0, 1, 3, 4 };
+					array3 = new int[4] { 0, 1, 3, 4 };
 				}
 				else if (OptionsMainMenu.instance.currentDifficulty == 2)
 				{
-					TanksDrops = new int[5] { 0, 1, 3, 4, 5 };
+					array3 = new int[5] { 0, 1, 3, 4, 5 };
 				}
 				else if (OptionsMainMenu.instance.currentDifficulty == 3)
 				{
-					TanksDrops = new int[6] { 0, 1, 3, 4, 5, 6 };
+					array3 = new int[6] { 0, 1, 3, 4, 5, 6 };
 				}
-				int picked = TanksDrops[Random.Range(0, TanksDrops.Length)];
-				DropsToAdd.Add(picked);
+				int item3 = array3[Random.Range(0, array3.Length)];
+				list.Add(item3);
 			}
 		}
-		for (int j = 0; j < DropsToAdd.Count; j++)
+		for (int j = 0; j < list.Count; j++)
 		{
-			int temp = DropsToAdd[j];
-			int randomIndex = Random.Range(j, DropsToAdd.Count);
-			DropsToAdd[j] = DropsToAdd[randomIndex];
-			DropsToAdd[randomIndex] = temp;
+			int value = list[j];
+			int index = Random.Range(j, list.Count);
+			list[j] = list[index];
+			list[index] = value;
 		}
-		foreach (int Drop in DropsToAdd)
+		foreach (int item4 in list)
 		{
-			PM.SpawnInOrder.Add(Drop);
+			PM.SpawnInOrder.Add(item4);
 		}
 		PM.StartCoroutine(PM.DoOrder());
 		if (!KTS.IsInBattle)
@@ -404,8 +404,8 @@ public class MissionHundredController : MonoBehaviour
 		yield return new WaitForSeconds(13f);
 		if (!KTS.IsInFinalBattle && KTS.IsInBattle)
 		{
-			AmountOfSpawns = Random.Range(1, 4);
-			StartCoroutine(KTS.ShootABomb(first: true, AmountOfSpawns));
+			num = Random.Range(1, 4);
+			StartCoroutine(KTS.ShootABomb(first: true, num));
 			yield return new WaitForSeconds(4f);
 			if (!MessageHasBeenShown)
 			{
@@ -424,11 +424,11 @@ public class MissionHundredController : MonoBehaviour
 	{
 		KTS.IsInBattle = true;
 		Debug.Log("starting phase 2a");
-		Animator Plane2Animator = Plane2.GetComponent<Animator>();
-		Plane2Animator.Play("MovePlaneForward", -1, 0f);
-		if ((bool)Plane2Animator)
+		Animator component = Plane2.GetComponent<Animator>();
+		component.Play("MovePlaneForward", -1, 0f);
+		if ((bool)component)
 		{
-			Plane2Animator.SetBool("FlyAway", value: true);
+			component.SetBool("FlyAway", value: true);
 		}
 		GameMaster.instance.musicScript.Orchestra.StopPlaying();
 		if (!mySource.isPlaying)
@@ -439,42 +439,42 @@ public class MissionHundredController : MonoBehaviour
 			mySource.Play();
 		}
 		yield return new WaitForSeconds(2f);
-		List<int> DropsToAdd = new List<int>();
+		List<int> list = new List<int>();
 		PM.PS.speed = 60f;
-		DropsToAdd.Add(8);
-		DropsToAdd.Add(8);
+		list.Add(8);
+		list.Add(8);
 		if (Random.Range(0, 5) == 0)
 		{
-			DropsToAdd.Add(16);
+			list.Add(16);
 		}
 		if (OptionsMainMenu.instance.currentDifficulty > 0)
 		{
-			DropsToAdd.Add(1);
-			DropsToAdd.Add(6);
-			DropsToAdd.Add(11);
+			list.Add(1);
+			list.Add(6);
+			list.Add(11);
 		}
 		if (OptionsMainMenu.instance.currentDifficulty > 1)
 		{
-			DropsToAdd.Add(0);
-			DropsToAdd.Add(12);
-			DropsToAdd.Add(8);
+			list.Add(0);
+			list.Add(12);
+			list.Add(8);
 		}
 		if (OptionsMainMenu.instance.currentDifficulty > 2)
 		{
-			DropsToAdd.Add(2);
-			DropsToAdd.Add(11);
-			DropsToAdd.Add(7);
+			list.Add(2);
+			list.Add(11);
+			list.Add(7);
 		}
-		for (int i = 0; i < DropsToAdd.Count; i++)
+		for (int i = 0; i < list.Count; i++)
 		{
-			int temp = DropsToAdd[i];
-			int randomIndex = Random.Range(i, DropsToAdd.Count);
-			DropsToAdd[i] = DropsToAdd[randomIndex];
-			DropsToAdd[randomIndex] = temp;
+			int value = list[i];
+			int index = Random.Range(i, list.Count);
+			list[i] = list[index];
+			list[index] = value;
 		}
-		foreach (int Drop in DropsToAdd)
+		foreach (int item in list)
 		{
-			PM.SpawnInOrder.Add(Drop);
+			PM.SpawnInOrder.Add(item);
 		}
 		PM.StartCoroutine(PM.DoOrder());
 		BossPhase = 3;
@@ -494,27 +494,27 @@ public class MissionHundredController : MonoBehaviour
 		if (KTS.ShotMortars.Count > 0)
 		{
 			KTS.ShotMortars = KTS.ShotMortars.Where((GameObject item) => item != null).ToList();
-			foreach (GameObject mortar in KTS.ShotMortars)
+			foreach (GameObject shotMortar in KTS.ShotMortars)
 			{
-				Object.Destroy(mortar);
+				Object.Destroy(shotMortar);
 			}
 		}
 		KTS.DeactivateBoss();
 		KTS.IsInFinalBattle = false;
 		GameObject[] boostTowers = BoostTowers;
-		foreach (GameObject Tower in boostTowers)
+		for (int i = 0; i < boostTowers.Length; i++)
 		{
-			Tower.SetActive(value: true);
+			boostTowers[i].SetActive(value: true);
 		}
 		KTS.Throne.PlatformHealth = KTS.Throne.PlatformMaxHealth;
 		KTS.transform.position = KTS.StartingPosition;
 		KTS.transform.rotation = KTS.StartingRotation;
-		for (int i = 0; i < DestroyableCratesToRespawn.Count; i++)
+		for (int j = 0; j < DestroyableCratesToRespawn.Count; j++)
 		{
-			if (DestroyableCratesToRespawn[i] == null && GameMaster.instance.PlayerJoined[i] && GameMaster.instance.PlayerModeWithAI[i] == 0)
+			if (DestroyableCratesToRespawn[j] == null && GameMaster.instance.PlayerJoined[j] && GameMaster.instance.PlayerModeWithAI[j] == 0)
 			{
-				GameObject newCrate = Object.Instantiate(CrateToSpawn, CratesPositions[i], Quaternion.identity);
-				DestroyableCratesToRespawn[i] = newCrate;
+				GameObject value = Object.Instantiate(CrateToSpawn, CratesPositions[j], Quaternion.identity);
+				DestroyableCratesToRespawn[j] = value;
 			}
 		}
 	}
@@ -522,14 +522,13 @@ public class MissionHundredController : MonoBehaviour
 	public void FinalBossTrigger()
 	{
 		GameObject[] blocksToMoveUp = BlocksToMoveUp;
-		foreach (GameObject Block in blocksToMoveUp)
+		foreach (GameObject value in blocksToMoveUp)
 		{
-			StartCoroutine("MoveBlockUp", Block);
+			StartCoroutine("MoveBlockUp", value);
 		}
 		StartCoroutine(MoveCameraTo());
 		SFXManager.instance.PlaySFX(WallsMovingDown, 1f, null);
-		CameraFollowPlayer CFP = CameraObject.transform.parent.gameObject.GetComponent<CameraFollowPlayer>();
-		CFP.enabled = false;
+		CameraObject.transform.parent.gameObject.GetComponent<CameraFollowPlayer>().enabled = false;
 	}
 
 	public IEnumerator MoveCameraTo()
@@ -563,9 +562,9 @@ public class MissionHundredController : MonoBehaviour
 
 	public IEnumerator MoveCameraToBossDefeat()
 	{
-		CameraFollowPlayer CFP = CameraObject.transform.parent.gameObject.GetComponent<CameraFollowPlayer>();
+		CameraFollowPlayer component = CameraObject.transform.parent.gameObject.GetComponent<CameraFollowPlayer>();
 		CameraObject.orthographicSize = WinArenaCameraFOV;
-		CFP.enabled = true;
+		component.enabled = true;
 		FinalBossDoorAnimator.SetBool("BossKilled", value: true);
 		GameMaster.instance.GameHasStarted = true;
 		yield return new WaitForSeconds(2f);
@@ -597,9 +596,9 @@ public class MissionHundredController : MonoBehaviour
 		}
 		Block.GetComponent<BoxCollider>().enabled = true;
 		GameObject[] objectsToDisable = ObjectsToDisable;
-		foreach (GameObject Blocks in objectsToDisable)
+		for (int i = 0; i < objectsToDisable.Length; i++)
 		{
-			Object.Destroy(Blocks);
+			Object.Destroy(objectsToDisable[i]);
 		}
 	}
 }

@@ -10,9 +10,9 @@ public class DropdownMenu : MonoBehaviour, ISelectHandler, IEventSystemHandler
 
 	private RawImage myImage;
 
-	public bool IsEnabled = false;
+	public bool IsEnabled;
 
-	public bool mouseOnMe = false;
+	public bool mouseOnMe;
 
 	public Texture Dropdown_active;
 

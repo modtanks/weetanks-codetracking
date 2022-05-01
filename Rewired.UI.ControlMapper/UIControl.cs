@@ -48,8 +48,8 @@ public class UIControl : MonoBehaviour
 		{
 			_uidCounter = 0;
 		}
-		int current = _uidCounter;
+		int uidCounter = _uidCounter;
 		_uidCounter++;
-		return current;
+		return uidCounter;
 	}
 }

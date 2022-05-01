@@ -7,27 +7,27 @@ public class FollowTank : MonoBehaviour
 
 	public Transform thirdPersonCamera;
 
-	public float offsetZ = 0f;
+	public float offsetZ;
 
-	public float offsetY = 0f;
+	public float offsetY;
 
-	public float offsetX = 0f;
+	public float offsetX;
 
-	public bool NotY = false;
+	public bool NotY;
 
-	public float withDelay = 0f;
+	public float withDelay;
 
 	private bool disabling;
 
-	public bool alsoRotate = false;
+	public bool alsoRotate;
 
-	public bool isSpotlight = false;
+	public bool isSpotlight;
 
-	public bool isPlayer2Spotlight = false;
+	public bool isPlayer2Spotlight;
 
-	public bool isPlayer3Spotlight = false;
+	public bool isPlayer3Spotlight;
 
-	public bool isPlayer4Spotlight = false;
+	public bool isPlayer4Spotlight;
 
 	private Light mylight;
 
@@ -75,15 +75,15 @@ public class FollowTank : MonoBehaviour
 		{
 			return;
 		}
-		bool foundMyPlayer = false;
-		foreach (GameObject Player in GameMaster.instance.Players)
+		bool flag = false;
+		foreach (GameObject player in GameMaster.instance.Players)
 		{
-			if (bodyTank == Player)
+			if (bodyTank == player)
 			{
-				foundMyPlayer = true;
+				flag = true;
 			}
 		}
-		if (!foundMyPlayer)
+		if (!flag)
 		{
 			bodyTank = null;
 			SearchMyPlayer();

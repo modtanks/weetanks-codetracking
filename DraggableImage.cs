@@ -4,7 +4,7 @@ public class DraggableImage : MonoBehaviour
 {
 	public Vector2 _lastPos;
 
-	public bool _isDragging = false;
+	public bool _isDragging;
 
 	public Transform RotateObject;
 

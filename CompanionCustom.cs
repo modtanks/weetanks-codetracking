@@ -14,7 +14,7 @@ public class CompanionCustom : MonoBehaviour
 
 	public Renderer Wheels;
 
-	public bool isGary = false;
+	public bool isGary;
 
 	public float GarySpeed = 80f;
 
@@ -30,15 +30,14 @@ public class CompanionCustom : MonoBehaviour
 			EA.HTscript.isGary = true;
 			EA.HTscript.health = 3;
 			EA.HTscript.maxHealth = 3;
-			GameObject armour = EA.transform.Find("Armour").gameObject;
-			armour.SetActive(value: true);
+			EA.transform.Find("Armour").gameObject.SetActive(value: true);
 			isGary = true;
 			Object.Destroy(HeadTank);
-			Material[] mats = BodyRend.materials;
-			mats[0] = GaryBody;
-			mats[1] = GaryBody;
-			mats[2] = GaryBlack;
-			BodyRend.materials = mats;
+			Material[] materials = BodyRend.materials;
+			materials[0] = GaryBody;
+			materials[1] = GaryBody;
+			materials[2] = GaryBlack;
+			BodyRend.materials = materials;
 			Wheels.material = GaryWheels;
 		}
 	}

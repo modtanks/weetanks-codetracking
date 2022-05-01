@@ -71,8 +71,8 @@ public class FallbackJoystickIdentificationDemo : MonoBehaviour
 			Reset();
 			return;
 		}
-		Rect centerWindowRect = new Rect((float)Screen.width * 0.5f - 125f, (float)Screen.height * 0.5f - 125f, 250f, 250f);
-		GUILayout.Window(0, centerWindowRect, DrawDialogWindow, "Joystick Identification Required");
+		Rect screenRect = new Rect((float)Screen.width * 0.5f - 125f, (float)Screen.height * 0.5f - 125f, 250f, 250f);
+		GUILayout.Window(0, screenRect, DrawDialogWindow, "Joystick Identification Required");
 		GUI.FocusWindow(0);
 		if (!(Time.time < nextInputAllowedTime) && ReInput.controllers.SetUnityJoystickIdFromAnyButtonOrAxisPress(joysticksToIdentify.Peek().id, 0.8f, positiveAxesOnly: false))
 		{

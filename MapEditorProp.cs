@@ -6,9 +6,9 @@ public class MapEditorProp : MonoBehaviour
 {
 	public int TeamNumber = -1;
 
-	public int MyDifficultySpawn = 0;
+	public int MyDifficultySpawn;
 
-	public int LayerNumber = 0;
+	public int LayerNumber;
 
 	public Renderer[] myRends;
 
@@ -18,27 +18,27 @@ public class MapEditorProp : MonoBehaviour
 
 	public MapEditorGridPiece myMEGP;
 
-	public bool Selected = false;
+	public bool Selected;
 
-	public bool mouseOverMe = false;
+	public bool mouseOverMe;
 
-	public bool isPlayerOne = false;
+	public bool isPlayerOne;
 
-	public bool isPlayerTwo = false;
+	public bool isPlayerTwo;
 
-	public bool isPlayerThree = false;
+	public bool isPlayerThree;
 
-	public bool isPlayerFour = false;
+	public bool isPlayerFour;
 
-	public bool isEnemyTank = false;
+	public bool isEnemyTank;
 
-	public bool SelectAllChildren = false;
+	public bool SelectAllChildren;
 
-	public bool CanBeColored = false;
+	public bool CanBeColored;
 
 	private HealthTanks HT;
 
-	public bool removeParentOnDelete = false;
+	public bool removeParentOnDelete;
 
 	private EnemyAI myEnemyAI;
 
@@ -46,13 +46,13 @@ public class MapEditorProp : MonoBehaviour
 
 	private FiringTank FT;
 
-	public int CustomAInumber = 0;
+	public int CustomAInumber;
 
 	public Material myCustomMaterial;
 
 	public MeshRenderer[] ColoredObjects;
 
-	private bool runonce = false;
+	private bool runonce;
 
 	public Color OriginalBodyColor;
 
@@ -67,7 +67,7 @@ public class MapEditorProp : MonoBehaviour
 
 	private bool LatestKnownColorState = true;
 
-	private bool ColorSetPlayingMode = false;
+	private bool ColorSetPlayingMode;
 
 	public IEnumerator SetMaterialsDelay()
 	{
@@ -80,16 +80,16 @@ public class MapEditorProp : MonoBehaviour
 		if (myCustomMaterial != null)
 		{
 			Renderer[] array = myRends;
-			for (int num = 0; num < array.Length; num++)
+			for (int i = 0; i < array.Length; i++)
 			{
-				MeshRenderer obj = (MeshRenderer)array[num];
-				for (int l = 0; l < obj.sharedMaterials.Length; l++)
+				MeshRenderer meshRenderer = (MeshRenderer)array[i];
+				for (int j = 0; j < meshRenderer.sharedMaterials.Length; j++)
 				{
-					if (obj.sharedMaterials[l].name.Contains("CustomTank"))
+					if (meshRenderer.sharedMaterials[j].name.Contains("CustomTank"))
 					{
-						Material[] sharedMaterialsCopy = obj.sharedMaterials;
-						sharedMaterialsCopy[l] = myCustomMaterial;
-						obj.sharedMaterials = sharedMaterialsCopy;
+						Material[] sharedMaterials = meshRenderer.sharedMaterials;
+						sharedMaterials[j] = myCustomMaterial;
+						meshRenderer.sharedMaterials = sharedMaterials;
 					}
 				}
 			}
@@ -104,40 +104,40 @@ public class MapEditorProp : MonoBehaviour
 			{
 				if (!(myRends[k] == null))
 				{
-					Material[] mats3 = myRends[k].materials;
-					for (int j2 = 0; j2 < mats3.Length; j2++)
+					Material[] materials = myRends[k].materials;
+					for (int l = 0; l < materials.Length; l++)
 					{
-						mats3[j2].DisableKeyword("_EMISSION");
+						materials[l].DisableKeyword("_EMISSION");
 					}
-					myRends[k].materials = mats3;
+					myRends[k].materials = materials;
 				}
 			}
 			return;
 		}
 		if (CanBeColored)
 		{
-			for (int j = 0; j < myRends.Length; j++)
+			for (int m = 0; m < myRends.Length; m++)
 			{
-				Material[] mats2 = myRends[j].materials;
-				for (int n = 0; n < mats2.Length; n++)
+				Material[] materials2 = myRends[m].materials;
+				for (int n = 0; n < materials2.Length; n++)
 				{
-					mats2[n].SetColor("_Color", clr);
+					materials2[n].SetColor("_Color", clr);
 				}
-				myRends[j].materials = mats2;
+				myRends[m].materials = materials2;
 			}
 			return;
 		}
-		for (int i = 0; i < myRends.Length; i++)
+		for (int num = 0; num < myRends.Length; num++)
 		{
-			if (!(myRends[i] == null))
+			if (!(myRends[num] == null))
 			{
-				Material[] mats = myRends[i].materials;
-				for (int m = 0; m < mats.Length; m++)
+				Material[] materials3 = myRends[num].materials;
+				for (int num2 = 0; num2 < materials3.Length; num2++)
 				{
-					mats[m].EnableKeyword("_EMISSION");
-					mats[m].SetColor("_EmissionColor", clr);
+					materials3[num2].EnableKeyword("_EMISSION");
+					materials3[num2].SetColor("_EmissionColor", clr);
 				}
-				myRends[i].materials = mats;
+				myRends[num].materials = materials3;
 			}
 		}
 	}
@@ -175,8 +175,8 @@ public class MapEditorProp : MonoBehaviour
 			{
 				MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber] = new SerializableColor();
 				MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber].Color = MapEditorMaster.instance.OTM.FCP_mat.material.GetColor("_Color1");
-				Color clr = MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber].Color;
-				SetMaterials(clr, reset: false);
+				Color color = MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber].Color;
+				SetMaterials(color, reset: false);
 			}
 		}
 	}
@@ -257,32 +257,32 @@ public class MapEditorProp : MonoBehaviour
 			{
 				return;
 			}
-			Material[] rend2 = myRends[0].materials;
+			Material[] materials = myRends[0].materials;
 			if (MapEditorMaster.instance.TeamColorEnabled[TeamNumber])
 			{
-				if (rend2[0].color != MapEditorMaster.instance.TeamColors[TeamNumber])
+				if (materials[0].color != MapEditorMaster.instance.TeamColors[TeamNumber])
 				{
-					rend2[0].color = MapEditorMaster.instance.TeamColors[TeamNumber];
+					materials[0].color = MapEditorMaster.instance.TeamColors[TeamNumber];
 					if (DarkLight != null)
 					{
 						DarkLight.GetComponent<MeshRenderer>().material.color = MapEditorMaster.instance.TeamColors[TeamNumber];
 						DarkLight.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", MapEditorMaster.instance.TeamColors[TeamNumber]);
 						DarkLight.GetComponentInChildren<Light>().color = MapEditorMaster.instance.TeamColors[TeamNumber];
 					}
-					myRends[0].materials = rend2;
+					myRends[0].materials = materials;
 				}
 			}
 			else
 			{
 				if (OriginalBodyColor != Color.black)
 				{
-					rend2[0].color = OriginalBodyColor;
+					materials[0].color = OriginalBodyColor;
 				}
-				myRends[0].materials = rend2;
+				myRends[0].materials = materials;
 				if ((bool)myEnemyAI && (bool)myEnemyAI.skidMarkCreator)
 				{
-					SkidmarkController SC = myEnemyAI.skidMarkCreator.GetComponent<SkidmarkController>();
-					SC.startingColor = SC.originalColor;
+					SkidmarkController component = myEnemyAI.skidMarkCreator.GetComponent<SkidmarkController>();
+					component.startingColor = component.originalColor;
 				}
 			}
 		}
@@ -293,25 +293,25 @@ public class MapEditorProp : MonoBehaviour
 				return;
 			}
 			MTS.MyTeam = TeamNumber;
-			Material[] rend = myRends[0].materials;
+			Material[] materials2 = myRends[0].materials;
 			if (MapEditorMaster.instance.TeamColorEnabled[TeamNumber])
 			{
-				if (rend[0].color != MapEditorMaster.instance.TeamColors[TeamNumber])
+				if (materials2[0].color != MapEditorMaster.instance.TeamColors[TeamNumber])
 				{
-					rend[0].color = MapEditorMaster.instance.TeamColors[TeamNumber];
+					materials2[0].color = MapEditorMaster.instance.TeamColors[TeamNumber];
 					if (DarkLight != null)
 					{
 						DarkLight.GetComponent<MeshRenderer>().material.color = MapEditorMaster.instance.TeamColors[TeamNumber];
 						DarkLight.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", MapEditorMaster.instance.TeamColors[TeamNumber]);
 						DarkLight.GetComponentInChildren<Light>().color = MapEditorMaster.instance.TeamColors[TeamNumber];
 					}
-					myRends[0].materials = rend;
+					myRends[0].materials = materials2;
 				}
 			}
 			else
 			{
-				rend[0].color = OriginalBodyColor;
-				myRends[0].materials = rend;
+				materials2[0].color = OriginalBodyColor;
+				myRends[0].materials = materials2;
 			}
 		}
 	}
@@ -323,8 +323,7 @@ public class MapEditorProp : MonoBehaviour
 		SetTankBodyColor();
 		if (base.transform.parent.gameObject.GetComponent<Animator>() != null && !GameMaster.instance.GameHasStarted)
 		{
-			Animator ParentAnimator = base.transform.parent.gameObject.GetComponent<Animator>();
-			ParentAnimator.enabled = false;
+			base.transform.parent.gameObject.GetComponent<Animator>().enabled = false;
 		}
 	}
 
@@ -347,25 +346,25 @@ public class MapEditorProp : MonoBehaviour
 		SetMaterials(Color.white, reset: true);
 		if ((bool)base.transform.parent && base.transform.parent.gameObject.GetComponent<Animator>() != null && !GameMaster.instance.GameHasStarted)
 		{
-			Rigidbody RB = GetComponent<Rigidbody>();
-			if ((bool)RB)
+			Rigidbody component = GetComponent<Rigidbody>();
+			if ((bool)component)
 			{
-				RB.isKinematic = true;
+				component.isKinematic = true;
 			}
 			base.transform.localPosition = Vector3.zero;
 			base.transform.localRotation = Quaternion.identity;
-			Animator ParentAnimator = base.transform.parent.gameObject.GetComponent<Animator>();
-			ParentAnimator.enabled = true;
+			Animator component2 = base.transform.parent.gameObject.GetComponent<Animator>();
+			component2.enabled = true;
 			if ((bool)MapEditorMaster.instance)
 			{
 				if (!MapEditorMaster.instance.inPlayingMode)
 				{
-					ParentAnimator.Play("TankPLOP", -1, 0f);
+					component2.Play("TankPLOP", -1, 0f);
 				}
 			}
 			else
 			{
-				ParentAnimator.Play("TankPLOP", -1, 0f);
+				component2.Play("TankPLOP", -1, 0f);
 			}
 		}
 		SetTankBodyColor();
@@ -418,10 +417,10 @@ public class MapEditorProp : MonoBehaviour
 
 	public void UpdateTankProperties()
 	{
-		float calculation = ((MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomFireSpeed > 0f) ? (1f / MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomFireSpeed) : 0f);
-		if (myEnemyAI.ShootSpeed != calculation)
+		float num = ((MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomFireSpeed > 0f) ? (1f / MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomFireSpeed) : 0f);
+		if (myEnemyAI.ShootSpeed != num)
 		{
-			myEnemyAI.ShootSpeed = calculation;
+			myEnemyAI.ShootSpeed = num;
 		}
 		if (myEnemyAI.ETSN != null)
 		{
@@ -452,26 +451,26 @@ public class MapEditorProp : MonoBehaviour
 			myEnemyAI.ETSN.RocketReloadSpeed = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomMissileReloadSpeed;
 			myEnemyAI.ETSN.RocketReloadSpeed = 0f - MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomMissileReloadSpeed / 10f + 10.1f;
 			Debug.Log("After calculation: " + myEnemyAI.ETSN.RocketReloadSpeed);
-			int RocketsToRemove = 4 - MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomMissileCapacity;
+			int num2 = 4 - MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomMissileCapacity;
 			myEnemyAI.ETSN.rocketSlots.Clear();
-			foreach (GameObject Rocket in myEnemyAI.ETSN.rockets)
+			foreach (GameObject rocket in myEnemyAI.ETSN.rockets)
 			{
-				Object.Destroy(Rocket);
+				Object.Destroy(rocket);
 			}
-			for (int l = 0; l < 4; l++)
+			for (int i = 0; i < 4; i++)
 			{
 				myEnemyAI.ETSN.rocketSlots.Add(1);
 			}
-			if (RocketsToRemove > 0)
+			if (num2 > 0)
 			{
-				for (int k = 0; k < RocketsToRemove; k++)
+				for (int j = 0; j < num2; j++)
 				{
 					myEnemyAI.ETSN.rocketSlots.RemoveAt(myEnemyAI.ETSN.rocketSlots.Count - 1);
 				}
 			}
-			for (int j = 0; j < myEnemyAI.ETSN.rocketSlots.Count; j++)
+			for (int k = 0; k < myEnemyAI.ETSN.rocketSlots.Count; k++)
 			{
-				myEnemyAI.ETSN.AddRocket(j);
+				myEnemyAI.ETSN.AddRocket(k);
 			}
 			if (MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CanShootAirMissiles)
 			{
@@ -486,11 +485,11 @@ public class MapEditorProp : MonoBehaviour
 		}
 		if ((bool)HT)
 		{
-			int musicId = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomMusic;
-			int ID = ((musicId < 8) ? musicId : (musicId + 1));
-			if (HT.EnemyID != ID)
+			int customMusic = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomMusic;
+			int num3 = ((customMusic < 8) ? customMusic : (customMusic + 1));
+			if (HT.EnemyID != num3)
 			{
-				HT.EnemyID = ID;
+				HT.EnemyID = num3;
 			}
 		}
 		myEnemyAI.HTscript.health = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankHealth;
@@ -500,17 +499,17 @@ public class MapEditorProp : MonoBehaviour
 		myEnemyAI.HTscript.IsArmoured = myEnemyAI.armoured;
 		if (myEnemyAI.armoured)
 		{
-			int amountPoints = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomArmourPoints;
-			myEnemyAI.HTscript.health_armour = amountPoints;
-			myEnemyAI.HTscript.maxArmour = amountPoints;
+			int customArmourPoints = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomArmourPoints;
+			myEnemyAI.HTscript.health_armour = customArmourPoints;
+			myEnemyAI.HTscript.maxArmour = customArmourPoints;
 			if (myEnemyAI.armour != null)
 			{
 				myEnemyAI.armour.SetActive(value: true);
 				myEnemyAI.armoured = true;
-				amountPoints = ((amountPoints > 3) ? 3 : amountPoints);
-				for (int i = 0; i < amountPoints; i++)
+				customArmourPoints = ((customArmourPoints > 3) ? 3 : customArmourPoints);
+				for (int l = 0; l < customArmourPoints; l++)
 				{
-					myEnemyAI.armour.transform.GetChild(i).gameObject.SetActive(value: true);
+					myEnemyAI.armour.transform.GetChild(l).gameObject.SetActive(value: true);
 				}
 			}
 		}
@@ -525,19 +524,19 @@ public class MapEditorProp : MonoBehaviour
 				myEnemyAI.armoured = false;
 			}
 		}
-		Vector3 CustomSize = new Vector3(MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankScale, MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankScale, MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankScale);
-		if (base.transform.parent.parent.localScale != CustomSize)
+		Vector3 vector = new Vector3(MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankScale, MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankScale, MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankScale);
+		if (base.transform.parent.parent.localScale != vector)
 		{
-			base.transform.parent.parent.localScale = CustomSize;
+			base.transform.parent.parent.localScale = vector;
 		}
 		myEnemyAI.isInvisible = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomInvisibility;
 		myEnemyAI.ETSN.maxFiredBullets = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomBullets;
 		myEnemyAI.LayMinesSpeed = 10.5f - MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomMineSpeed;
 		myEnemyAI.ETSN.CustomShootSpeed = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomBulletSpeed;
-		float calcAcc = Mathf.Abs(100 - MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomAccuracy);
-		if (myEnemyAI.Accuracy != calcAcc)
+		float num4 = Mathf.Abs(100 - MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomAccuracy);
+		if (myEnemyAI.Accuracy != num4)
 		{
-			myEnemyAI.Accuracy = calcAcc;
+			myEnemyAI.Accuracy = num4;
 		}
 		if (myEnemyAI.TankSpeed != (float)MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankSpeed)
 		{
@@ -642,12 +641,12 @@ public class MapEditorProp : MonoBehaviour
 		{
 			MapEditorMaster.instance.OTM.SelectedMEP.myMEGP.FieldSelected = false;
 		}
-		int menuID = 0;
+		int menuType = 0;
 		if (CanBeColored)
 		{
-			menuID = 1;
+			menuType = 1;
 		}
-		MapEditorMaster.instance.OTM.OnOpenMenu(menuID, this);
+		MapEditorMaster.instance.OTM.OnOpenMenu(menuType, this);
 		MapEditorMaster.instance.OTM.CurrentDifficulty = MyDifficultySpawn;
 		MapEditorMaster.instance.OTM.DifficultyPick.value = MyDifficultySpawn;
 		MapEditorMaster.instance.TeamsCursorMenu.SetActive(value: true);
@@ -684,8 +683,8 @@ public class MapEditorProp : MonoBehaviour
 			}
 			else
 			{
-				Color clr2 = MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber].Color;
-				SetMaterials(clr2, reset: false);
+				Color color = MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber].Color;
+				SetMaterials(color, reset: false);
 			}
 		}
 		if (MapEditorMaster.instance.isTesting || GameMaster.instance.GameHasPaused || MapEditorMaster.instance.inPlayingMode || MapEditorMaster.instance.CurrentLayer != LayerNumber || MapEditorMaster.instance.MenuCurrent == 8)
@@ -695,8 +694,8 @@ public class MapEditorProp : MonoBehaviour
 				ColorSetPlayingMode = true;
 				if (MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber] != null)
 				{
-					Color clr = MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber].Color;
-					SetMaterials(clr, reset: false);
+					Color color2 = MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber].Color;
+					SetMaterials(color2, reset: false);
 				}
 			}
 			return;

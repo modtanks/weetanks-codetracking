@@ -12,7 +12,7 @@ public class PlayAnClip : MonoBehaviour
 
 	private void OnClip1()
 	{
-		int choose = Random.Range(0, Clip1.Length);
-		SFXManager.instance.PlaySFX(Clip1[choose], Volume);
+		int num = Random.Range(0, Clip1.Length);
+		SFXManager.instance.PlaySFX(Clip1[num], Volume);
 	}
 }

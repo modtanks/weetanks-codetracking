@@ -39,8 +39,8 @@ public class SnowEnabler : MonoBehaviour
 			}
 			if (SnowChildren.Length != 0)
 			{
-				int length = SnowChildren.Length;
-				for (int i = 0; i < length; i++)
+				int num = SnowChildren.Length;
+				for (int i = 0; i < num; i++)
 				{
 					if ((bool)SnowChildren[i])
 					{
@@ -86,24 +86,25 @@ public class SnowEnabler : MonoBehaviour
 			{
 				return;
 			}
+			GameObject[] snowChildren;
 			if (OptionsMainMenu.instance.SnowMode)
 			{
-				GameObject[] snowChildren = SnowChildren;
-				foreach (GameObject child2 in snowChildren)
+				snowChildren = SnowChildren;
+				foreach (GameObject gameObject in snowChildren)
 				{
-					if ((bool)child2)
+					if ((bool)gameObject)
 					{
-						child2.SetActive(value: true);
+						gameObject.SetActive(value: true);
 					}
 				}
 				return;
 			}
-			GameObject[] snowChildren2 = SnowChildren;
-			foreach (GameObject child in snowChildren2)
+			snowChildren = SnowChildren;
+			foreach (GameObject gameObject2 in snowChildren)
 			{
-				if ((bool)child)
+				if ((bool)gameObject2)
 				{
-					child.SetActive(value: false);
+					gameObject2.SetActive(value: false);
 				}
 			}
 		}

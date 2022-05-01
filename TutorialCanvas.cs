@@ -28,9 +28,9 @@ public class TutorialCanvas : MonoBehaviour
 
 	public float downPosition = -395f;
 
-	public bool controllerTutsActive = false;
+	public bool controllerTutsActive;
 
-	public bool inZombieMode = false;
+	public bool inZombieMode;
 
 	private void Awake()
 	{
@@ -43,17 +43,17 @@ public class TutorialCanvas : MonoBehaviour
 		{
 			inZombieMode = true;
 		}
-		foreach (GameObject text2 in TutorialTexts)
+		foreach (GameObject tutorialText in TutorialTexts)
 		{
-			tutPosition = text2.transform.position;
+			tutPosition = tutorialText.transform.position;
 			tutDownPosition = new Vector3(tutPosition.x, tutPosition.y - downPosition, 0f);
-			text2.transform.position = tutDownPosition;
+			tutorialText.transform.position = tutDownPosition;
 		}
-		foreach (GameObject text in TutorialKeyboardTexts)
+		foreach (GameObject tutorialKeyboardText in TutorialKeyboardTexts)
 		{
-			tutPosition = text.transform.position;
+			tutPosition = tutorialKeyboardText.transform.position;
 			tutDownPosition = new Vector3(tutPosition.x, tutPosition.y - downPosition, 0f);
-			text.transform.position = tutDownPosition;
+			tutorialKeyboardText.transform.position = tutDownPosition;
 		}
 		moveDown = false;
 		TutorialTexts[currentTut].SetActive(value: false);
@@ -130,8 +130,7 @@ public class TutorialCanvas : MonoBehaviour
 
 	private void MoveTutDown()
 	{
-		float dist = Vector3.Distance(TutorialTexts[currentTut].transform.position, tutDownPosition);
-		if (dist >= 0.1f)
+		if (Vector3.Distance(TutorialTexts[currentTut].transform.position, tutDownPosition) >= 0.1f)
 		{
 			TutorialTexts[currentTut].transform.position = Vector3.Lerp(TutorialTexts[currentTut].transform.position, tutDownPosition, Time.deltaTime * 3f);
 			TutorialKeyboardTexts[currentTut].transform.position = Vector3.Lerp(TutorialKeyboardTexts[currentTut].transform.position, tutDownPosition, Time.deltaTime * 3f);
@@ -146,23 +145,23 @@ public class TutorialCanvas : MonoBehaviour
 
 	private void SetTuts()
 	{
-		foreach (Transform child2 in currentMissionBanner.transform)
+		foreach (Transform item in currentMissionBanner.transform)
 		{
-			TutorialTexts.Add(child2.gameObject);
-			string name = child2.name;
-			string val = "";
-			for (int i = 0; i < name.Length; i++)
+			TutorialTexts.Add(item.gameObject);
+			string text = item.name;
+			string text2 = "";
+			for (int i = 0; i < text.Length; i++)
 			{
-				if (char.IsDigit(name[i]))
+				if (char.IsDigit(text[i]))
 				{
-					val += name[i];
+					text2 += text[i];
 				}
 			}
-			levelTutorial.Add(int.Parse(val) - 1);
+			levelTutorial.Add(int.Parse(text2) - 1);
 		}
-		foreach (Transform child in keyboardAndMouseBanner.transform)
+		foreach (Transform item2 in keyboardAndMouseBanner.transform)
 		{
-			TutorialKeyboardTexts.Add(child.gameObject);
+			TutorialKeyboardTexts.Add(item2.gameObject);
 		}
 		currentMissionBanner.SetActive(value: false);
 		keyboardAndMouseBanner.SetActive(value: true);

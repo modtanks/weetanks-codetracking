@@ -55,18 +55,18 @@ public class CanvasScalerFitter : MonoBehaviour
 		{
 			return;
 		}
-		float xRatio = (float)Screen.width / (float)Screen.height;
-		float closest = float.PositiveInfinity;
-		int closestIndex = 0;
+		float num = (float)Screen.width / (float)Screen.height;
+		float num2 = float.PositiveInfinity;
+		int num3 = 0;
 		for (int i = 0; i < breakPoints.Length; i++)
 		{
-			float ratio = Mathf.Abs(xRatio - breakPoints[i].screenAspectRatio);
-			if ((!(ratio > breakPoints[i].screenAspectRatio) || MathTools.IsNear(breakPoints[i].screenAspectRatio, 0.01f)) && ratio < closest)
+			float num4 = Mathf.Abs(num - breakPoints[i].screenAspectRatio);
+			if ((!(num4 > breakPoints[i].screenAspectRatio) || MathTools.IsNear(breakPoints[i].screenAspectRatio, 0.01f)) && num4 < num2)
 			{
-				closest = ratio;
-				closestIndex = i;
+				num2 = num4;
+				num3 = i;
 			}
 		}
-		canvasScaler.referenceResolution = breakPoints[closestIndex].referenceResolution;
+		canvasScaler.referenceResolution = breakPoints[num3].referenceResolution;
 	}
 }

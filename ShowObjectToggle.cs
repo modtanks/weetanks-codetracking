@@ -4,7 +4,7 @@ public class ShowObjectToggle : MonoBehaviour
 {
 	public GameObject theObject;
 
-	public bool Showing = false;
+	public bool Showing;
 
 	public void ChangeShow()
 	{

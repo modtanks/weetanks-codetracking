@@ -7,15 +7,15 @@ public class DestroyableWall : MonoBehaviour
 
 	public GameObject underMe;
 
-	public bool hasChecked = false;
+	public bool hasChecked;
 
-	public bool isHalfSlab = false;
+	public bool isHalfSlab;
 
-	public bool IsStone = false;
+	public bool IsStone;
 
-	public bool IsSpawnedIn = false;
+	public bool IsSpawnedIn;
 
-	private bool PreventDouble = false;
+	private bool PreventDouble;
 
 	private void Start()
 	{
@@ -39,12 +39,12 @@ public class DestroyableWall : MonoBehaviour
 		{
 			return;
 		}
-		LayerMask LM = (1 << LayerMask.NameToLayer("CorkWall")) | (1 << LayerMask.NameToLayer("FLOOR"));
-		if (Physics.Raycast(base.transform.position, -Vector3.up, out var hit, 9f, LM))
+		LayerMask layerMask = (1 << LayerMask.NameToLayer("CorkWall")) | (1 << LayerMask.NameToLayer("FLOOR"));
+		if (Physics.Raycast(base.transform.position, -Vector3.up, out var hitInfo, 9f, layerMask))
 		{
-			if (hit.transform.tag == "Solid" || hit.collider.tag == "Solid" || hit.collider.tag == "Floor" || hit.transform.tag == "Floor")
+			if (hitInfo.transform.tag == "Solid" || hitInfo.collider.tag == "Solid" || hitInfo.collider.tag == "Floor" || hitInfo.transform.tag == "Floor")
 			{
-				underMe = hit.collider.gameObject;
+				underMe = hitInfo.collider.gameObject;
 			}
 			if (underMe != null)
 			{
@@ -53,7 +53,7 @@ public class DestroyableWall : MonoBehaviour
 			else
 			{
 				Debug.LogWarning("Checked, but not the right tag!");
-				Debug.LogWarning(hit.transform.tag + hit.transform.name);
+				Debug.LogWarning(hitInfo.transform.tag + hitInfo.transform.name);
 				hasChecked = true;
 			}
 		}
@@ -87,8 +87,7 @@ public class DestroyableWall : MonoBehaviour
 		if (!IsStone)
 		{
 			yield return new WaitForSeconds(0.1f);
-			GameObject explosion = Object.Instantiate(ExplosionPrefab, base.transform.position, base.transform.rotation);
-			Object.Destroy(explosion, 5f);
+			Object.Destroy(Object.Instantiate(ExplosionPrefab, base.transform.position, base.transform.rotation), 5f);
 			if (GameMaster.instance.isZombieMode)
 			{
 				GenerateNavMeshSurface.instance.InitiateRecalc();
@@ -100,8 +99,7 @@ public class DestroyableWall : MonoBehaviour
 	public IEnumerator stonedestroy()
 	{
 		yield return new WaitForSeconds(0.1f);
-		GameObject explosion = Object.Instantiate(ExplosionPrefab, base.transform.position, base.transform.rotation);
-		Object.Destroy(explosion, 5f);
+		Object.Destroy(Object.Instantiate(ExplosionPrefab, base.transform.position, base.transform.rotation), 5f);
 		if (GameMaster.instance.isZombieMode)
 		{
 			GenerateNavMeshSurface.instance.InitiateRecalc();

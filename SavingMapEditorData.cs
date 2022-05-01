@@ -8,101 +8,98 @@ public static class SavingMapEditorData
 {
 	public static bool SaveMap(GameMaster GM, MapEditorMaster MEM, string filename, bool overwrite)
 	{
-		BinaryFormatter formatter = new BinaryFormatter();
-		string savePath = Application.persistentDataPath + "/" + filename + ".campaign";
-		savePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
-		savePath = savePath + "/My Games/Wee Tanks/" + filename + ".campaign";
-		FileInfo file = new FileInfo(savePath);
-		file.Directory.Create();
-		if (File.Exists(savePath) && !overwrite)
+		BinaryFormatter binaryFormatter = new BinaryFormatter();
+		string text = Application.persistentDataPath + "/" + filename + ".campaign";
+		text = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
+		text = text + "/My Games/Wee Tanks/" + filename + ".campaign";
+		new FileInfo(text).Directory.Create();
+		if (File.Exists(text) && !overwrite)
 		{
 			Debug.LogError("File already exists!");
-			Debug.LogError(savePath);
+			Debug.LogError(text);
 			return false;
 		}
-		FileStream stream = new FileStream(savePath, FileMode.Create);
-		MapEditorData data = new MapEditorData(GM, MEM);
-		formatter.Serialize(stream, data);
-		Debug.LogError("File saved at " + savePath);
-		stream.Close();
+		FileStream fileStream = new FileStream(text, FileMode.Create);
+		MapEditorData graph = new MapEditorData(GM, MEM);
+		binaryFormatter.Serialize(fileStream, graph);
+		Debug.LogError("File saved at " + text);
+		fileStream.Close();
 		return true;
 	}
 
 	public static bool AutoSaveMap(GameMaster GM, MapEditorMaster MEM)
 	{
-		BinaryFormatter formatter = new BinaryFormatter();
-		string filename = "autosave_" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
-		string savePath = Application.persistentDataPath + "/autosaves/" + filename + ".campaign";
-		savePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
-		string folder = savePath + "/My Games/Wee Tanks/autosaves";
-		savePath = savePath + "/My Games/Wee Tanks/autosaves/" + filename + ".campaign";
-		foreach (FileInfo fi in (from x in new DirectoryInfo(folder).GetFiles()
+		BinaryFormatter binaryFormatter = new BinaryFormatter();
+		string text = "autosave_" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
+		string text2 = Application.persistentDataPath + "/autosaves/" + text + ".campaign";
+		text2 = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
+		string path = text2 + "/My Games/Wee Tanks/autosaves";
+		text2 = text2 + "/My Games/Wee Tanks/autosaves/" + text + ".campaign";
+		foreach (FileInfo item in (from x in new DirectoryInfo(path).GetFiles()
 			orderby x.LastWriteTime descending
 			select x).Skip(49))
 		{
-			fi.Delete();
+			item.Delete();
 		}
-		FileInfo file = new FileInfo(savePath);
-		file.Directory.Create();
-		FileStream stream = new FileStream(savePath, FileMode.Create);
-		MapEditorData data = new MapEditorData(GM, MEM);
-		formatter.Serialize(stream, data);
-		Debug.LogError("File saved at " + savePath);
-		stream.Close();
+		new FileInfo(text2).Directory.Create();
+		FileStream fileStream = new FileStream(text2, FileMode.Create);
+		MapEditorData graph = new MapEditorData(GM, MEM);
+		binaryFormatter.Serialize(fileStream, graph);
+		Debug.LogError("File saved at " + text2);
+		fileStream.Close();
 		return true;
 	}
 
 	public static bool SaveClassicCampaignMap(GameMaster GM, MapEditorMaster MEM, string filename, TextAsset CampaignMap)
 	{
-		BinaryFormatter formatter = new BinaryFormatter();
-		string savePath = null;
-		savePath = savePath.Replace("Assets", "");
-		Debug.Log("save path now is: " + savePath);
+		BinaryFormatter binaryFormatter = new BinaryFormatter();
+		string text = null;
+		text = text.Replace("Assets", "");
+		Debug.Log("save path now is: " + text);
 		Debug.Log("dataPath : " + Application.dataPath);
-		savePath = Application.dataPath + savePath;
-		FileStream stream = new FileStream(savePath, FileMode.Create);
-		SingleMapEditorData data = new SingleMapEditorData(GM, MEM);
-		formatter.Serialize(stream, data);
-		Debug.LogError("File saved at " + savePath);
-		stream.Close();
+		text = Application.dataPath + text;
+		FileStream fileStream = new FileStream(text, FileMode.Create);
+		SingleMapEditorData graph = new SingleMapEditorData(GM, MEM);
+		binaryFormatter.Serialize(fileStream, graph);
+		Debug.LogError("File saved at " + text);
+		fileStream.Close();
 		return true;
 	}
 
 	public static bool SaveCampaignMap(GameMaster GM, MapEditorMaster MEM, string filename, bool overwrite)
 	{
-		BinaryFormatter formatter = new BinaryFormatter();
-		string savePath = Application.persistentDataPath + "/" + filename + ".txt";
-		savePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
-		savePath = savePath + "/My Games/Wee Tanks/" + filename + ".txt";
-		FileInfo file = new FileInfo(savePath);
-		file.Directory.Create();
-		if (File.Exists(savePath) && !overwrite)
+		BinaryFormatter binaryFormatter = new BinaryFormatter();
+		string text = Application.persistentDataPath + "/" + filename + ".txt";
+		text = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
+		text = text + "/My Games/Wee Tanks/" + filename + ".txt";
+		new FileInfo(text).Directory.Create();
+		if (File.Exists(text) && !overwrite)
 		{
 			Debug.LogError("File already exists!");
-			Debug.LogError(savePath);
+			Debug.LogError(text);
 			return false;
 		}
-		FileStream stream = new FileStream(savePath, FileMode.Create);
-		SingleMapEditorData data = new SingleMapEditorData(GM, MEM);
-		formatter.Serialize(stream, data);
-		Debug.LogError("File saved at " + savePath);
-		stream.Close();
+		FileStream fileStream = new FileStream(text, FileMode.Create);
+		SingleMapEditorData graph = new SingleMapEditorData(GM, MEM);
+		binaryFormatter.Serialize(fileStream, graph);
+		Debug.LogError("File saved at " + text);
+		fileStream.Close();
 		return true;
 	}
 
 	public static MapEditorData LoadData(string filename)
 	{
-		string savePath = Application.persistentDataPath + "/" + filename + ".campaign";
-		savePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
-		savePath = savePath + "/My Games/Wee Tanks/" + filename + ".campaign";
-		if (File.Exists(savePath))
+		string text = Application.persistentDataPath + "/" + filename + ".campaign";
+		text = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
+		text = text + "/My Games/Wee Tanks/" + filename + ".campaign";
+		if (File.Exists(text))
 		{
-			BinaryFormatter formatter = new BinaryFormatter();
-			FileStream stream = new FileStream(savePath, FileMode.Open);
-			stream.Seek(0L, SeekOrigin.Begin);
-			MapEditorData data = formatter.Deserialize(stream) as MapEditorData;
-			stream.Close();
-			return data;
+			BinaryFormatter binaryFormatter = new BinaryFormatter();
+			FileStream fileStream = new FileStream(text, FileMode.Open);
+			fileStream.Seek(0L, SeekOrigin.Begin);
+			MapEditorData result = binaryFormatter.Deserialize(fileStream) as MapEditorData;
+			fileStream.Close();
+			return result;
 		}
 		return null;
 	}
@@ -110,20 +107,19 @@ public static class SavingMapEditorData
 	public static SingleMapEditorData LoadDataFromTXT(TextAsset mapObject)
 	{
 		Stream stream = new MemoryStream(mapObject.bytes);
-		BinaryFormatter formatter = new BinaryFormatter();
-		SingleMapEditorData data = formatter.Deserialize(stream) as SingleMapEditorData;
+		SingleMapEditorData result = new BinaryFormatter().Deserialize(stream) as SingleMapEditorData;
 		stream.Close();
-		return data;
+		return result;
 	}
 
 	public static bool ReSaveMap(MapEditorData data, string path)
 	{
 		File.Delete(path);
-		BinaryFormatter formatter = new BinaryFormatter();
-		FileStream stream = File.Create(path);
-		formatter.Serialize(stream, data);
+		BinaryFormatter binaryFormatter = new BinaryFormatter();
+		FileStream fileStream = File.Create(path);
+		binaryFormatter.Serialize(fileStream, data);
 		Debug.LogError("File saved at " + path);
-		stream.Close();
+		fileStream.Close();
 		return true;
 	}
 }

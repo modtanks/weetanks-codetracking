@@ -9,25 +9,25 @@ using UnityEngine.UI;
 
 public class CampaignItemScript : MonoBehaviour
 {
-	public bool isMyCampaign = false;
+	public bool isMyCampaign;
 
-	public bool isMainMenuCampaign = false;
+	public bool isMainMenuCampaign;
 
-	public int campaignID = 0;
+	public int campaignID;
 
-	public int isPublished = 0;
+	public int isPublished;
 
-	public int times_favorited = 0;
+	public int times_favorited;
 
-	public int times_downloaded = 0;
+	public int times_downloaded;
 
-	public int map_size = 0;
+	public int map_size;
 
-	public int campaign_difficulty = 0;
+	public int campaign_difficulty;
 
-	public bool hasDownloaded = false;
+	public bool hasDownloaded;
 
-	public int amount_missions = 0;
+	public int amount_missions;
 
 	public string campaignVersion;
 
@@ -41,9 +41,9 @@ public class CampaignItemScript : MonoBehaviour
 
 	public Toggle btn_online;
 
-	public bool isUploading = false;
+	public bool isUploading;
 
-	public bool isDownloading = false;
+	public bool isDownloading;
 
 	public GameObject[] HideWhenMessage;
 
@@ -128,9 +128,9 @@ public class CampaignItemScript : MonoBehaviour
 	public void DeleteCampaign()
 	{
 		GameObject[] hideWhenMessage = HideWhenMessage;
-		foreach (GameObject G in hideWhenMessage)
+		for (int i = 0; i < hideWhenMessage.Length; i++)
 		{
-			G.SetActive(value: false);
+			hideWhenMessage[i].SetActive(value: false);
 		}
 		ConfirmDelete.SetActive(value: true);
 	}
@@ -138,9 +138,9 @@ public class CampaignItemScript : MonoBehaviour
 	public void ShowDownloadButton()
 	{
 		GameObject[] normalButtons = NormalButtons;
-		foreach (GameObject G in normalButtons)
+		for (int i = 0; i < normalButtons.Length; i++)
 		{
-			G.SetActive(value: false);
+			normalButtons[i].SetActive(value: false);
 		}
 		DownloadButton.SetActive(value: true);
 	}
@@ -148,9 +148,9 @@ public class CampaignItemScript : MonoBehaviour
 	public void HideDownloadButton()
 	{
 		GameObject[] normalButtons = NormalButtons;
-		foreach (GameObject G in normalButtons)
+		for (int i = 0; i < normalButtons.Length; i++)
 		{
-			G.SetActive(value: true);
+			normalButtons[i].SetActive(value: true);
 		}
 		DownloadButton.SetActive(value: false);
 	}
@@ -158,9 +158,9 @@ public class CampaignItemScript : MonoBehaviour
 	public void DeleteCampaignCancle()
 	{
 		GameObject[] hideWhenMessage = HideWhenMessage;
-		foreach (GameObject G in hideWhenMessage)
+		for (int i = 0; i < hideWhenMessage.Length; i++)
 		{
-			G.SetActive(value: true);
+			hideWhenMessage[i].SetActive(value: true);
 		}
 		ConfirmDelete.SetActive(value: false);
 	}
@@ -182,13 +182,13 @@ public class CampaignItemScript : MonoBehaviour
 			NMC.GPM.isLoading = false;
 			yield break;
 		}
-		string receivedKey = keyRequest.downloadHandler.text;
-		WWWForm form = new WWWForm();
-		form.AddField("key", AccountMaster.instance.Key);
-		form.AddField("authKey", receivedKey);
-		form.AddField("userid", AccountMaster.instance.UserID);
-		form.AddField("campaignID", campaignID);
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/remove_map.php", form);
+		string text = keyRequest.downloadHandler.text;
+		WWWForm wWWForm = new WWWForm();
+		wWWForm.AddField("key", AccountMaster.instance.Key);
+		wWWForm.AddField("authKey", text);
+		wWWForm.AddField("userid", AccountMaster.instance.UserID);
+		wWWForm.AddField("campaignID", campaignID);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/remove_map.php", wWWForm);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		NMC.GPM.isLoading = false;
@@ -205,9 +205,7 @@ public class CampaignItemScript : MonoBehaviour
 		else if (uwr.downloadHandler.text == "SUCCES")
 		{
 			_ = Application.persistentDataPath + "/";
-			string savePath2 = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
-			savePath2 = savePath2 + "/My Games/Wee Tanks/" + campaignName + ".campaign";
-			File.Delete(savePath2);
+			File.Delete(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/") + "/My Games/Wee Tanks/" + campaignName + ".campaign");
 			UnityEngine.Object.Destroy(base.gameObject);
 		}
 	}
@@ -240,11 +238,11 @@ public class CampaignItemScript : MonoBehaviour
 	public IEnumerator GetMapData()
 	{
 		NMC.GPM.isLoading = true;
-		WWWForm form = new WWWForm();
-		form.AddField("key", AccountMaster.instance.Key);
-		form.AddField("userid", AccountMaster.instance.UserID);
-		form.AddField("campaignID", campaignID);
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/get_map_data.php", form);
+		WWWForm wWWForm = new WWWForm();
+		wWWForm.AddField("key", AccountMaster.instance.Key);
+		wWWForm.AddField("userid", AccountMaster.instance.UserID);
+		wWWForm.AddField("campaignID", campaignID);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/get_map_data.php", wWWForm);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		NMC.GPM.isLoading = false;
@@ -259,16 +257,18 @@ public class CampaignItemScript : MonoBehaviour
 			UnityEngine.Object.Destroy(base.gameObject);
 			yield break;
 		}
-		string[] map_info = uwr.downloadHandler.text.Split(char.Parse(","));
-		times_downloaded = int.Parse(map_info[0]);
-		times_favorited = int.Parse(map_info[1]);
+		string[] array = uwr.downloadHandler.text.Split(char.Parse(","));
+		times_downloaded = int.Parse(array[0]);
+		times_favorited = int.Parse(array[1]);
 		text_favorited.text = times_favorited.ToString();
 		text_downloaded.text = times_downloaded.ToString();
-		text_authorname.text = map_info[2];
-		if (int.Parse(map_info[6]) == 180 || int.Parse(map_info[6]) == 285 || int.Parse(map_info[6]) == 374 || int.Parse(map_info[6]) != 475)
+		text_authorname.text = array[2];
+		if (int.Parse(array[6]) != 180 && int.Parse(array[6]) != 285 && int.Parse(array[6]) != 374)
 		{
+			int.Parse(array[6]);
+			_ = 475;
 		}
-		text_mapname.text = map_info[3];
+		text_mapname.text = array[3];
 	}
 
 	public IEnumerator UploadCampaign()
@@ -288,32 +288,32 @@ public class CampaignItemScript : MonoBehaviour
 			NMC.GPM.isLoading = false;
 			yield break;
 		}
-		string receivedKey = keyRequest.downloadHandler.text;
+		string text = keyRequest.downloadHandler.text;
 		_ = Application.persistentDataPath + "/";
 		string savePath2 = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
 		savePath2 = savePath2 + "/My Games/Wee Tanks/" + campaignName + ".campaign";
 		Debug.Log(campaignName);
 		Debug.Log(savePath2);
-		WWWForm form = new WWWForm();
-		form.AddField("key", AccountMaster.instance.Key);
-		form.AddField("authKey", receivedKey);
-		form.AddField("userid", AccountMaster.instance.UserID);
-		form.AddField("campaignName", campaignName);
-		form.AddField("campaignVersion", campaignVersion);
-		form.AddField("campaignID", campaignID);
-		form.AddField("campaignSize", map_size);
-		form.AddField("campaignMissions", amount_missions);
-		form.AddField("campaignDifficulty", campaign_difficulty);
+		WWWForm wWWForm = new WWWForm();
+		wWWForm.AddField("key", AccountMaster.instance.Key);
+		wWWForm.AddField("authKey", text);
+		wWWForm.AddField("userid", AccountMaster.instance.UserID);
+		wWWForm.AddField("campaignName", campaignName);
+		wWWForm.AddField("campaignVersion", campaignVersion);
+		wWWForm.AddField("campaignID", campaignID);
+		wWWForm.AddField("campaignSize", map_size);
+		wWWForm.AddField("campaignMissions", amount_missions);
+		wWWForm.AddField("campaignDifficulty", campaign_difficulty);
 		if (isPublished > 0)
 		{
-			form.AddField("publish", 0);
+			wWWForm.AddField("publish", 0);
 		}
 		else
 		{
-			form.AddField("publish", 1);
-			form.AddBinaryData("file", File.ReadAllBytes(savePath2), campaignName + ".campaign", "text/plain");
+			wWWForm.AddField("publish", 1);
+			wWWForm.AddBinaryData("file", File.ReadAllBytes(savePath2), campaignName + ".campaign", "text/plain");
 		}
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/add_map.php", form);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/add_map.php", wWWForm);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		NMC.GPM.isLoading = false;
@@ -330,26 +330,26 @@ public class CampaignItemScript : MonoBehaviour
 		}
 		if (uwr.downloadHandler.text.Contains("CANCLED"))
 		{
-			MapEditorData thisMap2 = SavingMapEditorData.LoadData(campaignName);
-			if (thisMap2 != null)
+			MapEditorData mapEditorData = SavingMapEditorData.LoadData(campaignName);
+			if (mapEditorData != null)
 			{
-				thisMap2.isPublished = 0;
+				mapEditorData.isPublished = 0;
 				isPublished = 0;
-				SavingMapEditorData.ReSaveMap(thisMap2, savePath2);
+				SavingMapEditorData.ReSaveMap(mapEditorData, savePath2);
 				btn_online.isOn = false;
 			}
 			yield break;
 		}
-		MapEditorData thisMap = SavingMapEditorData.LoadData(campaignName);
-		if (thisMap != null)
+		MapEditorData mapEditorData2 = SavingMapEditorData.LoadData(campaignName);
+		if (mapEditorData2 != null)
 		{
-			Debug.Log(thisMap.VersionCreated);
+			Debug.Log(mapEditorData2.VersionCreated);
 			Debug.Log(int.Parse(uwr.downloadHandler.text));
-			thisMap.PID = int.Parse(uwr.downloadHandler.text);
-			campaignID = thisMap.PID;
-			thisMap.isPublished = 1;
+			mapEditorData2.PID = int.Parse(uwr.downloadHandler.text);
+			campaignID = mapEditorData2.PID;
+			mapEditorData2.isPublished = 1;
 			isPublished = 1;
-			SavingMapEditorData.ReSaveMap(thisMap, savePath2);
+			SavingMapEditorData.ReSaveMap(mapEditorData2, savePath2);
 			btn_online.isOn = true;
 		}
 	}
@@ -373,16 +373,16 @@ public class CampaignItemScript : MonoBehaviour
 			NMC.GPM.isLoading = false;
 			yield break;
 		}
-		string receivedKey = keyRequest.downloadHandler.text;
+		string text = keyRequest.downloadHandler.text;
 		_ = Application.persistentDataPath + "/";
 		string savePath2 = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
 		savePath2 += "/My Games/Wee Tanks/downloads";
-		WWWForm form = new WWWForm();
-		form.AddField("key", AccountMaster.instance.Key);
-		form.AddField("authKey", receivedKey);
-		form.AddField("userid", AccountMaster.instance.UserID);
-		form.AddField("campaignID", campaignID);
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/download_map.php", form);
+		WWWForm wWWForm = new WWWForm();
+		wWWForm.AddField("key", AccountMaster.instance.Key);
+		wWWForm.AddField("authKey", text);
+		wWWForm.AddField("userid", AccountMaster.instance.UserID);
+		wWWForm.AddField("campaignID", campaignID);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/download_map.php", wWWForm);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
@@ -403,12 +403,12 @@ public class CampaignItemScript : MonoBehaviour
 			isDownloading = false;
 			if (file_url != null)
 			{
-				string url2 = "https://weetanks.com/" + file_url;
-				UnityWebRequest uwr3 = new UnityWebRequest(url2, "GET");
-				string pattern2 = "(.*)\\/(.*)\\.";
-				string[] names2 = Regex.Split(file_url, pattern2);
-				string path2 = $"{savePath2}/{names2[2]}.campaign";
-				uwr3.downloadHandler = new DownloadHandlerFile(path2);
+				string url = "https://weetanks.com/" + file_url;
+				UnityWebRequest uwr3 = new UnityWebRequest(url, "GET");
+				string pattern = "(.*)\\/(.*)\\.";
+				string[] array = Regex.Split(file_url, pattern);
+				string path = $"{savePath2}/{array[2]}.campaign";
+				uwr3.downloadHandler = new DownloadHandlerFile(path);
 				yield return uwr3.SendWebRequest();
 				NMC.GPM.isLoading = false;
 				if (uwr3.result != UnityWebRequest.Result.Success)
@@ -426,17 +426,17 @@ public class CampaignItemScript : MonoBehaviour
 			isDownloading = false;
 			if (file_url != null)
 			{
-				string url = "https://weetanks.com/" + file_url;
-				UnityWebRequest uwr2 = new UnityWebRequest(url, "GET");
-				string pattern = "(.*)\\/(.*)\\.";
-				string[] names = Regex.Split(file_url, pattern);
-				string path = $"{savePath2}/{names[2]}.campaign";
-				uwr2.downloadHandler = new DownloadHandlerFile(path);
-				yield return uwr2.SendWebRequest();
+				string url2 = "https://weetanks.com/" + file_url;
+				UnityWebRequest uwr3 = new UnityWebRequest(url2, "GET");
+				string pattern2 = "(.*)\\/(.*)\\.";
+				string[] array2 = Regex.Split(file_url, pattern2);
+				string path2 = $"{savePath2}/{array2[2]}.campaign";
+				uwr3.downloadHandler = new DownloadHandlerFile(path2);
+				yield return uwr3.SendWebRequest();
 				NMC.GPM.isLoading = false;
-				if (uwr2.result != UnityWebRequest.Result.Success)
+				if (uwr3.result != UnityWebRequest.Result.Success)
 				{
-					Debug.LogError(uwr2.error);
+					Debug.LogError(uwr3.error);
 				}
 				else
 				{
@@ -453,11 +453,11 @@ public class CampaignItemScript : MonoBehaviour
 	public IEnumerator FavoriteCampaign()
 	{
 		NMC.GPM.isLoading = true;
-		WWWForm form = new WWWForm();
-		form.AddField("key", AccountMaster.instance.Key);
-		form.AddField("userid", AccountMaster.instance.UserID);
-		form.AddField("campaignID", campaignID);
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/favorite_map.php", form);
+		WWWForm wWWForm = new WWWForm();
+		wWWForm.AddField("key", AccountMaster.instance.Key);
+		wWWForm.AddField("userid", AccountMaster.instance.UserID);
+		wWWForm.AddField("campaignID", campaignID);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/favorite_map.php", wWWForm);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
@@ -503,16 +503,16 @@ public class CampaignItemScript : MonoBehaviour
 			NMC.GPM.isLoading = false;
 			yield break;
 		}
-		string receivedKey = keyRequest.downloadHandler.text;
+		string text = keyRequest.downloadHandler.text;
 		_ = Application.persistentDataPath + "/";
 		string savePath2 = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
 		savePath2 += "/My Games/Wee Tanks/downloads";
-		WWWForm form = new WWWForm();
-		form.AddField("key", AccountMaster.instance.Key);
-		form.AddField("authKey", receivedKey);
-		form.AddField("userid", AccountMaster.instance.UserID);
-		form.AddField("campaignID", campaignID);
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/remove_map_download.php", form);
+		WWWForm wWWForm = new WWWForm();
+		wWWForm.AddField("key", AccountMaster.instance.Key);
+		wWWForm.AddField("authKey", text);
+		wWWForm.AddField("userid", AccountMaster.instance.UserID);
+		wWWForm.AddField("campaignID", campaignID);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/remove_map_download.php", wWWForm);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
@@ -530,14 +530,14 @@ public class CampaignItemScript : MonoBehaviour
 		{
 			if (file_url != null)
 			{
-				string pattern2 = "(.*)\\/(.*)\\.";
-				string[] names2 = Regex.Split(file_url, pattern2);
-				Debug.Log(savePath2 + "/" + names2[2] + ".campaign");
-				string path2 = savePath2 + "/" + names2[2] + ".campaign";
+				string pattern = "(.*)\\/(.*)\\.";
+				string[] array = Regex.Split(file_url, pattern);
+				Debug.Log(savePath2 + "/" + array[2] + ".campaign");
+				string path = savePath2 + "/" + array[2] + ".campaign";
 				hasDownloaded = false;
 				ShowDownloadButton();
 				NMC.GPM.isLoading = false;
-				File.Delete(path2);
+				File.Delete(path);
 			}
 		}
 		else
@@ -551,10 +551,10 @@ public class CampaignItemScript : MonoBehaviour
 			{
 				string url = "https://weetanks.com/" + file_url;
 				UnityWebRequest uwr2 = new UnityWebRequest(url, "GET");
-				string pattern = "(.*)\\/(.*)\\.";
-				string[] names = Regex.Split(file_url, pattern);
-				string path = $"{savePath2}/{names[2]}.campaign";
-				uwr2.downloadHandler = new DownloadHandlerFile(path);
+				string pattern2 = "(.*)\\/(.*)\\.";
+				string[] array2 = Regex.Split(file_url, pattern2);
+				string path2 = $"{savePath2}/{array2[2]}.campaign";
+				uwr2.downloadHandler = new DownloadHandlerFile(path2);
 				yield return uwr2.SendWebRequest();
 				NMC.GPM.isLoading = false;
 				if (uwr2.result != UnityWebRequest.Result.Success)

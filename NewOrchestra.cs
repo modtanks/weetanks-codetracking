@@ -5,9 +5,9 @@ public class NewOrchestra : MonoBehaviour
 {
 	public string currentlyPlaying = "";
 
-	public bool CherryRage = false;
+	public bool CherryRage;
 
-	public int RagingCherries = 0;
+	public int RagingCherries;
 
 	public AudioSource[] BaseInstruments;
 
@@ -60,29 +60,29 @@ public class NewOrchestra : MonoBehaviour
 
 	public int[] SilverTankIds;
 
-	public int lastKnownAmountEnemies = 0;
+	public int lastKnownAmountEnemies;
 
 	public float VolumeOffset = -0.5f;
 
-	public bool isPlaying = false;
+	public bool isPlaying;
 
-	public bool isNight = false;
+	public bool isNight;
 
 	public int lastKnownMusicVol;
 
 	public int lastKnownMasterVol;
 
-	public bool PausePlaying = false;
+	public bool PausePlaying;
 
 	[HideInInspector]
-	public bool addClav = false;
+	public bool addClav;
 
 	private void Start()
 	{
 		AudioSource[] instruments = Instruments;
-		foreach (AudioSource instr in instruments)
+		for (int i = 0; i < instruments.Length; i++)
 		{
-			instr.volume = 0f;
+			instruments[i].volume = 0f;
 		}
 		if (OptionsMainMenu.instance != null)
 		{
@@ -97,74 +97,74 @@ public class NewOrchestra : MonoBehaviour
 	public void StartPlaying()
 	{
 		AudioSource[] instruments = Instruments;
-		foreach (AudioSource instr in instruments)
+		foreach (AudioSource obj in instruments)
 		{
-			instr.ignoreListenerVolume = true;
+			obj.ignoreListenerVolume = true;
 			isPlaying = true;
-			instr.Play();
+			obj.Play();
 		}
-		AudioSource[] baseInstruments = BaseInstruments;
-		foreach (AudioSource instr2 in baseInstruments)
+		instruments = BaseInstruments;
+		foreach (AudioSource obj2 in instruments)
 		{
-			instr2.ignoreListenerVolume = true;
+			obj2.ignoreListenerVolume = true;
 			isPlaying = true;
-			instr2.Play();
+			obj2.Play();
 		}
-		AudioSource[] specialSongs = SpecialSongs;
-		foreach (AudioSource song in specialSongs)
+		instruments = SpecialSongs;
+		foreach (AudioSource obj3 in instruments)
 		{
-			song.ignoreListenerVolume = true;
+			obj3.ignoreListenerVolume = true;
 			isPlaying = true;
-			song.Play();
+			obj3.Play();
 		}
 	}
 
 	public void StopPlaying()
 	{
 		AudioSource[] instruments = Instruments;
-		foreach (AudioSource instr in instruments)
+		foreach (AudioSource obj in instruments)
 		{
 			isPlaying = false;
-			instr.Stop();
+			obj.Stop();
 		}
-		AudioSource[] baseInstruments = BaseInstruments;
-		foreach (AudioSource instr2 in baseInstruments)
+		instruments = BaseInstruments;
+		foreach (AudioSource obj2 in instruments)
 		{
 			isPlaying = false;
-			instr2.Stop();
+			obj2.Stop();
 		}
-		AudioSource[] specialSongs = SpecialSongs;
-		foreach (AudioSource song in specialSongs)
+		instruments = SpecialSongs;
+		foreach (AudioSource obj3 in instruments)
 		{
 			isPlaying = false;
-			song.Stop();
+			obj3.Stop();
 		}
 	}
 
 	public void SetInstrumentVolumes(int vol)
 	{
 		AudioSource[] instruments = Instruments;
-		foreach (AudioSource instr in instruments)
+		for (int i = 0; i < instruments.Length; i++)
 		{
-			instr.volume = vol;
+			instruments[i].volume = vol;
 		}
 	}
 
 	public void SetBaseVolumes(int vol)
 	{
 		AudioSource[] baseInstruments = BaseInstruments;
-		foreach (AudioSource instr in baseInstruments)
+		for (int i = 0; i < baseInstruments.Length; i++)
 		{
-			instr.volume = vol;
+			baseInstruments[i].volume = vol;
 		}
 	}
 
 	public void SetSongsVolumes(int vol)
 	{
 		AudioSource[] specialSongs = SpecialSongs;
-		foreach (AudioSource song in specialSongs)
+		for (int i = 0; i < specialSongs.Length; i++)
 		{
-			song.volume = vol;
+			specialSongs[i].volume = vol;
 		}
 	}
 
@@ -212,19 +212,19 @@ public class NewOrchestra : MonoBehaviour
 	public void SetSettingsVolumes()
 	{
 		AudioSource[] instruments = Instruments;
-		foreach (AudioSource instr in instruments)
+		foreach (AudioSource obj in instruments)
 		{
-			instr.volume = instr.volume / 10f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
+			obj.volume = obj.volume / 10f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
 		}
-		AudioSource[] baseInstruments = BaseInstruments;
-		foreach (AudioSource instr2 in baseInstruments)
+		instruments = BaseInstruments;
+		foreach (AudioSource obj2 in instruments)
 		{
-			instr2.volume = instr2.volume / 10f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
+			obj2.volume = obj2.volume / 10f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
 		}
-		AudioSource[] specialSongs = SpecialSongs;
-		foreach (AudioSource song in specialSongs)
+		instruments = SpecialSongs;
+		foreach (AudioSource obj3 in instruments)
 		{
-			song.volume = song.volume / 10f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
+			obj3.volume = obj3.volume / 10f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
 		}
 	}
 
@@ -244,35 +244,35 @@ public class NewOrchestra : MonoBehaviour
 		}
 		if (isPlaying)
 		{
-			GameObject[] Enemies = GameObject.FindGameObjectsWithTag("Enemy");
-			GameObject[] Bosses = GameObject.FindGameObjectsWithTag("Boss");
-			GameObject[] all = Enemies.Concat(Bosses).ToArray();
+			GameObject[] first = GameObject.FindGameObjectsWithTag("Enemy");
+			GameObject[] second = GameObject.FindGameObjectsWithTag("Boss");
+			GameObject[] array = first.Concat(second).ToArray();
 			if (lastKnownAmountEnemies == 0 && !GameMaster.instance.isZombieMode && !GameMaster.instance.inMapEditor)
 			{
-				changeMusic(all);
-				lastKnownAmountEnemies = all.Length;
+				changeMusic(array);
+				lastKnownAmountEnemies = array.Length;
 			}
-			else if (all.Length != lastKnownAmountEnemies)
+			else if (array.Length != lastKnownAmountEnemies)
 			{
-				changeMusic(all);
-				lastKnownAmountEnemies = all.Length;
+				changeMusic(array);
+				lastKnownAmountEnemies = array.Length;
 			}
 			else if (CherryRage && currentlyPlaying == "cherry")
 			{
-				changeMusic(all);
-				lastKnownAmountEnemies = all.Length;
+				changeMusic(array);
+				lastKnownAmountEnemies = array.Length;
 			}
 			else if (!CherryRage && currentlyPlaying == "cherryrage")
 			{
-				changeMusic(all);
-				lastKnownAmountEnemies = all.Length;
+				changeMusic(array);
+				lastKnownAmountEnemies = array.Length;
 			}
 			if (OptionsMainMenu.instance != null && (lastKnownMusicVol != OptionsMainMenu.instance.musicVolumeLvl || lastKnownMasterVol != OptionsMainMenu.instance.masterVolumeLvl))
 			{
 				lastKnownMusicVol = OptionsMainMenu.instance.musicVolumeLvl;
 				lastKnownMasterVol = OptionsMainMenu.instance.masterVolumeLvl;
-				changeMusic(all);
-				lastKnownAmountEnemies = all.Length;
+				changeMusic(array);
+				lastKnownAmountEnemies = array.Length;
 			}
 		}
 		else
@@ -283,123 +283,123 @@ public class NewOrchestra : MonoBehaviour
 
 	private void changeMusic(GameObject[] tanks)
 	{
-		bool isGoofyBrown = false;
-		bool isGrey = false;
-		bool isTeal = false;
-		bool isYellow = false;
-		bool isPurple = false;
-		bool isRusset = false;
-		bool isRed = false;
-		bool isGreen = false;
-		bool isWhite = false;
-		bool isArmoured = false;
-		bool isOrange = false;
-		bool isRussian = false;
-		bool isBlack = false;
-		bool isCherry = false;
-		bool isTeleporting = false;
-		bool isPeach = false;
-		bool isCommando = false;
-		bool isSilver = false;
-		bool isBoss10 = false;
-		bool isBoss11 = false;
-		bool isBoss12 = false;
+		bool flag = false;
+		bool flag2 = false;
+		bool flag3 = false;
+		bool flag4 = false;
+		bool flag5 = false;
+		bool flag6 = false;
+		bool flag7 = false;
+		bool flag8 = false;
+		bool flag9 = false;
+		bool flag10 = false;
+		bool flag11 = false;
+		bool flag12 = false;
+		bool flag13 = false;
+		bool flag14 = false;
+		bool flag15 = false;
+		bool flag16 = false;
+		bool flag17 = false;
+		bool flag18 = false;
+		bool flag19 = false;
+		bool flag20 = false;
+		bool flag21 = false;
 		if (tanks.Length < 1)
 		{
 			return;
 		}
-		foreach (GameObject EnemyTank in tanks)
+		for (int i = 0; i < tanks.Length; i++)
 		{
-			int ID = EnemyTank.GetComponentInChildren<HealthTanks>().EnemyID;
-			if (ID == 1 || ID == -11)
+			int enemyID = tanks[i].GetComponentInChildren<HealthTanks>().EnemyID;
+			if (enemyID == 1 || enemyID == -11)
 			{
-				isGrey = true;
+				flag2 = true;
 			}
-			if (ID == 2)
+			if (enemyID == 2)
 			{
-				isPurple = true;
+				flag5 = true;
 			}
-			if (ID == 3 || ID == -12)
+			if (enemyID == 3 || enemyID == -12)
 			{
-				isTeal = true;
+				flag3 = true;
 			}
-			if (ID == 4)
+			if (enemyID == 4)
 			{
-				isYellow = true;
+				flag4 = true;
 			}
-			if (ID == 5)
+			if (enemyID == 5)
 			{
-				isRed = true;
+				flag7 = true;
 			}
-			if (ID == 110 || ID == -110)
+			if (enemyID == 110 || enemyID == -110)
 			{
-				isBoss10 = true;
+				flag19 = true;
 			}
-			if (ID == 6)
+			if (enemyID == 6)
 			{
-				isGreen = true;
+				flag8 = true;
 			}
-			if (ID == 7)
+			if (enemyID == 7)
 			{
-				isWhite = true;
+				flag9 = true;
 			}
-			if (ID == 9)
+			if (enemyID == 9)
 			{
-				isArmoured = true;
+				flag10 = true;
 			}
-			if (ID == 10)
+			if (enemyID == 10)
 			{
-				isOrange = true;
+				flag11 = true;
 			}
-			if (ID == 11)
+			if (enemyID == 11)
 			{
-				isRussian = true;
+				flag12 = true;
 			}
-			if (ID == 12)
+			if (enemyID == 12)
 			{
-				isBlack = true;
+				flag13 = true;
 			}
-			if (ID == 13)
+			if (enemyID == 13)
 			{
-				isRusset = true;
+				flag6 = true;
 			}
-			if (ID == 14)
+			if (enemyID == 14)
 			{
-				isTeleporting = true;
+				flag15 = true;
 			}
-			if (ID == 15)
+			if (enemyID == 15)
 			{
-				isCherry = true;
+				flag14 = true;
 			}
-			if (ID == 16)
+			if (enemyID == 16)
 			{
-				isPeach = true;
+				flag16 = true;
 			}
-			if (ID == 17)
+			if (enemyID == 17)
 			{
-				isCommando = true;
+				flag17 = true;
 			}
-			if (ID == 18)
+			if (enemyID == 18)
 			{
-				isSilver = true;
+				flag18 = true;
 			}
-			if (ID == 51)
+			if (enemyID == 51)
 			{
-				isGoofyBrown = true;
+				flag = true;
 			}
-			if (ID == 150)
+			if (enemyID == 150)
 			{
-				isBoss11 = true;
+				flag20 = true;
 			}
-			if (ID == 170)
+			if (enemyID == 170)
 			{
-				isBoss12 = true;
+				flag21 = true;
 			}
 		}
 		SetSongsVolumes(0);
 		SetInstrumentVolumes(0);
 		SetBaseVolumes(0);
-		if (isGoofyBrown)
+		if (flag)
 		{
 			SetInstruments(GoofyBrownTankIds, -1);
 		}
@@ -407,12 +407,12 @@ public class NewOrchestra : MonoBehaviour
 		{
 			SetInstruments(BrownTankIds, 0);
 		}
-		if (isWhite)
+		if (flag9)
 		{
 			SetInstruments(WhiteTankIds, 1);
 			currentlyPlaying = "white";
 		}
-		if (isTeleporting)
+		if (flag15)
 		{
 			SetInstruments(TeleportingTankIds, 2);
 			currentlyPlaying = "electro";
@@ -438,22 +438,22 @@ public class NewOrchestra : MonoBehaviour
 				BaseInstruments[5].volume = 1f;
 			}
 		}
-		if (isGrey)
+		if (flag2)
 		{
 			SetInstruments(GreyTankIds, -1);
 			currentlyPlaying = "grey";
 		}
-		if (isYellow)
+		if (flag4)
 		{
 			SetInstruments(YellowTankIds, -1);
 			currentlyPlaying = "yellow";
 		}
-		if (isTeal)
+		if (flag3)
 		{
 			SetInstruments(TealTankIds, -1);
 			currentlyPlaying = "teal";
 		}
-		if (isRusset)
+		if (flag6)
 		{
 			addClav = true;
 			SetInstruments(RussetTankIds, -1);
@@ -463,67 +463,67 @@ public class NewOrchestra : MonoBehaviour
 		{
 			addClav = false;
 		}
-		if (isRed)
+		if (flag7)
 		{
 			SetInstruments(RedTankIds, -1);
 			currentlyPlaying = "red";
 		}
-		if (isBoss10)
+		if (flag19)
 		{
 			SetInstruments(Boss10Ids, -1);
 			currentlyPlaying = "boss10";
 		}
-		if (isPurple)
+		if (flag5)
 		{
 			SetInstruments(PurpleTankIds, -1);
 			currentlyPlaying = "purple";
 		}
-		if (isGreen)
+		if (flag8)
 		{
 			SetInstruments(GreenTankIds, -1);
 			currentlyPlaying = "green";
 		}
-		if (isOrange)
+		if (flag11)
 		{
 			SetInstruments(OrangeTankIds, -1);
 			currentlyPlaying = "orange";
 		}
-		if (isArmoured)
+		if (flag10)
 		{
 			SetInstruments(ExplosiveTankIds, -1);
 			currentlyPlaying = "armoured";
 		}
-		if (isRussian)
+		if (flag12)
 		{
 			SetInstruments(RocketTankIds, -1);
 			currentlyPlaying = "rocket defender";
 		}
-		if (isBlack)
+		if (flag13)
 		{
 			SetInstruments(BlackTankIds, -1);
 			currentlyPlaying = "black";
 		}
-		if (isCherry && !CherryRage)
+		if (flag14 && !CherryRage)
 		{
 			SetInstruments(CherryTankIds, -1);
 			currentlyPlaying = "cherry";
 		}
-		else if (isCherry && CherryRage)
+		else if (flag14 && CherryRage)
 		{
 			SetInstruments(CherryRageTankIds, -1);
 			currentlyPlaying = "cherryrage";
 		}
-		if (isPeach)
+		if (flag16)
 		{
 			SetInstruments(PeachTankIds, -1);
 			currentlyPlaying = "peach";
 		}
-		if (isCommando)
+		if (flag17)
 		{
 			SetInstruments(CommandoTankIds, -1);
 			currentlyPlaying = "commando";
 		}
-		if (isSilver)
+		if (flag18)
 		{
 			SetInstruments(SilverTankIds, -1);
 			currentlyPlaying = "silver";
@@ -538,12 +538,12 @@ public class NewOrchestra : MonoBehaviour
 			Instruments[1].volume = 1f;
 			Instruments[0].volume = 0f;
 		}
-		if (isBoss11)
+		if (flag20)
 		{
 			SetBossMusic(0);
 			currentlyPlaying = "boss 50";
 		}
-		if (isBoss12)
+		if (flag21)
 		{
 			SetBossMusic(1);
 			currentlyPlaying = "boss 50";
@@ -564,19 +564,19 @@ public class NewOrchestra : MonoBehaviour
 			}
 		}
 		AudioSource[] instruments = Instruments;
-		for (int j = 0; j < instruments.Length; j++)
+		for (int i = 0; i < instruments.Length; i++)
 		{
-			instruments[j].volume += VolumeOffset;
+			instruments[i].volume += VolumeOffset;
 		}
-		AudioSource[] baseInstruments = BaseInstruments;
-		for (int k = 0; k < baseInstruments.Length; k++)
+		instruments = BaseInstruments;
+		for (int i = 0; i < instruments.Length; i++)
 		{
-			baseInstruments[k].volume += VolumeOffset;
+			instruments[i].volume += VolumeOffset;
 		}
-		AudioSource[] specialSongs = SpecialSongs;
-		for (int l = 0; l < specialSongs.Length; l++)
+		instruments = SpecialSongs;
+		for (int i = 0; i < instruments.Length; i++)
 		{
-			specialSongs[l].volume += VolumeOffset;
+			instruments[i].volume += VolumeOffset;
 		}
 		SetSettingsVolumes();
 	}

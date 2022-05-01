@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 
 public class BugReportingMenu : MonoBehaviour
 {
-	public bool IsShowingMenu = false;
+	public bool IsShowingMenu;
 
 	public AudioClip TypeSound;
 
@@ -42,8 +42,8 @@ public class BugReportingMenu : MonoBehaviour
 		myCanvas = GetComponent<Canvas>();
 		myCanvas.enabled = false;
 		myAnimator = GetComponent<Animator>();
-		GameObject ReportingMenu = GameObject.Find("BUG_REPORTING");
-		if ((bool)ReportingMenu && ReportingMenu != base.gameObject)
+		GameObject gameObject = GameObject.Find("BUG_REPORTING");
+		if ((bool)gameObject && gameObject != base.gameObject)
 		{
 			Object.Destroy(base.gameObject);
 			return;
@@ -128,21 +128,21 @@ public class BugReportingMenu : MonoBehaviour
 				{
 					if ((bool)GameMaster.instance.PauseMenu)
 					{
-						PauseMenuScript PMS2 = GameMaster.instance.PauseMenu.GetComponent<PauseMenuScript>();
-						if ((bool)PMS2)
+						PauseMenuScript component = GameMaster.instance.PauseMenu.GetComponent<PauseMenuScript>();
+						if ((bool)component)
 						{
-							PMS2.PauseGame();
+							component.PauseGame();
 						}
 					}
 					else
 					{
-						GameObject PauseMenuCanvas = GameObject.Find("PauseMenuCanvas");
-						if ((bool)PauseMenuCanvas)
+						GameObject gameObject = GameObject.Find("PauseMenuCanvas");
+						if ((bool)gameObject)
 						{
-							PauseMenuScript PMS = PauseMenuCanvas.GetComponent<PauseMenuScript>();
-							if ((bool)PMS)
+							PauseMenuScript component2 = gameObject.GetComponent<PauseMenuScript>();
+							if ((bool)component2)
 							{
-								PMS.PauseGame();
+								component2.PauseGame();
 							}
 						}
 					}
@@ -197,39 +197,39 @@ public class BugReportingMenu : MonoBehaviour
 
 	public IEnumerator SendBugReport()
 	{
-		WWWForm form = new WWWForm();
+		WWWForm wWWForm = new WWWForm();
 		if ((bool)GameMaster.instance)
 		{
 			if (GameMaster.instance.inMenuMode)
 			{
-				form.AddField("entry.1328679479", "Main Menu");
+				wWWForm.AddField("entry.1328679479", "Main Menu");
 			}
 			else if (GameMaster.instance.isZombieMode)
 			{
-				form.AddField("entry.1328679479", "Survival Mode");
+				wWWForm.AddField("entry.1328679479", "Survival Mode");
 			}
 			else if (GameMaster.instance.inMapEditor)
 			{
-				form.AddField("entry.1328679479", "Map Editor");
+				wWWForm.AddField("entry.1328679479", "Map Editor");
 			}
 			else if (GameMaster.instance.inTankeyTown)
 			{
-				form.AddField("entry.1328679479", "Tankey Town");
+				wWWForm.AddField("entry.1328679479", "Tankey Town");
 			}
 			else if (GameMaster.instance.isOfficialCampaign)
 			{
-				form.AddField("entry.1328679479", "Classic Campaign");
+				wWWForm.AddField("entry.1328679479", "Classic Campaign");
 			}
 			else if ((bool)MapEditorMaster.instance)
 			{
-				form.AddField("entry.1328679479", "Playing Custom Campaign");
+				wWWForm.AddField("entry.1328679479", "Playing Custom Campaign");
 			}
 		}
 		for (int i = 0; i < HappinessButtons.Length; i++)
 		{
 			if (HappinessButtons[i].IsSelected)
 			{
-				form.AddField("entry.2003059816", i switch
+				wWWForm.AddField("entry.2003059816", i switch
 				{
 					1 => "\ud83d\ude10", 
 					0 => "\ud83d\ude04", 
@@ -238,15 +238,15 @@ public class BugReportingMenu : MonoBehaviour
 				break;
 			}
 		}
-		form.AddField("entry.1180556855", OptionsMainMenu.instance.CurrentVersion);
-		form.AddField("entry.1714000823", DescriptionField.text);
-		form.AddField("entry.1622436738", ReproductionField.text);
+		wWWForm.AddField("entry.1180556855", OptionsMainMenu.instance.CurrentVersion);
+		wWWForm.AddField("entry.1714000823", DescriptionField.text);
+		wWWForm.AddField("entry.1622436738", ReproductionField.text);
 		if (AccountMaster.instance.isSignedIn)
 		{
-			string thename = AccountMaster.instance.Username;
-			form.AddField("entry.1662013560", thename);
+			string username = AccountMaster.instance.Username;
+			wWWForm.AddField("entry.1662013560", username);
 		}
-		UnityWebRequest uwr = UnityWebRequest.Post("https://docs.google.com/forms/u/0/d/e/1FAIpQLScpCY6PZeRcGnK_Z-1eingkVRReszR-tOFU3axgIF9yF0YtFQ/formResponse", form);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://docs.google.com/forms/u/0/d/e/1FAIpQLScpCY6PZeRcGnK_Z-1eingkVRReszR-tOFU3axgIF9yF0YtFQ/formResponse", wWWForm);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)

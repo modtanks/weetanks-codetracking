@@ -116,46 +116,46 @@ public class GlobalAssets : MonoBehaviour
 
 	private void GetAudioMod(string filename, int index)
 	{
-		string name = filename + index;
+		string filename2 = filename + index;
 		if (index == 0)
 		{
-			name = filename;
+			filename2 = filename;
 		}
-		if (!UpdateAudio(name, ".wav", AudioType.WAV))
+		if (!UpdateAudio(filename2, ".wav", AudioType.WAV))
 		{
-			if (!UpdateAudio(name, ".ogg", AudioType.OGGVORBIS))
+			if (!UpdateAudio(filename2, ".ogg", AudioType.OGGVORBIS))
 			{
-				if (UpdateAudio(name, ".mp3", AudioType.MPEG) && index > 0)
+				if (UpdateAudio(filename2, ".mp3", AudioType.MPEG) && index > 0)
 				{
-					int newIndex3 = index + 1;
-					GetAudioMod(filename, newIndex3);
+					int index2 = index + 1;
+					GetAudioMod(filename, index2);
 				}
 			}
 			else if (index > 0)
 			{
-				int newIndex2 = index + 1;
-				GetAudioMod(filename, newIndex2);
+				int index3 = index + 1;
+				GetAudioMod(filename, index3);
 			}
 		}
 		else if (index > 0)
 		{
-			int newIndex = index + 1;
-			GetAudioMod(filename, newIndex);
+			int index4 = index + 1;
+			GetAudioMod(filename, index4);
 		}
 	}
 
 	private bool UpdateAudio(string filename, string extension, AudioType type)
 	{
-		string savePath = "";
-		savePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
-		savePath = savePath + "/My Games/Wee Tanks/mods/" + filename + extension;
-		if (File.Exists(savePath))
+		string text = "";
+		text = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
+		text = text + "/My Games/Wee Tanks/mods/" + filename + extension;
+		if (File.Exists(text))
 		{
 			if (filename == "shoot_sound_1")
 			{
 				AudioDB.NormalBulletShootSound.Clear();
 			}
-			StartCoroutine(LoadClip(savePath, type, filename));
+			StartCoroutine(LoadClip(text, type, filename));
 			return true;
 		}
 		return false;

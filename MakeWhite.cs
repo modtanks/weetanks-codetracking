@@ -10,13 +10,13 @@ public class MakeWhite : MonoBehaviour
 
 	private void Start()
 	{
-		MeshRenderer[] rs = ((!GetRenderersFromParent) ? base.gameObject.GetComponentsInChildren<MeshRenderer>() : base.transform.parent.gameObject.GetComponentsInChildren<MeshRenderer>());
-		MeshRenderer[] array = rs;
-		foreach (MeshRenderer r in array)
+		MeshRenderer[] array = ((!GetRenderersFromParent) ? base.gameObject.GetComponentsInChildren<MeshRenderer>() : base.transform.parent.gameObject.GetComponentsInChildren<MeshRenderer>());
+		MeshRenderer[] array2 = array;
+		foreach (MeshRenderer meshRenderer in array2)
 		{
-			if (r != null && r.gameObject.tag == "Untagged" && r.material.HasProperty("_Color"))
+			if (meshRenderer != null && meshRenderer.gameObject.tag == "Untagged" && meshRenderer.material.HasProperty("_Color"))
 			{
-				MyRenderers.Add(r);
+				MyRenderers.Add(meshRenderer);
 			}
 		}
 	}
@@ -28,57 +28,57 @@ public class MakeWhite : MonoBehaviour
 
 	private IEnumerator DoHitWhite()
 	{
-		foreach (Renderer r in MyRenderers)
+		foreach (Renderer myRenderer in MyRenderers)
 		{
-			if (!(r != null) || !(r.gameObject.tag == "Untagged") || !r.material.HasProperty("_Color"))
+			if (!(myRenderer != null) || !(myRenderer.gameObject.tag == "Untagged") || !myRenderer.material.HasProperty("_Color"))
 			{
 				continue;
 			}
-			if (r.materials.Length > 1)
+			if (myRenderer.materials.Length > 1)
 			{
-				Material[] ms2 = r.materials;
-				for (int j = 0; j < r.materials.Length; j++)
+				Material[] materials = myRenderer.materials;
+				for (int i = 0; i < myRenderer.materials.Length; i++)
 				{
-					ms2[j].EnableKeyword("_EMISSION");
-					ms2[j].SetColor("_EmissionColor", Color.white);
+					materials[i].EnableKeyword("_EMISSION");
+					materials[i].SetColor("_EmissionColor", Color.white);
 				}
-				r.materials = ms2;
+				myRenderer.materials = materials;
 			}
-			else if (!r.material.IsKeywordEnabled("_EMISSION"))
+			else if (!myRenderer.material.IsKeywordEnabled("_EMISSION"))
 			{
-				r.material.EnableKeyword("_EMISSION");
-				r.material.SetColor("_EmissionColor", Color.white);
+				myRenderer.material.EnableKeyword("_EMISSION");
+				myRenderer.material.SetColor("_EmissionColor", Color.white);
 			}
 			else
 			{
-				r.material.DisableKeyword("_EMISSION");
+				myRenderer.material.DisableKeyword("_EMISSION");
 			}
 		}
 		yield return new WaitForSeconds(0.05f);
-		for (int i = 0; i < MyRenderers.Count; i++)
+		for (int j = 0; j < MyRenderers.Count; j++)
 		{
-			if (!(MyRenderers[i] != null) || !(MyRenderers[i].gameObject.tag == "Untagged") || !MyRenderers[i].material.HasProperty("_Color"))
+			if (!(MyRenderers[j] != null) || !(MyRenderers[j].gameObject.tag == "Untagged") || !MyRenderers[j].material.HasProperty("_Color"))
 			{
 				continue;
 			}
-			if (MyRenderers[i].materials.Length > 1)
+			if (MyRenderers[j].materials.Length > 1)
 			{
-				Material[] ms = MyRenderers[i].materials;
-				for (int k = 0; k < MyRenderers[i].materials.Length; k++)
+				Material[] materials2 = MyRenderers[j].materials;
+				for (int k = 0; k < MyRenderers[j].materials.Length; k++)
 				{
-					ms[k].DisableKeyword("_EMISSION");
-					ms[k].SetColor("_EmissionColor", Color.black);
+					materials2[k].DisableKeyword("_EMISSION");
+					materials2[k].SetColor("_EmissionColor", Color.black);
 				}
-				MyRenderers[i].materials = ms;
+				MyRenderers[j].materials = materials2;
 			}
-			else if (MyRenderers[i].material.IsKeywordEnabled("_EMISSION"))
+			else if (MyRenderers[j].material.IsKeywordEnabled("_EMISSION"))
 			{
-				MyRenderers[i].material.DisableKeyword("_EMISSION");
-				MyRenderers[i].material.SetColor("_EmissionColor", Color.black);
+				MyRenderers[j].material.DisableKeyword("_EMISSION");
+				MyRenderers[j].material.SetColor("_EmissionColor", Color.black);
 			}
 			else
 			{
-				MyRenderers[i].material.EnableKeyword("_EMISSION");
+				MyRenderers[j].material.EnableKeyword("_EMISSION");
 			}
 		}
 	}

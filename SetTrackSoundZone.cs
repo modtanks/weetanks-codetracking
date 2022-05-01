@@ -9,24 +9,24 @@ public class SetTrackSoundZone : MonoBehaviour
 		Carpet
 	}
 
-	public TrackSound Sound = TrackSound.Grass;
+	public TrackSound Sound;
 
 	private void OnTriggerEnter(Collider other)
 	{
 		if (other.tag == "Player")
 		{
-			MoveTankScript MTS = other.GetComponent<MoveTankScript>();
-			if ((bool)MTS && Sound == TrackSound.Grass)
+			MoveTankScript component = other.GetComponent<MoveTankScript>();
+			if ((bool)component && Sound == TrackSound.Grass)
 			{
-				MTS.TankTracks = GameMaster.instance.TankTracksGrassSound;
+				component.TankTracks = GameMaster.instance.TankTracksGrassSound;
 			}
 		}
 		else if (other.tag == "Enemy")
 		{
-			NewAIagent NAI = other.GetComponent<NewAIagent>();
-			if ((bool)NAI && Sound == TrackSound.Grass)
+			NewAIagent component2 = other.GetComponent<NewAIagent>();
+			if ((bool)component2 && Sound == TrackSound.Grass)
 			{
-				NAI.TankTracks = GameMaster.instance.TankTracksGrassSound;
+				component2.TankTracks = GameMaster.instance.TankTracksGrassSound;
 			}
 		}
 	}
@@ -35,18 +35,18 @@ public class SetTrackSoundZone : MonoBehaviour
 	{
 		if (other.tag == "Player")
 		{
-			MoveTankScript MTS = other.GetComponent<MoveTankScript>();
-			if ((bool)MTS && Sound == TrackSound.Grass && MTS.TankTracks != GameMaster.instance.TankTracksGrassSound)
+			MoveTankScript component = other.GetComponent<MoveTankScript>();
+			if ((bool)component && Sound == TrackSound.Grass && component.TankTracks != GameMaster.instance.TankTracksGrassSound)
 			{
-				MTS.TankTracks = GameMaster.instance.TankTracksGrassSound;
+				component.TankTracks = GameMaster.instance.TankTracksGrassSound;
 			}
 		}
 		else if (other.tag == "Enemy")
 		{
-			NewAIagent NAI = other.GetComponent<NewAIagent>();
-			if ((bool)NAI && Sound == TrackSound.Grass && NAI.TankTracks != GameMaster.instance.TankTracksGrassSound)
+			NewAIagent component2 = other.GetComponent<NewAIagent>();
+			if ((bool)component2 && Sound == TrackSound.Grass && component2.TankTracks != GameMaster.instance.TankTracksGrassSound)
 			{
-				NAI.TankTracks = GameMaster.instance.TankTracksGrassSound;
+				component2.TankTracks = GameMaster.instance.TankTracksGrassSound;
 			}
 		}
 	}
@@ -55,18 +55,18 @@ public class SetTrackSoundZone : MonoBehaviour
 	{
 		if (other.tag == "Player")
 		{
-			MoveTankScript MTS = other.GetComponent<MoveTankScript>();
-			if ((bool)MTS && Sound == TrackSound.Grass)
+			MoveTankScript component = other.GetComponent<MoveTankScript>();
+			if ((bool)component && Sound == TrackSound.Grass)
 			{
-				MTS.TankTracks = GameMaster.instance.TankTracksNormalSound;
+				component.TankTracks = GameMaster.instance.TankTracksNormalSound;
 			}
 		}
 		else if (other.tag == "Enemy")
 		{
-			NewAIagent NAI = other.GetComponent<NewAIagent>();
-			if ((bool)NAI && Sound == TrackSound.Grass)
+			NewAIagent component2 = other.GetComponent<NewAIagent>();
+			if ((bool)component2 && Sound == TrackSound.Grass)
 			{
-				NAI.TankTracks = GameMaster.instance.TankTracksNormalSound;
+				component2.TankTracks = GameMaster.instance.TankTracksNormalSound;
 			}
 		}
 	}

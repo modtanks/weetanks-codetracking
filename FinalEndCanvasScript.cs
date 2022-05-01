@@ -25,11 +25,11 @@ public class FinalEndCanvasScript : MonoBehaviour
 	private IEnumerator ShowText()
 	{
 		GameObject[] array = GameObject.FindGameObjectsWithTag("Temp");
-		foreach (GameObject fooObj in array)
+		foreach (GameObject gameObject in array)
 		{
-			if (fooObj.name == "TempAudio")
+			if (gameObject.name == "TempAudio")
 			{
-				Object.Destroy(fooObj);
+				Object.Destroy(gameObject);
 			}
 		}
 		Play2DClipAtPoint(winCampaignSound, 1f);
@@ -45,12 +45,12 @@ public class FinalEndCanvasScript : MonoBehaviour
 
 	public void Play2DClipAtPoint(AudioClip clip, float Vol)
 	{
-		GameObject tempAudioSource = new GameObject("TempAudio");
-		AudioSource audioSource = tempAudioSource.AddComponent<AudioSource>();
+		GameObject obj = new GameObject("TempAudio");
+		AudioSource audioSource = obj.AddComponent<AudioSource>();
 		audioSource.clip = clip;
 		audioSource.volume = Vol;
 		audioSource.spatialBlend = 0f;
 		audioSource.Play();
-		Object.Destroy(tempAudioSource, clip.length);
+		Object.Destroy(obj, clip.length);
 	}
 }

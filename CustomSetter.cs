@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class CustomSetter : MonoBehaviour
 {
-	public int AMselectedID = 0;
+	public int AMselectedID;
 
 	public GameObject[] objToDeactive;
 
@@ -17,27 +17,27 @@ public class CustomSetter : MonoBehaviour
 		if (OptionsMainMenu.instance.AMselected.Contains(AMselectedID))
 		{
 			GameObject[] array = objToActivate;
-			foreach (GameObject obj3 in array)
+			for (int i = 0; i < array.Length; i++)
 			{
-				obj3.SetActive(value: true);
+				array[i].SetActive(value: true);
 			}
-			GameObject[] array2 = objToDeactive;
-			foreach (GameObject obj4 in array2)
+			array = objToDeactive;
+			for (int i = 0; i < array.Length; i++)
 			{
-				obj4.SetActive(value: false);
+				array[i].SetActive(value: false);
 			}
 		}
 		else
 		{
-			GameObject[] array3 = objToActivate;
-			foreach (GameObject obj in array3)
+			GameObject[] array = objToActivate;
+			for (int i = 0; i < array.Length; i++)
 			{
-				obj.SetActive(value: false);
+				array[i].SetActive(value: false);
 			}
-			GameObject[] array4 = objToDeactive;
-			foreach (GameObject obj2 in array4)
+			array = objToDeactive;
+			for (int i = 0; i < array.Length; i++)
 			{
-				obj2.SetActive(value: true);
+				array[i].SetActive(value: true);
 			}
 		}
 	}
