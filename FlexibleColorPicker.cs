@@ -87,73 +87,73 @@ public class FlexibleColorPicker : MonoBehaviour
 		public void Set(Color color, float bufferedHue, float bufferedSaturation)
 		{
 			this.color = color;
-			Vector3 hsv = RGBToHSV(color);
-			if (hsv.y == 0f || hsv.z == 0f)
+			Vector3 vector = RGBToHSV(color);
+			if (vector.y == 0f || vector.z == 0f)
 			{
 				this.bufferedHue = bufferedHue;
 			}
 			else
 			{
-				this.bufferedHue = hsv.x;
+				this.bufferedHue = vector.x;
 			}
-			if (hsv.z == 0f)
+			if (vector.z == 0f)
 			{
 				this.bufferedSaturation = bufferedSaturation;
 			}
 			else
 			{
-				this.bufferedSaturation = hsv.y;
+				this.bufferedSaturation = vector.y;
 			}
 		}
 
 		public BufferedColor PickR(float value)
 		{
-			Color toReturn = color;
-			toReturn.r = value;
-			return new BufferedColor(toReturn, this);
+			Color color = this.color;
+			color.r = value;
+			return new BufferedColor(color, this);
 		}
 
 		public BufferedColor PickG(float value)
 		{
-			Color toReturn = color;
-			toReturn.g = value;
-			return new BufferedColor(toReturn, this);
+			Color color = this.color;
+			color.g = value;
+			return new BufferedColor(color, this);
 		}
 
 		public BufferedColor PickB(float value)
 		{
-			Color toReturn = color;
-			toReturn.b = value;
-			return new BufferedColor(toReturn, this);
+			Color color = this.color;
+			color.b = value;
+			return new BufferedColor(color, this);
 		}
 
 		public BufferedColor PickA(float value)
 		{
-			Color toReturn = color;
-			toReturn.a = value;
-			return new BufferedColor(toReturn, this);
+			Color color = this.color;
+			color.a = value;
+			return new BufferedColor(color, this);
 		}
 
 		public BufferedColor PickH(float value)
 		{
-			Vector3 hsv = RGBToHSV(color);
-			Color toReturn = HSVToRGB(value, hsv.y, hsv.z);
-			toReturn.a = color.a;
-			return new BufferedColor(toReturn, value, bufferedSaturation);
+			Vector3 vector = RGBToHSV(this.color);
+			Color color = HSVToRGB(value, vector.y, vector.z);
+			color.a = this.color.a;
+			return new BufferedColor(color, value, bufferedSaturation);
 		}
 
 		public BufferedColor PickS(float value)
 		{
-			Color toReturn = HSVToRGB(v: RGBToHSV(color).z, h: bufferedHue, s: value);
-			toReturn.a = color.a;
-			return new BufferedColor(toReturn, bufferedHue, value);
+			Color color = HSVToRGB(v: RGBToHSV(this.color).z, h: bufferedHue, s: value);
+			color.a = this.color.a;
+			return new BufferedColor(color, bufferedHue, value);
 		}
 
 		public BufferedColor PickV(float value)
 		{
-			Color toReturn = HSVToRGB(bufferedHue, bufferedSaturation, value);
-			toReturn.a = color.a;
-			return new BufferedColor(toReturn, bufferedHue, bufferedSaturation);
+			Color color = HSVToRGB(bufferedHue, bufferedSaturation, value);
+			color.a = this.color.a;
+			return new BufferedColor(color, bufferedHue, bufferedSaturation);
 		}
 	}
 
@@ -185,7 +185,7 @@ public class FlexibleColorPicker : MonoBehaviour
 
 	private const float HUE_LOOP = 5.9999f;
 
-	public bool staticMode = false;
+	public bool staticMode;
 
 	public bool multiInstance = true;
 
@@ -276,8 +276,8 @@ public class FlexibleColorPicker : MonoBehaviour
 
 	public void PointerUpdate(BaseEventData e)
 	{
-		Vector2 v = GetNormalizedPointerPosition(canvas, focusedPicker.rectTransform, e);
-		bufferedColor = PickColor(bufferedColor, focusedPickerType, v);
+		Vector2 normalizedPointerPosition = GetNormalizedPointerPosition(canvas, focusedPicker.rectTransform, e);
+		bufferedColor = PickColor(bufferedColor, focusedPickerType, normalizedPointerPosition);
 		UpdateMarkers();
 		UpdateTextures();
 		typeUpdate = true;
@@ -315,10 +315,9 @@ public class FlexibleColorPicker : MonoBehaviour
 	private void SeperateMaterials()
 	{
 		Image[] array = pickerImages;
-		foreach (Image im in array)
+		foreach (Image obj in array)
 		{
-			Material original = im.material;
-			Material seperate = (im.material = new Material(original));
+			Material material2 = (obj.material = new Material(obj.material));
 		}
 	}
 
@@ -408,8 +407,8 @@ public class FlexibleColorPicker : MonoBehaviour
 			if ((bool)image && image.isActiveAndEnabled)
 			{
 				PickerType type = (PickerType)i;
-				Vector2 v = GetValue(type);
-				UpdateMarker(image, type, v);
+				Vector2 value = GetValue(type);
+				UpdateMarker(image, type, value);
 			}
 		}
 	}
@@ -421,55 +420,55 @@ public class FlexibleColorPicker : MonoBehaviour
 		case PickerType.Main:
 			SetMarker(picker, v, setX: true, setY: true);
 			break;
+		default:
+		{
+			bool flag = IsHorizontal(picker);
+			SetMarker(picker, v, flag, !flag);
+			break;
+		}
 		case PickerType.Preview:
 		case PickerType.PreviewAlpha:
 			break;
-		default:
-		{
-			bool horizontal = IsHorizontal(picker);
-			SetMarker(picker, v, horizontal, !horizontal);
-			break;
-		}
 		}
 	}
 
 	private void SetMarker(Image picker, Vector2 v, bool setX, bool setY)
 	{
-		RectTransform marker = null;
-		RectTransform offMarker = null;
+		RectTransform rectTransform = null;
+		RectTransform rectTransform2 = null;
 		if (setX && setY)
 		{
-			marker = GetMarker(picker, null);
+			rectTransform = GetMarker(picker, null);
 		}
 		else if (setX)
 		{
-			marker = GetMarker(picker, "hor");
-			offMarker = GetMarker(picker, "ver");
+			rectTransform = GetMarker(picker, "hor");
+			rectTransform2 = GetMarker(picker, "ver");
 		}
 		else if (setY)
 		{
-			marker = GetMarker(picker, "ver");
-			offMarker = GetMarker(picker, "hor");
+			rectTransform = GetMarker(picker, "ver");
+			rectTransform2 = GetMarker(picker, "hor");
 		}
-		if (offMarker != null)
+		if (rectTransform2 != null)
 		{
-			offMarker.gameObject.SetActive(value: false);
+			rectTransform2.gameObject.SetActive(value: false);
 		}
-		if (!(marker == null))
+		if (!(rectTransform == null))
 		{
-			marker.gameObject.SetActive(value: true);
-			RectTransform parent = picker.rectTransform;
-			Vector2 parentSize = parent.rect.size;
-			Vector2 localPos = marker.localPosition;
+			rectTransform.gameObject.SetActive(value: true);
+			RectTransform rectTransform3 = picker.rectTransform;
+			Vector2 size = rectTransform3.rect.size;
+			Vector2 vector = rectTransform.localPosition;
 			if (setX)
 			{
-				localPos.x = (v.x - parent.pivot.x) * parentSize.x;
+				vector.x = (v.x - rectTransform3.pivot.x) * size.x;
 			}
 			if (setY)
 			{
-				localPos.y = (v.y - parent.pivot.y) * parentSize.y;
+				vector.y = (v.y - rectTransform3.pivot.y) * size.y;
 			}
-			marker.localPosition = localPos;
+			rectTransform.localPosition = vector;
 		}
 	}
 
@@ -477,12 +476,11 @@ public class FlexibleColorPicker : MonoBehaviour
 	{
 		for (int i = 0; i < picker.transform.childCount; i++)
 		{
-			RectTransform candidate = picker.transform.GetChild(i).GetComponent<RectTransform>();
-			string candidateName = candidate.name.ToLower();
-			bool match = candidateName.Contains("marker");
-			if (match & (string.IsNullOrEmpty(search) || candidateName.Contains(search)))
+			RectTransform component = picker.transform.GetChild(i).GetComponent<RectTransform>();
+			string text = component.name.ToLower();
+			if (text.Contains("marker") & (string.IsNullOrEmpty(search) || text.Contains(search)))
 			{
-				return candidate;
+				return component;
 			}
 		}
 		return null;
@@ -499,8 +497,8 @@ public class FlexibleColorPicker : MonoBehaviour
 			return Vector2.zero;
 		default:
 		{
-			float value = GetValue1D(type);
-			return new Vector2(value, value);
+			float value1D = GetValue1D(type);
+			return new Vector2(value1D, value1D);
 		}
 		}
 	}
@@ -536,12 +534,12 @@ public class FlexibleColorPicker : MonoBehaviour
 
 	private void UpdateTextures(bool forceUpdate = false)
 	{
-		bool skipPickers = !forceUpdate && staticMode;
-		foreach (PickerType type in Enum.GetValues(typeof(PickerType)))
+		bool flag = !forceUpdate && staticMode;
+		foreach (PickerType value in Enum.GetValues(typeof(PickerType)))
 		{
-			if (!skipPickers || IsPreviewType(type))
+			if (!flag || IsPreviewType(value))
 			{
-				UpdateTexture(type, staticMode);
+				UpdateTexture(value, staticMode);
 			}
 		}
 	}
@@ -553,56 +551,56 @@ public class FlexibleColorPicker : MonoBehaviour
 		{
 			return;
 		}
-		Material i = image.materialForRendering;
-		BufferedColor bc = bufferedColor;
+		Material materialForRendering = image.materialForRendering;
+		BufferedColor bufferedColor = this.bufferedColor;
 		if (standardized)
 		{
 			switch (type)
 			{
 			case PickerType.S:
-				bc = new BufferedColor(Color.red);
+				bufferedColor = new BufferedColor(Color.red);
 				break;
 			default:
-				bc = new BufferedColor(Color.black);
+				bufferedColor = new BufferedColor(Color.black);
 				break;
 			case PickerType.Preview:
 			case PickerType.PreviewAlpha:
 				break;
 			}
 		}
-		bool alpha = IsAlphaType(type);
-		i.SetInt("_Mode", GetGradientMode(type));
-		Color c1 = PickColor(bc, type, Vector2.zero).color;
-		Color c2 = PickColor(bc, type, Vector2.one).color;
-		if (!alpha)
+		bool flag = IsAlphaType(type);
+		materialForRendering.SetInt("_Mode", GetGradientMode(type));
+		Color value = PickColor(bufferedColor, type, Vector2.zero).color;
+		Color value2 = PickColor(bufferedColor, type, Vector2.one).color;
+		if (!flag)
 		{
-			c1 = new Color(c1.r, c1.g, c1.b);
-			c2 = new Color(c2.r, c2.g, c2.b);
+			value = new Color(value.r, value.g, value.b);
+			value2 = new Color(value2.r, value2.g, value2.b);
 		}
-		i.SetColor("_Color1", c1);
-		i.SetColor("_Color2", c2);
+		materialForRendering.SetColor("_Color1", value);
+		materialForRendering.SetColor("_Color2", value2);
 		if (type == PickerType.Main)
 		{
-			i.SetInt("_DoubleMode", (int)mode);
+			materialForRendering.SetInt("_DoubleMode", (int)mode);
 		}
 		if (standardized)
 		{
-			i.SetVector("_HSV", new Vector4(0f, 1f, 1f, 1f));
+			materialForRendering.SetVector("_HSV", new Vector4(0f, 1f, 1f, 1f));
 		}
 		else
 		{
-			i.SetVector("_HSV", new Vector4(bc.h / 5.9999f, bc.s, bc.v, alpha ? bc.a : 1f));
+			materialForRendering.SetVector("_HSV", new Vector4(bufferedColor.h / 5.9999f, bufferedColor.s, bufferedColor.v, flag ? bufferedColor.a : 1f));
 		}
 	}
 
 	private int GetGradientMode(PickerType type)
 	{
-		int o = ((!IsHorizontal(pickerImages[(int)type])) ? 1 : 0);
+		int num = ((!IsHorizontal(pickerImages[(int)type])) ? 1 : 0);
 		return type switch
 		{
 			PickerType.Main => 2, 
-			PickerType.H => 3 + o, 
-			_ => o, 
+			PickerType.H => 3 + num, 
+			_ => num, 
 		};
 	}
 
@@ -612,12 +610,12 @@ public class FlexibleColorPicker : MonoBehaviour
 		{
 			return null;
 		}
-		Image toReturn = pickerImages[index];
-		if (!toReturn || !toReturn.gameObject.activeInHierarchy)
+		Image image = pickerImages[index];
+		if (!image || !image.gameObject.activeInHierarchy)
 		{
 			return null;
 		}
-		return toReturn;
+		return image;
 	}
 
 	private void UpdateHex()
@@ -633,24 +631,24 @@ public class FlexibleColorPicker : MonoBehaviour
 		if (!typeUpdate)
 		{
 			typeUpdate = true;
-			string newText = GetSanitizedHex(input, finish);
-			string parseText = GetSanitizedHex(input, full: true);
-			int cp = hexInput.caretPosition;
-			hexInput.text = newText;
+			string sanitizedHex = GetSanitizedHex(input, finish);
+			string sanitizedHex2 = GetSanitizedHex(input, full: true);
+			int caretPosition = hexInput.caretPosition;
+			hexInput.text = sanitizedHex;
 			if (hexInput.caretPosition == 0)
 			{
 				hexInput.caretPosition = 1;
 			}
-			else if (newText.Length == 2)
+			else if (sanitizedHex.Length == 2)
 			{
 				hexInput.caretPosition = 2;
 			}
-			else if (input.Length > newText.Length && cp < input.Length)
+			else if (input.Length > sanitizedHex.Length && caretPosition < input.Length)
 			{
-				hexInput.caretPosition = cp - input.Length + newText.Length;
+				hexInput.caretPosition = caretPosition - input.Length + sanitizedHex.Length;
 			}
-			ColorUtility.TryParseHtmlString(parseText, out var newColor);
-			bufferedColor.Set(newColor);
+			ColorUtility.TryParseHtmlString(sanitizedHex2, out var color);
+			bufferedColor.Set(color);
 			UpdateMarkers();
 			UpdateTextures();
 		}
@@ -663,12 +661,12 @@ public class FlexibleColorPicker : MonoBehaviour
 			return;
 		}
 		modeDropdown.ClearOptions();
-		List<string> options = new List<string>();
+		List<string> list = new List<string>();
 		foreach (MainPickingMode value in Enum.GetValues(typeof(MainPickingMode)))
 		{
-			options.Add(value.ToString());
+			list.Add(value.ToString());
 		}
-		modeDropdown.AddOptions(options);
+		modeDropdown.AddOptions(list);
 		UpdateMode(mode);
 	}
 
@@ -713,24 +711,23 @@ public class FlexibleColorPicker : MonoBehaviour
 		{
 			return "#";
 		}
-		List<char> toReturn = new List<char>();
-		toReturn.Add('#');
-		int i = 0;
-		char[] chars = input.ToCharArray();
-		while (toReturn.Count < 7 && i < input.Length)
+		List<char> list = new List<char>();
+		list.Add('#');
+		int num = 0;
+		char[] array = input.ToCharArray();
+		while (list.Count < 7 && num < input.Length)
 		{
-			char nextChar = char.ToUpper(chars[i++]);
-			bool validChar = char.IsNumber(nextChar);
-			if (validChar || (nextChar >= 'A' && nextChar <= 'F'))
+			char c = char.ToUpper(array[num++]);
+			if (char.IsNumber(c) || (c >= 'A' && c <= 'F'))
 			{
-				toReturn.Add(nextChar);
+				list.Add(c);
 			}
 		}
-		while (full && toReturn.Count < 7)
+		while (full && list.Count < 7)
 		{
-			toReturn.Insert(1, '0');
+			list.Insert(1, '0');
 		}
-		return new string(toReturn.ToArray());
+		return new string(list.ToArray());
 	}
 
 	private static Vector2 GetNormalizedPointerPosition(Canvas canvas, RectTransform rect, BaseEventData e)
@@ -759,22 +756,22 @@ public class FlexibleColorPicker : MonoBehaviour
 
 	private static Vector2 GetNormScreenSpace(RectTransform rect, BaseEventData e)
 	{
-		Vector2 screenPoint = ((PointerEventData)e).position;
-		Vector2 localPos = rect.worldToLocalMatrix.MultiplyPoint(screenPoint);
-		float x = Mathf.Clamp01(localPos.x / rect.rect.size.x + rect.pivot.x);
-		float y = Mathf.Clamp01(localPos.y / rect.rect.size.y + rect.pivot.y);
+		Vector2 position = ((PointerEventData)e).position;
+		Vector2 vector = rect.worldToLocalMatrix.MultiplyPoint(position);
+		float x = Mathf.Clamp01(vector.x / rect.rect.size.x + rect.pivot.x);
+		float y = Mathf.Clamp01(vector.y / rect.rect.size.y + rect.pivot.y);
 		return new Vector2(x, y);
 	}
 
 	private static Vector2 GetNormWorldSpace(Canvas canvas, RectTransform rect, BaseEventData e)
 	{
-		Vector2 screenPoint = ((PointerEventData)e).position;
-		Ray pointerRay = canvas.worldCamera.ScreenPointToRay(screenPoint);
-		new Plane(canvas.transform.forward, canvas.transform.position).Raycast(pointerRay, out var enter);
-		Vector3 worldPoint = pointerRay.origin + enter * pointerRay.direction;
-		Vector2 localPoint = rect.worldToLocalMatrix.MultiplyPoint(worldPoint);
-		float x = Mathf.Clamp01(localPoint.x / rect.rect.size.x + rect.pivot.x);
-		float y = Mathf.Clamp01(localPoint.y / rect.rect.size.y + rect.pivot.y);
+		Vector2 position = ((PointerEventData)e).position;
+		Ray ray = canvas.worldCamera.ScreenPointToRay(position);
+		new Plane(canvas.transform.forward, canvas.transform.position).Raycast(ray, out var enter);
+		Vector3 point = ray.origin + enter * ray.direction;
+		Vector2 vector = rect.worldToLocalMatrix.MultiplyPoint(point);
+		float x = Mathf.Clamp01(vector.x / rect.rect.size.x + rect.pivot.x);
+		float y = Mathf.Clamp01(vector.y / rect.rect.size.y + rect.pivot.y);
 		return new Vector2(x, y);
 	}
 
@@ -785,18 +782,18 @@ public class FlexibleColorPicker : MonoBehaviour
 
 	public static Color HSVToRGB(float h, float s, float v)
 	{
-		float c = s * v;
-		float i = v - c;
-		float x = c * (1f - Mathf.Abs(h % 2f - 1f)) + i;
-		c += i;
+		float num = s * v;
+		float num2 = v - num;
+		float num3 = num * (1f - Mathf.Abs(h % 2f - 1f)) + num2;
+		num += num2;
 		return Mathf.FloorToInt(h % 6f) switch
 		{
-			0 => new Color(c, x, i), 
-			1 => new Color(x, c, i), 
-			2 => new Color(i, c, x), 
-			3 => new Color(i, x, c), 
-			4 => new Color(x, i, c), 
-			5 => new Color(c, i, x), 
+			0 => new Color(num, num3, num2), 
+			1 => new Color(num3, num, num2), 
+			2 => new Color(num2, num, num3), 
+			3 => new Color(num2, num3, num), 
+			4 => new Color(num3, num2, num), 
+			5 => new Color(num, num2, num3), 
 			_ => Color.black, 
 		};
 	}
@@ -811,27 +808,27 @@ public class FlexibleColorPicker : MonoBehaviour
 
 	public static Vector3 RGBToHSV(float r, float g, float b)
 	{
-		float cMax = Mathf.Max(r, g, b);
-		float cMin = Mathf.Min(r, g, b);
-		float delta = cMax - cMin;
-		float h = 0f;
-		if (delta > 0f)
+		float num = Mathf.Max(r, g, b);
+		float num2 = Mathf.Min(r, g, b);
+		float num3 = num - num2;
+		float x = 0f;
+		if (num3 > 0f)
 		{
 			if (r >= b && r >= g)
 			{
-				h = Mathf.Repeat((g - b) / delta, 6f);
+				x = Mathf.Repeat((g - b) / num3, 6f);
 			}
 			else if (g >= r && g >= b)
 			{
-				h = (b - r) / delta + 2f;
+				x = (b - r) / num3 + 2f;
 			}
 			else if (b >= r && b >= g)
 			{
-				h = (r - g) / delta + 4f;
+				x = (r - g) / num3 + 4f;
 			}
 		}
-		float s = ((cMax == 0f) ? 0f : (delta / cMax));
-		float v = cMax;
-		return new Vector3(h, s, v);
+		float y = ((num == 0f) ? 0f : (num3 / num));
+		float z = num;
+		return new Vector3(x, y, z);
 	}
 }

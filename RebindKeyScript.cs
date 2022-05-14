@@ -5,9 +5,9 @@ using UnityEngine.UI;
 
 public class RebindKeyScript : MonoBehaviour
 {
-	public bool IsSelected = false;
+	public bool IsSelected;
 
-	public bool IsXbox = false;
+	public bool IsXbox;
 
 	public bool IsMoveUp;
 
@@ -45,7 +45,7 @@ public class RebindKeyScript : MonoBehaviour
 
 	public Transform originalParent;
 
-	public int myMenu = 0;
+	public int myMenu;
 
 	public Vector3 scale;
 

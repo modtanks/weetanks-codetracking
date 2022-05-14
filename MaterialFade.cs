@@ -14,9 +14,9 @@ public class MaterialFade : MonoBehaviour
 
 	public Color m_Color;
 
-	public bool isMaterial = false;
+	public bool isMaterial;
 
-	public bool IsShield = false;
+	public bool IsShield;
 
 	private void Start()
 	{

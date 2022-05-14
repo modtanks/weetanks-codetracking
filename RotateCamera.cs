@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class RotateCamera : MonoBehaviour
 {
-	public bool isRotating = false;
+	public bool isRotating;
 
 	public Quaternion BeginRot;
 

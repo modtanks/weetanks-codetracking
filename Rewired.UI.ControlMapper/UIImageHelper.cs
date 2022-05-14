@@ -37,14 +37,14 @@ public class UIImageHelper : MonoBehaviour
 		State state = (newState ? enabledState : disabledState);
 		if (state != null)
 		{
-			Image image = base.gameObject.GetComponent<Image>();
-			if (image == null)
+			Image component = base.gameObject.GetComponent<Image>();
+			if (component == null)
 			{
 				Debug.LogError("Image is missing!");
 			}
 			else
 			{
-				state.Set(image);
+				state.Set(component);
 			}
 		}
 	}
@@ -62,10 +62,10 @@ public class UIImageHelper : MonoBehaviour
 	public void Refresh()
 	{
 		State state = (currentState ? enabledState : disabledState);
-		Image image = base.gameObject.GetComponent<Image>();
-		if (!(image == null))
+		Image component = base.gameObject.GetComponent<Image>();
+		if (!(component == null))
 		{
-			state.Set(image);
+			state.Set(component);
 		}
 	}
 }

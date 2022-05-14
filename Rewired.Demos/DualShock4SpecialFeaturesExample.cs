@@ -16,7 +16,7 @@ public class DualShock4SpecialFeaturesExample : MonoBehaviour
 
 	private const int maxTouches = 2;
 
-	public int playerId = 0;
+	public int playerId;
 
 	public Transform touchpadTransform;
 
@@ -45,12 +45,12 @@ public class DualShock4SpecialFeaturesExample : MonoBehaviour
 		{
 			return;
 		}
-		IDualShock4Extension ds4 = GetFirstDS4(player);
-		if (ds4 != null)
+		IDualShock4Extension firstDS = GetFirstDS4(player);
+		if (firstDS != null)
 		{
-			base.transform.rotation = ds4.GetOrientation();
-			HandleTouchpad(ds4);
-			Vector3 accelerometerValue = ds4.GetAccelerometerValue();
+			base.transform.rotation = firstDS.GetOrientation();
+			HandleTouchpad(firstDS);
+			Vector3 accelerometerValue = firstDS.GetAccelerometerValue();
 			accelerometerTransform.LookAt(accelerometerTransform.position + accelerometerValue);
 		}
 		if (player.GetButtonDown("CycleLight"))
@@ -75,11 +75,11 @@ public class DualShock4SpecialFeaturesExample : MonoBehaviour
 		}
 		if (player.GetButtonDown("VibrateLeft"))
 		{
-			ds4.SetVibration(0, 1f, 1f);
+			firstDS.SetVibration(0, 1f, 1f);
 		}
 		if (player.GetButtonDown("VibrateRight"))
 		{
-			ds4.SetVibration(1, 1f, 1f);
+			firstDS.SetVibration(1, 1f, 1f);
 		}
 	}
 
@@ -96,30 +96,30 @@ public class DualShock4SpecialFeaturesExample : MonoBehaviour
 			GUILayout.BeginArea(new Rect(200f, 100f, (float)Screen.width - 400f, (float)Screen.height - 200f));
 			GUILayout.Label("Rotate the Dual Shock 4 to see the model rotate in sync.", textStyle);
 			GUILayout.Label("Touch the touchpad to see them appear on the model.", textStyle);
-			ActionElementMap aem = player.controllers.maps.GetFirstElementMapWithAction(ControllerType.Joystick, "ResetOrientation", skipDisabledMaps: true);
-			if (aem != null)
+			ActionElementMap firstElementMapWithAction = player.controllers.maps.GetFirstElementMapWithAction(ControllerType.Joystick, "ResetOrientation", skipDisabledMaps: true);
+			if (firstElementMapWithAction != null)
 			{
-				GUILayout.Label("Press " + aem.elementIdentifierName + " to reset the orientation. Hold the gamepad facing the screen with sticks pointing up and press the button.", textStyle);
+				GUILayout.Label("Press " + firstElementMapWithAction.elementIdentifierName + " to reset the orientation. Hold the gamepad facing the screen with sticks pointing up and press the button.", textStyle);
 			}
-			aem = player.controllers.maps.GetFirstElementMapWithAction(ControllerType.Joystick, "CycleLight", skipDisabledMaps: true);
-			if (aem != null)
+			firstElementMapWithAction = player.controllers.maps.GetFirstElementMapWithAction(ControllerType.Joystick, "CycleLight", skipDisabledMaps: true);
+			if (firstElementMapWithAction != null)
 			{
-				GUILayout.Label("Press " + aem.elementIdentifierName + " to change the light color.", textStyle);
+				GUILayout.Label("Press " + firstElementMapWithAction.elementIdentifierName + " to change the light color.", textStyle);
 			}
-			aem = player.controllers.maps.GetFirstElementMapWithAction(ControllerType.Joystick, "ToggleLightFlash", skipDisabledMaps: true);
-			if (aem != null)
+			firstElementMapWithAction = player.controllers.maps.GetFirstElementMapWithAction(ControllerType.Joystick, "ToggleLightFlash", skipDisabledMaps: true);
+			if (firstElementMapWithAction != null)
 			{
-				GUILayout.Label("Press " + aem.elementIdentifierName + " to start or stop the light flashing.", textStyle);
+				GUILayout.Label("Press " + firstElementMapWithAction.elementIdentifierName + " to start or stop the light flashing.", textStyle);
 			}
-			aem = player.controllers.maps.GetFirstElementMapWithAction(ControllerType.Joystick, "VibrateLeft", skipDisabledMaps: true);
-			if (aem != null)
+			firstElementMapWithAction = player.controllers.maps.GetFirstElementMapWithAction(ControllerType.Joystick, "VibrateLeft", skipDisabledMaps: true);
+			if (firstElementMapWithAction != null)
 			{
-				GUILayout.Label("Press " + aem.elementIdentifierName + " vibrate the left motor.", textStyle);
+				GUILayout.Label("Press " + firstElementMapWithAction.elementIdentifierName + " vibrate the left motor.", textStyle);
 			}
-			aem = player.controllers.maps.GetFirstElementMapWithAction(ControllerType.Joystick, "VibrateRight", skipDisabledMaps: true);
-			if (aem != null)
+			firstElementMapWithAction = player.controllers.maps.GetFirstElementMapWithAction(ControllerType.Joystick, "VibrateRight", skipDisabledMaps: true);
+			if (firstElementMapWithAction != null)
 			{
-				GUILayout.Label("Press " + aem.elementIdentifierName + " vibrate the right motor.", textStyle);
+				GUILayout.Label("Press " + firstElementMapWithAction.elementIdentifierName + " vibrate the right motor.", textStyle);
 			}
 			GUILayout.EndArea();
 		}
@@ -132,41 +132,40 @@ public class DualShock4SpecialFeaturesExample : MonoBehaviour
 
 	private void SetRandomLightColor()
 	{
-		IDualShock4Extension ds4 = GetFirstDS4(player);
-		if (ds4 != null)
+		IDualShock4Extension firstDS = GetFirstDS4(player);
+		if (firstDS != null)
 		{
 			Color color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1f);
-			ds4.SetLightColor(color);
+			firstDS.SetLightColor(color);
 			lightObject.GetComponent<MeshRenderer>().material.color = color;
 		}
 	}
 
 	private void StartLightFlash()
 	{
-		if (GetFirstDS4(player) is DualShock4Extension ds4)
+		if (GetFirstDS4(player) is DualShock4Extension dualShock4Extension)
 		{
-			ds4.SetLightFlash(0.5f, 0.5f);
+			dualShock4Extension.SetLightFlash(0.5f, 0.5f);
 		}
 	}
 
 	private void StopLightFlash()
 	{
-		if (GetFirstDS4(player) is DualShock4Extension ds4)
+		if (GetFirstDS4(player) is DualShock4Extension dualShock4Extension)
 		{
-			ds4.StopLightFlash();
+			dualShock4Extension.StopLightFlash();
 		}
 	}
 
 	private IDualShock4Extension GetFirstDS4(Player player)
 	{
-		foreach (Joystick i in player.controllers.Joysticks)
+		foreach (Joystick joystick in player.controllers.Joysticks)
 		{
-			IDualShock4Extension ds4 = i.GetExtension<IDualShock4Extension>();
-			if (ds4 == null)
+			IDualShock4Extension extension = joystick.GetExtension<IDualShock4Extension>();
+			if (extension != null)
 			{
-				continue;
+				return extension;
 			}
-			return ds4;
 		}
 		return null;
 	}
@@ -189,14 +188,14 @@ public class DualShock4SpecialFeaturesExample : MonoBehaviour
 
 	private void HandleTouchpad(IDualShock4Extension ds4)
 	{
-		for (int j = touches.Count - 1; j >= 0; j--)
+		for (int num = touches.Count - 1; num >= 0; num--)
 		{
-			Touch touch = touches[j];
+			Touch touch = touches[num];
 			if (!ds4.IsTouchingByTouchId(touch.touchId))
 			{
 				touch.go.SetActive(value: false);
 				unusedTouches.Enqueue(touch);
-				touches.RemoveAt(j);
+				touches.RemoveAt(num);
 			}
 		}
 		for (int i = 0; i < ds4.maxTouches; i++)

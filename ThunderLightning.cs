@@ -21,8 +21,8 @@ public class ThunderLightning : MonoBehaviour
 	{
 		float TimeBetweenStrikes = Random.Range(0.01f, 0.03f);
 		float LightningIntensity = intensity + Random.Range(intensity / 2f, intensity / 2f);
-		float WaitingTime = Random.Range(3f, 18f);
-		yield return new WaitForSeconds(WaitingTime);
+		float seconds = Random.Range(3f, 18f);
+		yield return new WaitForSeconds(seconds);
 		int TimesLightningStrikes = Random.Range(1, 8);
 		if (isLightning)
 		{
@@ -34,10 +34,10 @@ public class ThunderLightning : MonoBehaviour
 				myLight.intensity = 0f;
 				yield return new WaitForSeconds(TimeBetweenStrikes);
 			}
-			CameraShake CS = Camera.main.GetComponent<CameraShake>();
-			if ((bool)CS)
+			CameraShake component = Camera.main.GetComponent<CameraShake>();
+			if ((bool)component)
 			{
-				CS.StartCoroutine(CS.Shake(0.12f, 0.17f));
+				component.StartCoroutine(component.Shake(0.12f, 0.17f));
 			}
 			CloudGen.StartCoroutine(CloudGen.PlayThunderSound());
 		}

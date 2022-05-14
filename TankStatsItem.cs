@@ -25,11 +25,11 @@ public class TankStatsItem : MonoBehaviour
 
 	public Transform originalParent;
 
-	public int myMenu = 0;
+	public int myMenu;
 
 	public Vector3 scale;
 
-	public bool hidden = false;
+	public bool hidden;
 
 	private void Start()
 	{
@@ -80,58 +80,58 @@ public class TankStatsItem : MonoBehaviour
 			base.transform.localScale = scale;
 			TankImage.gameObject.SetActive(value: false);
 			Title.text = LocalizationMaster.instance.GetText(CampaignNames[myStatID]);
-			string amount = "";
+			string text = "";
 			switch (myStatID)
 			{
 			case 0:
-				amount = AccountMaster.instance.PDO.maxMission0.ToString();
+				text = AccountMaster.instance.PDO.maxMission0.ToString();
 				break;
 			case 1:
-				amount = AccountMaster.instance.PDO.totalKills + "x";
+				text = AccountMaster.instance.PDO.totalKills + "x";
 				break;
 			case 2:
-				amount = AccountMaster.instance.PDO.totalKillsBounce + "x";
+				text = AccountMaster.instance.PDO.totalKillsBounce + "x";
 				break;
 			case 3:
-				amount = AccountMaster.instance.PDO.totalWins + "x";
+				text = AccountMaster.instance.PDO.totalWins + "x";
 				break;
 			case 4:
-				amount = AccountMaster.instance.PDO.totalDefeats + "x";
+				text = AccountMaster.instance.PDO.totalDefeats + "x";
 				break;
 			}
-			Amount.text = amount.ToString();
+			Amount.text = text.ToString();
 		}
 		else if (myMenu == 2)
 		{
 			base.transform.localScale = scale;
 			TankImage.gameObject.SetActive(value: false);
 			Title.text = LocalizationMaster.instance.GetText(SurvivalNames[myStatID]);
-			string amount2 = "";
+			string text2 = "";
 			switch (myStatID)
 			{
 			case 0:
-				amount2 = AccountMaster.instance.PDO.survivalTanksKilled + "x";
+				text2 = AccountMaster.instance.PDO.survivalTanksKilled + "x";
 				break;
 			case 1:
-				amount2 = AccountMaster.instance.PDO.hW[0].ToString();
+				text2 = AccountMaster.instance.PDO.hW[0].ToString();
 				break;
 			case 2:
-				amount2 = AccountMaster.instance.PDO.hW[1].ToString();
+				text2 = AccountMaster.instance.PDO.hW[1].ToString();
 				break;
 			case 3:
-				amount2 = AccountMaster.instance.PDO.hW[2].ToString();
+				text2 = AccountMaster.instance.PDO.hW[2].ToString();
 				break;
 			case 4:
-				amount2 = AccountMaster.instance.PDO.hW[3].ToString();
+				text2 = AccountMaster.instance.PDO.hW[3].ToString();
 				break;
 			case 5:
-				amount2 = AccountMaster.instance.PDO.hW[4].ToString();
+				text2 = AccountMaster.instance.PDO.hW[4].ToString();
 				break;
 			case 6:
-				amount2 = AccountMaster.instance.PDO.hW[5].ToString();
+				text2 = AccountMaster.instance.PDO.hW[5].ToString();
 				break;
 			}
-			Amount.text = amount2.ToString();
+			Amount.text = text2.ToString();
 		}
 	}
 

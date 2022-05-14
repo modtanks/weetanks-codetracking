@@ -6,7 +6,7 @@ public class ShieldScript : MonoBehaviour
 	[Range(0.01f, 1f)]
 	public float fadeSpeed = 1f;
 
-	public int ShieldHealth = 0;
+	public int ShieldHealth;
 
 	public Material m_Material;
 
@@ -22,11 +22,11 @@ public class ShieldScript : MonoBehaviour
 
 	private SphereCollider SC;
 
-	public bool isPeachShield = false;
+	public bool isPeachShield;
 
-	private int prevHealth = 0;
+	private int prevHealth;
 
-	private bool GettingHit = false;
+	private bool GettingHit;
 
 	private Color prevEmission;
 
@@ -99,16 +99,16 @@ public class ShieldScript : MonoBehaviour
 		{
 			return;
 		}
-		PlayerBulletScript PBS = other.GetComponent<PlayerBulletScript>();
-		if ((bool)PBS)
+		PlayerBulletScript component = other.GetComponent<PlayerBulletScript>();
+		if ((bool)component)
 		{
-			if (PBS.IsAirBullet)
+			if (component.IsAirBullet)
 			{
-				PBS.TimesBounced = 99999;
+				component.TimesBounced = 99999;
 			}
-			else if ((!(PBS.EnemyTankScript != null) || PBS.TimesBounced != 0 || !(PBS.EnemyTankScript.AIscript == base.transform.parent.GetComponent<EnemyAI>())) && (!(PBS.TankScript != null) || PBS.TimesBounced != 0 || !(PBS.TankScript.tankMovingScript == base.transform.parent.GetComponent<MoveTankScript>())) && (!(PBS.EnemyTankScript != null) || PBS.TimesBounced != 0 || !(PBS.EnemyTankScript.AIscript == base.transform.parent.GetComponent<EnemyAI>())))
+			else if ((!(component.EnemyTankScript != null) || component.TimesBounced != 0 || !(component.EnemyTankScript.AIscript == base.transform.parent.GetComponent<EnemyAI>())) && (!(component.TankScript != null) || component.TimesBounced != 0 || !(component.TankScript.tankMovingScript == base.transform.parent.GetComponent<MoveTankScript>())) && (!(component.EnemyTankScript != null) || component.TimesBounced != 0 || !(component.EnemyTankScript.AIscript == base.transform.parent.GetComponent<EnemyAI>())))
 			{
-				PBS.TimesBounced = 99999;
+				component.TimesBounced = 99999;
 				StartFade();
 				SFXManager.instance.PlaySFX(HittedSound, 1f, null);
 				ShieldHealth--;

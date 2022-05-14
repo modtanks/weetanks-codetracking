@@ -31,36 +31,36 @@ public class AOcreation : MonoBehaviour
 		rend = GetComponent<Renderer>();
 		if (randomRotation)
 		{
-			int x = Random.Range(0, 4) * 90;
-			int y2 = Random.Range(0, 4) * 90;
-			int z = Random.Range(0, 4) * 90;
-			base.transform.rotation = Quaternion.Euler(x, y2, z);
+			int num = Random.Range(0, 4) * 90;
+			int num2 = Random.Range(0, 4) * 90;
+			int num3 = Random.Range(0, 4) * 90;
+			base.transform.rotation = Quaternion.Euler(num, num2, num3);
 		}
 		else if (randomRotationOnlyY)
 		{
-			int y = Random.Range(0, 4) * 90;
+			int num4 = Random.Range(0, 4) * 90;
 			if (!onlyY)
 			{
-				base.transform.rotation = Quaternion.Euler(base.transform.rotation.x, y, base.transform.rotation.z);
+				base.transform.rotation = Quaternion.Euler(base.transform.rotation.x, num4, base.transform.rotation.z);
 			}
 			else
 			{
-				base.transform.rotation = Quaternion.Euler(xRot, y, 0f);
+				base.transform.rotation = Quaternion.Euler(xRot, num4, 0f);
 			}
 		}
 		if (randomTextureTiling)
 		{
-			float scale = Random.Range(minTiling, maxTiling);
+			float num5 = Random.Range(minTiling, maxTiling);
 			if ((bool)rend)
 			{
-				rend.material.mainTextureScale = new Vector2(scale, scale);
+				rend.material.mainTextureScale = new Vector2(num5, num5);
 			}
 		}
 		if ((bool)AO)
 		{
-			GameObject ao = Object.Instantiate(AO, new Vector3(base.transform.position.x, base.transform.position.y - posYoffset + 0.02f, base.transform.position.z), Quaternion.identity);
-			ao.transform.localRotation = Quaternion.Euler(0f, base.transform.eulerAngles.y, 0f);
-			ao.transform.parent = base.transform;
+			GameObject obj = Object.Instantiate(AO, new Vector3(base.transform.position.x, base.transform.position.y - posYoffset + 0.02f, base.transform.position.z), Quaternion.identity);
+			obj.transform.localRotation = Quaternion.Euler(0f, base.transform.eulerAngles.y, 0f);
+			obj.transform.parent = base.transform;
 		}
 		if (GetComponent<SnowEnabler>() != null && !GameMaster.instance.CM)
 		{

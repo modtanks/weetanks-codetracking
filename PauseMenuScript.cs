@@ -17,7 +17,7 @@ public class PauseMenuScript : MonoBehaviour
 
 	public GameObject TanksLeftField;
 
-	public int currentMenu = 0;
+	public int currentMenu;
 
 	public List<int> menuAmountOptions = new List<int>();
 
@@ -31,7 +31,7 @@ public class PauseMenuScript : MonoBehaviour
 
 	public GameObject[] HideOnNormal;
 
-	public int Selection = 0;
+	public int Selection;
 
 	public TextMeshProUGUI[] MenuTexts;
 
@@ -82,7 +82,7 @@ public class PauseMenuScript : MonoBehaviour
 
 	private Vector2 input;
 
-	private bool LoadingScene = false;
+	private bool LoadingScene;
 
 	public TextMeshProUGUI CheckpointText;
 
@@ -123,9 +123,9 @@ public class PauseMenuScript : MonoBehaviour
 
 	public ButtonMouseEvents vsync_toggle;
 
-	private bool pausedMusicScript = false;
+	private bool pausedMusicScript;
 
-	public float musicLvlBefore = 0f;
+	public float musicLvlBefore;
 
 	private void Start()
 	{
@@ -136,60 +136,60 @@ public class PauseMenuScript : MonoBehaviour
 		}
 		myCanvas = GetComponent<Canvas>();
 		GameObject[] menus = Menus;
-		foreach (GameObject Menu in menus)
+		foreach (GameObject gameObject in menus)
 		{
-			int amountWithButton = 0;
-			int amountChilds = Menu.transform.childCount;
-			for (int i = 0; i < amountChilds; i++)
+			int num = 0;
+			int childCount = gameObject.transform.childCount;
+			for (int j = 0; j < childCount; j++)
 			{
-				if (Menu.transform.GetChild(i).GetComponent<MainMenuButtons>() != null)
+				if (gameObject.transform.GetChild(j).GetComponent<MainMenuButtons>() != null)
 				{
-					amountWithButton++;
+					num++;
 				}
 			}
-			menuAmountOptions.Add(amountWithButton - 1);
+			menuAmountOptions.Add(num - 1);
 		}
 		if ((bool)ZombieTankSpawner.instance)
 		{
-			GameObject[] hideOnSurvivalMode = HideOnSurvivalMode;
-			foreach (GameObject obj5 in hideOnSurvivalMode)
+			menus = HideOnSurvivalMode;
+			for (int i = 0; i < menus.Length; i++)
 			{
-				obj5.SetActive(value: false);
+				menus[i].SetActive(value: false);
 			}
 		}
 		else if (GameMaster.instance.isOfficialCampaign)
 		{
-			GameObject[] hideOnClassicCampaign = HideOnClassicCampaign;
-			foreach (GameObject obj4 in hideOnClassicCampaign)
+			menus = HideOnClassicCampaign;
+			for (int i = 0; i < menus.Length; i++)
 			{
-				obj4.SetActive(value: false);
+				menus[i].SetActive(value: false);
 			}
 		}
 		else if ((bool)MapEditorMaster.instance)
 		{
 			if (MapEditorMaster.instance.inPlayingMode)
 			{
-				GameObject[] hideOnClassicCampaign2 = HideOnClassicCampaign;
-				foreach (GameObject obj3 in hideOnClassicCampaign2)
+				menus = HideOnClassicCampaign;
+				for (int i = 0; i < menus.Length; i++)
 				{
-					obj3.SetActive(value: false);
+					menus[i].SetActive(value: false);
 				}
 			}
 			else
 			{
-				GameObject[] hideOnMapEditor = HideOnMapEditor;
-				foreach (GameObject obj2 in hideOnMapEditor)
+				menus = HideOnMapEditor;
+				for (int i = 0; i < menus.Length; i++)
 				{
-					obj2.SetActive(value: false);
+					menus[i].SetActive(value: false);
 				}
 			}
 		}
 		else
 		{
-			GameObject[] hideOnNormal = HideOnNormal;
-			foreach (GameObject obj in hideOnNormal)
+			menus = HideOnNormal;
+			for (int i = 0; i < menus.Length; i++)
 			{
-				obj.SetActive(value: false);
+				menus[i].SetActive(value: false);
 			}
 		}
 		if (GameMaster.instance.inMapEditor && MapEditorMaster.instance.signedName != "")
@@ -227,18 +227,18 @@ public class PauseMenuScript : MonoBehaviour
 			OptionsMainMenu.instance.StartLevel += 10;
 			CheckpointText.text = LocalizationMaster.instance.GetText("MM_Checkpoint") + " " + OptionsMainMenu.instance.StartLevel;
 		}
-		bool PressedUse = false;
-		bool PressedExit = false;
+		bool flag = false;
+		bool flag2 = false;
 		for (int i = 0; i < ReInput.players.playerCount; i++)
 		{
-			Player p = ReInput.players.GetPlayer(i);
-			if ((p.isPlaying && GameMaster.instance.PlayerJoined[i]) || (bool)MapEditorMaster.instance)
+			Player player = ReInput.players.GetPlayer(i);
+			if ((player.isPlaying && GameMaster.instance.PlayerJoined[i]) || (bool)MapEditorMaster.instance)
 			{
-				input.x = p.GetAxis("Move Horizontal");
-				input.y = p.GetAxis("Move Vertically");
-				PressedUse = p.GetButtonUp("Menu Use");
-				PressedExit = p.GetButtonDown("Escape");
-				if (input.y < 0f || input.y > 0f || PressedUse || PressedExit)
+				input.x = player.GetAxis("Move Horizontal");
+				input.y = player.GetAxis("Move Vertically");
+				flag = player.GetButtonUp("Menu Use");
+				flag2 = player.GetButtonDown("Escape");
+				if (input.y < 0f || input.y > 0f || flag || flag2)
 				{
 					break;
 				}
@@ -250,23 +250,22 @@ public class PauseMenuScript : MonoBehaviour
 			{
 				TanksLeft_Text.text = LocalizationMaster.instance.GetText("HUD_tanks_left") + " " + GameMaster.instance.Lives;
 			}
-			MainMenuButtons[] myItems = UnityEngine.Object.FindObjectsOfType(typeof(MainMenuButtons)) as MainMenuButtons[];
-			MainMenuButtons[] array = myItems;
-			foreach (MainMenuButtons item in array)
+			MainMenuButtons[] array = UnityEngine.Object.FindObjectsOfType(typeof(MainMenuButtons)) as MainMenuButtons[];
+			foreach (MainMenuButtons mainMenuButtons in array)
 			{
-				if (item.Place == Selection && item.inMenu == currentMenu)
+				if (mainMenuButtons.Place == Selection && mainMenuButtons.inMenu == currentMenu)
 				{
-					if (!item.Selected)
+					if (!mainMenuButtons.Selected)
 					{
-						currentScript = item;
-						item.Selected = true;
-						item.startTime = Time.unscaledDeltaTime;
+						currentScript = mainMenuButtons;
+						mainMenuButtons.Selected = true;
+						mainMenuButtons.startTime = Time.unscaledDeltaTime;
 					}
 				}
-				else if (item.Selected)
+				else if (mainMenuButtons.Selected)
 				{
-					item.Selected = false;
-					item.startTime = Time.unscaledDeltaTime;
+					mainMenuButtons.Selected = false;
+					mainMenuButtons.startTime = Time.unscaledDeltaTime;
 				}
 			}
 		}
@@ -287,7 +286,7 @@ public class PauseMenuScript : MonoBehaviour
 				Debug.LogError("GOING UP");
 				StartCoroutine("doing");
 			}
-			if (PressedUse && currentMenu != 5)
+			if (flag && currentMenu != 5)
 			{
 				doButton(currentScript);
 			}
@@ -309,11 +308,9 @@ public class PauseMenuScript : MonoBehaviour
 		{
 			PauseGame();
 		}
-		if (PressedExit)
+		if (flag2)
 		{
-			if (GameMaster.instance.inMapEditor)
-			{
-			}
+			_ = GameMaster.instance.inMapEditor;
 			if (myCanvas.enabled && !LoadingScene)
 			{
 				ResumeGame();
@@ -331,8 +328,9 @@ public class PauseMenuScript : MonoBehaviour
 				PauseGame();
 			}
 		}
-		else if (!CDS)
+		else
 		{
+			_ = (bool)CDS;
 		}
 	}
 
@@ -353,23 +351,23 @@ public class PauseMenuScript : MonoBehaviour
 			SFXManager.instance.PlaySFX(SuccesSound);
 			yield break;
 		}
-		string receivedKey = keyRequest.downloadHandler.text;
+		string text = keyRequest.downloadHandler.text;
 		_ = Application.persistentDataPath + "/";
-		string savePath2 = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
-		savePath2 = savePath2 + "/My Games/Wee Tanks/" + MED.campaignName + ".campaign";
-		WWWForm form = new WWWForm();
-		form.AddField("key", AccountMaster.instance.Key);
-		form.AddField("authKey", receivedKey);
-		form.AddField("userid", AccountMaster.instance.UserID);
-		form.AddField("campaignName", MED.campaignName);
-		form.AddField("campaignVersion", MED.VersionCreated);
-		form.AddField("campaignID", MED.PID);
-		form.AddField("campaignSize", MED.MapSize);
-		form.AddField("campaignMissions", MED.missionAmount);
-		form.AddField("campaignDifficulty", MED.difficulty);
-		form.AddBinaryData("file", File.ReadAllBytes(savePath2), MED.campaignName + ".campaign", "text/plain");
+		string text2 = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
+		text2 = text2 + "/My Games/Wee Tanks/" + MED.campaignName + ".campaign";
+		WWWForm wWWForm = new WWWForm();
+		wWWForm.AddField("key", AccountMaster.instance.Key);
+		wWWForm.AddField("authKey", text);
+		wWWForm.AddField("userid", AccountMaster.instance.UserID);
+		wWWForm.AddField("campaignName", MED.campaignName);
+		wWWForm.AddField("campaignVersion", MED.VersionCreated);
+		wWWForm.AddField("campaignID", MED.PID);
+		wWWForm.AddField("campaignSize", MED.MapSize);
+		wWWForm.AddField("campaignMissions", MED.missionAmount);
+		wWWForm.AddField("campaignDifficulty", MED.difficulty);
+		wWWForm.AddBinaryData("file", File.ReadAllBytes(text2), MED.campaignName + ".campaign", "text/plain");
 		Debug.Log("SENDING NOW");
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_map.php", form);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_map.php", wWWForm);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
@@ -430,10 +428,10 @@ public class PauseMenuScript : MonoBehaviour
 		}
 		else if (MMB.IsControls)
 		{
-			ControlMapper CM = GameObject.Find("ControlMapper").GetComponent<ControlMapper>();
-			if ((bool)CM)
+			ControlMapper component = GameObject.Find("ControlMapper").GetComponent<ControlMapper>();
+			if ((bool)component)
 			{
-				CM.Open();
+				component.Open();
 			}
 		}
 		else if (MMB.IsBeforeExit)
@@ -520,7 +518,7 @@ public class PauseMenuScript : MonoBehaviour
 		if (MMB.IsSaveMapFile)
 		{
 			Debug.Log("SAVING MAP FILO");
-			bool IsCampaignMap = false;
+			bool flag = false;
 			deselectButton(MMB);
 			StartCoroutine("doing");
 			if (campaignNameInput.text == "")
@@ -545,7 +543,7 @@ public class PauseMenuScript : MonoBehaviour
 			if (campaignNameInput.text.Contains("_CampaignMission"))
 			{
 				Debug.Log("CAMPAIGN MAP!");
-				IsCampaignMap = true;
+				flag = true;
 			}
 			MapEditorMaster.instance.campaignName = campaignNameInput.text;
 			if (SignMapInput.text != "" && SignMapToggle.IsEnabled)
@@ -556,20 +554,20 @@ public class PauseMenuScript : MonoBehaviour
 			{
 				MapEditorMaster.instance.signedName = "";
 			}
-			foreach (GameObject level2 in GameMaster.instance.Levels)
+			foreach (GameObject level in GameMaster.instance.Levels)
 			{
-				level2.SetActive(value: true);
+				level.SetActive(value: true);
 			}
 			Debug.Log("saving with map size" + OptionsMainMenu.instance.MapSize);
 			Debug.Log(campaignNameInput.text);
 			MapEditorMaster.instance.SaveCurrentProps();
-			bool saved = false;
+			bool flag2 = false;
 			if ((bool)OptionsMainMenu.instance.ClassicMap)
 			{
-				saved = SavingMapEditorData.SaveClassicCampaignMap(GameMaster.instance, MapEditorMaster.instance, campaignNameInput.text, OptionsMainMenu.instance.ClassicMap);
+				flag2 = SavingMapEditorData.SaveClassicCampaignMap(GameMaster.instance, MapEditorMaster.instance, campaignNameInput.text, OptionsMainMenu.instance.ClassicMap);
 				return;
 			}
-			if (!((!IsCampaignMap) ? SavingMapEditorData.SaveMap(GameMaster.instance, MapEditorMaster.instance, campaignNameInput.text, overwrite: false) : SavingMapEditorData.SaveCampaignMap(GameMaster.instance, MapEditorMaster.instance, campaignNameInput.text, overwrite: false)))
+			if (!((!flag) ? SavingMapEditorData.SaveMap(GameMaster.instance, MapEditorMaster.instance, campaignNameInput.text, overwrite: false) : SavingMapEditorData.SaveCampaignMap(GameMaster.instance, MapEditorMaster.instance, campaignNameInput.text, overwrite: false)))
 			{
 				errorCampaignInputText.text = "File alraedy exisists REPLACE?";
 				errorCampaignInputText.color = Color.red;
@@ -583,14 +581,14 @@ public class PauseMenuScript : MonoBehaviour
 					SigningTheMap.SetActive(value: false);
 				}
 				Debug.Log("HERE WE GO MATE");
-				MapEditorData MED = SavingMapEditorData.LoadData(campaignNameInput.text);
-				if (MED != null)
+				MapEditorData mapEditorData = SavingMapEditorData.LoadData(campaignNameInput.text);
+				if (mapEditorData != null)
 				{
 					Debug.Log("HERE WE GO MATE!");
-					if (MED.PID > 0 && MapEditorMaster.instance.IsPublished == 1)
+					if (mapEditorData.PID > 0 && MapEditorMaster.instance.IsPublished == 1)
 					{
 						StartCoroutine(ShowCampaignInputError("Uploading...", Color.red));
-						StartCoroutine(UploadCampaign(MED));
+						StartCoroutine(UploadCampaign(mapEditorData));
 					}
 					else
 					{
@@ -604,11 +602,11 @@ public class PauseMenuScript : MonoBehaviour
 					SFXManager.instance.PlaySFX(SuccesSound, 0.8f);
 				}
 			}
-			foreach (GameObject level in GameMaster.instance.Levels)
+			foreach (GameObject level2 in GameMaster.instance.Levels)
 			{
-				if (GameMaster.instance.Levels[GameMaster.instance.CurrentMission] != level)
+				if (GameMaster.instance.Levels[GameMaster.instance.CurrentMission] != level2)
 				{
-					level.SetActive(value: false);
+					level2.SetActive(value: false);
 				}
 			}
 		}
@@ -747,15 +745,13 @@ public class PauseMenuScript : MonoBehaviour
 			}
 			NormalButtonsSavingMap.SetActive(value: true);
 			ReplaceButtonsSavingMap.SetActive(value: false);
-			Debug.Log("HERE WE GO MATE");
-			MapEditorData MED = SavingMapEditorData.LoadData(campaignNameInput.text);
-			if (MED != null)
+			MapEditorData mapEditorData = SavingMapEditorData.LoadData(campaignNameInput.text);
+			if (mapEditorData != null)
 			{
-				Debug.Log("HERE WE GO MATE!");
-				if (MED.PID > 0 && MapEditorMaster.instance.IsPublished == 1)
+				if (mapEditorData.PID > 0 && MapEditorMaster.instance.IsPublished == 1)
 				{
 					StartCoroutine(ShowCampaignInputError("Uploading...", Color.red));
-					StartCoroutine(UploadCampaign(MED));
+					StartCoroutine(UploadCampaign(mapEditorData));
 				}
 				else
 				{
@@ -794,11 +790,10 @@ public class PauseMenuScript : MonoBehaviour
 		SFXManager.instance.PlaySFX(MenuSwitch);
 		float t2 = 0f;
 		CanvasGroup CG2 = Menus[currentMenu].GetComponent<CanvasGroup>();
-		MainMenuButtons[] MMBs2 = Menus[currentMenu].GetComponentsInChildren<MainMenuButtons>();
-		MainMenuButtons[] array = MMBs2;
-		foreach (MainMenuButtons MMB in array)
+		MainMenuButtons[] componentsInChildren = Menus[currentMenu].GetComponentsInChildren<MainMenuButtons>();
+		for (int i = 0; i < componentsInChildren.Length; i++)
 		{
-			MMB.SwitchedMenu();
+			componentsInChildren[i].SwitchedMenu();
 		}
 		if ((bool)CG2)
 		{
@@ -810,20 +805,19 @@ public class PauseMenuScript : MonoBehaviour
 			}
 		}
 		GameObject[] menus = Menus;
-		foreach (GameObject menu in menus)
+		foreach (GameObject gameObject in menus)
 		{
-			if (menu != null)
+			if (gameObject != null)
 			{
-				menu.SetActive(value: false);
+				gameObject.SetActive(value: false);
 			}
 		}
 		currentMenu = menunumber;
 		Menus[menunumber].SetActive(value: true);
-		MMBs2 = Menus[currentMenu].GetComponentsInChildren<MainMenuButtons>();
-		MainMenuButtons[] array2 = MMBs2;
-		foreach (MainMenuButtons MMB2 in array2)
+		componentsInChildren = Menus[currentMenu].GetComponentsInChildren<MainMenuButtons>();
+		for (int i = 0; i < componentsInChildren.Length; i++)
 		{
-			MMB2.LoadButton();
+			componentsInChildren[i].LoadButton();
 		}
 		t2 = 0f;
 		CG2 = Menus[currentMenu].GetComponent<CanvasGroup>();
@@ -844,9 +838,9 @@ public class PauseMenuScript : MonoBehaviour
 		if (!LIS.Play)
 		{
 			GameObject[] menus = Menus;
-			foreach (GameObject menu in menus)
+			for (int i = 0; i < menus.Length; i++)
 			{
-				menu.SetActive(value: false);
+				menus[i].SetActive(value: false);
 			}
 			if ((bool)LIS)
 			{
@@ -889,19 +883,18 @@ public class PauseMenuScript : MonoBehaviour
 			GameMaster.instance.musicScript.paused = false;
 			pausedMusicScript = false;
 		}
-		ControlMapper CM = GameObject.Find("ControlMapper").GetComponent<ControlMapper>();
-		if ((bool)CM)
+		ControlMapper component = GameObject.Find("ControlMapper").GetComponent<ControlMapper>();
+		if ((bool)component)
 		{
-			CM.Close(save: true);
+			component.Close(save: true);
 		}
 		myCanvas.enabled = false;
-		Canvas[] ChildCanvas = GetComponentsInChildren<Canvas>();
-		Canvas[] array = ChildCanvas;
-		foreach (Canvas C in array)
+		Canvas[] componentsInChildren = GetComponentsInChildren<Canvas>();
+		foreach (Canvas canvas in componentsInChildren)
 		{
-			if (C.name == "Dropdown List")
+			if (canvas.name == "Dropdown List")
 			{
-				C.enabled = false;
+				canvas.enabled = false;
 			}
 		}
 		GameMaster.instance.GameHasPaused = false;
@@ -926,12 +919,10 @@ public class PauseMenuScript : MonoBehaviour
 		}
 		if (GameMaster.instance.isZombieMode)
 		{
-			GameObject[] Enemies = GameObject.FindGameObjectsWithTag("Enemy");
-			GameObject[] array = Enemies;
-			foreach (GameObject Enemy in array)
+			GameObject[] array = GameObject.FindGameObjectsWithTag("Enemy");
+			for (int i = 0; i < array.Length; i++)
 			{
-				NewAIagent NAA = Enemy.GetComponent<NewAIagent>();
-				NAA.StopTracks();
+				array[i].GetComponent<NewAIagent>().StopTracks();
 			}
 		}
 		GameMaster.instance.GameHasPaused = true;

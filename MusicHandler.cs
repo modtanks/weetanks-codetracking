@@ -30,11 +30,11 @@ public class MusicHandler : MonoBehaviour
 
 	public NewOrchestra Orchestra;
 
-	public bool CanStartMusic = false;
+	public bool CanStartMusic;
 
-	public bool canStartMainPart = false;
+	public bool canStartMainPart;
 
-	public bool paused = false;
+	public bool paused;
 
 	private void Start()
 	{

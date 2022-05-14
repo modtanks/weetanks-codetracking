@@ -22,8 +22,8 @@ public class PlaneCaller : MonoBehaviour
 
 	private IEnumerator InvokerPlane()
 	{
-		float WaitTime = CallingInInterval + Random.Range(0f - CallingInInterval / 2f, CallingInInterval / 2f);
-		yield return new WaitForSeconds(WaitTime);
+		float seconds = CallingInInterval + Random.Range(0f - CallingInInterval / 2f, CallingInInterval / 2f);
+		yield return new WaitForSeconds(seconds);
 		if (GameMaster.instance.GameHasStarted)
 		{
 			if (!PM.PS.isFlying && PM.SpawnInOrder.Count < 1 && GameMaster.instance.AmountCalledInTanks < 5)
@@ -57,13 +57,13 @@ public class PlaneCaller : MonoBehaviour
 	{
 		TankID = -1;
 		yield return new WaitForSeconds(1f);
-		EnemyAI EA = GetComponent<EnemyAI>();
-		int TeamNumber = 2;
-		if ((bool)EA)
+		EnemyAI component = GetComponent<EnemyAI>();
+		int teamNumber = 2;
+		if ((bool)component)
 		{
-			TeamNumber = EA.MyTeam;
+			teamNumber = component.MyTeam;
 		}
-		PM.SpawnPlane(TeamNumber, TankID);
+		PM.SpawnPlane(teamNumber, TankID);
 	}
 
 	private IEnumerator ResetColor()

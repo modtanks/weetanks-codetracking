@@ -8,15 +8,15 @@ public class BossHealthParticleEffect : MonoBehaviour
 
 	public EnemyAI HealthTankScript;
 
-	private bool firstActive = false;
+	private bool firstActive;
 
-	private bool secondActive = false;
+	private bool secondActive;
 
 	public int firstStateLives = 30;
 
 	public int secondStateLives = 10;
 
-	public bool CheckForAmour = false;
+	public bool CheckForAmour;
 
 	[Header("Zombie Attributes")]
 	public HealthTanks HT;
@@ -111,9 +111,9 @@ public class BossHealthParticleEffect : MonoBehaviour
 	private void ActivateSecond()
 	{
 		ParticleSystem[] array = secondBreak;
-		foreach (ParticleSystem PS in array)
+		for (int i = 0; i < array.Length; i++)
 		{
-			PS.Play();
+			array[i].Play();
 		}
 		secondActive = true;
 	}
@@ -121,9 +121,9 @@ public class BossHealthParticleEffect : MonoBehaviour
 	private void ActivateFirst()
 	{
 		ParticleSystem[] array = firstBreak;
-		foreach (ParticleSystem PS in array)
+		for (int i = 0; i < array.Length; i++)
 		{
-			PS.Play();
+			array[i].Play();
 		}
 		firstActive = true;
 	}
@@ -131,9 +131,9 @@ public class BossHealthParticleEffect : MonoBehaviour
 	private void StopParticles()
 	{
 		ParticleSystem[] array = firstBreak;
-		foreach (ParticleSystem PS in array)
+		for (int i = 0; i < array.Length; i++)
 		{
-			PS.Stop();
+			array[i].Stop();
 		}
 		firstActive = false;
 	}
@@ -141,9 +141,9 @@ public class BossHealthParticleEffect : MonoBehaviour
 	private void StopParticlesSecond()
 	{
 		ParticleSystem[] array = secondBreak;
-		foreach (ParticleSystem PS in array)
+		for (int i = 0; i < array.Length; i++)
 		{
-			PS.Stop();
+			array[i].Stop();
 		}
 		secondActive = false;
 	}

@@ -4,11 +4,11 @@ public class SetVolume : MonoBehaviour
 {
 	private void Start()
 	{
-		AudioSource audioSource = GetComponent<AudioSource>();
-		if ((bool)audioSource)
+		AudioSource component = GetComponent<AudioSource>();
+		if ((bool)component)
 		{
-			float OriginalVolume = audioSource.volume;
-			audioSource.volume = OriginalVolume * ((float)OptionsMainMenu.instance.masterVolumeLvl / 10f * (float)OptionsMainMenu.instance.sfxVolumeLvl) / 10f;
+			float volume = component.volume;
+			component.volume = volume * ((float)OptionsMainMenu.instance.masterVolumeLvl / 10f * (float)OptionsMainMenu.instance.sfxVolumeLvl) / 10f;
 		}
 	}
 }

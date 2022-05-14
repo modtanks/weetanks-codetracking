@@ -1,15 +1,22 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 [Serializable]
 public class MapEditorData
 {
+	[Serializable]
+	public class MissionProperties
+	{
+		public int WeatherType;
+
+		public int MissionFloorTexture;
+	}
+
 	public int missionAmount;
 
-	public int PID = 0;
+	public int PID;
 
-	public int isPublished = 0;
+	public int isPublished;
 
 	public List<int> nightMissions = new List<int>();
 
@@ -27,7 +34,7 @@ public class MapEditorData
 
 	public bool[] TeamColorsShowing;
 
-	public int difficulty = 0;
+	public int difficulty;
 
 	public List<CustomTankData> CTD = new List<CustomTankData>();
 
@@ -79,6 +86,8 @@ public class MapEditorData
 
 	public bool PCLM;
 
+	public List<MissionProperties> Properties = new List<MissionProperties>();
+
 	public int[] WeatherTypes;
 
 	public int[] MissionFloorTextures;
@@ -95,19 +104,18 @@ public class MapEditorData
 		missionAmount = MEM.Levels.Count;
 		nightMissions = GM.NightLevels;
 		missionNames = GM.MissionNames;
-		List<MapPiecesClass> NewList = new List<MapPiecesClass>();
+		List<MapPiecesClass> list = new List<MapPiecesClass>();
 		MissionMessages.Clear();
 		for (int i = 0; i < MEM.Levels.Count; i++)
 		{
 			for (int j = 0; j < OptionsMainMenu.instance.MapSize; j++)
 			{
 				MEM.Levels[i].MissionDataProps[j].missionNumber = i;
-				NewList.Add(MEM.Levels[i].MissionDataProps[j]);
+				list.Add(MEM.Levels[i].MissionDataProps[j]);
 			}
 			MissionMessages.Add(MEM.Levels[i].MissionMessage);
-			Debug.Log(MEM.Levels[i].MissionMessage);
 		}
-		MissionDataProps = NewList;
+		MissionDataProps = list;
 		campaignName = MEM.campaignName;
 		signedName = MEM.signedName;
 		StartingLives = MEM.StartingLives;
@@ -123,8 +131,6 @@ public class MapEditorData
 		CTD = MEM.CustomTankDatas;
 		difficulty = MEM.Difficulty;
 		isPublished = MEM.IsPublished;
-		WeatherTypes = MEM.WeatherTypes;
-		MissionFloorTextures = MEM.MissionFloorTextures;
 		NoBordersMissions = MEM.NoBordersMissions;
 	}
 }

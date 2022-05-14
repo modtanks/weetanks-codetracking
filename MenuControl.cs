@@ -5,17 +5,17 @@ public class MenuControl : MonoBehaviour
 {
 	private Vector2 input;
 
-	public bool inOptions = false;
+	public bool inOptions;
 
-	public bool inLeftMenu = false;
+	public bool inLeftMenu;
 
-	public int Selection = 0;
+	public int Selection;
 
-	public bool Abut = false;
+	public bool Abut;
 
 	public bool doSomething = true;
 
-	public bool Player2 = false;
+	public bool Player2;
 
 	public int menuAmountMiddle = 5;
 
@@ -39,17 +39,16 @@ public class MenuControl : MonoBehaviour
 		{
 			Abut = false;
 		}
-		MainMenuButtons[] myItems = Object.FindObjectsOfType(typeof(MainMenuButtons)) as MainMenuButtons[];
-		MainMenuButtons[] array = myItems;
-		foreach (MainMenuButtons item in array)
+		MainMenuButtons[] array = Object.FindObjectsOfType(typeof(MainMenuButtons)) as MainMenuButtons[];
+		foreach (MainMenuButtons mainMenuButtons in array)
 		{
-			if (item.Place == Selection)
+			if (mainMenuButtons.Place == Selection)
 			{
-				item.Selected = true;
+				mainMenuButtons.Selected = true;
 			}
 			else
 			{
-				item.Selected = false;
+				mainMenuButtons.Selected = false;
 			}
 		}
 		if (!doSomething)
@@ -118,17 +117,17 @@ public class MenuControl : MonoBehaviour
 	{
 		doSomething = false;
 		Play2DClipAtPoint(MenuClick);
-		MainMenuButtons[] myItems = Object.FindObjectsOfType(typeof(MainMenuButtons)) as MainMenuButtons[];
+		MainMenuButtons[] array = Object.FindObjectsOfType(typeof(MainMenuButtons)) as MainMenuButtons[];
 		if (Abut)
 		{
-			MainMenuButtons[] array = myItems;
-			foreach (MainMenuButtons item in array)
+			MainMenuButtons[] array2 = array;
+			foreach (MainMenuButtons mainMenuButtons in array2)
 			{
-				if (item.Place == Selection)
+				if (mainMenuButtons.Place == Selection)
 				{
 					Debug.Log("clicked item in MainMenu!");
-					item.Clicked();
-					if (item.Place == 9 && inOptions && !inLeftMenu)
+					mainMenuButtons.Clicked();
+					if (mainMenuButtons.Place == 9 && inOptions && !inLeftMenu)
 					{
 						Selection = 3;
 						inOptions = false;
@@ -136,7 +135,7 @@ public class MenuControl : MonoBehaviour
 						doSomething = true;
 						yield break;
 					}
-					if (item.Place == 3 && !inOptions && !inLeftMenu)
+					if (mainMenuButtons.Place == 3 && !inOptions && !inLeftMenu)
 					{
 						Selection = menuAmountMiddle;
 						inOptions = true;
@@ -144,7 +143,7 @@ public class MenuControl : MonoBehaviour
 						doSomething = true;
 						yield break;
 					}
-					if (item.Place == -1 && !inOptions && inLeftMenu)
+					if (mainMenuButtons.Place == -1 && !inOptions && inLeftMenu)
 					{
 						Selection = 0;
 						inLeftMenu = false;
@@ -153,7 +152,7 @@ public class MenuControl : MonoBehaviour
 						doSomething = true;
 						yield break;
 					}
-					if (item.Place == 0 && !inOptions && !inLeftMenu)
+					if (mainMenuButtons.Place == 0 && !inOptions && !inLeftMenu)
 					{
 						Selection = -menuAmountLeft;
 						OptionsMainMenu.instance.StartPlayer2Mode = true;
@@ -162,7 +161,7 @@ public class MenuControl : MonoBehaviour
 						doSomething = true;
 						yield break;
 					}
-					if (item.Place == 1 && !inOptions && !inLeftMenu)
+					if (mainMenuButtons.Place == 1 && !inOptions && !inLeftMenu)
 					{
 						Selection = -menuAmountLeft;
 						OptionsMainMenu.instance.StartPlayer2Mode = false;
@@ -180,12 +179,12 @@ public class MenuControl : MonoBehaviour
 
 	public void Play2DClipAtPoint(AudioClip clip)
 	{
-		GameObject tempAudioSource = new GameObject("TempAudio");
-		AudioSource audioSource = tempAudioSource.AddComponent<AudioSource>();
+		GameObject obj = new GameObject("TempAudio");
+		AudioSource audioSource = obj.AddComponent<AudioSource>();
 		audioSource.clip = clip;
 		audioSource.volume = 2f;
 		audioSource.spatialBlend = 0f;
 		audioSource.Play();
-		Object.Destroy(tempAudioSource, clip.length);
+		Object.Destroy(obj, clip.length);
 	}
 }

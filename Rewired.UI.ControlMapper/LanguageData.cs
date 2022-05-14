@@ -30,22 +30,22 @@ public class LanguageData : LanguageDataBase
 			{
 				return new Dictionary<string, string>();
 			}
-			Dictionary<string, string> dict = new Dictionary<string, string>();
+			Dictionary<string, string> dictionary = new Dictionary<string, string>();
 			for (int i = 0; i < array.Length; i++)
 			{
 				if (array[i] != null && !string.IsNullOrEmpty(array[i].key) && !string.IsNullOrEmpty(array[i].value))
 				{
-					if (dict.ContainsKey(array[i].key))
+					if (dictionary.ContainsKey(array[i].key))
 					{
 						Debug.LogError("Key \"" + array[i].key + "\" is already in dictionary!");
 					}
 					else
 					{
-						dict.Add(array[i].key, array[i].value);
+						dictionary.Add(array[i].key, array[i].value);
 					}
 				}
 			}
-			return dict;
+			return dictionary;
 		}
 	}
 
@@ -443,12 +443,7 @@ public class LanguageData : LanguageDataBase
 
 	public override string GetPlayerName(int playerId)
 	{
-		Player player = ReInput.players.GetPlayer(playerId);
-		if (player == null)
-		{
-			throw new ArgumentException("Invalid player id: " + playerId);
-		}
-		return player.descriptiveName;
+		return (ReInput.players.GetPlayer(playerId) ?? throw new ArgumentException("Invalid player id: " + playerId)).descriptiveName;
 	}
 
 	public override string GetControllerName(Controller controller)
@@ -479,21 +474,21 @@ public class LanguageData : LanguageDataBase
 		{
 			throw new ArgumentNullException("controller");
 		}
-		ControllerElementIdentifier eid = controller.GetElementIdentifierById(elementIdentifierId);
-		if (eid == null)
+		ControllerElementIdentifier elementIdentifierById = controller.GetElementIdentifierById(elementIdentifierId);
+		if (elementIdentifierById == null)
 		{
 			throw new ArgumentException("Invalid element identifier id: " + elementIdentifierId);
 		}
-		Controller.Element element = controller.GetElementById(elementIdentifierId);
-		if (element == null)
+		Controller.Element elementById = controller.GetElementById(elementIdentifierId);
+		if (elementById == null)
 		{
 			return string.Empty;
 		}
-		return element.type switch
+		return elementById.type switch
 		{
-			ControllerElementType.Axis => eid.GetDisplayName(element.type, axisRange), 
-			ControllerElementType.Button => eid.name, 
-			_ => eid.name, 
+			ControllerElementType.Axis => elementIdentifierById.GetDisplayName(elementById.type, axisRange), 
+			ControllerElementType.Button => elementIdentifierById.name, 
+			_ => elementIdentifierById.name, 
 		};
 	}
 
@@ -508,12 +503,7 @@ public class LanguageData : LanguageDataBase
 
 	public override string GetActionName(int actionId)
 	{
-		InputAction action = ReInput.mapping.GetAction(actionId);
-		if (action == null)
-		{
-			throw new ArgumentException("Invalid action id: " + actionId);
-		}
-		return action.descriptiveName;
+		return (ReInput.mapping.GetAction(actionId) ?? throw new ArgumentException("Invalid action id: " + actionId)).descriptiveName;
 	}
 
 	public override string GetActionName(int actionId, AxisRange axisRange)
@@ -523,85 +513,82 @@ public class LanguageData : LanguageDataBase
 		{
 			throw new ArgumentException("Invalid action id: " + actionId);
 		}
-		return axisRange switch
+		switch (axisRange)
 		{
-			AxisRange.Full => action.descriptiveName, 
-			AxisRange.Positive => (!string.IsNullOrEmpty(action.positiveDescriptiveName)) ? action.positiveDescriptiveName : (action.descriptiveName + " +"), 
-			AxisRange.Negative => (!string.IsNullOrEmpty(action.negativeDescriptiveName)) ? action.negativeDescriptiveName : (action.descriptiveName + " -"), 
-			_ => throw new NotImplementedException(), 
-		};
+		case AxisRange.Full:
+			return action.descriptiveName;
+		case AxisRange.Positive:
+			if (string.IsNullOrEmpty(action.positiveDescriptiveName))
+			{
+				return action.descriptiveName + " +";
+			}
+			return action.positiveDescriptiveName;
+		case AxisRange.Negative:
+			if (string.IsNullOrEmpty(action.negativeDescriptiveName))
+			{
+				return action.descriptiveName + " -";
+			}
+			return action.negativeDescriptiveName;
+		default:
+			throw new NotImplementedException();
+		}
 	}
 
 	public override string GetMapCategoryName(int id)
 	{
-		InputMapCategory category = ReInput.mapping.GetMapCategory(id);
-		if (category == null)
-		{
-			throw new ArgumentException("Invalid map category id: " + id);
-		}
-		return category.descriptiveName;
+		return (ReInput.mapping.GetMapCategory(id) ?? throw new ArgumentException("Invalid map category id: " + id)).descriptiveName;
 	}
 
 	public override string GetActionCategoryName(int id)
 	{
-		InputCategory category = ReInput.mapping.GetActionCategory(id);
-		if (category == null)
-		{
-			throw new ArgumentException("Invalid action category id: " + id);
-		}
-		return category.descriptiveName;
+		return (ReInput.mapping.GetActionCategory(id) ?? throw new ArgumentException("Invalid action category id: " + id)).descriptiveName;
 	}
 
 	public override string GetLayoutName(ControllerType controllerType, int id)
 	{
-		InputLayout layout = ReInput.mapping.GetLayout(controllerType, id);
-		if (layout == null)
-		{
-			throw new ArgumentException("Invalid " + controllerType.ToString() + " layout id: " + id);
-		}
-		return layout.descriptiveName;
+		return (ReInput.mapping.GetLayout(controllerType, id) ?? throw new ArgumentException("Invalid " + controllerType.ToString() + " layout id: " + id)).descriptiveName;
 	}
 
 	public override string ModifierKeyFlagsToString(ModifierKeyFlags flags)
 	{
-		int count = 0;
-		string label = string.Empty;
+		int num = 0;
+		string text = string.Empty;
 		if (Keyboard.ModifierKeyFlagsContain(flags, ModifierKey.Control))
 		{
-			label += _modifierKeys.control;
-			count++;
+			text += _modifierKeys.control;
+			num++;
 		}
 		if (Keyboard.ModifierKeyFlagsContain(flags, ModifierKey.Command))
 		{
-			if (count > 0 && !string.IsNullOrEmpty(_modifierKeys.separator))
+			if (num > 0 && !string.IsNullOrEmpty(_modifierKeys.separator))
 			{
-				label += _modifierKeys.separator;
+				text += _modifierKeys.separator;
 			}
-			label += _modifierKeys.command;
-			count++;
+			text += _modifierKeys.command;
+			num++;
 		}
 		if (Keyboard.ModifierKeyFlagsContain(flags, ModifierKey.Alt))
 		{
-			if (count > 0 && !string.IsNullOrEmpty(_modifierKeys.separator))
+			if (num > 0 && !string.IsNullOrEmpty(_modifierKeys.separator))
 			{
-				label += _modifierKeys.separator;
+				text += _modifierKeys.separator;
 			}
-			label += _modifierKeys.alt;
-			count++;
+			text += _modifierKeys.alt;
+			num++;
 		}
-		if (count >= 3)
+		if (num >= 3)
 		{
-			return label;
+			return text;
 		}
 		if (Keyboard.ModifierKeyFlagsContain(flags, ModifierKey.Shift))
 		{
-			if (count > 0 && !string.IsNullOrEmpty(_modifierKeys.separator))
+			if (num > 0 && !string.IsNullOrEmpty(_modifierKeys.separator))
 			{
-				label += _modifierKeys.separator;
+				text += _modifierKeys.separator;
 			}
-			label += _modifierKeys.shift;
-			count++;
+			text += _modifierKeys.shift;
+			num++;
 		}
-		return label;
+		return text;
 	}
 }

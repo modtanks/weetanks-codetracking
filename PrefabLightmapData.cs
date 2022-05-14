@@ -52,60 +52,60 @@ public class PrefabLightmapData : MonoBehaviour
 
 	private static void ApplyLightmaps(List<RendererInfo> rendererInfo, Texture2D[] lightmaps, Texture2D[] lightmaps2)
 	{
-		bool existsAlready = false;
-		int counter = 0;
+		bool flag = false;
+		int num = 0;
 		if (rendererInfo == null || rendererInfo.Count == 0)
 		{
 			return;
 		}
-		LightmapData[] settingslightmaps = LightmapSettings.lightmaps;
-		List<LightmapData> combinedLightmaps = new List<LightmapData>();
-		int[] lightmapArrayOffsetIndex = new int[lightmaps.Length];
-		for (int j = 0; j < lightmaps.Length; j++)
+		LightmapData[] lightmaps3 = LightmapSettings.lightmaps;
+		List<LightmapData> list = new List<LightmapData>();
+		int[] array = new int[lightmaps.Length];
+		for (int i = 0; i < lightmaps.Length; i++)
 		{
-			existsAlready = false;
-			for (int k = 0; k < settingslightmaps.Length; k++)
+			flag = false;
+			for (int j = 0; j < lightmaps3.Length; j++)
 			{
-				if (lightmaps[j] == settingslightmaps[k].lightmapColor)
+				if (lightmaps[i] == lightmaps3[j].lightmapColor)
 				{
-					lightmapArrayOffsetIndex[j] = k;
-					existsAlready = true;
+					array[i] = j;
+					flag = true;
 				}
 			}
-			if (!existsAlready)
+			if (!flag)
 			{
-				lightmapArrayOffsetIndex[j] = counter + settingslightmaps.Length;
-				LightmapData newLightmapData = new LightmapData();
-				newLightmapData.lightmapColor = lightmaps[j];
-				newLightmapData.lightmapDir = lightmaps2[j];
-				combinedLightmaps.Add(newLightmapData);
-				counter++;
+				array[i] = num + lightmaps3.Length;
+				LightmapData lightmapData = new LightmapData();
+				lightmapData.lightmapColor = lightmaps[i];
+				lightmapData.lightmapDir = lightmaps2[i];
+				list.Add(lightmapData);
+				num++;
 			}
 		}
-		LightmapData[] combinedLightmaps2 = new LightmapData[settingslightmaps.Length + combinedLightmaps.Count];
-		settingslightmaps.CopyTo(combinedLightmaps2, 0);
-		if (counter > 0)
+		LightmapData[] array2 = new LightmapData[lightmaps3.Length + list.Count];
+		lightmaps3.CopyTo(array2, 0);
+		if (num > 0)
 		{
-			for (int i = 0; i < combinedLightmaps.Count; i++)
+			for (int k = 0; k < list.Count; k++)
 			{
-				combinedLightmaps2[i + settingslightmaps.Length] = new LightmapData();
-				combinedLightmaps2[i + settingslightmaps.Length].lightmapColor = combinedLightmaps[i].lightmapColor;
-				combinedLightmaps2[i + settingslightmaps.Length].lightmapDir = combinedLightmaps[i].lightmapDir;
+				array2[k + lightmaps3.Length] = new LightmapData();
+				array2[k + lightmaps3.Length].lightmapColor = list[k].lightmapColor;
+				array2[k + lightmaps3.Length].lightmapDir = list[k].lightmapDir;
 			}
 		}
-		ApplyRendererInfo(rendererInfo, lightmapArrayOffsetIndex);
-		LightmapSettings.lightmaps = combinedLightmaps2;
+		ApplyRendererInfo(rendererInfo, array);
+		LightmapSettings.lightmaps = array2;
 	}
 
 	private static void ApplyRendererInfo(List<RendererInfo> infos, int[] arrayOffsetIndex)
 	{
 		for (int i = 0; i < infos.Count; i++)
 		{
-			RendererInfo info = infos[i];
-			foreach (Renderer rer in info.renderer)
+			RendererInfo rendererInfo = infos[i];
+			foreach (Renderer item in rendererInfo.renderer)
 			{
-				rer.lightmapIndex = arrayOffsetIndex[info.lightmapIndex];
-				rer.lightmapScaleOffset = info.lightmapOffsetScale;
+				item.lightmapIndex = arrayOffsetIndex[rendererInfo.lightmapIndex];
+				item.lightmapScaleOffset = rendererInfo.lightmapOffsetScale;
 			}
 		}
 	}

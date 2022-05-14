@@ -21,18 +21,18 @@ public class CustomTankButtonScript : MonoBehaviour
 		}
 		if (MapEditorMaster.instance.SelectedCustomTank == CustomTankID)
 		{
-			TextMeshProUGUI Textchild2 = GetComponentInChildren<TextMeshProUGUI>();
-			if (Textchild2.color != Selected)
+			TextMeshProUGUI componentInChildren = GetComponentInChildren<TextMeshProUGUI>();
+			if (componentInChildren.color != Selected)
 			{
-				Textchild2.color = Selected;
+				componentInChildren.color = Selected;
 			}
 		}
 		else
 		{
-			TextMeshProUGUI Textchild = GetComponentInChildren<TextMeshProUGUI>();
-			if (Textchild.color != NotSelected)
+			TextMeshProUGUI componentInChildren2 = GetComponentInChildren<TextMeshProUGUI>();
+			if (componentInChildren2.color != NotSelected)
 			{
-				Textchild.color = NotSelected;
+				componentInChildren2.color = NotSelected;
 			}
 		}
 	}

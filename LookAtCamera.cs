@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class LookAtCamera : MonoBehaviour
 {
-	public float xOffset = 0f;
+	public float xOffset;
 
-	public float yOffset = 0f;
+	public float yOffset;
 
-	public float zOffset = 0f;
+	public float zOffset;
 
 	private void Start()
 	{
@@ -14,8 +14,8 @@ public class LookAtCamera : MonoBehaviour
 
 	private void Update()
 	{
-		Camera camera = Camera.main;
-		base.transform.LookAt(base.transform.position + camera.transform.rotation * Vector3.back, camera.transform.rotation * Vector3.up);
+		Camera main = Camera.main;
+		base.transform.LookAt(base.transform.position + main.transform.rotation * Vector3.back, main.transform.rotation * Vector3.up);
 		base.transform.Rotate(0f, 180f, 0f);
 		base.transform.Rotate(xOffset, yOffset, zOffset);
 	}

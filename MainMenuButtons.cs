@@ -85,7 +85,7 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 
 	public bool IsSelectPlayerController;
 
-	public int PlayerNumber = 0;
+	public int PlayerNumber;
 
 	[Header("Mid Menu")]
 	public bool IsClassicCampaign;
@@ -287,11 +287,11 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 
 	public int menuNumber;
 
-	public bool Selected = false;
+	public bool Selected;
 
-	public bool MouseOn = false;
+	public bool MouseOn;
 
-	public bool ControllerOn = false;
+	public bool ControllerOn;
 
 	public float speed = 2f;
 
@@ -307,33 +307,33 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 
 	public Color unavailableColor;
 
-	private int LastKnownDifficulty = 0;
+	private int LastKnownDifficulty;
 
-	private int CompletedMissions = 0;
+	private int CompletedMissions;
 
-	private int CompletedHardMissions = 0;
+	private int CompletedHardMissions;
 
-	private int CompletedKidMissions = 0;
+	private int CompletedKidMissions;
 
-	private int CompletedGrandpa = 0;
+	private int CompletedGrandpa;
 
 	public ScrollRect ParentSR;
 
-	public bool RightClicked = false;
+	public bool RightClicked;
 
 	public bool IsSelected;
 
-	private float _StartTime = 0f;
+	private float _StartTime;
 
 	public float _Speed = 1f;
 
-	public float _Offset = 0f;
+	public float _Offset;
 
-	public float _OffsetChevronAnimation = 0f;
+	public float _OffsetChevronAnimation;
 
-	public float _OffsetGlowAnimation = 0f;
+	public float _OffsetGlowAnimation;
 
-	private float _PrevValue = 0f;
+	private float _PrevValue;
 
 	private void Awake()
 	{
@@ -359,12 +359,11 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 		}
 		if (CompletedMissions <= ContinueLevel && CompletedKidMissions <= ContinueLevel && CompletedHardMissions <= ContinueLevel)
 		{
-			if (IsSurvivalMode || SurvivalMapNumber == 0)
+			if (!IsSurvivalMode)
 			{
+				_ = SurvivalMapNumber;
 			}
-			if (!IsContinue)
-			{
-			}
+			_ = IsContinue;
 		}
 		else if (IsSurvivalMap && ShowObjectWhenSelected != null)
 		{
@@ -393,25 +392,25 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 		{
 			ParentSR = base.transform.parent.transform.parent.transform.parent.gameObject.GetComponent<ScrollRect>();
 		}
-		GameObject P = GameObject.Find("PauseMenuCanvas");
-		if ((bool)P)
+		GameObject gameObject = GameObject.Find("PauseMenuCanvas");
+		if ((bool)gameObject)
 		{
-			PMS = P.GetComponent<PauseMenuScript>();
+			PMS = gameObject.GetComponent<PauseMenuScript>();
 			speed = 5.5f;
 		}
 		else
 		{
-			P = GameObject.Find("PauseMenuCanvas_NEW");
-			if ((bool)P)
+			gameObject = GameObject.Find("PauseMenuCanvas_NEW");
+			if ((bool)gameObject)
 			{
-				PMS = P.GetComponent<PauseMenuScript>();
+				PMS = gameObject.GetComponent<PauseMenuScript>();
 				speed = 5.5f;
 			}
 		}
-		GameObject N = GameObject.Find("Canvas");
-		if ((bool)N && P == null)
+		GameObject gameObject2 = GameObject.Find("Canvas");
+		if ((bool)gameObject2 && gameObject == null)
 		{
-			NMC = N.GetComponent<NewMenuControl>();
+			NMC = gameObject2.GetComponent<NewMenuControl>();
 			speed = 100f;
 		}
 		if (IsContinue || IsSurvivalMap)
@@ -422,15 +421,16 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 			}
 			else if (SavingData.ExistData())
 			{
-				ProgressDataNew data = SavingData.LoadData();
-				CompletedMissions = data.cM;
-				CompletedKidMissions = data.cK;
-				CompletedHardMissions = data.cH;
-				CompletedGrandpa = data.cG;
+				ProgressDataNew progressDataNew = SavingData.LoadData();
+				CompletedMissions = progressDataNew.cM;
+				CompletedKidMissions = progressDataNew.cK;
+				CompletedHardMissions = progressDataNew.cH;
+				CompletedGrandpa = progressDataNew.cG;
 				if (CompletedMissions <= ContinueLevel && CompletedHardMissions <= ContinueLevel)
 				{
-					if (IsSurvivalMode || SurvivalMapNumber == 0)
+					if (!IsSurvivalMode)
 					{
+						_ = SurvivalMapNumber;
 					}
 					if (!IsContinue)
 					{
@@ -442,8 +442,9 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 					ShowObjectWhenSelected = null;
 				}
 			}
-			else if (SurvivalMapNumber != 0)
+			else
 			{
+				_ = SurvivalMapNumber;
 			}
 		}
 		startTime = Time.time;
@@ -541,16 +542,16 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 		{
 			if (AccountMaster.instance.isSignedIn)
 			{
-				int highest = 0;
+				int num = 0;
 				for (int i = 0; i < GameMaster.instance.highestWaves.Length; i++)
 				{
-					if (GameMaster.instance.highestWaves[i] > highest)
+					if (GameMaster.instance.highestWaves[i] > num)
 					{
-						highest = GameMaster.instance.highestWaves[i];
+						num = GameMaster.instance.highestWaves[i];
 					}
 				}
-				ButtonMetaTitle.text = highest.ToString();
-				if (highest == 0)
+				ButtonMetaTitle.text = num.ToString();
+				if (num == 0)
 				{
 					ButtonMetaTitle.text = "-";
 				}
@@ -590,14 +591,13 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 		}
 		else if (IsContinueCheckpoint)
 		{
-			bool canPlay2 = false;
 			if (!AccountMaster.instance.isSignedIn && SavingData.ExistData())
 			{
-				ProgressDataNew data2 = SavingData.LoadData();
-				CompletedMissions = data2.cM;
-				CompletedKidMissions = data2.cK;
-				CompletedHardMissions = data2.cH;
-				CompletedGrandpa = data2.cG;
+				ProgressDataNew progressDataNew = SavingData.LoadData();
+				CompletedMissions = progressDataNew.cM;
+				CompletedKidMissions = progressDataNew.cK;
+				CompletedHardMissions = progressDataNew.cH;
+				CompletedGrandpa = progressDataNew.cG;
 			}
 			if (ContinueLevel != 99)
 			{
@@ -614,14 +614,13 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 		}
 		else if (IsSurvivalMap)
 		{
-			bool canPlay = false;
 			if (!AccountMaster.instance.isSignedIn && SavingData.ExistData())
 			{
-				ProgressDataNew data = SavingData.LoadData();
-				CompletedMissions = data.cM;
-				CompletedKidMissions = data.cK;
-				CompletedHardMissions = data.cH;
-				CompletedGrandpa = data.cG;
+				ProgressDataNew progressDataNew2 = SavingData.LoadData();
+				CompletedMissions = progressDataNew2.cM;
+				CompletedKidMissions = progressDataNew2.cK;
+				CompletedHardMissions = progressDataNew2.cH;
+				CompletedGrandpa = progressDataNew2.cG;
 			}
 			if (CanPlaySurvivalMap())
 			{
@@ -740,9 +739,10 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 
 	private IEnumerator TransitionColor(bool Entered)
 	{
+		float t2;
 		if (Entered)
 		{
-			float t2 = 0f;
+			t2 = 0f;
 			while (t2 < 1f)
 			{
 				t2 += Time.deltaTime * 8f;
@@ -758,17 +758,17 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 			}
 			yield break;
 		}
-		float t = 0f;
-		while (t < 1f)
+		t2 = 0f;
+		while (t2 < 1f)
 		{
-			t += Time.deltaTime * 8f;
+			t2 += Time.deltaTime * 8f;
 			if ((bool)ChavronBorder)
 			{
-				ChavronBorder.color = Color.Lerp(HoverColor, StartColor, t);
+				ChavronBorder.color = Color.Lerp(HoverColor, StartColor, t2);
 			}
 			if ((bool)ButtonBorder)
 			{
-				ButtonBorder.color = Color.Lerp(HoverColor, StartColorButton, t);
+				ButtonBorder.color = Color.Lerp(HoverColor, StartColorButton, t2);
 			}
 			yield return null;
 		}
@@ -998,22 +998,22 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 			}
 			if (HoverOnEnter)
 			{
-				Vector3 oldPos2 = new Vector3(base.transform.localPosition.x, StartingPosY, base.transform.localPosition.z);
-				Vector3 newPos2 = new Vector3(base.transform.localPosition.x, StartingPosY + 6f, base.transform.localPosition.z);
-				base.transform.localPosition = Vector3.Lerp(oldPos2, newPos2, _StartTime * 4f);
+				Vector3 a = new Vector3(base.transform.localPosition.x, StartingPosY, base.transform.localPosition.z);
+				Vector3 b = new Vector3(base.transform.localPosition.x, StartingPosY + 6f, base.transform.localPosition.z);
+				base.transform.localPosition = Vector3.Lerp(a, b, _StartTime * 4f);
 			}
 			if ((bool)ButtonGlow)
 			{
-				float value = Mathf.Abs(Mathf.Sin(_StartTime + 4f));
-				if (value > 0f && value > _PrevValue)
+				float num = Mathf.Abs(Mathf.Sin(_StartTime + 4f));
+				if (num > 0f && num > _PrevValue)
 				{
-					ButtonGlow.localPosition = Vector3.Lerp(ButtonGlowStartPos, ButtonGlowEndPos, value);
+					ButtonGlow.localPosition = Vector3.Lerp(ButtonGlowStartPos, ButtonGlowEndPos, num);
 				}
 				else
 				{
 					ButtonGlow.localPosition = ButtonGlowStartPos;
 				}
-				_PrevValue = value;
+				_PrevValue = num;
 			}
 			if ((bool)ButtonBorder)
 			{
@@ -1022,9 +1022,9 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 		}
 		else if (HoverOnEnter)
 		{
-			Vector3 oldPos = new Vector3(base.transform.localPosition.x, StartingPosY, base.transform.localPosition.z);
-			Vector3 newPos = new Vector3(base.transform.localPosition.x, StartingPosY + 6f, base.transform.localPosition.z);
-			base.transform.localPosition = Vector3.Lerp(newPos, oldPos, _StartTime * 6f);
+			Vector3 b2 = new Vector3(base.transform.localPosition.x, StartingPosY, base.transform.localPosition.z);
+			Vector3 a2 = new Vector3(base.transform.localPosition.x, StartingPosY + 6f, base.transform.localPosition.z);
+			base.transform.localPosition = Vector3.Lerp(a2, b2, _StartTime * 6f);
 		}
 	}
 
@@ -1035,14 +1035,12 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 			if (!OptionsMainMenu.instance.AimAssist)
 			{
 				OptionsMainMenu.instance.AimAssist = true;
-				TextMeshProUGUI mytext2 = GetComponent<TextMeshProUGUI>();
-				mytext2.text = "(x)";
+				GetComponent<TextMeshProUGUI>().text = "(x)";
 			}
 			else
 			{
 				OptionsMainMenu.instance.AimAssist = false;
-				TextMeshProUGUI mytext = GetComponent<TextMeshProUGUI>();
-				mytext.text = "( )";
+				GetComponent<TextMeshProUGUI>().text = "( )";
 			}
 		}
 	}

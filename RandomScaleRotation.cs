@@ -34,17 +34,17 @@ public class RandomScaleRotation : MonoBehaviour
 	{
 		if (randomRotation)
 		{
-			float x2 = Random.Range(minRotX, maxRotX);
-			float y2 = Random.Range(minRotY, maxRotY);
-			float z2 = Random.Range(minRotZ, maxRotZ);
-			base.transform.rotation = Quaternion.Euler(x2, y2, z2);
+			float x = Random.Range(minRotX, maxRotX);
+			float y = Random.Range(minRotY, maxRotY);
+			float z = Random.Range(minRotZ, maxRotZ);
+			base.transform.rotation = Quaternion.Euler(x, y, z);
 		}
 		if (randomScale)
 		{
-			float x = Random.Range(minScaleX, maxScaleX);
-			float y = Random.Range(minScaleY, maxScaleY);
-			float z = Random.Range(minScaleZ, maxScaleZ);
-			base.transform.localScale = new Vector3(x, y, z);
+			float x2 = Random.Range(minScaleX, maxScaleX);
+			float y2 = Random.Range(minScaleY, maxScaleY);
+			float z2 = Random.Range(minScaleZ, maxScaleZ);
+			base.transform.localScale = new Vector3(x2, y2, z2);
 		}
 	}
 }

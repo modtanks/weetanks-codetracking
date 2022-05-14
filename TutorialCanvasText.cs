@@ -11,13 +11,13 @@ public class TutorialCanvasText : MonoBehaviour
 	{
 		if (isMineText)
 		{
-			string name2 = ((OptionsMainMenu.instance.keys["mineKey"].ToString() == "Mouse1") ? "Right Click" : OptionsMainMenu.instance.keys["mineKey"].ToString());
-			GetComponent<TextMeshProUGUI>().text = "Press " + name2 + " to place a mine";
+			string text = ((OptionsMainMenu.instance.keys["mineKey"].ToString() == "Mouse1") ? "Right Click" : OptionsMainMenu.instance.keys["mineKey"].ToString());
+			GetComponent<TextMeshProUGUI>().text = "Press " + text + " to place a mine";
 		}
 		else if (isBoostText)
 		{
-			string name = ((OptionsMainMenu.instance.keys["boostKey"].ToString() == "Mouse1") ? "Right Click" : OptionsMainMenu.instance.keys["boostKey"].ToString());
-			GetComponent<TextMeshProUGUI>().text = "Press " + name + " to use the boost";
+			string text2 = ((OptionsMainMenu.instance.keys["boostKey"].ToString() == "Mouse1") ? "Right Click" : OptionsMainMenu.instance.keys["boostKey"].ToString());
+			GetComponent<TextMeshProUGUI>().text = "Press " + text2 + " to use the boost";
 		}
 	}
 

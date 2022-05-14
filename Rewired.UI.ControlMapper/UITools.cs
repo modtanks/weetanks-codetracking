@@ -7,44 +7,44 @@ public static class UITools
 {
 	public static GameObject InstantiateGUIObject<T>(GameObject prefab, Transform parent, string name) where T : Component
 	{
-		GameObject instance = InstantiateGUIObject_Pre<T>(prefab, parent, name);
-		if (instance == null)
+		GameObject gameObject = InstantiateGUIObject_Pre<T>(prefab, parent, name);
+		if (gameObject == null)
 		{
 			return null;
 		}
-		RectTransform rt = instance.GetComponent<RectTransform>();
-		if (rt == null)
+		RectTransform component = gameObject.GetComponent<RectTransform>();
+		if (component == null)
 		{
 			Debug.LogError(name + " prefab is missing RectTransform component!");
 		}
 		else
 		{
-			rt.localScale = Vector3.one;
+			component.localScale = Vector3.one;
 		}
-		return instance;
+		return gameObject;
 	}
 
 	public static GameObject InstantiateGUIObject<T>(GameObject prefab, Transform parent, string name, Vector2 pivot, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPosition) where T : Component
 	{
-		GameObject instance = InstantiateGUIObject_Pre<T>(prefab, parent, name);
-		if (instance == null)
+		GameObject gameObject = InstantiateGUIObject_Pre<T>(prefab, parent, name);
+		if (gameObject == null)
 		{
 			return null;
 		}
-		RectTransform rt = instance.GetComponent<RectTransform>();
-		if (rt == null)
+		RectTransform component = gameObject.GetComponent<RectTransform>();
+		if (component == null)
 		{
 			Debug.LogError(name + " prefab is missing RectTransform component!");
 		}
 		else
 		{
-			rt.localScale = Vector3.one;
-			rt.pivot = pivot;
-			rt.anchorMin = anchorMin;
-			rt.anchorMax = anchorMax;
-			rt.anchoredPosition = anchoredPosition;
+			component.localScale = Vector3.one;
+			component.pivot = pivot;
+			component.anchorMin = anchorMin;
+			component.anchorMax = anchorMax;
+			component.anchoredPosition = anchoredPosition;
 		}
-		return instance;
+		return gameObject;
 	}
 
 	private static GameObject InstantiateGUIObject_Pre<T>(GameObject prefab, Transform parent, string name) where T : Component
@@ -54,22 +54,22 @@ public static class UITools
 			Debug.LogError(name + " prefab is null!");
 			return null;
 		}
-		GameObject instance = Object.Instantiate(prefab);
+		GameObject gameObject = Object.Instantiate(prefab);
 		if (!string.IsNullOrEmpty(name))
 		{
-			instance.name = name;
+			gameObject.name = name;
 		}
-		T comp = instance.GetComponent<T>();
-		if ((Object)comp == (Object)null)
+		T component = gameObject.GetComponent<T>();
+		if ((Object)component == (Object)null)
 		{
-			Debug.LogError(name + " prefab is missing the " + comp.GetType().ToString() + " component!");
+			Debug.LogError(name + " prefab is missing the " + component.GetType().ToString() + " component!");
 			return null;
 		}
 		if (parent != null)
 		{
-			instance.transform.SetParent(parent, worldPositionStays: false);
+			gameObject.transform.SetParent(parent, worldPositionStays: false);
 		}
-		return instance;
+		return gameObject;
 	}
 
 	public static Vector3 GetPointOnRectEdge(RectTransform rectTransform, Vector2 dir)
@@ -94,35 +94,35 @@ public static class UITools
 			return default(Rect);
 		}
 		Rect rect = rt.rect;
-		Vector2 tl = rt.TransformPoint(new Vector2(rect.xMin, rect.yMin));
-		Vector2 bl = rt.TransformPoint(new Vector2(rect.xMin, rect.yMax));
-		return new Rect(width: ((Vector2)rt.TransformPoint(new Vector2(rect.xMax, rect.yMin))).x - tl.x, x: tl.x, y: tl.y, height: bl.y - tl.y);
+		Vector2 vector = rt.TransformPoint(new Vector2(rect.xMin, rect.yMin));
+		Vector2 vector2 = rt.TransformPoint(new Vector2(rect.xMin, rect.yMax));
+		return new Rect(width: ((Vector2)rt.TransformPoint(new Vector2(rect.xMax, rect.yMin))).x - vector.x, x: vector.x, y: vector.y, height: vector2.y - vector.y);
 	}
 
 	public static Rect TransformRectTo(Transform from, Transform to, Rect rect)
 	{
-		Vector3 topLeft;
-		Vector3 bottomLeft;
-		Vector3 topRight;
+		Vector3 position;
+		Vector3 position2;
+		Vector3 position3;
 		if (from != null)
 		{
-			topLeft = from.TransformPoint(new Vector2(rect.xMin, rect.yMin));
-			bottomLeft = from.TransformPoint(new Vector2(rect.xMin, rect.yMax));
-			topRight = from.TransformPoint(new Vector2(rect.xMax, rect.yMin));
+			position = from.TransformPoint(new Vector2(rect.xMin, rect.yMin));
+			position2 = from.TransformPoint(new Vector2(rect.xMin, rect.yMax));
+			position3 = from.TransformPoint(new Vector2(rect.xMax, rect.yMin));
 		}
 		else
 		{
-			topLeft = new Vector2(rect.xMin, rect.yMin);
-			bottomLeft = new Vector2(rect.xMin, rect.yMax);
-			topRight = new Vector2(rect.xMax, rect.yMin);
+			position = new Vector2(rect.xMin, rect.yMin);
+			position2 = new Vector2(rect.xMin, rect.yMax);
+			position3 = new Vector2(rect.xMax, rect.yMin);
 		}
 		if (to != null)
 		{
-			topLeft = to.InverseTransformPoint(topLeft);
-			bottomLeft = to.InverseTransformPoint(bottomLeft);
-			topRight = to.InverseTransformPoint(topRight);
+			position = to.InverseTransformPoint(position);
+			position2 = to.InverseTransformPoint(position2);
+			position3 = to.InverseTransformPoint(position3);
 		}
-		return new Rect(topLeft.x, topLeft.y, topRight.x - topLeft.x, topLeft.y - bottomLeft.y);
+		return new Rect(position.x, position.y, position3.x - position.x, position.y - position2.y);
 	}
 
 	public static Rect InvertY(Rect rect)
@@ -140,13 +140,13 @@ public static class UITools
 		{
 			if (selectable.transition == Selectable.Transition.ColorTint)
 			{
-				ColorBlock colorBlock = selectable.colors;
-				float prevFadeDuration = colorBlock.fadeDuration;
-				colorBlock.fadeDuration = 0f;
-				selectable.colors = colorBlock;
+				ColorBlock colors = selectable.colors;
+				float fadeDuration = colors.fadeDuration;
+				colors.fadeDuration = 0f;
+				selectable.colors = colors;
 				selectable.interactable = state;
-				colorBlock.fadeDuration = prevFadeDuration;
-				selectable.colors = colorBlock;
+				colors.fadeDuration = fadeDuration;
+				selectable.colors = colors;
 			}
 			else
 			{

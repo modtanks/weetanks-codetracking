@@ -4,7 +4,7 @@ public class Play2DClipOnce : MonoBehaviour
 {
 	public AudioClip sound;
 
-	public bool overrideGameStarted = false;
+	public bool overrideGameStarted;
 
 	private void Start()
 	{

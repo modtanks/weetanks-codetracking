@@ -7,7 +7,7 @@ public class HealthTanks : MonoBehaviour
 {
 	public int health = 1;
 
-	public int health_armour = 0;
+	public int health_armour;
 
 	public int[] additionalDifficultyHealth;
 
@@ -39,50 +39,55 @@ public class HealthTanks : MonoBehaviour
 
 	public Transform shootPipe;
 
-	public bool dying = false;
+	public bool dying;
 
-	public bool dyingBlinkingText = false;
+	public bool dyingBlinkingText;
 
 	public AudioClip reviveSound;
 
 	public GameObject reviveText;
 
-	public bool immuneToExplosion = false;
+	public bool immuneToExplosion;
 
 	public int EnemyID = -1;
 
-	public bool IsCustom = false;
+	public bool IsCustom;
 
-	public bool IsArmoured = false;
+	public bool IsArmoured;
 
-	public bool isGary = false;
+	public bool isGary;
 
 	public ShieldScript ShieldFade;
 
-	public int maxHealth = 0;
+	public int maxHealth;
 
-	public int maxArmour = 0;
+	public int maxArmour;
 
-	public bool IsAirdropped = false;
+	public bool IsAirdropped;
 
 	public bool canGetHurt = true;
 
-	public bool IsHitByBullet = false;
+	public bool DoAreaDamageWhenDie;
 
-	private bool ChargeDying = false;
+	public float AreaDamageRange = 6f;
 
-	private float TimeAlive = 0f;
+	public bool IsHitByBullet;
 
-	private bool isDestroying = false;
+	private bool ChargeDying;
+
+	private float TimeAlive;
+
+	private bool isDestroying;
 
 	[Command("SetPlayerHealth", Platform.AllPlatforms, MonoTargetType.Single)]
 	public void SetPlayerHealth(int playerId, int Amount)
 	{
 		if (isMainTank)
 		{
-			MoveTankScript MTS = GetComponent<MoveTankScript>();
-			if ((bool)MTS && MTS.playerId != playerId)
+			MoveTankScript component = GetComponent<MoveTankScript>();
+			if ((bool)component)
 			{
+				_ = component.playerId;
 			}
 		}
 	}
@@ -108,14 +113,18 @@ public class HealthTanks : MonoBehaviour
 
 	public void DamageMe(int amount)
 	{
+		if (!canGetHurt)
+		{
+			return;
+		}
 		for (int i = 0; i < amount; i++)
 		{
 			if (health_armour > 0)
 			{
 				health_armour--;
-				int lengthClips = GlobalAssets.instance.AudioDB.ArmourHits.Length;
-				int randomPick = Random.Range(0, lengthClips);
-				SFXManager.instance.PlaySFX(GlobalAssets.instance.AudioDB.ArmourHits[randomPick], 1f, null);
+				int maxExclusive = GlobalAssets.instance.AudioDB.ArmourHits.Length;
+				int num = Random.Range(0, maxExclusive);
+				SFXManager.instance.PlaySFX(GlobalAssets.instance.AudioDB.ArmourHits[num], 1f, null);
 			}
 			else
 			{
@@ -212,7 +221,7 @@ public class HealthTanks : MonoBehaviour
 	{
 		if ((base.transform.tag == "Player" || base.transform.tag == "Enemy") && Armour != null && health_armour > 0)
 		{
-			float change = 0f;
+			float num = 0f;
 			if (IsCustom && !IsArmoured)
 			{
 				Armour.SetActive(value: false);
@@ -227,40 +236,40 @@ public class HealthTanks : MonoBehaviour
 				}
 				return;
 			}
-			if ((float)health_armour > 0f + change)
+			if ((float)health_armour > 0f + num)
 			{
 				Armour.SetActive(value: true);
-				if ((float)health_armour == 1f + change)
+				if ((float)health_armour == 1f + num)
 				{
 					Armour.transform.GetChild(0).gameObject.SetActive(value: true);
 					Armour.transform.GetChild(1).gameObject.SetActive(value: false);
 					Armour.transform.GetChild(2).gameObject.SetActive(value: false);
 				}
-				if ((float)health_armour == 2f + change)
+				if ((float)health_armour == 2f + num)
 				{
 					Armour.transform.GetChild(0).gameObject.SetActive(value: true);
 					Armour.transform.GetChild(1).gameObject.SetActive(value: true);
 					Armour.transform.GetChild(2).gameObject.SetActive(value: false);
 				}
-				if ((float)health_armour >= 3f + change)
+				if ((float)health_armour >= 3f + num)
 				{
 					Armour.transform.GetChild(0).gameObject.SetActive(value: true);
 					Armour.transform.GetChild(1).gameObject.SetActive(value: true);
 					Armour.transform.GetChild(2).gameObject.SetActive(value: true);
 				}
-				if ((float)health_armour >= 4f + change && GameMaster.instance.isZombieMode && base.transform.tag == "Player")
+				if ((float)health_armour >= 4f + num && GameMaster.instance.isZombieMode && base.transform.tag == "Player")
 				{
 					Armour.transform.GetChild(3).gameObject.SetActive(value: true);
 					Armour.transform.GetChild(4).gameObject.SetActive(value: false);
 					Armour.transform.GetChild(5).gameObject.SetActive(value: false);
 				}
-				if ((float)health_armour >= 5f + change && GameMaster.instance.isZombieMode && base.transform.tag == "Player")
+				if ((float)health_armour >= 5f + num && GameMaster.instance.isZombieMode && base.transform.tag == "Player")
 				{
 					Armour.transform.GetChild(3).gameObject.SetActive(value: true);
 					Armour.transform.GetChild(4).gameObject.SetActive(value: true);
 					Armour.transform.GetChild(5).gameObject.SetActive(value: false);
 				}
-				if ((float)health_armour >= 6f + change && GameMaster.instance.isZombieMode && base.transform.tag == "Player")
+				if ((float)health_armour >= 6f + num && GameMaster.instance.isZombieMode && base.transform.tag == "Player")
 				{
 					Armour.transform.GetChild(3).gameObject.SetActive(value: true);
 					Armour.transform.GetChild(4).gameObject.SetActive(value: true);
@@ -326,7 +335,7 @@ public class HealthTanks : MonoBehaviour
 			EnemyTankDeath();
 			return;
 		}
-		if (GameMaster.instance.CurrentMission >= 99 && IsAirdropped)
+		if (GameMaster.instance.CurrentMission >= 99 && IsAirdropped && !MapEditorMaster.instance)
 		{
 			if (GameMaster.instance.Bosses.Length < 1)
 			{
@@ -379,10 +388,10 @@ public class HealthTanks : MonoBehaviour
 		if (health < 1 && !isMainTank && !ChargeDying)
 		{
 			ChargeDying = true;
-			EnemyAI EA = GetComponent<EnemyAI>();
-			if ((bool)EA)
+			EnemyAI component = GetComponent<EnemyAI>();
+			if ((bool)component)
 			{
-				if (EA.isLevel70Boss)
+				if (component.isLevel70Boss)
 				{
 					StartCoroutine(DelayExplosion());
 					return;
@@ -410,18 +419,14 @@ public class HealthTanks : MonoBehaviour
 		{
 			return;
 		}
-		if (isGary && GameMaster.instance.AmountEnemyTanks < 2 && health > 0 && GameMaster.instance.CurrentMission == 43)
+		if (isGary && GameMaster.instance.AmountEnemyTanks < 2 && health > 0 && GameMaster.instance.CurrentMission == 43 && !MapEditorMaster.instance)
 		{
 			GameMaster.instance.NAS.extraWait = 2f;
 			GameMaster.instance.AmountEnemyTanks = 0;
 		}
-		if (GameMaster.instance.inMenuMode)
+		if (GameMaster.instance.inMenuMode && GameObject.FindGameObjectsWithTag("Enemy").Length < 2)
 		{
-			int amountEnemies = GameObject.FindGameObjectsWithTag("Enemy").Length;
-			if (amountEnemies < 2)
-			{
-				DamageMe(50);
-			}
+			DamageMe(50);
 		}
 		if (!dying || (GameMaster.instance.Players.Count <= 1 && GameMaster.instance.PlayerModeWithAI[1] != 1))
 		{
@@ -433,29 +438,28 @@ public class HealthTanks : MonoBehaviour
 		}
 		for (int i = 0; i < GameMaster.instance.Players.Count; i++)
 		{
-			GameObject otherPlayer = GameMaster.instance.Players[i];
-			if (!otherPlayer)
+			GameObject gameObject = GameMaster.instance.Players[i];
+			if (!gameObject)
 			{
 				continue;
 			}
-			HealthTanks htscriptother = otherPlayer.GetComponent<HealthTanks>();
-			float distanceToPlayer = Vector3.Distance(base.transform.position, otherPlayer.transform.position);
-			if (distanceToPlayer <= 2f && htscriptother.health > 0)
+			HealthTanks component2 = gameObject.GetComponent<HealthTanks>();
+			if (Vector3.Distance(base.transform.position, gameObject.transform.position) <= 2f && component2.health > 0)
 			{
 				reviveMe();
-				MoveTankScript MTS = GetComponent<MoveTankScript>();
-				EnemyAI CompanionEA = otherPlayer.GetComponent<EnemyAI>();
-				if ((bool)CompanionEA)
+				MoveTankScript component3 = GetComponent<MoveTankScript>();
+				EnemyAI component4 = gameObject.GetComponent<EnemyAI>();
+				if ((bool)component4)
 				{
-					CompanionEA.DownedPlayer = null;
+					component4.DownedPlayer = null;
 				}
-				if ((bool)MTS)
+				if ((bool)component3)
 				{
-					GameMaster.instance.PlayerDown[MTS.playerId] = false;
+					GameMaster.instance.PlayerDown[component3.playerId] = false;
 				}
 				else
 				{
-					GameMaster.instance.PlayerDown[CompanionEA.CompanionID] = false;
+					GameMaster.instance.PlayerDown[component4.CompanionID] = false;
 				}
 			}
 		}
@@ -465,19 +469,19 @@ public class HealthTanks : MonoBehaviour
 	{
 		GameMaster.instance.musicScript.Orchestra.SetSongsVolumes(0);
 		SFXManager.instance.PlaySFX(DeathLoadingSound, 1f, null);
-		EnemyAI EA = GetComponent<EnemyAI>();
-		EA.ETSN.enabled = false;
-		EA.enabled = false;
+		EnemyAI component = GetComponent<EnemyAI>();
+		component.ETSN.enabled = false;
+		component.enabled = false;
 		ParticleSystem[] deathLoadingParticles = DeathLoadingParticles;
-		foreach (ParticleSystem PS in deathLoadingParticles)
+		for (int i = 0; i < deathLoadingParticles.Length; i++)
 		{
-			PS.Play();
+			deathLoadingParticles[i].Play();
 		}
 		yield return new WaitForSeconds(3f);
 		EnemyTankDeath();
 	}
 
-	private IEnumerator canHurtAgain(int sec)
+	private IEnumerator canHurtAgain(float sec)
 	{
 		canGetHurt = false;
 		yield return new WaitForSeconds(sec);
@@ -494,22 +498,40 @@ public class HealthTanks : MonoBehaviour
 		{
 			GameMaster.instance.AssassinTankAlive = false;
 		}
-		BossVoiceLines BVL = GetComponent<BossVoiceLines>();
-		if ((bool)BVL)
+		BossVoiceLines component = GetComponent<BossVoiceLines>();
+		if ((bool)component)
 		{
-			BVL.PlayDeathSound();
+			component.PlayDeathSound();
 		}
 		isDestroying = true;
 		if (IsAirdropped && GameMaster.instance.AmountCalledInTanks > 0)
 		{
 			GameMaster.instance.AmountCalledInTanks--;
 		}
-		EnemyAI EA = GetComponent<EnemyAI>();
+		EnemyAI component2 = GetComponent<EnemyAI>();
 		Explosion();
-		CameraShake CS = Camera.main.GetComponent<CameraShake>();
-		if ((bool)CS)
+		if (DoAreaDamageWhenDie)
 		{
-			CS.StartCoroutine(CS.Shake(0.1f, 0.06f));
+			AreaDamageEnemies(base.transform.position, AreaDamageRange, 1f);
+		}
+		CameraShake component3 = Camera.main.GetComponent<CameraShake>();
+		if (GetComponent<NukeTankAI>() != null)
+		{
+			if (GetComponent<NukeTankAI>().IsArmed)
+			{
+				if ((bool)component3)
+				{
+					component3.StartCoroutine(component3.Shake(0.5f, 1f));
+				}
+			}
+			else if ((bool)component3)
+			{
+				component3.StartCoroutine(component3.Shake(0.1f, 0.06f));
+			}
+		}
+		else if ((bool)component3)
+		{
+			component3.StartCoroutine(component3.Shake(0.1f, 0.06f));
 		}
 		if (GameMaster.instance != null)
 		{
@@ -517,7 +539,7 @@ public class HealthTanks : MonoBehaviour
 			{
 				GameMaster.instance.AmountEnemyTanks--;
 			}
-			if ((bool)EA && EA.MyTeam == 1 && !MapEditorMaster.instance && !EA.IsCompanion)
+			if ((bool)component2 && component2.MyTeam == 1 && !MapEditorMaster.instance && !component2.IsCompanion)
 			{
 				GameMaster.instance.AmountEnemyTanks++;
 			}
@@ -529,13 +551,13 @@ public class HealthTanks : MonoBehaviour
 		if (GameMaster.instance.isZombieMode)
 		{
 			GameMaster.instance.survivalTanksKilled++;
-			int myIndex = ((EnemyID != -10) ? ((EnemyID == -11) ? 1 : ((EnemyID == -12) ? 2 : ((EnemyID == -13) ? 3 : ((EnemyID == -14) ? 4 : ((EnemyID == -15) ? 5 : ((EnemyID == -110) ? 9 : 0)))))) : 0);
-			ZombieTankSpawner.instance.CurrentAmountOfEnemyTypes[myIndex]--;
+			int num = ((EnemyID != -10) ? ((EnemyID == -11) ? 1 : ((EnemyID == -12) ? 2 : ((EnemyID == -13) ? 3 : ((EnemyID == -14) ? 4 : ((EnemyID == -15) ? 5 : ((EnemyID == -110) ? 9 : 0)))))) : 0);
+			ZombieTankSpawner.instance.CurrentAmountOfEnemyTypes[num]--;
 			AccountMaster.instance.SaveCloudData(0, EnemyID, 0, bounceKill: false);
 		}
 		else if (!GameMaster.instance.inMenuMode && !GameMaster.instance.inMapEditor)
 		{
-			if ((bool)EA && EA.isShiny && (bool)AchievementsTracker.instance && OptionsMainMenu.instance.AM[34] != 1)
+			if ((bool)component2 && component2.isShiny && (bool)AchievementsTracker.instance && OptionsMainMenu.instance.AM[34] != 1)
 			{
 				AchievementsTracker.instance.completeAchievementWithAI(34);
 			}
@@ -544,20 +566,20 @@ public class HealthTanks : MonoBehaviour
 				Debug.Log("ACHIEVEMENT 15!");
 				AchievementsTracker.instance.completeAchievement(15);
 			}
-			if ((bool)EA)
+			if ((bool)component2)
 			{
-				if (!EA.isLevel10Boss && !EA.isLevel30Boss && !EA.isLevel50Boss && !EA.isLevel70Boss && !EA.isLevel100Boss && EnemyID != -1)
+				if (!component2.isLevel10Boss && !component2.isLevel30Boss && !component2.isLevel50Boss && !component2.isLevel70Boss && !component2.isLevel100Boss && EnemyID != -1)
 				{
 					GameMaster.instance.TankColorKilled[EnemyID]++;
 				}
-				if (EA.isLevel10Boss || EA.isLevel30Boss)
+				if (component2.isLevel10Boss || component2.isLevel30Boss)
 				{
 					if ((bool)AchievementsTracker.instance && OptionsMainMenu.instance.AM[23] != 1)
 					{
 						AchievementsTracker.instance.completeAchievement(23);
 					}
 				}
-				else if (EA.isLevel50Boss)
+				else if (component2.isLevel50Boss)
 				{
 					if ((bool)AchievementsTracker.instance && OptionsMainMenu.instance.AM[25] != 1)
 					{
@@ -568,15 +590,15 @@ public class HealthTanks : MonoBehaviour
 						AchievementsTracker.instance.completeAchievement(30);
 					}
 				}
-				else if (EA.isLevel70Boss && (bool)AchievementsTracker.instance && !AchievementsTracker.instance.HasBeenStunnedByBoss && OptionsMainMenu.instance.AM[11] != 1)
+				else if (component2.isLevel70Boss && (bool)AchievementsTracker.instance && !AchievementsTracker.instance.HasBeenStunnedByBoss && OptionsMainMenu.instance.AM[11] != 1)
 				{
 					AchievementsTracker.instance.completeAchievement(11);
 				}
-				if ((EA.isLevel10Boss || EA.isLevel30Boss || EA.isLevel50Boss || EA.isLevel70Boss || EA.isLevel100Boss) && !IsHitByBullet && OptionsMainMenu.instance.AM[16] != 1)
+				if ((component2.isLevel10Boss || component2.isLevel30Boss || component2.isLevel50Boss || component2.isLevel70Boss || component2.isLevel100Boss) && !IsHitByBullet && OptionsMainMenu.instance.AM[16] != 1)
 				{
 					AchievementsTracker.instance.completeAchievement(16);
 				}
-				if (EA.isLevel100Boss)
+				if (component2.isLevel100Boss)
 				{
 					if (OptionsMainMenu.instance.AM[0] != 1)
 					{
@@ -600,65 +622,65 @@ public class HealthTanks : MonoBehaviour
 		}
 		if (GetComponent<NewAIagent>() != null)
 		{
-			NewAIagent agent = GetComponent<NewAIagent>();
-			if (agent.source.isPlaying)
+			NewAIagent component4 = GetComponent<NewAIagent>();
+			if (component4.source.isPlaying)
 			{
 				GameMaster.instance.EnemyTankTracksAudio--;
-				agent.source.volume = 0.5f;
-				agent.source.clip = null;
-				agent.source.loop = false;
-				agent.source.Stop();
+				component4.source.volume = 0.5f;
+				component4.source.clip = null;
+				component4.source.loop = false;
+				component4.source.Stop();
 			}
 		}
 		if (GetComponent<EnemyAI>() != null)
 		{
-			EnemyAI AI = GetComponent<EnemyAI>();
-			if (AI.source.isPlaying)
+			EnemyAI component5 = GetComponent<EnemyAI>();
+			if (component5.source.isPlaying)
 			{
 				GameMaster.instance.EnemyTankTracksAudio--;
-				AI.source.volume = 0.5f;
-				AI.source.clip = null;
-				AI.source.loop = false;
-				AI.source.Stop();
+				component5.source.volume = 0.5f;
+				component5.source.clip = null;
+				component5.source.loop = false;
+				component5.source.Stop();
 			}
 		}
 		SkidMarkCreator.transform.parent = null;
 		SkidMarkCreator.Stop();
-		float tracksRemoveTime = ((OptionsMainMenu.instance.currentGraphicSettings == 0) ? 15f : ((OptionsMainMenu.instance.currentGraphicSettings == 1) ? 30f : ((OptionsMainMenu.instance.currentGraphicSettings == 2) ? 60f : ((OptionsMainMenu.instance.currentGraphicSettings == 3) ? 120f : ((OptionsMainMenu.instance.currentGraphicSettings == 4) ? 240f : 300f)))));
-		Object.Destroy(SkidMarkCreator, tracksRemoveTime);
+		float t = ((OptionsMainMenu.instance.currentGraphicSettings == 0) ? 15f : ((OptionsMainMenu.instance.currentGraphicSettings == 1) ? 30f : ((OptionsMainMenu.instance.currentGraphicSettings == 2) ? 60f : ((OptionsMainMenu.instance.currentGraphicSettings == 3) ? 120f : ((OptionsMainMenu.instance.currentGraphicSettings == 4) ? 240f : 300f)))));
+		Object.Destroy(SkidMarkCreator, t);
 		SFXManager.instance.PlaySFX(GlobalAssets.instance.AudioDB.TankDie);
-		Collider[] bigobjectsInRange = Physics.OverlapSphere(base.transform.position, 4f);
-		Collider[] array = bigobjectsInRange;
-		foreach (Collider col in array)
+		Collider[] array = Physics.OverlapSphere(base.transform.position, 4f);
+		foreach (Collider collider in array)
 		{
-			Rigidbody rigi = col.GetComponent<Rigidbody>();
-			if (rigi != null && (col.tag == "Player" || col.tag == "Enemy"))
+			Rigidbody component6 = collider.GetComponent<Rigidbody>();
+			if (component6 != null && (collider.tag == "Player" || collider.tag == "Enemy"))
 			{
-				float distance = Vector3.Distance(rigi.transform.position, base.transform.position);
-				float force = (7f - distance) * 2f;
-				Vector3 direction = rigi.transform.position - base.transform.position;
-				rigi.AddForce(direction * force, ForceMode.Impulse);
+				float num2 = Vector3.Distance(component6.transform.position, base.transform.position);
+				float num3 = (7f - num2) * 2f;
+				Vector3 vector = component6.transform.position - base.transform.position;
+				component6.AddForce(vector * num3, ForceMode.Impulse);
 			}
 		}
-		GameObject deathcross = Object.Instantiate(deathCross, base.transform.position + new Vector3(0f, 0.04f, 0f), Quaternion.identity);
-		EnemyAI AIscript = GetComponent<EnemyAI>();
-		if ((bool)AIscript && (AIscript.isLevel10Boss || AIscript.isLevel30Boss || AIscript.isLevel50Boss || AIscript.isLevel70Boss || AIscript.isLevel100Boss))
+		GameObject gameObject = Object.Instantiate(deathCross, base.transform.position + new Vector3(0f, 0.04f, 0f), Quaternion.identity);
+		EnemyAI component7 = GetComponent<EnemyAI>();
+		if ((bool)component7 && (component7.isLevel10Boss || component7.isLevel30Boss || component7.isLevel50Boss || component7.isLevel70Boss || component7.isLevel100Boss))
 		{
-			deathcross.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
+			SFXManager.instance.PlaySFX(GlobalAssets.instance.AudioDB.BossDie);
+			gameObject.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
 		}
 		if (!GameMaster.instance.CM)
 		{
-			deathcross.transform.parent = null;
+			gameObject.transform.parent = null;
 		}
 		else
 		{
-			deathcross.transform.parent = GameMaster.instance.CM.CanvasPaper.transform;
+			gameObject.transform.parent = GameMaster.instance.CM.CanvasPaper.transform;
 		}
 		if ((bool)MapEditorMaster.instance)
 		{
 			GameMaster.instance.StartCoroutine(GameMaster.instance.GetTankTeamData(fast: false));
 		}
-		if (GameMaster.instance.CurrentMission == 99)
+		if (GameMaster.instance.CurrentMission == 99 && !MapEditorMaster.instance)
 		{
 			if (GameMaster.instance.Enemies != null)
 			{
@@ -675,20 +697,20 @@ public class HealthTanks : MonoBehaviour
 				GameMaster.instance.AmountEnemyTanks = GameMaster.instance.Enemies.Count;
 			}
 		}
-		if ((bool)AIscript)
+		if ((bool)component7)
 		{
-			if (AIscript.isLevel100Boss)
+			if (component7.isLevel100Boss)
 			{
 				GameMaster.instance.totalWins++;
 				AccountMaster.instance.SaveCloudData(1, 1, 0, bounceKill: false);
 				GameMaster.instance.SaveData(skipCloud: false);
-				int MarblesToAdd = ((OptionsMainMenu.instance.currentDifficulty == 0) ? 10 : ((OptionsMainMenu.instance.currentDifficulty == 1) ? 20 : ((OptionsMainMenu.instance.currentDifficulty == 2) ? 30 : 40)));
-				AccountMaster.instance.IncreaseMarbles(MarblesToAdd);
+				int amount = ((OptionsMainMenu.instance.currentDifficulty == 0) ? 10 : ((OptionsMainMenu.instance.currentDifficulty == 1) ? 20 : ((OptionsMainMenu.instance.currentDifficulty == 2) ? 30 : 40)));
+				AccountMaster.instance.IncreaseMarbles(amount);
 				GameMaster.instance.GameHasStarted = false;
-				KingTankScript KTS = base.transform.parent.gameObject.GetComponent<KingTankScript>();
-				if ((bool)KTS)
+				KingTankScript component8 = base.transform.parent.gameObject.GetComponent<KingTankScript>();
+				if ((bool)component8)
 				{
-					KTS.StartCoroutine(KTS.DestroyedBoss());
+					component8.StartCoroutine(component8.DestroyedBoss());
 				}
 			}
 			else
@@ -700,36 +722,34 @@ public class HealthTanks : MonoBehaviour
 		{
 			Object.Destroy(base.transform.parent.gameObject);
 		}
+		GameMaster.instance.CheckGameState();
 	}
 
 	private void reviveMe()
 	{
-		StartCoroutine(canHurtAgain(1));
+		canGetHurt = false;
+		StartCoroutine(canHurtAgain(0.5f));
 		reviveText.SetActive(value: false);
 		dying = false;
-		MoveTankScript MTS = GetComponent<MoveTankScript>();
-		if ((bool)MTS)
+		MoveTankScript component = GetComponent<MoveTankScript>();
+		if ((bool)component)
 		{
-			GameMaster.instance.PlayerDown[MTS.playerId] = false;
+			GameMaster.instance.PlayerDown[component.playerId] = false;
 		}
 		else
 		{
-			EnemyAI EA = GetComponent<EnemyAI>();
-			if ((bool)EA)
+			EnemyAI component2 = GetComponent<EnemyAI>();
+			if ((bool)component2)
 			{
-				GameMaster.instance.PlayerDown[EA.CompanionID] = false;
+				GameMaster.instance.PlayerDown[component2.CompanionID] = false;
 			}
 		}
-		if (GameMaster.instance.PlayerModeWithAI[1] != 1)
-		{
-			GameMaster.instance.totalRevivesPerformed++;
-		}
+		GameMaster.instance.totalRevivesPerformed++;
 		GameMaster.instance.AmountPlayersThatNeedRevive--;
 		brokenParticles.gameObject.SetActive(value: false);
 		health = 1;
 		SFXManager.instance.PlaySFX(reviveSound);
-		GameObject revive = Object.Instantiate(revivePrefab, base.transform.position, Quaternion.identity);
-		Object.Destroy(revive, 2f);
+		Object.Destroy(Object.Instantiate(revivePrefab, base.transform.position, Quaternion.identity), 2f);
 		reviveText.SetActive(value: false);
 	}
 
@@ -741,106 +761,110 @@ public class HealthTanks : MonoBehaviour
 		Explosion();
 		SkidMarkCreator.transform.parent = null;
 		SkidMarkCreator.Stop();
-		float tracksRemoveTime = ((OptionsMainMenu.instance.currentGraphicSettings == 0) ? 15f : ((OptionsMainMenu.instance.currentGraphicSettings == 1) ? 30f : ((OptionsMainMenu.instance.currentGraphicSettings == 2) ? 60f : ((OptionsMainMenu.instance.currentGraphicSettings == 3) ? 120f : ((OptionsMainMenu.instance.currentGraphicSettings == 4) ? 240f : 300f)))));
-		Object.Destroy(SkidMarkCreator, tracksRemoveTime);
+		float t = ((OptionsMainMenu.instance.currentGraphicSettings == 0) ? 15f : ((OptionsMainMenu.instance.currentGraphicSettings == 1) ? 30f : ((OptionsMainMenu.instance.currentGraphicSettings == 2) ? 60f : ((OptionsMainMenu.instance.currentGraphicSettings == 3) ? 120f : ((OptionsMainMenu.instance.currentGraphicSettings == 4) ? 240f : 300f)))));
+		Object.Destroy(SkidMarkCreator, t);
 		SFXManager.instance.PlaySFX(GlobalAssets.instance.AudioDB.TankDie);
-		CameraShake CS = Camera.main.GetComponent<CameraShake>();
-		if ((bool)CS)
+		CameraShake component = Camera.main.GetComponent<CameraShake>();
+		if ((bool)component)
 		{
-			CS.StartCoroutine(CS.Shake(0.1f, 0.15f));
+			component.StartCoroutine(component.Shake(0.1f, 0.15f));
 		}
 		GameMaster.instance.AmountGoodTanks--;
-		GameObject deathcross = Object.Instantiate(deathCross, base.transform.position + new Vector3(0f, 0.04f, 0f), Quaternion.identity);
-		DeathCrossScript DCS = deathcross.GetComponent<DeathCrossScript>();
-		MoveTankScript MTS = GetComponent<MoveTankScript>();
-		if (!MTS.isPlayer2)
+		GameObject obj = Object.Instantiate(deathCross, base.transform.position + new Vector3(0f, 0.04f, 0f), Quaternion.identity);
+		DeathCrossScript component2 = obj.GetComponent<DeathCrossScript>();
+		if (!GetComponent<MoveTankScript>().isPlayer2)
 		{
-			DCS.IsBlue();
+			component2.IsBlue();
 		}
 		else
 		{
-			DCS.IsRed();
+			component2.IsRed();
 		}
-		deathcross.transform.parent = null;
+		obj.transform.parent = null;
+		GameMaster.instance.CheckGameState();
 		Object.Destroy(base.transform.parent.gameObject);
 	}
 
 	private void Explosion()
 	{
-		GameObject poof = Object.Instantiate(deathExplosion, base.transform.position, Quaternion.identity);
-		poof.GetComponent<ParticleSystem>().Play();
-		ParticleSystemRenderer poofPS = null;
-		ParticleSystemRenderer poofPS2 = null;
-		foreach (Transform child2 in poof.transform)
+		NukeTankAI component = GetComponent<NukeTankAI>();
+		GameObject gameObject = null;
+		gameObject = ((!component) ? Object.Instantiate(deathExplosion, base.transform.position, Quaternion.identity) : ((!component.IsArmed) ? Object.Instantiate(deathExplosion, base.transform.position, Quaternion.identity) : Object.Instantiate(component.NukeParticles, base.transform.position, Quaternion.identity)));
+		if (gameObject.GetComponent<ParticleSystem>() != null)
 		{
-			if (child2.name == "Schrapnel")
+			gameObject.GetComponent<ParticleSystem>().Play();
+		}
+		ParticleSystemRenderer particleSystemRenderer = null;
+		ParticleSystemRenderer particleSystemRenderer2 = null;
+		foreach (Transform item in gameObject.transform)
+		{
+			if (item.name == "Schrapnel")
 			{
-				poofPS = child2.GetComponent<ParticleSystemRenderer>();
+				particleSystemRenderer = item.GetComponent<ParticleSystemRenderer>();
 			}
-			if (child2.name == "Schrapnel2")
+			if (item.name == "Schrapnel2")
 			{
-				poofPS2 = child2.GetComponent<ParticleSystemRenderer>();
+				particleSystemRenderer2 = item.GetComponent<ParticleSystemRenderer>();
 			}
 		}
 		if (OptionsMainMenu.instance.AMselected.Contains(58) && (bool)GlobalHealthTanks.instance)
 		{
-			GameObject blood = Object.Instantiate(GlobalHealthTanks.instance.BloodSplatters[Random.Range(0, GlobalHealthTanks.instance.BloodSplatters.Length)], base.transform.position + new Vector3(0f, 0.06f, 0f), Quaternion.identity, null);
-			int scream = Random.Range(0, 3);
-			if (scream == 1)
+			Object.Instantiate(GlobalHealthTanks.instance.BloodSplatters[Random.Range(0, GlobalHealthTanks.instance.BloodSplatters.Length)], base.transform.position + new Vector3(0f, 0.06f, 0f), Quaternion.identity, null);
+			if (Random.Range(0, 3) == 1)
 			{
 				SFXManager.instance.PlaySFX(GlobalHealthTanks.instance.InPain[Random.Range(0, GlobalHealthTanks.instance.InPain.Length)], 1f, null);
 			}
 		}
-		EnemyAI EA = GetComponent<EnemyAI>();
-		if ((bool)EA)
+		EnemyAI component2 = GetComponent<EnemyAI>();
+		if ((bool)component2)
 		{
-			if (EA.isAggro && (bool)EA.AngerVein && EA.AngerVein.activeSelf)
+			if (component2.isAggro && (bool)component2.AngerVein && component2.AngerVein.activeSelf)
 			{
 				GameMaster.instance.musicScript.Orchestra.RagingCherries--;
 			}
-			if (EnemyID == 4 && !IsCustom && (bool)EA.ETSN)
+			if (EnemyID == 4 && !IsCustom && (bool)component2.ETSN)
 			{
-				EA.ETSN.PlaceMine(deathmine: true);
+				component2.ETSN.PlaceMine(deathmine: true);
 			}
 		}
-		Material[] bodyM = new Material[1];
-		bool foundChild = false;
-		foreach (Transform child in base.transform)
+		Material[] array = new Material[1];
+		bool flag = false;
+		foreach (Transform item2 in base.transform)
 		{
-			if (child.name == "Cube.003")
+			if (item2.name == "Cube.003")
 			{
-				bodyM = child.GetComponent<MeshRenderer>().materials;
-				foundChild = true;
+				array = item2.GetComponent<MeshRenderer>().materials;
+				flag = true;
 			}
 		}
-		if (bodyM.Length > 1 && foundChild)
+		if (array.Length > 1 && flag && (bool)particleSystemRenderer)
 		{
-			if (bodyM[2] != null)
+			if (array[2] != null)
 			{
-				poofPS.material = bodyM[2];
-				if ((bool)poofPS2)
+				particleSystemRenderer.material = array[2];
+				if ((bool)particleSystemRenderer2)
 				{
-					poofPS2.material = bodyM[2];
+					particleSystemRenderer2.material = array[2];
 				}
 			}
-			else if (bodyM[1] != null)
+			else if (array[1] != null)
 			{
-				poofPS.material = bodyM[1];
-				if ((bool)poofPS2)
+				particleSystemRenderer.material = array[1];
+				if ((bool)particleSystemRenderer2)
 				{
-					poofPS2.material = bodyM[2];
+					particleSystemRenderer2.material = array[2];
 				}
 			}
 		}
-		else if (foundChild)
+		else if (flag && particleSystemRenderer != null)
 		{
-			poofPS.material.color = bodyM[0].color;
-			if ((bool)poofPS2)
+			particleSystemRenderer.material.color = array[0].color;
+			if (particleSystemRenderer2 != null)
 			{
-				poofPS2.material.color = bodyM[0].color;
+				particleSystemRenderer2.material.color = array[0].color;
 			}
 		}
-		Object.Destroy(poof.gameObject, 5f);
+		Object.Destroy(gameObject.gameObject, 5f);
 	}
 
 	private IEnumerator activateBlinkingText()
@@ -864,35 +888,35 @@ public class HealthTanks : MonoBehaviour
 		}
 		MoveTankScript MTS = GetComponent<MoveTankScript>();
 		EnemyAI AIscript = GetComponent<EnemyAI>();
-		int myteamnumber = ((!MTS) ? AIscript.MyTeam : MTS.MyTeam);
-		Debug.Log("dying!" + health + instadie + myteamnumber);
-		if (myteamnumber != 0 && !instadie)
+		int num = ((!MTS) ? AIscript.MyTeam : MTS.MyTeam);
+		Debug.Log("dying!" + health + instadie + num);
+		if (num != 0 && !instadie)
 		{
-			bool teammemberfound = false;
-			foreach (GameObject Player in GameMaster.instance.Players)
+			bool flag = false;
+			foreach (GameObject player in GameMaster.instance.Players)
 			{
-				if (Player == base.gameObject)
+				if (player == base.gameObject)
 				{
 					continue;
 				}
-				MoveTankScript otherMTS = Player.GetComponent<MoveTankScript>();
-				if ((bool)otherMTS)
+				MoveTankScript component = player.GetComponent<MoveTankScript>();
+				if ((bool)component)
 				{
-					if (otherMTS.MyTeam == myteamnumber)
+					if (component.MyTeam == num)
 					{
 						instadie = false;
-						teammemberfound = true;
+						flag = true;
 					}
 					continue;
 				}
-				EnemyAI otherAIscript = Player.GetComponent<EnemyAI>();
-				if ((bool)otherAIscript && otherAIscript.MyTeam == myteamnumber)
+				EnemyAI component2 = player.GetComponent<EnemyAI>();
+				if ((bool)component2 && component2.MyTeam == num)
 				{
 					instadie = false;
-					teammemberfound = true;
+					flag = true;
 				}
 			}
-			if (!teammemberfound)
+			if (!flag)
 			{
 				instadie = true;
 			}
@@ -946,6 +970,7 @@ public class HealthTanks : MonoBehaviour
 				{
 					GameMaster.instance.PlayerDown[MTS.playerId] = false;
 				}
+				GameMaster.instance.CheckGameState();
 				yield break;
 			}
 		}
@@ -954,13 +979,14 @@ public class HealthTanks : MonoBehaviour
 		{
 			SkidMarkCreator.transform.parent = null;
 			SkidMarkCreator.Stop();
-			Object.Destroy(t: (OptionsMainMenu.instance.currentGraphicSettings == 0) ? 15f : ((OptionsMainMenu.instance.currentGraphicSettings == 1) ? 30f : ((OptionsMainMenu.instance.currentGraphicSettings == 2) ? 60f : ((OptionsMainMenu.instance.currentGraphicSettings == 3) ? 120f : ((OptionsMainMenu.instance.currentGraphicSettings == 4) ? 240f : 300f)))), obj: SkidMarkCreator);
+			float t = ((OptionsMainMenu.instance.currentGraphicSettings == 0) ? 15f : ((OptionsMainMenu.instance.currentGraphicSettings == 1) ? 30f : ((OptionsMainMenu.instance.currentGraphicSettings == 2) ? 60f : ((OptionsMainMenu.instance.currentGraphicSettings == 3) ? 120f : ((OptionsMainMenu.instance.currentGraphicSettings == 4) ? 240f : 300f)))));
+			Object.Destroy(SkidMarkCreator, t);
 		}
 		if (GameMaster.instance != null)
 		{
 			if (GameMaster.instance.Players.Count <= 1)
 			{
-				if (GameMaster.instance.Lives > 1)
+				if (GameMaster.instance.Lives <= 1)
 				{
 					SFXManager.instance.PlaySFX(GlobalAssets.instance.AudioDB.TankDieLostGame);
 				}
@@ -984,19 +1010,18 @@ public class HealthTanks : MonoBehaviour
 				GameMaster.instance.AmountGoodTanks--;
 			}
 		}
-		GameObject deathcross = Object.Instantiate(deathCross, base.transform.position + new Vector3(0f, 0.04f, 0f), Quaternion.identity);
-		DeathCrossScript DCS = deathcross.GetComponent<DeathCrossScript>();
-		Collider[] bigobjectsInRange = Physics.OverlapSphere(base.transform.position, 4f);
-		Collider[] array = bigobjectsInRange;
-		foreach (Collider col in array)
+		GameObject gameObject = Object.Instantiate(deathCross, base.transform.position + new Vector3(0f, 0.04f, 0f), Quaternion.identity);
+		DeathCrossScript component3 = gameObject.GetComponent<DeathCrossScript>();
+		Collider[] array = Physics.OverlapSphere(base.transform.position, 4f);
+		foreach (Collider collider in array)
 		{
-			Rigidbody rigi = col.GetComponent<Rigidbody>();
-			if (rigi != null && (col.tag == "Player" || col.tag == "Enemy"))
+			Rigidbody component4 = collider.GetComponent<Rigidbody>();
+			if (component4 != null && (collider.tag == "Player" || collider.tag == "Enemy"))
 			{
-				float distance = Vector3.Distance(rigi.transform.position, base.transform.position);
-				float force = (7f - distance) * 2f;
-				Vector3 direction = rigi.transform.position - base.transform.position;
-				rigi.AddForce(direction * force, ForceMode.Impulse);
+				float num2 = Vector3.Distance(component4.transform.position, base.transform.position);
+				float num3 = (7f - num2) * 2f;
+				Vector3 vector = component4.transform.position - base.transform.position;
+				component4.AddForce(vector * num3, ForceMode.Impulse);
 			}
 		}
 		if (MTS != null)
@@ -1007,25 +1032,25 @@ public class HealthTanks : MonoBehaviour
 			}
 			if (MTS.playerId == 0)
 			{
-				DCS.IsBlue();
+				component3.IsBlue();
 				GameMaster.instance.PlayerDied[0] = true;
 				GameMaster.instance.PlayerDown[0] = false;
 			}
 			else if (MTS.playerId == 1)
 			{
-				DCS.IsRed();
+				component3.IsRed();
 				GameMaster.instance.PlayerDied[1] = true;
 				GameMaster.instance.PlayerDown[1] = false;
 			}
 			else if (MTS.playerId == 2)
 			{
-				DCS.IsGreen();
+				component3.IsGreen();
 				GameMaster.instance.PlayerDied[2] = true;
 				GameMaster.instance.PlayerDown[2] = false;
 			}
 			else if (MTS.playerId == 3)
 			{
-				DCS.IsPurple();
+				component3.IsPurple();
 				GameMaster.instance.PlayerDied[3] = true;
 				GameMaster.instance.PlayerDown[3] = false;
 			}
@@ -1040,15 +1065,15 @@ public class HealthTanks : MonoBehaviour
 			{
 				if (AIscript.CompanionID == 1)
 				{
-					DCS.IsRed();
+					component3.IsRed();
 				}
 				else if (AIscript.CompanionID == 2)
 				{
-					DCS.IsGreen();
+					component3.IsGreen();
 				}
 				else if (AIscript.CompanionID == 3)
 				{
-					DCS.IsPurple();
+					component3.IsPurple();
 				}
 				GameMaster.instance.PlayerDied[AIscript.CompanionID] = true;
 				GameMaster.instance.PlayerDown[AIscript.CompanionID] = false;
@@ -1077,13 +1102,13 @@ public class HealthTanks : MonoBehaviour
 			MTS.Upgrades[2] = 0;
 			MTS.Upgrades[3] = 0;
 		}
-		deathcross.transform.parent = null;
-		if (GameMaster.instance.CurrentMission >= 99 && GameMaster.instance.Players.Count < 2)
+		gameObject.transform.parent = null;
+		if (GameMaster.instance.CurrentMission >= 99 && !MapEditorMaster.instance && GameMaster.instance.Players.Count < 2)
 		{
 			if (MissionHundredController.instance != null && (bool)MissionHundredController.instance.KTS)
 			{
-				HealthTanks HT = MissionHundredController.instance.KTS.HT;
-				if ((bool)HT && HT.health <= 11 && OptionsMainMenu.instance.AM[26] != 1)
+				HealthTanks hT = MissionHundredController.instance.KTS.HT;
+				if ((bool)hT && hT.health <= 11 && OptionsMainMenu.instance.AM[26] != 1)
 				{
 					AchievementsTracker.instance.completeAchievement(26);
 				}
@@ -1101,6 +1126,194 @@ public class HealthTanks : MonoBehaviour
 		{
 			GameMaster.instance.StartCoroutine(GameMaster.instance.GetTankTeamData(fast: false));
 		}
+		GameMaster.instance.CheckGameState();
 		Object.Destroy(base.transform.parent.gameObject);
+	}
+
+	private void AreaDamageEnemies(Vector3 location, float radius, float damage)
+	{
+		NukeTankAI component = GetComponent<NukeTankAI>();
+		if ((bool)component && component.IsArmed)
+		{
+			radius *= 2.5f;
+		}
+		Collider[] array;
+		if ((bool)component)
+		{
+			if (component.IsArmed)
+			{
+				array = Physics.OverlapSphere(location, radius * 2f);
+				foreach (Collider collider in array)
+				{
+					PlayerBulletScript component2 = collider.GetComponent<PlayerBulletScript>();
+					EnemyBulletScript component3 = collider.GetComponent<EnemyBulletScript>();
+					MineScript component4 = collider.GetComponent<MineScript>();
+					DestroyableWall component5 = collider.GetComponent<DestroyableWall>();
+					collider.GetComponent<WeeTurret>();
+					ExplosiveBlock component6 = collider.GetComponent<ExplosiveBlock>();
+					BombSackScript component7 = collider.GetComponent<BombSackScript>();
+					HealthTanks component8 = collider.GetComponent<HealthTanks>();
+					if ((bool)component6)
+					{
+						if (!component6.isExploding)
+						{
+							component6.StartCoroutine(component6.Death());
+						}
+					}
+					else if (component2 != null)
+					{
+						if (!component2.isSilver)
+						{
+							component2.TimesBounced = 999;
+						}
+					}
+					else if (component8 != null)
+					{
+						if (GameMaster.instance.isZombieMode && component8.health > 0 && GameMaster.instance.GameHasStarted && component8.Buzz != null)
+						{
+							SFXManager.instance.PlaySFX(component8.Buzz);
+						}
+						int num = 0;
+						if (component8.ShieldFade != null)
+						{
+							num = component8.ShieldFade.ShieldHealth;
+						}
+						if (GameMaster.instance.GameHasStarted)
+						{
+							if (num > 0)
+							{
+								component8.ShieldFade.ShieldHealth = 0;
+							}
+							else
+							{
+								component8.DamageMe(999);
+							}
+						}
+					}
+					else if (component3 != null)
+					{
+						if (!component3.isElectric)
+						{
+							component3.BounceAmount = 999;
+						}
+					}
+					else if (component4 != null)
+					{
+						component4.DetinationTime = 0f;
+					}
+					else if (component5 != null)
+					{
+						component5.StartCoroutine(component5.destroy());
+					}
+					else if (component7 != null)
+					{
+						component7.FlyBack();
+					}
+					else if (collider.name.Contains("Wood") && Vector3.Distance(base.transform.position, collider.transform.position) < 6f)
+					{
+						Object.Destroy(collider.gameObject);
+					}
+				}
+				return;
+			}
+		}
+		else
+		{
+			array = Physics.OverlapSphere(location, radius);
+			foreach (Collider obj in array)
+			{
+				HealthTanks component9 = obj.GetComponent<HealthTanks>();
+				PlayerBulletScript component10 = obj.GetComponent<PlayerBulletScript>();
+				EnemyBulletScript component11 = obj.GetComponent<EnemyBulletScript>();
+				MineScript component12 = obj.GetComponent<MineScript>();
+				DestroyableWall component13 = obj.GetComponent<DestroyableWall>();
+				WeeTurret component14 = obj.GetComponent<WeeTurret>();
+				ExplosiveBlock component15 = obj.GetComponent<ExplosiveBlock>();
+				BombSackScript component16 = obj.GetComponent<BombSackScript>();
+				if ((bool)component15)
+				{
+					if (!component15.isExploding)
+					{
+						component15.StartCoroutine(component15.Death());
+					}
+				}
+				else if (component14 != null)
+				{
+					if (GameMaster.instance.GameHasStarted)
+					{
+						component14.Health--;
+					}
+				}
+				else if (component9 != null)
+				{
+					if (component9.immuneToExplosion)
+					{
+						continue;
+					}
+					if (GameMaster.instance.isZombieMode && component9.health > 0 && GameMaster.instance.GameHasStarted && component9.Buzz != null)
+					{
+						SFXManager.instance.PlaySFX(component9.Buzz);
+					}
+					int num2 = 0;
+					if (component9.ShieldFade != null)
+					{
+						num2 = component9.ShieldFade.ShieldHealth;
+					}
+					if (GameMaster.instance.GameHasStarted)
+					{
+						if (num2 > 0)
+						{
+							component9.ShieldFade.ShieldHealth = 0;
+						}
+						else
+						{
+							component9.DamageMe(1);
+						}
+					}
+				}
+				else if (component10 != null)
+				{
+					if (!component10.isSilver)
+					{
+						component10.TimesBounced = 999;
+					}
+				}
+				else if (component11 != null)
+				{
+					if (!component11.isElectric)
+					{
+						component11.BounceAmount = 999;
+					}
+				}
+				else if (component12 != null)
+				{
+					component12.DetinationTime = 0f;
+				}
+				else if (component13 != null)
+				{
+					component13.StartCoroutine(component13.destroy());
+				}
+				else if (component16 != null)
+				{
+					component16.FlyBack();
+				}
+			}
+		}
+		array = Physics.OverlapSphere(location, radius * 2.75f);
+		foreach (Collider collider2 in array)
+		{
+			Rigidbody component17 = collider2.GetComponent<Rigidbody>();
+			if (component17 != null && (collider2.tag == "Player" || collider2.tag == "Enemy"))
+			{
+				float num3 = Vector3.Distance(component17.transform.position, base.transform.position);
+				float num4 = (radius * 2.75f - num3) * 2.2f;
+				Vector3 vector = component17.transform.position - base.transform.position;
+				if (num4 > 16f)
+				{
+					num4 = 16f;
+				}
+				component17.AddForce(vector * num4, ForceMode.Impulse);
+			}
+		}
 	}
 }

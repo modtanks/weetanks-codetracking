@@ -7,7 +7,7 @@ public class OnBeatLightFlash : MonoBehaviour
 
 	public float speed = 1f;
 
-	public float offset = 0f;
+	public float offset;
 
 	[ColorUsage(true, true)]
 	public Color LightUp = Color.white;
@@ -27,19 +27,19 @@ public class OnBeatLightFlash : MonoBehaviour
 			yield return new WaitForSeconds(offset);
 		}
 		MeshRenderer[] mRS = MRS;
-		foreach (MeshRenderer MR in mRS)
+		for (int i = 0; i < mRS.Length; i++)
 		{
-			MR.material.SetColor("_EmissionColor", LightUp);
+			mRS[i].material.SetColor("_EmissionColor", LightUp);
 		}
 		float t2 = 0f;
 		while (t2 < 1f)
 		{
 			t2 += Time.deltaTime * speed;
-			Vector4 CurrentLight = Vector4.Lerp(LightUp, OriginalLight, t2);
-			MeshRenderer[] mRS2 = MRS;
-			foreach (MeshRenderer MR2 in mRS2)
+			Vector4 vector = Vector4.Lerp(LightUp, OriginalLight, t2);
+			mRS = MRS;
+			for (int i = 0; i < mRS.Length; i++)
 			{
-				MR2.material.SetColor("_EmissionColor", CurrentLight);
+				mRS[i].material.SetColor("_EmissionColor", vector);
 			}
 			yield return null;
 		}
@@ -48,11 +48,11 @@ public class OnBeatLightFlash : MonoBehaviour
 		while (t2 < 1f)
 		{
 			t2 += Time.deltaTime * speed;
-			Vector4 CurrentLight2 = Vector4.Lerp(OriginalLight, LightUp, t2);
-			MeshRenderer[] mRS3 = MRS;
-			foreach (MeshRenderer MR3 in mRS3)
+			Vector4 vector2 = Vector4.Lerp(OriginalLight, LightUp, t2);
+			mRS = MRS;
+			for (int i = 0; i < mRS.Length; i++)
 			{
-				MR3.material.SetColor("_EmissionColor", CurrentLight2);
+				mRS[i].material.SetColor("_EmissionColor", vector2);
 			}
 			yield return null;
 		}

@@ -7,11 +7,11 @@ public class CheckRaycastUI : MonoBehaviour
 	public bool PointIsOverUI(float x, float y)
 	{
 		Debug.LogError("mouse position is" + Input.mousePosition.ToString() + " and the input X is " + x + " with y of " + y);
-		PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
-		eventDataCurrentPosition.position = new Vector2(x, y);
-		List<RaycastResult> results = new List<RaycastResult>();
-		EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
-		foreach (RaycastResult item in results)
+		PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
+		pointerEventData.position = new Vector2(x, y);
+		List<RaycastResult> list = new List<RaycastResult>();
+		EventSystem.current.RaycastAll(pointerEventData, list);
+		foreach (RaycastResult item in list)
 		{
 			if (item.gameObject.transform.tag == "IgnoreMobile")
 			{

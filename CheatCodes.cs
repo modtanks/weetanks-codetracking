@@ -24,12 +24,13 @@ public class CheatCodes : MonoBehaviour
 
 	private void Update()
 	{
+		string inputString;
 		if (Input.anyKeyDown)
 		{
-			string inputString = Input.inputString;
-			foreach (char c2 in inputString)
+			inputString = Input.inputString;
+			foreach (char c in inputString)
 			{
-				if (c2 == '\n' || c2 == '\r')
+				if (c == '\n' || c == '\r')
 				{
 					Play2DClipAtPoint(CheckSound);
 				}
@@ -43,11 +44,11 @@ public class CheatCodes : MonoBehaviour
 		{
 			return;
 		}
-		string inputString2 = Input.inputString;
-		for (int j = 0; j < inputString2.Length; j++)
+		inputString = Input.inputString;
+		for (int i = 0; i < inputString.Length; i++)
 		{
-			char c = inputString2[j];
-			if (c == '\n' || c == '\r')
+			char c2 = inputString[i];
+			if (c2 == '\n' || c2 == '\r')
 			{
 				if (tempEnter.Length > 0)
 				{
@@ -57,52 +58,55 @@ public class CheatCodes : MonoBehaviour
 			}
 			else
 			{
-				tempEnter += c;
+				tempEnter += c2;
 			}
 		}
 	}
 
 	private IEnumerator PostRequest(string url, string cheatcode)
 	{
-		WWWForm form = new WWWForm();
-		form.AddField("cheatCode", cheatcode);
-		form.AddField("fromGame", "true");
-		UnityWebRequest uwr = UnityWebRequest.Post(url, form);
+		WWWForm wWWForm = new WWWForm();
+		wWWForm.AddField("cheatCode", cheatcode);
+		wWWForm.AddField("fromGame", "true");
+		UnityWebRequest uwr = UnityWebRequest.Post(url, wWWForm);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
 		{
 			Debug.Log("Error While Sending: " + uwr.error);
-			yield break;
-		}
-		Debug.Log("Received: " + uwr.downloadHandler.text);
-		if (uwr.downloadHandler.text != "false")
-		{
-			int ID = int.Parse(uwr.downloadHandler.text);
-			if (OptionsMainMenu.instance.AM[ID] != 1)
-			{
-				OptionsMainMenu.instance.AM[ID] = 1;
-				OptionsMainMenu.instance.SaveNewData();
-				AccountMaster.instance.PDO.AM[ID] = 1;
-				AccountMaster.instance.SaveCloudData(3, ID, 0, bounceKill: false);
-				Play2DClipAtPoint(UnlockedSound);
-			}
 		}
 		else
 		{
-			Play2DClipAtPoint(ErrorSound);
+			Debug.Log("Received: " + uwr.downloadHandler.text);
+			if (uwr.downloadHandler.text != "false")
+			{
+				int num = int.Parse(uwr.downloadHandler.text);
+				if (OptionsMainMenu.instance.AM[num] != 1)
+				{
+					OptionsMainMenu.instance.AM[num] = 1;
+					OptionsMainMenu.instance.SaveNewData();
+					AccountMaster.instance.PDO.AM[num] = 1;
+					AccountMaster.instance.SaveCloudData(3, num, 0, bounceKill: false);
+					Play2DClipAtPoint(UnlockedSound);
+				}
+			}
+			else
+			{
+				Play2DClipAtPoint(ErrorSound);
+			}
 		}
+		uwr.Dispose();
 	}
 
 	public void Play2DClipAtPoint(AudioClip clip)
 	{
-		GameObject tempAudioSource = new GameObject("TempAudio");
-		AudioSource audioSource = tempAudioSource.AddComponent<AudioSource>();
+		GameObject obj = new GameObject("TempAudio");
+		AudioSource audioSource = obj.AddComponent<AudioSource>();
 		audioSource.clip = clip;
 		audioSource.ignoreListenerVolume = true;
 		audioSource.volume = 1f * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
 		audioSource.spatialBlend = 0f;
 		audioSource.Play();
-		Object.Destroy(tempAudioSource, clip.length);
+		Object.Destroy(obj, clip.length);
 	}
 }

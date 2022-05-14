@@ -59,7 +59,7 @@ public class ShopStand : MonoBehaviour
 
 	public HorizontalLayoutGroup HLGIcons;
 
-	public bool PlayerNearMe = false;
+	public bool PlayerNearMe;
 
 	public Animator MyAnimator;
 
@@ -71,7 +71,7 @@ public class ShopStand : MonoBehaviour
 
 	public Transform PlaceToSpawnObject;
 
-	public bool PlayerBoughtMeAlready = false;
+	public bool PlayerBoughtMeAlready;
 
 	private void Start()
 	{
@@ -173,7 +173,7 @@ public class ShopStand : MonoBehaviour
 	{
 		yield return new WaitForSeconds(1f);
 		Vector2 SizeOfTitle = ItemTitle.GetRenderedValues(onlyVisibleCharacters: true);
-		RectTransform rt = ItemTitle.GetComponent(typeof(RectTransform)) as RectTransform;
+		RectTransform rectTransform = ItemTitle.GetComponent(typeof(RectTransform)) as RectTransform;
 		RectTransform rtDesc = ItemDescription.GetComponent(typeof(RectTransform)) as RectTransform;
 		PercentChangeX = SizeOfTitle.x / BaseWidth;
 		if (PercentChangeX <= 1f)
@@ -181,18 +181,18 @@ public class ShopStand : MonoBehaviour
 			PercentChangeX = 1f;
 			SizeOfTitle.x = BaseWidth;
 		}
-		rt.sizeDelta = new Vector2(SizeOfTitle.x, rt.sizeDelta.y);
+		rectTransform.sizeDelta = new Vector2(SizeOfTitle.x, rectTransform.sizeDelta.y);
 		rtDesc.sizeDelta = new Vector2(SizeOfTitle.x, rtDesc.sizeDelta.y);
 		yield return new WaitForSeconds(0.1f);
-		Vector2 SizeOfDescription = ItemDescription.GetRenderedValues(onlyVisibleCharacters: true);
-		PercentChangeY = SizeOfDescription.y / BaseHeight;
+		Vector2 renderedValues = ItemDescription.GetRenderedValues(onlyVisibleCharacters: true);
+		PercentChangeY = renderedValues.y / BaseHeight;
 		PercentChangeY -= 0.1f;
-		Vector2 vector = SizeOfDescription;
+		Vector2 vector = renderedValues;
 		Debug.Log("size of description: " + vector.ToString());
 		if (PercentChangeY <= 1f)
 		{
 			PercentChangeY = 1f;
-			SizeOfDescription.y = BaseHeight;
+			renderedValues.y = BaseHeight;
 		}
 		else
 		{
@@ -201,21 +201,21 @@ public class ShopStand : MonoBehaviour
 		Debug.Log("setting size, with new width of: " + SizeOfTitle.x);
 		for (int i = 0; i < Boxes.Length; i++)
 		{
-			RectTransform rt2 = Boxes[i].GetComponent(typeof(RectTransform)) as RectTransform;
-			rt2.sizeDelta = new Vector2(rt2.sizeDelta.x * PercentChangeX, rt2.sizeDelta.y * PercentChangeY);
+			RectTransform rectTransform2 = Boxes[i].GetComponent(typeof(RectTransform)) as RectTransform;
+			rectTransform2.sizeDelta = new Vector2(rectTransform2.sizeDelta.x * PercentChangeX, rectTransform2.sizeDelta.y * PercentChangeY);
 		}
-		rtDesc.sizeDelta = new Vector2(SizeOfTitle.x, SizeOfDescription.y);
+		rtDesc.sizeDelta = new Vector2(SizeOfTitle.x, renderedValues.y);
 	}
 
 	public void SetItemOnDisplay(bool IsUpdate)
 	{
 		ItemTitle.text = MyStandItem.ItemName;
 		ItemDescription.text = MyStandItem.ItemDescription;
-		string rarename = ((MyStandItem.ItemRare == 0) ? "Very Common" : ((MyStandItem.ItemRare == 1) ? "Common" : ((MyStandItem.ItemRare == 2) ? "Rare" : ((MyStandItem.ItemRare == 3) ? "Very Rare" : ((MyStandItem.ItemRare == 4) ? "Super Rare" : "Legendary")))));
-		ItemRare.text = rarename;
+		string text = ((MyStandItem.ItemRare == 0) ? "Very Common" : ((MyStandItem.ItemRare == 1) ? "Common" : ((MyStandItem.ItemRare == 2) ? "Rare" : ((MyStandItem.ItemRare == 3) ? "Very Rare" : ((MyStandItem.ItemRare == 4) ? "Super Rare" : "Legendary")))));
+		ItemRare.text = text;
 		ItemStock.text = MyStandItem.AmountInStock + " <font-weight=700><color=#A0A0A0>in stock</color></font-weight>";
 		ItemPrice.text = MyStandItem.ItemPrice + " <font-weight=700><color=#A0A0A0>marbles</color></font-weight>";
-		Color BoxColor = RareColor[MyStandItem.ItemRare];
+		Color color = RareColor[MyStandItem.ItemRare];
 		if (AccountMaster.instance.Inventory.InventoryItems != null)
 		{
 			if (AccountMaster.instance.Inventory.InventoryItems.Contains(MyStandItem.ItemID))
@@ -223,14 +223,14 @@ public class ShopStand : MonoBehaviour
 				PlayerBoughtMeAlready = true;
 				BuyNote.text = "You already have the " + MyStandItem.ItemName;
 				CheckMark.gameObject.SetActive(value: true);
-				CheckMark.color = BoxColor;
+				CheckMark.color = color;
 			}
 			else
 			{
 				BuyNote.text = "Press " + ReInput.players.GetPlayer(0).controllers.maps.GetFirstButtonMapWithAction("Use", skipDisabledMaps: true).elementIdentifierName + " to buy:";
 				PlayerBoughtMeAlready = false;
 				CheckMark.gameObject.SetActive(value: false);
-				CheckMark.color = BoxColor;
+				CheckMark.color = color;
 			}
 		}
 		else
@@ -239,36 +239,36 @@ public class ShopStand : MonoBehaviour
 			PlayerBoughtMeAlready = false;
 			CheckMark.gameObject.SetActive(value: false);
 		}
-		ItemRare.color = BoxColor;
-		IconRare.color = BoxColor;
-		BodyBorder.color = BoxColor;
-		BodyCaret.color = BoxColor;
-		GameObject MyStockItem = null;
-		float height = 0f;
+		ItemRare.color = color;
+		IconRare.color = color;
+		BodyBorder.color = color;
+		BodyCaret.color = color;
+		GameObject gameObject = null;
+		float y = 0f;
 		for (int i = 0; i < GlobalAssets.instance.StockDatabase.Count; i++)
 		{
 			if (GlobalAssets.instance.StockDatabase[i].ItemID == MyStandItem.ItemID)
 			{
 				if (GlobalAssets.instance.StockDatabase[i].ItemObject != null)
 				{
-					MyStockItem = GlobalAssets.instance.StockDatabase[i].ItemObject;
-					height = GlobalAssets.instance.StockDatabase[i].ItemYoffset;
+					gameObject = GlobalAssets.instance.StockDatabase[i].ItemObject;
+					y = GlobalAssets.instance.StockDatabase[i].ItemYoffset;
 				}
 				else
 				{
-					MyStockItem = NoItemPrefab;
-					height = 1f;
+					gameObject = NoItemPrefab;
+					y = 1f;
 				}
 			}
 		}
-		if (MySpawnedItem != null && IsUpdate && MySpawnedItem != MyStockItem)
+		if (MySpawnedItem != null && IsUpdate && MySpawnedItem != gameObject)
 		{
 			Object.Destroy(MySpawnedItem);
 		}
 		if (MySpawnedItem == null)
 		{
-			MySpawnedItem = Object.Instantiate(MyStockItem, PlaceToSpawnObject.position, base.transform.rotation, PlaceToSpawnObject);
-			MySpawnedItem.transform.position += new Vector3(0f, height, 0f);
+			MySpawnedItem = Object.Instantiate(gameObject, PlaceToSpawnObject.position, base.transform.rotation, PlaceToSpawnObject);
+			MySpawnedItem.transform.position += new Vector3(0f, y, 0f);
 		}
 		if (!IsUpdate)
 		{

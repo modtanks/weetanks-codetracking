@@ -30,42 +30,42 @@ public class GameMaster : MonoBehaviour
 		public bool HasWalls;
 	}
 
-	public bool DevModeActive = false;
+	public bool DevModeActive;
 
-	public bool inDemoMode = false;
+	public bool inDemoMode;
 
-	public bool isZombieMode = false;
+	public bool isZombieMode;
 
-	public bool inMenuMode = false;
+	public bool inMenuMode;
 
-	public bool inMapEditor = false;
+	public bool inMapEditor;
 
-	public bool inOnlineMode = false;
+	public bool inOnlineMode;
 
-	public bool isOfficialCampaign = false;
+	public bool isOfficialCampaign;
 
-	public bool inTankeyTown = false;
+	public bool inTankeyTown;
 
 	[Header("Stats")]
 	public int Lives = 3;
 
-	public int CurrentMission = 0;
+	public int CurrentMission;
 
-	public int AmountEnemyTanks = 0;
+	public int AmountEnemyTanks;
 
-	public int AmountGoodTanks = 0;
+	public int AmountGoodTanks;
 
-	public int AmountMinesPlaced = 0;
+	public int AmountMinesPlaced;
 
 	public int[] AmountTeamTanks;
 
 	public ProgressDataOnline CurrentData;
 
-	public int AmountCalledInTanks = 0;
+	public int AmountCalledInTanks;
 
 	public List<int> Playerkills = new List<int>();
 
-	public int TotalKillsThisSession = 0;
+	public int TotalKillsThisSession;
 
 	public List<int> TankColorKilled = new List<int>();
 
@@ -88,7 +88,7 @@ public class GameMaster : MonoBehaviour
 	public int maxMissionReachedGrandpa;
 
 	[HideInInspector]
-	public bool HasGotten100Checkpoint = false;
+	public bool HasGotten100Checkpoint;
 
 	[Header("UI")]
 	public TextMeshProUGUI Mission_Text;
@@ -146,7 +146,7 @@ public class GameMaster : MonoBehaviour
 
 	public List<PressurePlateSpawnpoints> CampaignPressurePlates = new List<PressurePlateSpawnpoints>();
 
-	public int SecretMissionCounter = 0;
+	public int SecretMissionCounter;
 
 	public int lastMissionNumber = 55;
 
@@ -173,23 +173,23 @@ public class GameMaster : MonoBehaviour
 
 	public AudioClip TankTracksNormalSound;
 
-	public bool Victory = false;
+	public bool Victory;
 
-	public bool PlayerAlive = false;
+	public bool PlayerAlive;
 
-	public bool levelIsLoaded = false;
+	public bool levelIsLoaded;
 
 	public int[] PlayerModeWithAI = new int[4];
 
-	public bool AssassinTankAlive = false;
+	public bool AssassinTankAlive;
 
 	public List<bool> PlayerJoining = new List<bool>();
 
 	public List<bool> PlayerJoined = new List<bool>();
 
-	public bool FriendlyFire = false;
+	public bool FriendlyFire;
 
-	public bool PlayerLeftCooldown = false;
+	public bool PlayerLeftCooldown;
 
 	public bool OnlyCompanionLeft;
 
@@ -201,7 +201,7 @@ public class GameMaster : MonoBehaviour
 
 	public PlayerKillsUI PKU;
 
-	public int EnemyTankTracksAudio = 0;
+	public int EnemyTankTracksAudio;
 
 	public int maxEnemyTankTracks = 4;
 
@@ -219,21 +219,21 @@ public class GameMaster : MonoBehaviour
 
 	public GameObject SpawningPlayerParticles;
 
-	public float counter = 0f;
+	public float counter;
 
 	[HideInInspector]
 	public int AmountPlayersThatNeedRevive;
 
-	public bool isResettingTestLevel = false;
+	public bool isResettingTestLevel;
 
 	private static GameMaster _instance;
 
 	[Header("Game status")]
-	public bool restartGame = false;
+	public bool restartGame;
 
-	public bool GameHasStarted = false;
+	public bool GameHasStarted;
 
-	public bool GameHasPaused = false;
+	public bool GameHasPaused;
 
 	public GameObject OptionsMainMenuBackup;
 
@@ -263,7 +263,7 @@ public class GameMaster : MonoBehaviour
 
 	public GameObject StoneBlock;
 
-	public bool isReplay = false;
+	public bool isReplay;
 
 	public TutorialCanvas tutorialCanvas;
 
@@ -271,16 +271,16 @@ public class GameMaster : MonoBehaviour
 
 	public Color ambientCLRlvl50;
 
-	private bool activatedBackup = false;
+	private bool activatedBackup;
 
-	public bool isPlayingWithController = false;
+	public bool isPlayingWithController;
 
 	[Header("Tutorial Things")]
-	public bool mission1HasShooted = false;
+	public bool mission1HasShooted;
 
-	public bool mission2HasBoosted = false;
+	public bool mission2HasBoosted;
 
-	public bool mission3HasMined = false;
+	public bool mission3HasMined;
 
 	[Header("Zombie stats")]
 	public int[] highestWaves = new int[10];
@@ -295,7 +295,7 @@ public class GameMaster : MonoBehaviour
 
 	public int AccountID = -1;
 
-	public int numberOfControllers = 0;
+	public int numberOfControllers;
 
 	public static GameMaster instance => _instance;
 
@@ -335,9 +335,9 @@ public class GameMaster : MonoBehaviour
 		if (ObjectsEnablingAtStart != null)
 		{
 			GameObject[] objectsEnablingAtStart = ObjectsEnablingAtStart;
-			foreach (GameObject obj in objectsEnablingAtStart)
+			for (int i = 0; i < objectsEnablingAtStart.Length; i++)
 			{
-				obj.SetActive(value: true);
+				objectsEnablingAtStart[i].SetActive(value: true);
 			}
 		}
 		MainCamera = Camera.main;
@@ -345,10 +345,6 @@ public class GameMaster : MonoBehaviour
 		InvokeRepeating("ControllerCheck", 0.5f, 0.5f);
 		InvokeRepeating("PlayerListCheck", 0.5f, 0.5f);
 		Debug.LogError("now here in start from GameMaster!");
-		if (GNMS != null)
-		{
-			InvokeRepeating("GenerateNavMesh", 2f, 2f);
-		}
 		if (!inMenuMode && !inMapEditor)
 		{
 			if (MapEditorMaster.instance == null)
@@ -413,68 +409,65 @@ public class GameMaster : MonoBehaviour
 			lvlPos = currentLoadedLevel.transform.position;
 			UnityEngine.Object.Destroy(currentLoadedLevel);
 		}
-		for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
 		{
-			PlayerJoined[i] = OptionsMainMenu.instance.PlayerJoined[i];
+			PlayerJoined[j] = OptionsMainMenu.instance.PlayerJoined[j];
 		}
 		Debug.LogError("End of start!");
-	}
-
-	private void GenerateNavMesh()
-	{
+		GameState();
 	}
 
 	private void PlayerListCheck()
 	{
 		if (Players.Count > 0)
 		{
-			List<GameObject> PtoRemove = new List<GameObject>();
-			foreach (GameObject Player in Players)
+			List<GameObject> list = new List<GameObject>();
+			foreach (GameObject player in Players)
 			{
-				if (Player == null)
+				if (player == null)
 				{
-					PtoRemove.Add(Player);
+					list.Add(player);
 				}
 			}
-			foreach (GameObject P in PtoRemove)
+			foreach (GameObject item in list)
 			{
-				Players.Remove(P);
+				Players.Remove(item);
 			}
 		}
-		GameObject[] AllEnemies = GameObject.FindGameObjectsWithTag("Enemy");
+		GameObject.FindGameObjectsWithTag("Enemy");
 	}
 
 	public void SetPlayerPosition(string p1tankName, string p2tankName, string p3tankName, string p4tankName)
 	{
 		if (currentLoadedLevel != null)
 		{
-			Transform P1Object = currentLoadedLevel.transform.Find(p1tankName);
-			if (P1Object != null)
+			Transform transform = currentLoadedLevel.transform.Find(p1tankName);
+			if (transform != null)
 			{
-				playerLocation[0] = P1Object.position;
+				playerLocation[0] = transform.position;
 			}
-			Transform P2Object = currentLoadedLevel.transform.Find(p2tankName);
-			if (P2Object != null)
+			Transform transform2 = currentLoadedLevel.transform.Find(p2tankName);
+			if (transform2 != null)
 			{
-				playerLocation[1] = P2Object.position;
+				playerLocation[1] = transform2.position;
 			}
 			else
 			{
 				playerLocation[1] = new Vector3(0f, 0f, 0f);
 			}
-			Transform P3Object = currentLoadedLevel.transform.Find(p3tankName);
-			if (P3Object != null)
+			Transform transform3 = currentLoadedLevel.transform.Find(p3tankName);
+			if (transform3 != null)
 			{
-				playerLocation[2] = P3Object.position;
+				playerLocation[2] = transform3.position;
 			}
 			else
 			{
 				playerLocation[2] = new Vector3(0f, 0f, 0f);
 			}
-			Transform P4Object = currentLoadedLevel.transform.Find(p4tankName);
-			if (P4Object != null)
+			Transform transform4 = currentLoadedLevel.transform.Find(p4tankName);
+			if (transform4 != null)
 			{
-				playerLocation[3] = P4Object.position;
+				playerLocation[3] = transform4.position;
 			}
 			else
 			{
@@ -494,14 +487,174 @@ public class GameMaster : MonoBehaviour
 	{
 		isResettingTestLevel = true;
 		MapEditorMaster.instance.TeleportationFields.SetActive(value: false);
-		StartCoroutine(ResetTestLevel(skip));
+		MapEditorMaster.instance.StartCoroutine(MapEditorMaster.instance.ResetTestLevel(skip));
+	}
+
+	public void CheckGameState()
+	{
+		GameState();
+		StartCoroutine(WaitGameState());
+	}
+
+	private IEnumerator WaitGameState()
+	{
+		yield return new WaitForSeconds(0.1f);
+		FindPlayers();
+		yield return new WaitForSeconds(0.15f);
+		GameState();
+	}
+
+	private void GameState()
+	{
+		if (Players.Count < 1 && !MapEditorMaster.instance && PlayerAlive && (GameHasStarted || isZombieMode))
+		{
+			Debug.LogWarning("PlayerDead!!");
+			if (inMapEditor && !isResettingTestLevel)
+			{
+				ResetMapEditorMap(skip: false);
+				return;
+			}
+			if ((AmountEnemyTanks < 1 || CurrentMission == 99) && !Victory && levelIsLoaded && !isZombieMode && !inMapEditor)
+			{
+				if (Bosses.Length != 0 && CurrentMission == 99 && Bosses[0] != null)
+				{
+					if (Lives > 1)
+					{
+						CameraFollowPlayer component = Camera.main.transform.parent.gameObject.GetComponent<CameraFollowPlayer>();
+						PlaneMaster component2 = GetComponent<PlaneMaster>();
+						if ((bool)component2)
+						{
+							component2.SpawnInOrder.Clear();
+							component2.PS.isFlying = false;
+							component2.PS.transform.position = Vector3.zero;
+						}
+						GameObject gameObject = GameObject.Find("LEVEL_100(Clone)");
+						if ((bool)gameObject)
+						{
+							MissionHundredController component3 = gameObject.GetComponent<MissionHundredController>();
+							if ((bool)component3)
+							{
+								component3.PlayerDied();
+							}
+						}
+						component.enabled = true;
+						totalDefeats++;
+						AccountMaster.instance.SaveCloudData(2, 1, 0, bounceKill: false);
+						SaveData(skipCloud: false);
+						PlayerAlive = false;
+						musicScript.Defeat();
+						GameHasStarted = false;
+						ResetLevel();
+						StartCoroutine(startTheGame());
+						Lives--;
+					}
+					else
+					{
+						PlayerAlive = false;
+						defeated();
+					}
+				}
+				else
+				{
+					CheckSecretMission();
+					totalWins++;
+					AccountMaster.instance.SaveCloudData(1, 1, 0, bounceKill: false);
+					SaveData(skipCloud: false);
+					EndTheGame();
+				}
+				return;
+			}
+			PlayerAlive = false;
+			defeated();
+		}
+		if (AmountEnemyTanks < 1 && !Victory && levelIsLoaded && !inTankeyTown && !isZombieMode && !inMapEditor && !MapEditorMaster.instance)
+		{
+			if (CurrentMission < 99)
+			{
+				CheckSecretMission();
+				totalWins++;
+				AccountMaster.instance.SaveCloudData(1, 1, 0, bounceKill: false);
+				SaveData(skipCloud: false);
+				EndTheGame();
+			}
+			return;
+		}
+		if (!Victory && levelIsLoaded && GameHasStarted && (bool)MapEditorMaster.instance && !inMapEditor && !inTankeyTown)
+		{
+			int num = 0;
+			int[] array = new int[5];
+			for (int i = 0; i < AmountTeamTanks.Length; i++)
+			{
+				if (AmountTeamTanks[i] > 0)
+				{
+					num++;
+					array[i] = 1;
+				}
+				if (AmountTeamTanks[0] > 1)
+				{
+					num = 900;
+					array[i] = 1;
+				}
+			}
+			int num2 = 0;
+			for (int j = 0; j < PlayerJoined.Count; j++)
+			{
+				if (PlayerJoined[j])
+				{
+					num2++;
+					if (PlayerDied[j] && (AmountTeamTanks[PlayerTeamColor[j]] < 1 || PlayerTeamColor[j] == 0))
+					{
+						num2--;
+					}
+				}
+			}
+			if (num2 < 1)
+			{
+				PlayerAlive = false;
+				defeated();
+				return;
+			}
+			if (num < 2)
+			{
+				EndTheGame();
+				return;
+			}
+		}
+		if (!isZombieMode && inMapEditor && GameHasStarted && !isResettingTestLevel)
+		{
+			int num3 = 0;
+			for (int k = 0; k < AmountTeamTanks.Length; k++)
+			{
+				if (AmountTeamTanks[k] > 0)
+				{
+					num3++;
+				}
+				if (AmountTeamTanks[0] > 1)
+				{
+					num3 = 900;
+				}
+			}
+			if (num3 < 2)
+			{
+				isResettingTestLevel = true;
+				MapEditorMaster.instance.TeleportationFields.SetActive(value: false);
+				ResetMapEditorMap(skip: false);
+				return;
+			}
+		}
+		if ((bool)NAS && AmountEnemyTanks < 1 && !levelIsLoaded && !isZombieMode && !inMapEditor && !NAS.playingAnimation)
+		{
+			NAS.NextRound();
+		}
+		if (ZombieTankSpawner.instance != null && AmountEnemyTanks < 1 && ZombieTankSpawner.instance.Wave < 1 && isZombieMode && !NAS.playingAnimation)
+		{
+			Debug.LogError("Loading first lvl");
+			NAS.NextRound();
+		}
 	}
 
 	private void Update()
 	{
-		if (!Input.GetKeyDown(KeyCode.U) || Input.GetKey(KeyCode.LeftShift))
-		{
-		}
 		if (inOnlineMode || (bool)CM)
 		{
 			return;
@@ -510,25 +663,25 @@ public class GameMaster : MonoBehaviour
 		{
 			if (numberOfControllers > 0)
 			{
-				int extra = ((!isPlayingWithController) ? 1 : 0);
+				int num = ((!isPlayingWithController) ? 1 : 0);
 				if (PlayerModeWithAI[1] == 1)
 				{
-					extra++;
+					num++;
 				}
 				if (PlayerModeWithAI[2] == 1)
 				{
-					extra++;
+					num++;
 				}
 				if (PlayerModeWithAI[3] == 1)
 				{
-					extra++;
+					num++;
 				}
-				int amount = numberOfControllers + extra;
-				if (amount > 4)
+				int num2 = numberOfControllers + num;
+				if (num2 > 4)
 				{
-					amount = 4;
+					num2 = 4;
 				}
-				for (int i = 0; i < amount; i++)
+				for (int i = 0; i < num2; i++)
 				{
 					if (PlayerJoined[i] || PlayerJoining[i] || PlayerLeftCooldown || !ReInput.players.GetPlayer(i).GetButtonDown("Escape"))
 					{
@@ -550,73 +703,11 @@ public class GameMaster : MonoBehaviour
 					}
 				}
 			}
-			if (Players.Count < 1 && !MapEditorMaster.instance && PlayerAlive && (GameHasStarted || isZombieMode))
-			{
-				Debug.LogWarning("PlayerDead!!");
-				if (inMapEditor && !isResettingTestLevel)
-				{
-					ResetMapEditorMap(skip: false);
-					return;
-				}
-				if ((AmountEnemyTanks < 1 || CurrentMission == 99) && !Victory && levelIsLoaded && !isZombieMode && !inMapEditor)
-				{
-					if (Bosses.Length != 0 && CurrentMission == 99 && Bosses[0] != null)
-					{
-						if (Lives > 1)
-						{
-							CameraFollowPlayer CFP = Camera.main.transform.parent.gameObject.GetComponent<CameraFollowPlayer>();
-							PlaneMaster PM = GetComponent<PlaneMaster>();
-							if ((bool)PM)
-							{
-								PM.SpawnInOrder.Clear();
-								PM.PS.isFlying = false;
-								PM.PS.transform.position = Vector3.zero;
-							}
-							GameObject Level100 = GameObject.Find("LEVEL_100(Clone)");
-							if ((bool)Level100)
-							{
-								MissionHundredController MHC = Level100.GetComponent<MissionHundredController>();
-								if ((bool)MHC)
-								{
-									MHC.PlayerDied();
-								}
-							}
-							CFP.enabled = true;
-							totalDefeats++;
-							AccountMaster.instance.SaveCloudData(2, 1, 0, bounceKill: false);
-							SaveData(skipCloud: false);
-							PlayerAlive = false;
-							musicScript.Defeat();
-							GameHasStarted = false;
-							ResetLevel();
-							StartCoroutine(startTheGame());
-							Lives--;
-						}
-						else
-						{
-							PlayerAlive = false;
-							defeated();
-						}
-					}
-					else
-					{
-						CheckSecretMission();
-						totalWins++;
-						AccountMaster.instance.SaveCloudData(1, 1, 0, bounceKill: false);
-						SaveData(skipCloud: false);
-						EndTheGame();
-					}
-					return;
-				}
-				PlayerAlive = false;
-				defeated();
-			}
 			if (inTankeyTown)
 			{
 				FindPlayers();
-				return;
 			}
-			if (!isZombieMode && !inMapEditor && !inTankeyTown)
+			else if (!isZombieMode && !inMapEditor && !inTankeyTown)
 			{
 				if (GameHasStarted)
 				{
@@ -628,163 +719,77 @@ public class GameMaster : MonoBehaviour
 					TanksLeft_Text.text = "Tanks left: " + Lives;
 				}
 			}
-			else if (isZombieMode)
+			else
 			{
+				if (!isZombieMode)
+				{
+					return;
+				}
 				Mission_Text.text = "Wave " + ZombieTankSpawner.instance.Wave;
 				MissionName_Text.text = "";
 				Tanks_Text.text = "x " + AmountEnemyTanks;
-				NewOrchestra orchestra = GameObject.FindGameObjectWithTag("Orchestra").GetComponent<NewOrchestra>();
-				if (orchestra != null)
+				NewOrchestra component = GameObject.FindGameObjectWithTag("Orchestra").GetComponent<NewOrchestra>();
+				if (component != null)
 				{
-					if (orchestra.isPlaying && !GameHasStarted)
+					if (component.isPlaying && !GameHasStarted)
 					{
-						orchestra.StopPlaying();
+						component.StopPlaying();
 					}
-					else if (!orchestra.isPlaying && GameHasStarted)
+					else if (!component.isPlaying && GameHasStarted)
 					{
-						orchestra.StartPlaying();
-					}
-				}
-			}
-			if (AmountEnemyTanks < 1 && !Victory && levelIsLoaded && !inTankeyTown && !isZombieMode && !inMapEditor && !MapEditorMaster.instance)
-			{
-				if (CurrentMission < 99)
-				{
-					CheckSecretMission();
-					totalWins++;
-					AccountMaster.instance.SaveCloudData(1, 1, 0, bounceKill: false);
-					SaveData(skipCloud: false);
-					EndTheGame();
-				}
-				return;
-			}
-			if (!Victory && levelIsLoaded && GameHasStarted && (bool)MapEditorMaster.instance && !inMapEditor && !inTankeyTown)
-			{
-				int AmountTeamsAlive2 = 0;
-				int[] TeamsThatAreAlive = new int[5];
-				for (int l = 0; l < AmountTeamTanks.Length; l++)
-				{
-					if (AmountTeamTanks[l] > 0)
-					{
-						AmountTeamsAlive2++;
-						TeamsThatAreAlive[l] = 1;
-					}
-					if (AmountTeamTanks[0] > 1)
-					{
-						AmountTeamsAlive2 = 900;
-						TeamsThatAreAlive[l] = 1;
+						component.StartPlaying();
 					}
 				}
-				int PlayersAlive = 0;
-				for (int k = 0; k < PlayerJoined.Count; k++)
-				{
-					if (PlayerJoined[k])
-					{
-						PlayersAlive++;
-						if (PlayerDied[k] && (AmountTeamTanks[PlayerTeamColor[k]] < 1 || PlayerTeamColor[k] == 0))
-						{
-							PlayersAlive--;
-						}
-					}
-				}
-				if (PlayersAlive < 1)
-				{
-					PlayerAlive = false;
-					defeated();
-					return;
-				}
-				if (AmountTeamsAlive2 < 2)
-				{
-					EndTheGame();
-					return;
-				}
-			}
-			if (!isZombieMode && inMapEditor && GameHasStarted && !isResettingTestLevel)
-			{
-				int AmountTeamsAlive = 0;
-				for (int j = 0; j < AmountTeamTanks.Length; j++)
-				{
-					if (AmountTeamTanks[j] > 0)
-					{
-						AmountTeamsAlive++;
-					}
-					if (AmountTeamTanks[0] > 1)
-					{
-						AmountTeamsAlive = 900;
-					}
-				}
-				if (AmountTeamsAlive < 2)
-				{
-					isResettingTestLevel = true;
-					MapEditorMaster.instance.TeleportationFields.SetActive(value: false);
-					ResetMapEditorMap(skip: false);
-					return;
-				}
-			}
-			if (AmountEnemyTanks < 1 && !levelIsLoaded && !isZombieMode && !inMapEditor && !NAS.playingAnimation)
-			{
-				NAS.NextRound();
-			}
-			if (ZombieTankSpawner.instance != null && AmountEnemyTanks < 1 && ZombieTankSpawner.instance.Wave < 1 && isZombieMode && !NAS.playingAnimation)
-			{
-				Debug.LogError("Loading first lvl");
-				NAS.NextRound();
 			}
 		}
 		else
 		{
-			if (!inMenuMode)
-			{
-				return;
-			}
-			GameObject[] enemieTanks = GameObject.FindGameObjectsWithTag("Enemy");
-			if (enemieTanks.Length >= 1)
+			if (!inMenuMode || DevModeActive || GameObject.FindGameObjectsWithTag("Enemy").Length >= 1)
 			{
 				return;
 			}
 			UnityEngine.Object.Destroy(currentLoadedLevel);
-			GameObject[] Temps = GameObject.FindGameObjectsWithTag("Temp");
-			GameObject[] Bullets = GameObject.FindGameObjectsWithTag("Bullet");
-			GameObject[] Mines = GameObject.FindGameObjectsWithTag("Mine");
-			GameObject[] all = Temps.Concat(Bullets).Concat(Mines).ToArray();
-			GameObject[] array = all;
-			foreach (GameObject Temp in array)
+			GameObject[] first = GameObject.FindGameObjectsWithTag("Temp");
+			GameObject[] second = GameObject.FindGameObjectsWithTag("Bullet");
+			GameObject[] array = Enumerable.Concat(second: GameObject.FindGameObjectsWithTag("Mine"), first: first.Concat(second)).ToArray();
+			for (int j = 0; j < array.Length; j++)
 			{
-				UnityEngine.Object.Destroy(Temp);
+				UnityEngine.Object.Destroy(array[j]);
 			}
-			int chosen = 0;
-			int chosenLvl = 0;
-			int missionReached = maxMissionReached;
-			if (missionReached < maxMissionReachedHard)
+			int num3 = 0;
+			int num4 = maxMissionReached;
+			if (num4 < maxMissionReachedHard)
 			{
-				missionReached = maxMissionReachedHard;
+				num4 = maxMissionReachedHard;
 			}
-			if (missionReached < maxMissionReachedKid)
+			if (num4 < maxMissionReachedKid)
 			{
-				missionReached = maxMissionReachedKid;
+				num4 = maxMissionReachedKid;
 			}
-			int calcMission = Mathf.CeilToInt((float)missionReached / 10f) * 10;
-			int roundedMission = ((maxMissionReached < 1) ? 10 : calcMission);
-			if (roundedMission < 1)
+			int num5 = Mathf.CeilToInt((float)num4 / 10f) * 10;
+			if (maxMissionReached < 1)
 			{
-				roundedMission = 0;
+				_ = 10;
 			}
-			chosenLvl = UnityEngine.Random.Range(0, Levels.Count);
-			GameObject newLevel = UnityEngine.Object.Instantiate(Levels[chosenLvl], lvlPos, Quaternion.identity);
-			newLevel.SetActive(value: true);
-			currentLoadedLevel = newLevel;
-			GameObject[] array2 = GameObject.FindGameObjectsWithTag("Player");
-			foreach (GameObject players in array2)
+			else
+				_ = num5;
+			_ = 1;
+			num3 = UnityEngine.Random.Range(0, Levels.Count);
+			GameObject gameObject = UnityEngine.Object.Instantiate(Levels[num3], lvlPos, Quaternion.identity);
+			gameObject.SetActive(value: true);
+			currentLoadedLevel = gameObject;
+			array = GameObject.FindGameObjectsWithTag("Player");
+			for (int j = 0; j < array.Length; j++)
 			{
-				UnityEngine.Object.Destroy(players.transform.parent.gameObject);
+				UnityEngine.Object.Destroy(array[j].transform.parent.gameObject);
 			}
-			GameObject[] array3 = GameObject.FindGameObjectsWithTag("Enemy");
-			foreach (GameObject Enemy in array3)
+			array = GameObject.FindGameObjectsWithTag("Enemy");
+			for (int j = 0; j < array.Length; j++)
 			{
-				EnemyTargetingSystemNew ETSN = Enemy.transform.parent.GetChild(1).GetChild(0).GetComponent<EnemyTargetingSystemNew>();
-				if ((bool)ETSN)
+				EnemyTargetingSystemNew component2 = array[j].transform.parent.GetChild(1).GetChild(0).GetComponent<EnemyTargetingSystemNew>();
+				if ((bool)component2)
 				{
-					ETSN.isHuntingEnemies = true;
+					component2.isHuntingEnemies = true;
 				}
 			}
 		}
@@ -805,29 +810,29 @@ public class GameMaster : MonoBehaviour
 
 	public Vector3 GetValidLocation(bool CheckForDist, float minimalDist, Vector3 CallerPos, bool TargetPlayer)
 	{
-		Vector3 PickedLocation = Vector3.zero;
-		int SizeX = 0;
-		int SizeY = 0;
-		bool canTeleport = false;
+		Vector3 vector = Vector3.zero;
+		int num = 0;
+		int maxExclusive = 0;
+		bool flag = false;
 		if (OptionsMainMenu.instance.MapSize == 180)
 		{
-			SizeX = 14;
-			SizeY = 11;
+			num = 14;
+			maxExclusive = 11;
 		}
 		else if (OptionsMainMenu.instance.MapSize == 285)
 		{
-			SizeX = 18;
-			SizeY = 14;
+			num = 18;
+			maxExclusive = 14;
 		}
 		else if (OptionsMainMenu.instance.MapSize == 374)
 		{
-			SizeX = 21;
-			SizeY = 16;
+			num = 21;
+			maxExclusive = 16;
 		}
 		else if (OptionsMainMenu.instance.MapSize == 475)
 		{
-			SizeX = 24;
-			SizeY = 18;
+			num = 24;
+			maxExclusive = 18;
 		}
 		if (MapCornerObject == null)
 		{
@@ -835,70 +840,67 @@ public class GameMaster : MonoBehaviour
 		}
 		for (int i = 0; i < 140; i++)
 		{
-			int RandomXPos = UnityEngine.Random.Range(0, SizeX);
-			int RandomYPos = UnityEngine.Random.Range(0, SizeY);
-			bool NextIteration = false;
+			int num2 = UnityEngine.Random.Range(0, num);
+			int num3 = UnityEngine.Random.Range(0, maxExclusive);
+			bool flag2 = false;
 			if (MapCornerObject == null)
 			{
 				Debug.Log("NO ALL FIELDS");
-				canTeleport = false;
+				flag = false;
 				break;
 			}
-			PickedLocation = MapCornerObject.transform.GetChild(0).position + new Vector3(RandomXPos * 2, 0f, -RandomYPos * 2);
-			Collider[] objectsInRange;
+			vector = MapCornerObject.transform.GetChild(0).position + new Vector3(num2 * 2, 0f, -num3 * 2);
+			Collider[] array;
 			if (minimalDist > 9999f && !TargetPlayer)
 			{
-				objectsInRange = Physics.OverlapSphere(PickedLocation, 0.5f);
-				Collider[] array = objectsInRange;
-				foreach (Collider col3 in array)
+				array = Physics.OverlapSphere(vector, 0.5f);
+				for (int j = 0; j < array.Length; j++)
 				{
-					if (col3.tag == "Solid")
+					if (array[j].tag == "Solid")
 					{
-						NextIteration = true;
+						flag2 = true;
 						break;
 					}
 				}
 			}
 			else if (!TargetPlayer)
 			{
-				objectsInRange = Physics.OverlapSphere(PickedLocation, 1f);
-				Collider[] array2 = objectsInRange;
-				foreach (Collider col2 in array2)
+				array = Physics.OverlapSphere(vector, 1f);
+				foreach (Collider collider in array)
 				{
-					if (col2.tag == "Solid" || col2.tag == "MapBorder")
+					if (collider.tag == "Solid" || collider.tag == "MapBorder")
 					{
-						NextIteration = true;
+						flag2 = true;
 						break;
 					}
 				}
 			}
-			int ChildPos = RandomYPos * (SizeX + 1) + RandomXPos;
-			PathfindingBlock PB = MapCornerObject.transform.GetChild(ChildPos).GetComponent<PathfindingBlock>();
-			if ((bool)PB && PB.SolidInMe)
+			int index = num3 * (num + 1) + num2;
+			PathfindingBlock component = MapCornerObject.transform.GetChild(index).GetComponent<PathfindingBlock>();
+			if ((bool)component && component.SolidInMe)
 			{
-				NextIteration = true;
+				flag2 = true;
 			}
-			if (NextIteration)
+			if (flag2)
 			{
 				continue;
 			}
-			objectsInRange = Physics.OverlapSphere(PickedLocation, 3f);
-			Collider[] array3 = objectsInRange;
-			foreach (Collider col in array3)
+			array = Physics.OverlapSphere(vector, 3f);
+			foreach (Collider collider2 in array)
 			{
-				if (col.tag == "Player" && TargetPlayer)
+				if (collider2.tag == "Player" && TargetPlayer)
 				{
-					NextIteration = false;
-					canTeleport = true;
+					flag2 = false;
+					flag = true;
 					break;
 				}
-				if (col.tag == "Player" || col.tag == "Boss" || col.tag == "Mine" || col.tag == "Bullet")
+				if (collider2.tag == "Player" || collider2.tag == "Boss" || collider2.tag == "Mine" || collider2.tag == "Bullet")
 				{
-					NextIteration = true;
+					flag2 = true;
 					break;
 				}
 			}
-			if (NextIteration)
+			if (flag2)
 			{
 				continue;
 			}
@@ -906,27 +908,25 @@ public class GameMaster : MonoBehaviour
 			{
 				if (!CheckForDist)
 				{
-					canTeleport = true;
+					flag = true;
 					break;
 				}
-				float dist = Vector3.Distance(CallerPos, PickedLocation);
-				if (!(dist < minimalDist))
+				if (!(Vector3.Distance(CallerPos, vector) < minimalDist))
 				{
-					canTeleport = true;
+					flag = true;
 					break;
 				}
-				canTeleport = false;
+				flag = false;
 			}
-			else if (canTeleport)
+			else if (flag)
 			{
 				break;
 			}
 		}
-		if (canTeleport)
+		if (flag)
 		{
-			return PickedLocation;
+			return vector;
 		}
-		Debug.Log("FOUND NO SPOT");
 		return Vector3.zero;
 	}
 
@@ -936,32 +936,32 @@ public class GameMaster : MonoBehaviour
 		{
 			return Vector3.zero;
 		}
-		Vector3 PickedLocation = Vector3.zero;
+		Vector3 vector = Vector3.zero;
 		for (int i = 0; i < 100; i++)
 		{
-			bool NextIteration = false;
-			Transform PickedTarget = targets[UnityEngine.Random.Range(0, targets.Length)];
-			PathfindingBlock PickedBlock = PickedTarget.GetComponent<DrawGizmos>().myPB;
-			if (PickedTarget.GetComponent<DrawGizmos>().Picked)
+			bool flag = false;
+			Transform transform = targets[UnityEngine.Random.Range(0, targets.Length)];
+			PathfindingBlock myPB = transform.GetComponent<DrawGizmos>().myPB;
+			if (transform.GetComponent<DrawGizmos>().Picked)
 			{
-				NextIteration = true;
+				flag = true;
 			}
-			if ((bool)PickedBlock && PickedBlock.SolidInMe)
+			if ((bool)myPB && myPB.SolidInMe)
 			{
-				NextIteration = true;
+				flag = true;
 			}
-			if (!NextIteration && !NextIteration)
+			if (!flag && !flag)
 			{
-				PickedLocation = PickedTarget.position;
-				PickedTarget.GetComponent<DrawGizmos>().GotPicked();
+				vector = transform.position;
+				transform.GetComponent<DrawGizmos>().GotPicked();
 				break;
 			}
 		}
-		if (PickedLocation == Vector3.zero)
+		if (vector == Vector3.zero)
 		{
 			Debug.LogError("GOT A ZERO LOCATION ERROR!");
 		}
-		return PickedLocation;
+		return vector;
 	}
 
 	public void LoadSurvivalMap()
@@ -969,9 +969,9 @@ public class GameMaster : MonoBehaviour
 		Levels[OptionsMainMenu.instance.StartLevel].SetActive(value: true);
 		Players.Clear();
 		GameObject[] array = GameObject.FindGameObjectsWithTag("Player");
-		foreach (GameObject Player in array)
+		foreach (GameObject item in array)
 		{
-			Players.Add(Player);
+			Players.Add(item);
 		}
 	}
 
@@ -983,6 +983,10 @@ public class GameMaster : MonoBehaviour
 			if (!FoundSecretMissions.Contains(CurrentMission))
 			{
 				FoundSecretMissions.Add(CurrentMission);
+			}
+			if (!AccountMaster.instance.PDO.foundSecretMissions.Contains(CurrentMission))
+			{
+				AccountMaster.instance.PDO.foundSecretMissions.Add(CurrentMission);
 			}
 			if (FoundSecretMissions.Count > 10 && (bool)AchievementsTracker.instance)
 			{
@@ -1001,12 +1005,12 @@ public class GameMaster : MonoBehaviour
 			AchievementsTracker.instance.ResetVariables();
 		}
 		CurrentMission++;
-		bool GameFinished = false;
+		bool flag = false;
 		OnlyCompanionLeft = false;
 		if (CurrentMission == lastMissionNumber)
 		{
 			musicScript.StopMusic();
-			GameFinished = true;
+			flag = true;
 		}
 		else if (MapEditorMaster.instance != null)
 		{
@@ -1019,7 +1023,7 @@ public class GameMaster : MonoBehaviour
 				else
 				{
 					musicScript.StopMusic();
-					GameFinished = true;
+					flag = true;
 				}
 			}
 			else
@@ -1034,8 +1038,8 @@ public class GameMaster : MonoBehaviour
 			{
 				for (int i = 0; i < AchievementsTracker.instance.MissionUnlocked.Length; i++)
 				{
-					int missionnumber = AchievementsTracker.instance.MissionUnlocked[i] + 1;
-					if (maxMissionReached <= missionnumber && maxMissionReachedHard <= missionnumber && (maxMissionReached == missionnumber || maxMissionReachedHard == missionnumber) && !OptionsMainMenu.instance.MapEditorTankMessagesReceived[i])
+					int num = AchievementsTracker.instance.MissionUnlocked[i] + 1;
+					if (maxMissionReached <= num && maxMissionReachedHard <= num && (maxMissionReached == num || maxMissionReachedHard == num) && !OptionsMainMenu.instance.MapEditorTankMessagesReceived[i])
 					{
 						OptionsMainMenu.instance.MapEditorTankMessagesReceived[i] = true;
 						OptionsMainMenu.instance.SaveNewData();
@@ -1044,7 +1048,7 @@ public class GameMaster : MonoBehaviour
 				}
 			}
 		}
-		if (!GameFinished)
+		if (!flag)
 		{
 			if (CurrentMission % 5 == 0 && CurrentMission != 0 && CurrentMission % 10 != 0)
 			{
@@ -1071,52 +1075,52 @@ public class GameMaster : MonoBehaviour
 
 	public IEnumerator GetTankTeamData(bool fast)
 	{
-		float waittime = (fast ? 0.01f : 0.1f);
-		yield return new WaitForSeconds(waittime);
+		Debug.Log("getting team data...");
+		float seconds = (fast ? 0.01f : 0.1f);
+		yield return new WaitForSeconds(seconds);
 		for (int i = 0; i < AmountTeamTanks.Length; i++)
 		{
 			AmountTeamTanks[i] = 0;
 		}
-		GameObject[] AllEnemies = GameObject.FindGameObjectsWithTag("Enemy");
-		GameObject[] array = AllEnemies;
-		foreach (GameObject Enemy in array)
+		GameObject[] array = GameObject.FindGameObjectsWithTag("Enemy");
+		for (int j = 0; j < array.Length; j++)
 		{
-			EnemyAI EA = Enemy.GetComponent<EnemyAI>();
-			if ((bool)EA)
+			EnemyAI component = array[j].GetComponent<EnemyAI>();
+			if ((bool)component)
 			{
-				AmountTeamTanks[EA.MyTeam]++;
+				AmountTeamTanks[component.MyTeam]++;
 			}
 		}
-		GameObject[] AllPlayers = GameObject.FindGameObjectsWithTag("Player");
-		GameObject[] array2 = AllPlayers;
-		foreach (GameObject Player in array2)
+		array = GameObject.FindGameObjectsWithTag("Player");
+		foreach (GameObject gameObject in array)
 		{
-			MoveTankScript MTS = Player.GetComponent<MoveTankScript>();
-			if ((bool)MTS)
+			MoveTankScript component2 = gameObject.GetComponent<MoveTankScript>();
+			if ((bool)component2)
 			{
-				AmountTeamTanks[MTS.MyTeam]++;
-				PlayerTeamColor[MTS.playerId] = MTS.MyTeam;
+				AmountTeamTanks[component2.MyTeam]++;
+				PlayerTeamColor[component2.playerId] = component2.MyTeam;
 				continue;
 			}
-			EnemyAI EA2 = Player.GetComponent<EnemyAI>();
-			if ((bool)EA2)
+			EnemyAI component3 = gameObject.GetComponent<EnemyAI>();
+			if ((bool)component3)
 			{
-				AmountTeamTanks[EA2.MyTeam]++;
-				PlayerTeamColor[1] = EA2.MyTeam;
+				AmountTeamTanks[component3.MyTeam]++;
+				PlayerTeamColor[1] = component3.MyTeam;
 			}
 		}
-		if (!(MapEditorMaster.instance != null))
+		if (MapEditorMaster.instance != null)
 		{
-			yield break;
-		}
-		AmountEnemyTanks = 0;
-		for (int j = 0; j < AmountTeamTanks.Length; j++)
-		{
-			if (j != PlayerTeamColor[0] || PlayerTeamColor[0] == 0)
+			AmountEnemyTanks = 0;
+			for (int k = 0; k < AmountTeamTanks.Length; k++)
 			{
-				AmountEnemyTanks += AmountTeamTanks[j];
+				if (k != PlayerTeamColor[0] || PlayerTeamColor[0] == 0)
+				{
+					AmountEnemyTanks += AmountTeamTanks[k];
+				}
 			}
 		}
+		Debug.Log("GAME STATE 22");
+		CheckGameState();
 	}
 
 	private void HandlePlayerQueue()
@@ -1188,41 +1192,41 @@ public class GameMaster : MonoBehaviour
 		if (TrainLevelBlocks.Length != 0)
 		{
 			GameObject[] trainLevelBlocks = TrainLevelBlocks;
-			foreach (GameObject TrainLevelBlock in trainLevelBlocks)
+			foreach (GameObject gameObject in trainLevelBlocks)
 			{
-				TrainLevelBlock.SetActive(value: true);
-				if (TrainLevelBlock.transform.tag == "Snow" && !OptionsMainMenu.instance.SnowMode)
+				gameObject.SetActive(value: true);
+				if (gameObject.transform.tag == "Snow" && !OptionsMainMenu.instance.SnowMode)
 				{
-					TrainLevelBlock.SetActive(value: false);
+					gameObject.SetActive(value: false);
 				}
 			}
 		}
-		bool makeNight = false;
-		foreach (int NL in NightLevels)
+		bool flag = false;
+		foreach (int nightLevel in NightLevels)
 		{
-			if (CurrentMission == NL)
+			if (CurrentMission == nightLevel)
 			{
-				makeNight = true;
+				flag = true;
 				CloudGeneration.instance.MakeItDark();
 				break;
 			}
 		}
-		if ((bool)MapEditorMaster.instance)
+		if ((bool)MapEditorMaster.instance && MapEditorMaster.instance.Properties.Find((MapEditorMaster.MissionProperties x) => x.MissionNumber == CurrentMission) != null)
 		{
-			CloudGeneration.instance.StartCoroutine(CloudGeneration.instance.SetWeatherType(MapEditorMaster.instance.WeatherTypes[CurrentMission], force: false));
+			CloudGeneration.instance.StartCoroutine(CloudGeneration.instance.SetWeatherType(MapEditorMaster.instance.Properties.Find((MapEditorMaster.MissionProperties x) => x.MissionNumber == CurrentMission).WeatherType, force: false));
 		}
-		if (!makeNight)
+		if (!flag)
 		{
 			CloudGeneration.instance.MakeItDay();
 		}
-		foreach (int TL in TrainLevels)
+		foreach (int trainLevel in TrainLevels)
 		{
-			if (CurrentMission == TL)
+			if (CurrentMission == trainLevel)
 			{
-				GameObject[] trainLevelBlocks2 = TrainLevelBlocks;
-				foreach (GameObject TrainLevelBlock2 in trainLevelBlocks2)
+				GameObject[] trainLevelBlocks = TrainLevelBlocks;
+				for (int k = 0; k < trainLevelBlocks.Length; k++)
 				{
-					TrainLevelBlock2.SetActive(value: false);
+					trainLevelBlocks[k].SetActive(value: false);
 				}
 				break;
 			}
@@ -1255,10 +1259,9 @@ public class GameMaster : MonoBehaviour
 		{
 			Debug.Log("Loading custom map!");
 			Stream stream = new MemoryStream(LevelsText[CurrentMission].bytes);
-			BinaryFormatter formatter = new BinaryFormatter();
-			SingleMapEditorData data = formatter.Deserialize(stream) as SingleMapEditorData;
+			SingleMapEditorData sMED = new BinaryFormatter().Deserialize(stream) as SingleMapEditorData;
 			stream.Close();
-			currentLoadedLevel = GetComponent<LoadCampaignMap>().LoadMap(data, CurrentMission);
+			currentLoadedLevel = GetComponent<LoadCampaignMap>().LoadMap(sMED, CurrentMission);
 			if ((bool)currentLoadedLevel)
 			{
 				SetPlayerPosition("Main_Tank_FBX(Clone)", "Second_Tank_FBX(Clone)", "Third_Tank_FBX(Clone)", "Fourth_Tank_FBX(Clone)");
@@ -1287,13 +1290,12 @@ public class GameMaster : MonoBehaviour
 				SetPlayerPosition("Main_Tank_Prop(Clone)", "Second_Tank_Prop(Clone)", "Third_Tank_Prop(Clone)", "Fourth_Tank_Prop(Clone)");
 			}
 		}
-		for (int k = 0; k < CampaignPressurePlates.Count; k++)
+		for (int l = 0; l < CampaignPressurePlates.Count; l++)
 		{
-			if (CampaignPressurePlates[k].MissionNumber == CurrentMission + 1)
+			if (CampaignPressurePlates[l].MissionNumber == CurrentMission + 1)
 			{
 				Debug.Log("PRESSURE PLATE SPAWNED");
-				GameObject NewPressurePlate = UnityEngine.Object.Instantiate(PressurePlate, CampaignPressurePlates[k].position, Quaternion.Euler(0f, 0f, 90f));
-				NewPressurePlate.transform.SetParent(currentLoadedLevel.transform);
+				UnityEngine.Object.Instantiate(PressurePlate, CampaignPressurePlates[l].position, Quaternion.Euler(0f, 0f, 90f)).transform.SetParent(currentLoadedLevel.transform);
 			}
 		}
 		FindPlayers();
@@ -1326,23 +1328,23 @@ public class GameMaster : MonoBehaviour
 		if (CurrentMission == 99 && MapEditorMaster.instance == null)
 		{
 			mapBorders.SetActive(value: false);
-			CameraFollowPlayer CFP = Camera.main.transform.parent.GetComponent<CameraFollowPlayer>();
-			if ((bool)CFP)
+			CameraFollowPlayer component = Camera.main.transform.parent.GetComponent<CameraFollowPlayer>();
+			if ((bool)component)
 			{
-				CFP.enabled = true;
+				component.enabled = true;
 			}
 		}
 		if (MapEditorMaster.instance != null)
 		{
 			StartCoroutine(DisableGameDelay());
-			if (MapEditorMaster.instance.MissionFloorTextures.Length != 0)
+			if (MapEditorMaster.instance.Properties.Count > 0)
 			{
-				LoadModTexture LMT = instance.floor.GetComponent<LoadModTexture>();
-				if ((bool)LMT && LMT.IsModded)
+				LoadModTexture component2 = instance.floor.GetComponent<LoadModTexture>();
+				if ((bool)component2 && component2.IsModded)
 				{
 					return;
 				}
-				floor.GetComponent<MeshRenderer>().material = MapEditorMaster.instance.FloorMaterials[MapEditorMaster.instance.MissionFloorTextures[CurrentMission]];
+				floor.GetComponent<MeshRenderer>().material = MapEditorMaster.instance.FloorMaterials[MapEditorMaster.instance.Properties.Find((MapEditorMaster.MissionProperties x) => x.MissionNumber == CurrentMission).MissionFloorTexture];
 			}
 			if (MapEditorMaster.instance.NoBordersMissions.Count > 0)
 			{
@@ -1377,9 +1379,9 @@ public class GameMaster : MonoBehaviour
 		{
 			return;
 		}
-		foreach (GameObject Player in Players)
+		foreach (GameObject player in Players)
 		{
-			Debug.Log("Current player before change:" + Player.name);
+			Debug.Log("Current player before change:" + player.name);
 		}
 		if ((!OptionsMainMenu.instance.AIcompanion[1] && !OptionsMainMenu.instance.AIcompanion[2] && !OptionsMainMenu.instance.AIcompanion[3]) || (bool)CM)
 		{
@@ -1406,43 +1408,42 @@ public class GameMaster : MonoBehaviour
 
 	private void ChangePlayerToAI(int playerIndex, int playerType)
 	{
-		Vector3 newPos = Players[playerIndex].transform.position;
-		Quaternion theRot = Players[playerIndex].transform.rotation;
-		GameObject AIplayer = UnityEngine.Object.Instantiate(playerType switch
+		Vector3 position = Players[playerIndex].transform.position;
+		Quaternion rotation = Players[playerIndex].transform.rotation;
+		GameObject gameObject = UnityEngine.Object.Instantiate(playerType switch
 		{
 			2 => AIPlayer3Prefab, 
 			1 => AIPlayer2Prefab, 
 			_ => AIPlayer4Prefab, 
-		}, newPos, theRot, Players[playerIndex].transform.parent.transform.parent);
+		}, position, rotation, Players[playerIndex].transform.parent.transform.parent);
 		if ((bool)MapEditorMaster.instance)
 		{
-			MapEditorGridPiece HisMEGP = Players[playerIndex].GetComponent<MapEditorProp>().myMEGP;
-			MapEditorProp MEP = AIplayer.transform.GetChild(0).gameObject.AddComponent<MapEditorProp>();
-			EnemyAI EA = AIplayer.transform.GetChild(0).gameObject.GetComponent<EnemyAI>();
-			EA.MyTeam = Players[playerIndex].GetComponent<MapEditorProp>().TeamNumber;
-			MEP.TeamNumber = Players[playerIndex].GetComponent<MapEditorProp>().TeamNumber;
+			MapEditorGridPiece myMEGP = Players[playerIndex].GetComponent<MapEditorProp>().myMEGP;
+			MapEditorProp mapEditorProp = gameObject.transform.GetChild(0).gameObject.AddComponent<MapEditorProp>();
+			gameObject.transform.GetChild(0).gameObject.GetComponent<EnemyAI>().MyTeam = Players[playerIndex].GetComponent<MapEditorProp>().TeamNumber;
+			mapEditorProp.TeamNumber = Players[playerIndex].GetComponent<MapEditorProp>().TeamNumber;
 			if (playerType == 1)
 			{
-				MEP.isPlayerTwo = true;
+				mapEditorProp.isPlayerTwo = true;
 			}
 			if (playerType == 2)
 			{
-				MEP.isPlayerThree = true;
+				mapEditorProp.isPlayerThree = true;
 			}
 			if (playerType == 3)
 			{
-				MEP.isPlayerFour = true;
+				mapEditorProp.isPlayerFour = true;
 			}
-			Renderer[] array = (MEP.myRends = new MeshRenderer[1]);
-			MEP.myRends[0] = MEP.transform.Find("Cube.003").GetComponent<MeshRenderer>();
-			MEP.OriginalBodyColor = MEP.myRends[0].materials[0].color;
-			MEP.TeamNumber = HisMEGP.MyTeamNumber;
+			Renderer[] array = (mapEditorProp.myRends = new MeshRenderer[1]);
+			mapEditorProp.myRends[0] = mapEditorProp.transform.Find("Cube.003").GetComponent<MeshRenderer>();
+			mapEditorProp.OriginalBodyColor = mapEditorProp.myRends[0].materials[0].color;
+			mapEditorProp.TeamNumber = myMEGP.MyTeamNumber;
 		}
 		Debug.Log("Destroying player: " + Players[playerIndex].transform.parent.gameObject.name);
 		UnityEngine.Object.Destroy(Players[playerIndex].transform.parent.gameObject);
 		if (CurrentMission == 99 && !MapEditorMaster.instance)
 		{
-			UnityEngine.Object.Destroy(AIplayer);
+			UnityEngine.Object.Destroy(gameObject);
 			AmountGoodTanks = 1;
 		}
 		DisableGame();
@@ -1462,35 +1463,34 @@ public class GameMaster : MonoBehaviour
 		{
 			PlayerDied[i] = false;
 		}
-		foreach (int NL in NightLevels)
+		foreach (int nightLevel in NightLevels)
 		{
-			if (CurrentMission == NL)
+			if (CurrentMission == nightLevel)
 			{
 				CloudGeneration.instance.MakeItDark();
 				break;
 			}
 		}
-		if ((bool)MapEditorMaster.instance && MapEditorMaster.instance.isTesting)
+		if ((bool)MapEditorMaster.instance && MapEditorMaster.instance.isTesting && MapEditorMaster.instance.Properties.Find((MapEditorMaster.MissionProperties x) => x.MissionNumber == CurrentMission) != null)
 		{
-			CloudGeneration.instance.StartCoroutine(CloudGeneration.instance.SetWeatherType(MapEditorMaster.instance.WeatherTypes[CurrentMission], force: false));
+			CloudGeneration.instance.StartCoroutine(CloudGeneration.instance.SetWeatherType(MapEditorMaster.instance.Properties.Find((MapEditorMaster.MissionProperties x) => x.MissionNumber == CurrentMission).WeatherType, force: false));
 		}
 		DestroyTemps();
 		AmountEnemyTanks = GameObject.FindGameObjectsWithTag("Enemy").Length + GameObject.FindGameObjectsWithTag("Boss").Length;
 		StartCoroutine(GetTankTeamData(fast: false));
 		Debug.LogError("Lets start the test!");
-		AudioSource mySrc = Camera.main.GetComponent<AudioSource>();
-		mySrc.volume = 0f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
+		Camera.main.GetComponent<AudioSource>().volume = 0f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
 		AmountGoodTanks = PlayerJoined.Count;
 		SetPlayerPosition("Main_Tank_Prop(Clone)", "Second_Tank_Prop(Clone)", "Third_Tank_Prop(Clone)", "Fourth_Tank_Prop(Clone)");
 		UpdatePlayerToAI();
 		FindPlayers();
 		Enemies = new List<GameObject>(GameObject.FindGameObjectsWithTag("Enemy"));
-		foreach (GameObject Enemy in Enemies)
+		foreach (GameObject enemy in Enemies)
 		{
-			MapEditorProp MEP = Enemy.GetComponent<MapEditorProp>();
-			if ((bool)MEP && MEP.MyDifficultySpawn > OptionsMainMenu.instance.currentDifficulty)
+			MapEditorProp component = enemy.GetComponent<MapEditorProp>();
+			if ((bool)component && component.MyDifficultySpawn > OptionsMainMenu.instance.currentDifficulty)
 			{
-				Enemy.transform.parent.transform.gameObject.SetActive(value: false);
+				enemy.transform.parent.transform.gameObject.SetActive(value: false);
 			}
 		}
 		levelIsLoaded = true;
@@ -1498,85 +1498,11 @@ public class GameMaster : MonoBehaviour
 		BreakableHalfBlocksLocations.Clear();
 		StoneBlocksLocations.Clear();
 		TNTLocations.Clear();
-		GetBreakableBlocksLocations(Levels[CurrentMission]);
 		DisableGame();
 		MapEditorMaster.instance.CDS.start = true;
 	}
 
-	private IEnumerator ResetTestLevel(bool skip)
-	{
-		DestroyTemps();
-		if (!skip)
-		{
-			yield return new WaitForSeconds(1f);
-		}
-		Debug.Log("Reset test level");
-		CloudGeneration.instance.MakeItDay();
-		CloudGeneration.instance.StartCoroutine(CloudGeneration.instance.SetWeatherType(0, force: true));
-		for (int i = 0; i < PlayerDown.Count; i++)
-		{
-			PlayerDown[i] = false;
-		}
-		GameObject[] mines = GameObject.FindGameObjectsWithTag("Mine");
-		GameObject[] array = mines;
-		foreach (GameObject mine in array)
-		{
-			UnityEngine.Object.Destroy(mine);
-		}
-		AudioSource mySrc = Camera.main.GetComponent<AudioSource>();
-		mySrc.volume = 0.1f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
-		MapEditorMaster.instance.isTesting = false;
-		Animator camAnimator = Camera.main.GetComponent<Animator>();
-		CloudGeneration.instance.StartCoroutine(CloudGeneration.instance.SetWeatherType(0, force: true));
-		camAnimator.SetBool("CameraUp", value: true);
-		camAnimator.SetBool("CameraDownEditor", value: false);
-		camAnimator.SetBool("CameraDown", value: false);
-		GetComponent<AudioSource>().Play();
-		MapEditorMaster.instance.EditingCanvas.SetActive(value: true);
-		GameHasStarted = false;
-		AmountPlayersThatNeedRevive = 0;
-		MapEditorMaster.instance.ErrorField.transform.localPosition = MapEditorMaster.instance.AnimatorStartHeight;
-		for (int j = 0; j < MapEditorMaster.instance.ColorsTeamsPlaced.Length; j++)
-		{
-			MapEditorMaster.instance.ColorsTeamsPlaced[j] = 0;
-		}
-		MapEditorMaster.instance.enemyTanksPlaced[CurrentMission] = 0;
-		MapEditorMaster.instance.playerOnePlaced[CurrentMission] = 0;
-		MapEditorMaster.instance.playerTwoPlaced[CurrentMission] = 0;
-		MapEditorMaster.instance.canPlaceProp = false;
-		MapEditorMaster.instance.StartCoroutine(MapEditorMaster.instance.PlacePropTimer(2f));
-		GameObject[] MapeditorGridPieces = GameObject.FindGameObjectsWithTag("MapeditorField");
-		GameObject[] array2 = MapeditorGridPieces;
-		foreach (GameObject GridPiece in array2)
-		{
-			MapEditorGridPiece MEGP = GridPiece.GetComponent<MapEditorGridPiece>();
-			for (int k = 0; k < 5; k++)
-			{
-				if (MEGP.propOnMe[k])
-				{
-					int TeamNumber = -1;
-					if (MEGP.MyTeamNumber > -1)
-					{
-						TeamNumber = MEGP.MyTeamNumber;
-					}
-					UnityEngine.Object.Destroy(MEGP.myProp[k]);
-					MEGP.propOnMe[k] = false;
-					MEGP.SpawnInProps(MEGP.myPropID[k], MEGP.rotationDirection[k], TeamNumber, k, MEGP.SpawnDifficulty);
-					if (MEGP.myPropID[k] > 5 && MEGP.myPropID[k] < 40)
-					{
-						MapEditorMaster.instance.enemyTanksPlaced[CurrentMission]++;
-					}
-				}
-			}
-		}
-		DestroyTemps();
-		StartCoroutine(TempsDestroy());
-		EnemyTankTracksAudio = 0;
-		musicScript.StopMusic();
-		MapEditorMaster.instance.CDS.gameObject.SetActive(value: false);
-	}
-
-	private IEnumerator TempsDestroy()
+	public IEnumerator TempsDestroy()
 	{
 		yield return new WaitForSeconds(1f);
 		DestroyTemps();
@@ -1586,14 +1512,14 @@ public class GameMaster : MonoBehaviour
 	{
 		for (int i = 0; i < searchPlace.transform.childCount; i++)
 		{
-			DestroyableWall DW = searchPlace.transform.GetChild(i).GetComponent<DestroyableWall>();
-			if (DW != null)
+			DestroyableWall component = searchPlace.transform.GetChild(i).GetComponent<DestroyableWall>();
+			if (component != null)
 			{
-				if (!DW.isHalfSlab)
+				if (!component.isHalfSlab)
 				{
 					BreakableBlocksLocations.Add(searchPlace.transform.GetChild(i).transform.position);
 				}
-				else if (DW.IsStone)
+				else if (component.IsStone)
 				{
 					StoneBlocksLocations.Add(searchPlace.transform.GetChild(i).transform.position);
 				}
@@ -1602,8 +1528,7 @@ public class GameMaster : MonoBehaviour
 					BreakableHalfBlocksLocations.Add(searchPlace.transform.GetChild(i).transform.position);
 				}
 			}
-			ExplosiveBlock EB = searchPlace.transform.GetChild(i).GetComponent<ExplosiveBlock>();
-			if ((bool)EB)
+			if ((bool)searchPlace.transform.GetChild(i).GetComponent<ExplosiveBlock>())
 			{
 				TNTLocations.Add(searchPlace.transform.GetChild(i).transform.position);
 			}
@@ -1613,14 +1538,14 @@ public class GameMaster : MonoBehaviour
 
 	public void DestroyTemps()
 	{
-		GameObject[] others = GameObject.FindGameObjectsWithTag("Temp");
-		GameObject[] mines = GameObject.FindGameObjectsWithTag("Mine");
-		GameObject[] all = others.Concat(mines).ToArray();
-		for (int i = 0; i < all.Length; i++)
+		GameObject[] first = GameObject.FindGameObjectsWithTag("Temp");
+		GameObject[] second = GameObject.FindGameObjectsWithTag("Mine");
+		GameObject[] array = first.Concat(second).ToArray();
+		for (int i = 0; i < array.Length; i++)
 		{
-			if (all[i].transform.parent == null)
+			if (array[i].transform.parent == null)
 			{
-				UnityEngine.Object.Destroy(all[i]);
+				UnityEngine.Object.Destroy(array[i]);
 			}
 		}
 	}
@@ -1638,45 +1563,43 @@ public class GameMaster : MonoBehaviour
 		Enemies = new List<GameObject>(GameObject.FindGameObjectsWithTag("Enemy"));
 		Bosses = GameObject.FindGameObjectsWithTag("Boss");
 		EnemyScripts = GameObject.FindGameObjectsWithTag("EnemyScripting");
-		GameObject[] all = Enemies.Concat(Bosses).Concat(EnemyScripts).Concat(Players)
+		GameObject[] array = Enemies.Concat(Bosses).Concat(EnemyScripts).Concat(Players)
 			.ToArray();
-		List<GameObject> EnemiesToRemove = new List<GameObject>();
-		foreach (GameObject Enemy in Enemies)
+		List<GameObject> list = new List<GameObject>();
+		foreach (GameObject enemy in Enemies)
 		{
-			if ((bool)Enemy)
+			if ((bool)enemy)
 			{
-				EnemyAI EA = Enemy.GetComponent<EnemyAI>();
-				if (EA != null && EA.MyTeam != 2 && Enemies.Contains(EA.gameObject) && MapEditorMaster.instance == null)
+				EnemyAI component = enemy.GetComponent<EnemyAI>();
+				if (component != null && component.MyTeam != 2 && Enemies.Contains(component.gameObject) && MapEditorMaster.instance == null)
 				{
-					EnemiesToRemove.Add(EA.gameObject);
+					list.Add(component.gameObject);
 				}
 			}
 		}
-		foreach (GameObject toremove in EnemiesToRemove)
+		foreach (GameObject item in list)
 		{
-			Enemies.Remove(toremove);
+			Enemies.Remove(item);
 		}
-		for (int i = Enemies.Count - 1; i >= 0; i--)
+		for (int num = Enemies.Count - 1; num >= 0; num--)
 		{
-			if (Enemies[i] == null)
+			if (Enemies[num] == null)
 			{
-				Enemies.RemoveAt(i);
+				Enemies.RemoveAt(num);
 			}
 		}
-		GameObject[] array = all;
-		foreach (GameObject enemy in array)
+		GameObject[] array2 = array;
+		foreach (GameObject gameObject in array2)
 		{
-			MonoBehaviour[] enemyscripts = enemy.GetComponents<MonoBehaviour>();
-			MonoBehaviour[] array2 = enemyscripts;
-			foreach (MonoBehaviour script in array2)
+			MonoBehaviour[] components = gameObject.GetComponents<MonoBehaviour>();
+			for (int j = 0; j < components.Length; j++)
 			{
-				script.enabled = false;
+				components[j].enabled = false;
 			}
-			AudioSource[] sources2 = enemy.GetComponents<AudioSource>();
-			AudioSource[] array3 = sources2;
-			foreach (AudioSource source in array3)
+			AudioSource[] components2 = gameObject.GetComponents<AudioSource>();
+			for (int j = 0; j < components2.Length; j++)
 			{
-				source.enabled = false;
+				components2[j].enabled = false;
 			}
 		}
 	}
@@ -1691,10 +1614,10 @@ public class GameMaster : MonoBehaviour
 		}
 		else if (SavingData.ExistData())
 		{
-			ProgressDataNew data = SavingData.LoadData();
-			maxMissionReached = data.cM;
-			maxMissionReachedHard = data.cH;
-			maxMissionReachedKid = data.cK;
+			ProgressDataNew progressDataNew = SavingData.LoadData();
+			maxMissionReached = progressDataNew.cM;
+			maxMissionReachedHard = progressDataNew.cH;
+			maxMissionReachedKid = progressDataNew.cK;
 		}
 		else
 		{
@@ -1714,13 +1637,13 @@ public class GameMaster : MonoBehaviour
 		totalWins = 0;
 		totalDefeats = 0;
 		maxMissionReached = 0;
-		for (int j = 0; j < highestWaves.Length; j++)
+		for (int i = 0; i < highestWaves.Length; i++)
 		{
-			highestWaves[j] = 0;
+			highestWaves[i] = 0;
 		}
-		for (int i = 0; i < TankColorKilled.Count; i++)
+		for (int j = 0; j < TankColorKilled.Count; j++)
 		{
-			TankColorKilled[i] = 0;
+			TankColorKilled[j] = 0;
 		}
 		survivalTanksKilled = 0;
 		maxMissionReachedHard = 0;
@@ -1830,12 +1753,11 @@ public class GameMaster : MonoBehaviour
 		if (CurrentMission == 99)
 		{
 			Debug.Log("CREATING PARTICLES");
-			GameObject poof = UnityEngine.Object.Instantiate(SpawningPlayerParticles, PlayerPosition, Quaternion.identity, currentLoadedLevel.transform);
-			ParticleSystem poofie = poof.GetComponent<ParticleSystem>();
-			Play2DClipOnce PCO = poof.GetComponent<Play2DClipOnce>();
-			PCO.overrideGameStarted = true;
-			poofie.Play();
-			poof.transform.Rotate(new Vector3(-90f, 0f, 0f));
+			GameObject obj = UnityEngine.Object.Instantiate(SpawningPlayerParticles, PlayerPosition, Quaternion.identity, currentLoadedLevel.transform);
+			ParticleSystem component = obj.GetComponent<ParticleSystem>();
+			obj.GetComponent<Play2DClipOnce>().overrideGameStarted = true;
+			component.Play();
+			obj.transform.Rotate(new Vector3(-90f, 0f, 0f));
 		}
 	}
 
@@ -1847,28 +1769,28 @@ public class GameMaster : MonoBehaviour
 		DestroyTemps();
 		OnlyCompanionLeft = false;
 		AmountPlayersThatNeedRevive = 0;
-		for (int j = 0; j < PlayerDown.Count; j++)
+		for (int i = 0; i < PlayerDown.Count; i++)
 		{
-			PlayerDown[j] = false;
+			PlayerDown[i] = false;
 		}
+		GameObject[] array;
 		if (PlayerJoined.Count > 1 && !MapEditorMaster.instance)
 		{
 			Debug.LogWarning("Reset players" + PlayerJoined.Count);
-			for (int k = 0; k < PlayerJoined.Count; k++)
+			for (int j = 0; j < PlayerJoined.Count; j++)
 			{
-				if ((!PlayerJoined[k] && PlayerModeWithAI[k] == 0) || (CurrentMission == 99 && PlayerModeWithAI[k] == 1 && MapEditorMaster.instance == null))
+				if ((!PlayerJoined[j] && PlayerModeWithAI[j] == 0) || (CurrentMission == 99 && PlayerModeWithAI[j] == 1 && MapEditorMaster.instance == null))
 				{
 					continue;
 				}
-				switch (k)
+				switch (j)
 				{
 				case 0:
 					Debug.LogWarning(" players 1");
 					if (currentLoadedLevel.transform.Find("Main_Tank_FBX") == null)
 					{
 						Debug.LogWarning(" players 1 spawned");
-						GameObject newPlayer = UnityEngine.Object.Instantiate(PlayerPrefab, playerLocation[0], Quaternion.Euler(0f, 0f, 0f), currentLoadedLevel.transform);
-						newPlayer.transform.GetChild(0).GetComponent<MoveTankScript>().MyTeam = PlayerTeamColor[0];
+						UnityEngine.Object.Instantiate(PlayerPrefab, playerLocation[0], Quaternion.Euler(0f, 0f, 0f), currentLoadedLevel.transform).transform.GetChild(0).GetComponent<MoveTankScript>().MyTeam = PlayerTeamColor[0];
 						Mission99SpawnPoof(playerLocation[0]);
 					}
 					else
@@ -1877,54 +1799,49 @@ public class GameMaster : MonoBehaviour
 					}
 					continue;
 				case 1:
-					if (PlayerModeWithAI[k] == 1)
+					if (PlayerModeWithAI[j] == 1)
 					{
 						if (!currentLoadedLevel.transform.Find("AI_Tank_FBX"))
 						{
-							GameObject newPlayer2 = UnityEngine.Object.Instantiate(AIPlayer2Prefab, playerLocation[1], Quaternion.Euler(0f, 0f, 0f), currentLoadedLevel.transform);
-							newPlayer2.transform.GetChild(0).GetComponent<EnemyAI>().MyTeam = PlayerTeamColor[1];
+							UnityEngine.Object.Instantiate(AIPlayer2Prefab, playerLocation[1], Quaternion.Euler(0f, 0f, 0f), currentLoadedLevel.transform).transform.GetChild(0).GetComponent<EnemyAI>().MyTeam = PlayerTeamColor[1];
 							Mission99SpawnPoof(playerLocation[1]);
 						}
 					}
 					else if (!currentLoadedLevel.transform.Find("Second_Tank_FBX"))
 					{
-						GameObject newPlayer3 = UnityEngine.Object.Instantiate(Player2Prefab, playerLocation[1], Quaternion.Euler(0f, 0f, 0f), currentLoadedLevel.transform);
-						newPlayer3.transform.GetChild(0).GetComponent<MoveTankScript>().MyTeam = PlayerTeamColor[1];
+						UnityEngine.Object.Instantiate(Player2Prefab, playerLocation[1], Quaternion.Euler(0f, 0f, 0f), currentLoadedLevel.transform).transform.GetChild(0).GetComponent<MoveTankScript>().MyTeam = PlayerTeamColor[1];
 						Mission99SpawnPoof(playerLocation[1]);
 					}
 					continue;
 				case 2:
-					if (PlayerModeWithAI[k] == 1)
+					if (PlayerModeWithAI[j] == 1)
 					{
 						if (!currentLoadedLevel.transform.Find("AI_Tank_FBX_third"))
 						{
-							GameObject newPlayer4 = UnityEngine.Object.Instantiate(AIPlayer3Prefab, playerLocation[2], Quaternion.Euler(0f, 0f, 0f), currentLoadedLevel.transform);
-							newPlayer4.transform.GetChild(0).GetComponent<EnemyAI>().MyTeam = PlayerTeamColor[2];
+							UnityEngine.Object.Instantiate(AIPlayer3Prefab, playerLocation[2], Quaternion.Euler(0f, 0f, 0f), currentLoadedLevel.transform).transform.GetChild(0).GetComponent<EnemyAI>().MyTeam = PlayerTeamColor[2];
 							Mission99SpawnPoof(playerLocation[2]);
 						}
 					}
 					else if (!currentLoadedLevel.transform.Find("Third_Tank_FBX"))
 					{
-						GameObject newPlayer6 = UnityEngine.Object.Instantiate(Player3Prefab, playerLocation[2], Quaternion.Euler(0f, 0f, 0f), currentLoadedLevel.transform);
-						newPlayer6.transform.GetChild(0).GetComponent<MoveTankScript>().MyTeam = PlayerTeamColor[2];
+						UnityEngine.Object.Instantiate(Player3Prefab, playerLocation[2], Quaternion.Euler(0f, 0f, 0f), currentLoadedLevel.transform).transform.GetChild(0).GetComponent<MoveTankScript>().MyTeam = PlayerTeamColor[2];
 						Mission99SpawnPoof(playerLocation[2]);
 					}
 					continue;
 				}
-				if (PlayerModeWithAI[k] == 1)
+				if (PlayerModeWithAI[j] == 1)
 				{
 					if (!currentLoadedLevel.transform.Find("AI_Tank_FBX_fourth"))
 					{
-						GameObject newPlayer5 = UnityEngine.Object.Instantiate(AIPlayer4Prefab, playerLocation[3], Quaternion.Euler(0f, 0f, 0f), currentLoadedLevel.transform);
-						newPlayer5.transform.GetChild(0).GetComponent<EnemyAI>().MyTeam = PlayerTeamColor[3];
+						UnityEngine.Object.Instantiate(AIPlayer4Prefab, playerLocation[3], Quaternion.Euler(0f, 0f, 0f), currentLoadedLevel.transform).transform.GetChild(0).GetComponent<EnemyAI>().MyTeam = PlayerTeamColor[3];
 						Mission99SpawnPoof(playerLocation[3]);
 					}
 				}
 				else if (!currentLoadedLevel.transform.Find("Fourth_Tank_FBX"))
 				{
-					GameObject newPlayer7 = UnityEngine.Object.Instantiate(Player4Prefab, playerLocation[3], Quaternion.Euler(0f, 0f, 0f), currentLoadedLevel.transform);
-					newPlayer7.transform.parent = currentLoadedLevel.transform;
-					newPlayer7.transform.GetChild(0).GetComponent<MoveTankScript>().MyTeam = PlayerTeamColor[3];
+					GameObject obj = UnityEngine.Object.Instantiate(Player4Prefab, playerLocation[3], Quaternion.Euler(0f, 0f, 0f), currentLoadedLevel.transform);
+					obj.transform.parent = currentLoadedLevel.transform;
+					obj.transform.GetChild(0).GetComponent<MoveTankScript>().MyTeam = PlayerTeamColor[3];
 					Mission99SpawnPoof(playerLocation[3]);
 				}
 			}
@@ -1932,31 +1849,30 @@ public class GameMaster : MonoBehaviour
 		else if ((bool)MapEditorMaster.instance && (bool)MapEditorMaster.instance)
 		{
 			Debug.Log("RESETTING MAP PIECES THINGIES");
-			GameObject[] MapeditorGridPieces = GameObject.FindGameObjectsWithTag("MapeditorField");
-			GameObject[] array = MapeditorGridPieces;
-			foreach (GameObject GridPiece in array)
+			array = GameObject.FindGameObjectsWithTag("MapeditorField");
+			for (int k = 0; k < array.Length; k++)
 			{
-				MapEditorGridPiece MEGP = GridPiece.GetComponent<MapEditorGridPiece>();
-				for (int j2 = 0; j2 < 5; j2++)
+				MapEditorGridPiece component = array[k].GetComponent<MapEditorGridPiece>();
+				for (int l = 0; l < 5; l++)
 				{
-					if (MEGP.propOnMe[j2] && MEGP.mission == CurrentMission && (MEGP.myPropID[j2] == 4 || MEGP.myPropID[j2] == 5 || MEGP.myPropID[j2] == 28 || MEGP.myPropID[j2] == 29))
+					if (component.propOnMe[l] && component.mission == CurrentMission && (component.myPropID[l] == 4 || component.myPropID[l] == 5 || component.myPropID[l] == 28 || component.myPropID[l] == 29))
 					{
-						if ((MEGP.myPropID[j2] != 5 || PlayerTeamColor[0] == PlayerTeamColor[1]) && (MEGP.myPropID[j2] != 28 || PlayerTeamColor[0] == PlayerTeamColor[2]) && (MEGP.myPropID[j2] != 29 || PlayerTeamColor[0] == PlayerTeamColor[3]))
+						if ((component.myPropID[l] != 5 || PlayerTeamColor[0] == PlayerTeamColor[1]) && (component.myPropID[l] != 28 || PlayerTeamColor[0] == PlayerTeamColor[2]) && (component.myPropID[l] != 29 || PlayerTeamColor[0] == PlayerTeamColor[3]))
 						{
-							int TeamNumber = -1;
-							if (MEGP.MyTeamNumber > -1)
+							int team = -1;
+							if (component.MyTeamNumber > -1)
 							{
-								TeamNumber = MEGP.MyTeamNumber;
+								team = component.MyTeamNumber;
 							}
-							UnityEngine.Object.Destroy(MEGP.myProp[j2]);
-							MEGP.propOnMe[j2] = false;
-							MEGP.SpawnInProps(MEGP.myPropID[j2], MEGP.rotationDirection[j2], TeamNumber, j2, MEGP.SpawnDifficulty);
+							UnityEngine.Object.Destroy(component.myProp[l]);
+							component.propOnMe[l] = false;
+							component.SpawnInProps(component.myPropID[l], component.rotationDirection[l], team, l, component.SpawnDifficulty);
 						}
 					}
-					else if (MEGP.propOnMe[j2] && MEGP.mission == CurrentMission && MEGP.myProp[j2] == null && (MEGP.myPropID[j2] == 40 || MEGP.myPropID[j2] == 45 || MEGP.myPropID[j2] == 2 || MEGP.myPropID[j2] == 49))
+					else if (component.propOnMe[l] && component.mission == CurrentMission && component.myProp[l] == null && (component.myPropID[l] == 40 || component.myPropID[l] == 45 || component.myPropID[l] == 2 || component.myPropID[l] == 49))
 					{
-						MEGP.propOnMe[j2] = false;
-						MEGP.SpawnInProps(MEGP.myPropID[j2], MEGP.rotationDirection[j2], 0, j2, MEGP.SpawnDifficulty);
+						component.propOnMe[l] = false;
+						component.SpawnInProps(component.myPropID[l], component.rotationDirection[l], 0, l, component.SpawnDifficulty);
 					}
 				}
 			}
@@ -1964,76 +1880,68 @@ public class GameMaster : MonoBehaviour
 		UpdatePlayerToAI();
 		if (!MapEditorMaster.instance)
 		{
-			for (int i2 = 0; i2 < BreakableBlocksLocations.Count; i2++)
+			for (int m = 0; m < BreakableBlocksLocations.Count; m++)
 			{
-				int foundone = 0;
-				Collider[] hitColliders = Physics.OverlapSphere(BreakableBlocksLocations[i2], 0.2f);
-				Collider[] array2 = hitColliders;
-				foreach (Collider hitCollider in array2)
+				int num = 0;
+				Collider[] array2 = Physics.OverlapSphere(BreakableBlocksLocations[m], 0.2f);
+				foreach (Collider collider in array2)
 				{
-					if (hitCollider.tag == "Solid" && hitCollider.GetComponent<DestroyableWall>() != null)
+					if (collider.tag == "Solid" && collider.GetComponent<DestroyableWall>() != null)
 					{
-						foundone = 1;
+						num = 1;
 					}
 				}
-				if (foundone == 0)
+				if (num == 0)
 				{
-					GameObject NewCork = UnityEngine.Object.Instantiate(CorkBlock, BreakableBlocksLocations[i2], Quaternion.Euler(new Vector3(0f, 0f, 0f)));
-					NewCork.transform.parent = currentLoadedLevel.transform;
+					UnityEngine.Object.Instantiate(CorkBlock, BreakableBlocksLocations[m], Quaternion.Euler(new Vector3(0f, 0f, 0f))).transform.parent = currentLoadedLevel.transform;
 				}
 			}
 			for (int n = 0; n < StoneBlocksLocations.Count; n++)
 			{
-				int foundone2 = 0;
-				Collider[] hitColliders2 = Physics.OverlapSphere(StoneBlocksLocations[n], 0.2f);
-				Collider[] array3 = hitColliders2;
-				foreach (Collider hitCollider2 in array3)
+				int num2 = 0;
+				Collider[] array2 = Physics.OverlapSphere(StoneBlocksLocations[n], 0.2f);
+				foreach (Collider collider2 in array2)
 				{
-					if (hitCollider2.tag == "Solid" && hitCollider2.GetComponent<DestroyableWall>() != null)
+					if (collider2.tag == "Solid" && collider2.GetComponent<DestroyableWall>() != null)
 					{
-						foundone2 = 1;
+						num2 = 1;
 					}
 				}
-				if (foundone2 == 0)
+				if (num2 == 0)
 				{
-					GameObject NewStone = UnityEngine.Object.Instantiate(StoneBlock, StoneBlocksLocations[n], Quaternion.Euler(new Vector3(0f, 0f, 0f)));
-					NewStone.transform.parent = currentLoadedLevel.transform;
+					UnityEngine.Object.Instantiate(StoneBlock, StoneBlocksLocations[n], Quaternion.Euler(new Vector3(0f, 0f, 0f))).transform.parent = currentLoadedLevel.transform;
 				}
 			}
-			for (int m = 0; m < TNTLocations.Count; m++)
+			for (int num3 = 0; num3 < TNTLocations.Count; num3++)
 			{
-				int foundone3 = 0;
-				Collider[] hitColliders3 = Physics.OverlapSphere(TNTLocations[m], 0.2f);
-				Collider[] array4 = hitColliders3;
-				foreach (Collider hitCollider3 in array4)
+				int num4 = 0;
+				Collider[] array2 = Physics.OverlapSphere(TNTLocations[num3], 0.2f);
+				foreach (Collider collider3 in array2)
 				{
-					if (hitCollider3.tag == "Solid" && hitCollider3.GetComponent<ExplosiveBlock>() != null)
+					if (collider3.tag == "Solid" && collider3.GetComponent<ExplosiveBlock>() != null)
 					{
-						foundone3 = 1;
+						num4 = 1;
 					}
 				}
-				if (foundone3 == 0)
+				if (num4 == 0)
 				{
-					GameObject NewTNT = UnityEngine.Object.Instantiate(TNTBlock, TNTLocations[m], Quaternion.Euler(new Vector3(0f, 0f, 0f)));
-					NewTNT.transform.parent = currentLoadedLevel.transform;
+					UnityEngine.Object.Instantiate(TNTBlock, TNTLocations[num3], Quaternion.Euler(new Vector3(0f, 0f, 0f))).transform.parent = currentLoadedLevel.transform;
 				}
 			}
-			for (int l = 0; l < BreakableHalfBlocksLocations.Count; l++)
+			for (int num5 = 0; num5 < BreakableHalfBlocksLocations.Count; num5++)
 			{
-				int foundone4 = 0;
-				Collider[] hitColliders4 = Physics.OverlapSphere(BreakableHalfBlocksLocations[l], 0.2f);
-				Collider[] array5 = hitColliders4;
-				foreach (Collider hitCollider4 in array5)
+				int num6 = 0;
+				Collider[] array2 = Physics.OverlapSphere(BreakableHalfBlocksLocations[num5], 0.2f);
+				foreach (Collider collider4 in array2)
 				{
-					if (hitCollider4.tag == "Solid" && hitCollider4.GetComponent<DestroyableWall>() != null)
+					if (collider4.tag == "Solid" && collider4.GetComponent<DestroyableWall>() != null)
 					{
-						foundone4 = 1;
+						num6 = 1;
 					}
 				}
-				if (foundone4 == 0)
+				if (num6 == 0)
 				{
-					GameObject NewCork2 = UnityEngine.Object.Instantiate(HalfCorkBlock, BreakableHalfBlocksLocations[l], Quaternion.Euler(new Vector3(0f, 0f, 0f)));
-					NewCork2.transform.parent = currentLoadedLevel.transform;
+					UnityEngine.Object.Instantiate(HalfCorkBlock, BreakableHalfBlocksLocations[num5], Quaternion.Euler(new Vector3(0f, 0f, 0f))).transform.parent = currentLoadedLevel.transform;
 				}
 			}
 		}
@@ -2058,36 +1966,36 @@ public class GameMaster : MonoBehaviour
 			}
 			else if (AmountGoodTanks > 0)
 			{
-				List<GameObject> EnemiesToRemove = new List<GameObject>();
-				foreach (GameObject Enemy in Enemies)
+				List<GameObject> list = new List<GameObject>();
+				foreach (GameObject enemy in Enemies)
 				{
-					if (!Enemy)
+					if (!enemy)
 					{
 						continue;
 					}
-					EnemyAI EA = Enemy.GetComponent<EnemyAI>();
-					if ((bool)EA)
+					EnemyAI component2 = enemy.GetComponent<EnemyAI>();
+					if ((bool)component2)
 					{
-						if (EA.MyTeam != 2 && Enemies.Contains(EA.gameObject) && MapEditorMaster.instance == null)
+						if (component2.MyTeam != 2 && Enemies.Contains(component2.gameObject) && MapEditorMaster.instance == null)
 						{
-							EnemiesToRemove.Add(EA.gameObject);
+							list.Add(component2.gameObject);
 						}
-						MoveTankScript MTS = Players[0].GetComponent<MoveTankScript>();
-						if ((bool)MTS && (EA.MyTeam != MTS.MyTeam || MTS.MyTeam == 0))
+						MoveTankScript component3 = Players[0].GetComponent<MoveTankScript>();
+						if ((bool)component3 && (component2.MyTeam != component3.MyTeam || component3.MyTeam == 0))
 						{
 							AmountEnemyTanks++;
 						}
 					}
 				}
-				foreach (GameObject toremove in EnemiesToRemove)
+				foreach (GameObject item in list)
 				{
-					Enemies.Remove(toremove);
+					Enemies.Remove(item);
 				}
-				for (int i = Enemies.Count - 1; i >= 0; i--)
+				for (int num7 = Enemies.Count - 1; num7 >= 0; num7--)
 				{
-					if (Enemies[i] == null)
+					if (Enemies[num7] == null)
 					{
-						Enemies.RemoveAt(i);
+						Enemies.RemoveAt(num7);
 					}
 				}
 			}
@@ -2097,15 +2005,13 @@ public class GameMaster : MonoBehaviour
 			AmountEnemyTanks = Enemies.Concat(Bosses).ToArray().Length;
 		}
 		EnemyScripts = GameObject.FindGameObjectsWithTag("EnemyScripting");
-		GameObject[] all = Enemies.Concat(Bosses).Concat(EnemyScripts).ToArray();
-		GameObject[] array6 = all;
-		foreach (GameObject enemy in array6)
+		array = Enemies.Concat(Bosses).Concat(EnemyScripts).ToArray();
+		for (int k = 0; k < array.Length; k++)
 		{
-			MonoBehaviour[] enemyscripts = enemy.GetComponents<MonoBehaviour>();
-			MonoBehaviour[] array7 = enemyscripts;
-			foreach (MonoBehaviour script in array7)
+			MonoBehaviour[] components = array[k].GetComponents<MonoBehaviour>();
+			for (int num8 = 0; num8 < components.Length; num8++)
 			{
-				script.enabled = true;
+				components[num8].enabled = true;
 			}
 		}
 		StartCoroutine(disableTheGame());
@@ -2121,9 +2027,9 @@ public class GameMaster : MonoBehaviour
 	{
 		Players.Clear();
 		GameObject[] array = GameObject.FindGameObjectsWithTag("Player");
-		foreach (GameObject Player in array)
+		foreach (GameObject item in array)
 		{
-			Players.Add(Player);
+			Players.Add(item);
 		}
 	}
 
@@ -2135,27 +2041,27 @@ public class GameMaster : MonoBehaviour
 		}
 		Enemies = new List<GameObject>(GameObject.FindGameObjectsWithTag("Enemy"));
 		Bosses = GameObject.FindGameObjectsWithTag("Boss");
-		List<GameObject> EnemiesToRemove = new List<GameObject>();
-		foreach (GameObject Enemy in Enemies)
+		List<GameObject> list = new List<GameObject>();
+		foreach (GameObject enemy in Enemies)
 		{
-			if ((bool)Enemy)
+			if ((bool)enemy)
 			{
-				EnemyAI EA = Enemy.GetComponent<EnemyAI>();
-				if (EA.MyTeam != 2 && Enemies.Contains(EA.gameObject) && MapEditorMaster.instance == null)
+				EnemyAI component = enemy.GetComponent<EnemyAI>();
+				if (component.MyTeam != 2 && Enemies.Contains(component.gameObject) && MapEditorMaster.instance == null)
 				{
-					EnemiesToRemove.Add(EA.gameObject);
+					list.Add(component.gameObject);
 				}
 			}
 		}
-		foreach (GameObject toremove in EnemiesToRemove)
+		foreach (GameObject item in list)
 		{
-			Enemies.Remove(toremove);
+			Enemies.Remove(item);
 		}
-		for (int i = Enemies.Count - 1; i >= 0; i--)
+		for (int num = Enemies.Count - 1; num >= 0; num--)
 		{
-			if (Enemies[i] == null)
+			if (Enemies[num] == null)
 			{
-				Enemies.RemoveAt(i);
+				Enemies.RemoveAt(num);
 			}
 		}
 		AmountEnemyTanks = Enemies.Concat(Bosses).ToArray().Length;
@@ -2172,9 +2078,9 @@ public class GameMaster : MonoBehaviour
 		GameHasStarted = true;
 		Players.Clear();
 		GameObject[] array = GameObject.FindGameObjectsWithTag("Player");
-		foreach (GameObject Player in array)
+		foreach (GameObject item in array)
 		{
-			Players.Add(Player);
+			Players.Add(item);
 		}
 		if (Enemies != null)
 		{
@@ -2183,7 +2089,7 @@ public class GameMaster : MonoBehaviour
 		Enemies = new List<GameObject>(GameObject.FindGameObjectsWithTag("Enemy"));
 		Bosses = GameObject.FindGameObjectsWithTag("Boss");
 		EnemyScripts = GameObject.FindGameObjectsWithTag("EnemyScripting");
-		GameObject[] all = Enemies.Concat(Bosses).Concat(EnemyScripts).Concat(Players)
+		GameObject[] array2 = Enemies.Concat(Bosses).Concat(EnemyScripts).Concat(Players)
 			.ToArray();
 		EnemyTankTracksAudio = 0;
 		if ((bool)MapEditorMaster.instance && MapEditorMaster.instance.Levels[CurrentMission].MissionMessage != null)
@@ -2194,52 +2100,52 @@ public class GameMaster : MonoBehaviour
 		{
 			counter = 0f;
 		}
-		GameObject[] array2 = all;
-		foreach (GameObject enemy in array2)
+		array = array2;
+		foreach (GameObject gameObject in array)
 		{
-			MonoBehaviour[] enemyscripts = enemy.GetComponents<MonoBehaviour>();
-			EnemyTargetingSystem[] targetscripts = enemy.GetComponents<EnemyTargetingSystem>();
-			MonoBehaviour[] array3 = enemyscripts;
-			foreach (MonoBehaviour script in array3)
+			MonoBehaviour[] components = gameObject.GetComponents<MonoBehaviour>();
+			EnemyTargetingSystem[] components2 = gameObject.GetComponents<EnemyTargetingSystem>();
+			MonoBehaviour[] array3 = components;
+			for (int j = 0; j < array3.Length; j++)
 			{
-				script.enabled = true;
+				array3[j].enabled = true;
 			}
-			AudioSource[] sources2 = enemy.GetComponents<AudioSource>();
-			AudioSource[] array4 = sources2;
-			foreach (AudioSource source in array4)
+			AudioSource[] components3 = gameObject.GetComponents<AudioSource>();
+			for (int j = 0; j < components3.Length; j++)
 			{
-				source.enabled = true;
+				components3[j].enabled = true;
 			}
-			EnemyTargetingSystem[] array5 = targetscripts;
-			foreach (EnemyTargetingSystem script2 in array5)
+			EnemyTargetingSystem[] array4 = components2;
+			for (int j = 0; j < array4.Length; j++)
 			{
+				_ = array4[j];
 			}
 		}
-		List<GameObject> EnemiesToRemove = new List<GameObject>();
-		foreach (GameObject Enemy in Enemies)
+		List<GameObject> list = new List<GameObject>();
+		foreach (GameObject enemy in Enemies)
 		{
-			if ((bool)Enemy)
+			if ((bool)enemy)
 			{
-				EnemyAI EA = Enemy.GetComponent<EnemyAI>();
-				if (EA.MyTeam != 2 && Enemies.Contains(EA.gameObject) && MapEditorMaster.instance == null)
+				EnemyAI component = enemy.GetComponent<EnemyAI>();
+				if (component.MyTeam != 2 && Enemies.Contains(component.gameObject) && MapEditorMaster.instance == null)
 				{
-					EnemiesToRemove.Add(EA.gameObject);
+					list.Add(component.gameObject);
 				}
 			}
 		}
-		foreach (GameObject toremove in EnemiesToRemove)
+		foreach (GameObject item2 in list)
 		{
-			Enemies.Remove(toremove);
+			Enemies.Remove(item2);
 		}
-		for (int i = Enemies.Count - 1; i >= 0; i--)
+		for (int num = Enemies.Count - 1; num >= 0; num--)
 		{
-			if (Enemies[i] == null)
+			if (Enemies[num] == null)
 			{
-				Enemies.RemoveAt(i);
+				Enemies.RemoveAt(num);
 			}
 		}
-		all = Enemies.Concat(Bosses).ToArray();
-		AmountEnemyTanks = all.Length;
+		array2 = Enemies.Concat(Bosses).ToArray();
+		AmountEnemyTanks = array2.Length;
 	}
 
 	public void ControllerCheck()
@@ -2259,28 +2165,28 @@ public class GameMaster : MonoBehaviour
 		if (isZombieMode)
 		{
 			Debug.LogError("NEW ROUND!");
-			ZombieTankSpawner ZTS = GetComponent<ZombieTankSpawner>();
-			ZTS.Wave++;
-			AccountMaster.instance.UpdateServerStatus(ZTS.Wave + 100);
-			GameObject[] sun2 = Sun;
-			foreach (GameObject sun in sun2)
+			ZombieTankSpawner component = GetComponent<ZombieTankSpawner>();
+			component.Wave++;
+			AccountMaster.instance.UpdateServerStatus(component.Wave + 100);
+			GameObject[] sun = Sun;
+			for (int i = 0; i < sun.Length; i++)
 			{
-				sun.SetActive(value: true);
+				sun[i].SetActive(value: true);
 			}
-			ZTS.amountEnemies = 0;
-			ZTS.spawned = 0;
-			ZTS.spawnAmount = Mathf.RoundToInt((float)(ZTS.Wave * 2 + Mathf.RoundToInt(UnityEngine.Random.Range(-(ZTS.Wave / 2), ZTS.Wave / 2))) * ZTS.multiplier);
-			if (ZTS.spawnAmount < 1)
+			component.amountEnemies = 0;
+			component.spawned = 0;
+			component.spawnAmount = Mathf.RoundToInt((float)(component.Wave * 2 + Mathf.RoundToInt(UnityEngine.Random.Range(-(component.Wave / 2), component.Wave / 2))) * component.multiplier);
+			if (component.spawnAmount < 1)
 			{
-				ZTS.spawnAmount = 2;
+				component.spawnAmount = 2;
 			}
 			GameHasStarted = true;
 			Players.Clear();
-			AccountMaster.instance.SaveCloudData(6, ZTS.Wave, 0, bounceKill: false);
-			GameObject[] array = GameObject.FindGameObjectsWithTag("Player");
-			foreach (GameObject Player in array)
+			AccountMaster.instance.SaveCloudData(6, component.Wave, 0, bounceKill: false);
+			sun = GameObject.FindGameObjectsWithTag("Player");
+			foreach (GameObject item in sun)
 			{
-				Players.Add(Player);
+				Players.Add(item);
 			}
 		}
 	}

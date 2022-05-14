@@ -11,15 +11,15 @@ public class NewAIagent : MonoBehaviour
 
 	public float Lives = 1f;
 
-	public bool LayMines = false;
+	public bool LayMines;
 
-	public float LayMinesSpeed = 0f;
+	public float LayMinesSpeed;
 
 	public float BulletSenseRange = 15f;
 
 	public float ShootSpeed = 3f;
 
-	public bool BouncyBullets = false;
+	public bool BouncyBullets;
 
 	public int amountOfBounces = 2;
 
@@ -28,7 +28,7 @@ public class NewAIagent : MonoBehaviour
 
 	public float turnSpeed = 10f;
 
-	public bool IsTurning = false;
+	public bool IsTurning;
 
 	private Vector2 input;
 
@@ -56,26 +56,26 @@ public class NewAIagent : MonoBehaviour
 
 	public Transform skidMarkLocation;
 
-	public bool Suicide = false;
+	public bool Suicide;
 
 	public float dist;
 
 	[Header("Raycast Stuff")]
-	public bool Targeted = false;
+	public bool Targeted;
 
 	private Transform IncomingBullet;
 
 	private float incomingAngle;
 
-	public bool bulletInPath = false;
+	public bool bulletInPath;
 
-	public bool antiBulletSpam = false;
+	public bool antiBulletSpam;
 
 	private NavMeshAgent agent;
 
 	public GameObject myLight;
 
-	public float SuicideTimer = 0f;
+	public float SuicideTimer;
 
 	public Material OnLight;
 
@@ -216,34 +216,34 @@ public class NewAIagent : MonoBehaviour
 
 	private void PlayerSense()
 	{
-		GameObject[] player = GameObject.FindGameObjectsWithTag("Player");
-		GameObject[] turrets = GameObject.FindGameObjectsWithTag("Turret");
-		GameObject[] all = player.Concat(turrets).ToArray();
-		Transform closest = null;
-		float lastdist = 9999f;
-		GameObject[] array = all;
-		foreach (GameObject target in array)
+		GameObject[] first = GameObject.FindGameObjectsWithTag("Player");
+		GameObject[] second = GameObject.FindGameObjectsWithTag("Turret");
+		GameObject[] array = first.Concat(second).ToArray();
+		Transform transform = null;
+		float num = 9999f;
+		GameObject[] array2 = array;
+		foreach (GameObject gameObject in array2)
 		{
-			float dist = Vector3.Distance(base.transform.position, target.transform.position);
-			if (dist < lastdist)
+			float num2 = Vector3.Distance(base.transform.position, gameObject.transform.position);
+			if (num2 < num)
 			{
-				closest = target.transform;
-				lastdist = dist;
+				transform = gameObject.transform;
+				num = num2;
 			}
 		}
-		if (closest != null)
+		if (transform != null)
 		{
-			agent.SetDestination(closest.position);
-			TheTarget = closest;
-			this.dist = Vector3.Distance(base.transform.position, closest.transform.position);
-			if (this.dist < myExplosionDistance && !Suicide)
+			agent.SetDestination(transform.position);
+			TheTarget = transform;
+			dist = Vector3.Distance(base.transform.position, transform.transform.position);
+			if (dist < myExplosionDistance && !Suicide)
 			{
-				Quaternion nowRot = base.transform.rotation;
+				Quaternion rotation = base.transform.rotation;
 				agent.isStopped = true;
 				agent.speed = 0f;
 				Suicide = true;
 				SuicideTimer = myExplosionTimer;
-				base.transform.rotation = nowRot;
+				base.transform.rotation = rotation;
 				storedRot = base.transform.rotation;
 			}
 		}
@@ -258,23 +258,23 @@ public class NewAIagent : MonoBehaviour
 	{
 		if (Suicide)
 		{
-			Renderer m_Material = myLight.GetComponent<Renderer>();
-			if (m_Material.sharedMaterial == OnLight)
+			Renderer component = myLight.GetComponent<Renderer>();
+			if (component.sharedMaterial == OnLight)
 			{
 				Play2DClipAtPoint(SuicideBleep);
-				m_Material.material = OffLight;
+				component.material = OffLight;
 				Debug.LogWarning("Off");
 			}
-			else if (m_Material.sharedMaterial == OffLight)
+			else if (component.sharedMaterial == OffLight)
 			{
 				Play2DClipAtPoint(SuicideBleep);
-				m_Material.material = OnLight;
+				component.material = OnLight;
 				Debug.LogWarning("On");
 			}
 			else
 			{
 				Play2DClipAtPoint(SuicideBleep);
-				m_Material.material = OffLight;
+				component.material = OffLight;
 				Debug.LogWarning("Off 2");
 			}
 		}
@@ -296,68 +296,66 @@ public class NewAIagent : MonoBehaviour
 
 	private void AreaDamageEnemies(Vector3 location, float radius, float damage)
 	{
-		Collider[] objectsInRange = Physics.OverlapSphere(location, radius);
-		Collider[] array = objectsInRange;
-		foreach (Collider col in array)
+		Collider[] array = Physics.OverlapSphere(location, radius);
+		foreach (Collider obj in array)
 		{
-			HealthTanks enemy = col.GetComponent<HealthTanks>();
-			LookAtMyDirection friendbullet = col.GetComponent<LookAtMyDirection>();
-			EnemyBulletScript enemybullet = col.GetComponent<EnemyBulletScript>();
-			MineScript mines = col.GetComponent<MineScript>();
-			WeeTurret WT = col.GetComponent<WeeTurret>();
-			DestroyableWall DestroyWall = col.GetComponent<DestroyableWall>();
-			if (enemy != null && enemy.transform.tag == "Player")
+			HealthTanks component = obj.GetComponent<HealthTanks>();
+			LookAtMyDirection component2 = obj.GetComponent<LookAtMyDirection>();
+			EnemyBulletScript component3 = obj.GetComponent<EnemyBulletScript>();
+			MineScript component4 = obj.GetComponent<MineScript>();
+			WeeTurret component5 = obj.GetComponent<WeeTurret>();
+			DestroyableWall component6 = obj.GetComponent<DestroyableWall>();
+			if (component != null && component.transform.tag == "Player")
 			{
-				enemy.DamageMe(1);
+				component.DamageMe(1);
 				if (myHealth.EnemyID <= -100)
 				{
-					enemy.DamageMe(1);
+					component.DamageMe(1);
 				}
 			}
-			if (friendbullet != null)
+			if (component2 != null)
 			{
-				friendbullet.BounceAmount = 999;
+				component2.BounceAmount = 999;
 			}
-			if (enemybullet != null)
+			if (component3 != null)
 			{
-				enemybullet.BounceAmount = 999;
+				component3.BounceAmount = 999;
 			}
-			if (mines != null)
+			if (component4 != null)
 			{
-				mines.DetinationTime = 0f;
+				component4.DetinationTime = 0f;
 			}
-			if (DestroyWall != null)
+			if (component6 != null)
 			{
-				DestroyWall.StartCoroutine(DestroyWall.destroy());
+				component6.StartCoroutine(component6.destroy());
 			}
-			if (WT != null)
+			if (component5 != null)
 			{
-				WT.Health--;
+				component5.Health--;
 			}
 		}
-		Collider[] bigobjectsInRange = Physics.OverlapSphere(location, radius * 2f);
-		Collider[] array2 = bigobjectsInRange;
-		foreach (Collider col2 in array2)
+		array = Physics.OverlapSphere(location, radius * 2f);
+		foreach (Collider collider in array)
 		{
-			Rigidbody rigi = col2.GetComponent<Rigidbody>();
-			if (rigi != null && (col2.tag == "Player" || col2.tag == "Enemy"))
+			Rigidbody component7 = collider.GetComponent<Rigidbody>();
+			if (component7 != null && (collider.tag == "Player" || collider.tag == "Enemy"))
 			{
-				float distance = Vector3.Distance(rigi.transform.position, base.transform.position);
-				float force = (radius * 2f - distance) * 1.5f;
-				Vector3 direction = rigi.transform.position - base.transform.position;
-				rigi.AddForce(direction * force, ForceMode.Impulse);
+				float num = Vector3.Distance(component7.transform.position, base.transform.position);
+				float num2 = (radius * 2f - num) * 1.5f;
+				Vector3 vector = component7.transform.position - base.transform.position;
+				component7.AddForce(vector * num2, ForceMode.Impulse);
 			}
 		}
 	}
 
 	public void Play2DClipAtPoint(AudioClip clip)
 	{
-		GameObject tempAudioSource = new GameObject("TempAudio");
-		AudioSource audioSource = tempAudioSource.AddComponent<AudioSource>();
+		GameObject obj = new GameObject("TempAudio");
+		AudioSource audioSource = obj.AddComponent<AudioSource>();
 		audioSource.clip = clip;
 		audioSource.volume = 2f;
 		audioSource.spatialBlend = 0f;
 		audioSource.Play();
-		Object.Destroy(tempAudioSource, clip.length);
+		Object.Destroy(obj, clip.length);
 	}
 }

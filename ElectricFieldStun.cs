@@ -6,7 +6,7 @@ public class ElectricFieldStun : MonoBehaviour
 
 	public EnemyAI papaScript;
 
-	public bool isKilling = false;
+	public bool isKilling;
 
 	private void OnTriggerEnter(Collider other)
 	{
@@ -18,27 +18,27 @@ public class ElectricFieldStun : MonoBehaviour
 		{
 			if (isKilling)
 			{
-				HealthTanks HT = other.GetComponent<HealthTanks>();
-				if (HT != null)
+				HealthTanks component = other.GetComponent<HealthTanks>();
+				if (component != null)
 				{
-					HT.health--;
+					component.health--;
 				}
 			}
 			else
 			{
-				MoveTankScript MTS = other.GetComponent<MoveTankScript>();
-				if (MTS != null)
+				MoveTankScript component2 = other.GetComponent<MoveTankScript>();
+				if (component2 != null)
 				{
-					MTS.StunMe(secStunned);
+					component2.StunMe(secStunned);
 				}
 			}
 		}
 		else if (other.tag == "Enemy")
 		{
-			EnemyAI AI = other.GetComponent<EnemyAI>();
-			if (AI != null && !AI.isElectric)
+			EnemyAI component3 = other.GetComponent<EnemyAI>();
+			if (component3 != null && !component3.isElectric)
 			{
-				AI.StunMe(secStunned);
+				component3.StunMe(secStunned);
 			}
 		}
 	}

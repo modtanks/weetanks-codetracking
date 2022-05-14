@@ -6,93 +6,89 @@ public static class SavingData
 {
 	public static void SaveData(GameMaster GM, string filename)
 	{
-		BinaryFormatter formatter = new BinaryFormatter();
-		string savePath = Application.persistentDataPath + "/" + filename + ".tnk";
-		FileStream stream = new FileStream(savePath, FileMode.Create);
-		ProgressDataNew data = new ProgressDataNew(GM, null);
-		formatter.Serialize(stream, data);
-		stream.Close();
+		BinaryFormatter binaryFormatter = new BinaryFormatter();
+		FileStream fileStream = new FileStream(Application.persistentDataPath + "/" + filename + ".tnk", FileMode.Create);
+		ProgressDataNew graph = new ProgressDataNew(GM, null);
+		binaryFormatter.Serialize(fileStream, graph);
+		fileStream.Close();
 	}
 
 	public static void OverwriteData(ProgressData olddata)
 	{
-		BinaryFormatter formatter = new BinaryFormatter();
-		string savePath = Application.persistentDataPath + "/tank_progress.tnk";
-		FileStream stream = new FileStream(savePath, FileMode.Create);
-		ProgressDataNew data = new ProgressDataNew(null, olddata);
-		formatter.Serialize(stream, data);
-		stream.Close();
+		BinaryFormatter binaryFormatter = new BinaryFormatter();
+		FileStream fileStream = new FileStream(Application.persistentDataPath + "/tank_progress.tnk", FileMode.Create);
+		ProgressDataNew graph = new ProgressDataNew(null, olddata);
+		binaryFormatter.Serialize(fileStream, graph);
+		fileStream.Close();
 	}
 
 	public static void SaveSettingsData(OptionsMainMenu OMM)
 	{
-		BinaryFormatter formatter = new BinaryFormatter();
-		string savePath = Application.persistentDataPath + "/tank_settings.tnk";
-		FileStream stream = new FileStream(savePath, FileMode.Create);
-		SettingsData data = new SettingsData(OMM);
-		formatter.Serialize(stream, data);
-		stream.Close();
+		BinaryFormatter binaryFormatter = new BinaryFormatter();
+		FileStream fileStream = new FileStream(Application.persistentDataPath + "/tank_settings.tnk", FileMode.Create);
+		SettingsData graph = new SettingsData(OMM);
+		binaryFormatter.Serialize(fileStream, graph);
+		fileStream.Close();
 	}
 
 	public static ProgressDataNew LoadData()
 	{
-		string savePath = Application.persistentDataPath + "/tank_progress.tnk";
-		if (File.Exists(savePath) && new FileInfo(savePath).Length != 0)
+		string text = Application.persistentDataPath + "/tank_progress.tnk";
+		if (File.Exists(text) && new FileInfo(text).Length != 0L)
 		{
-			BinaryFormatter formatter = new BinaryFormatter();
-			FileStream stream = new FileStream(savePath, FileMode.Open);
-			if (formatter.Deserialize(stream) is ProgressData olddata)
+			BinaryFormatter binaryFormatter = new BinaryFormatter();
+			FileStream fileStream = new FileStream(text, FileMode.Open);
+			if (binaryFormatter.Deserialize(fileStream) is ProgressData progressData)
 			{
-				if (olddata.totalTankKills > 0)
+				if (progressData.totalTankKills > 0)
 				{
-					stream.Close();
-					OverwriteData(olddata);
-					stream = new FileStream(savePath, FileMode.Open);
+					fileStream.Close();
+					OverwriteData(progressData);
+					fileStream = new FileStream(text, FileMode.Open);
 				}
 				else
 				{
-					stream.Close();
-					stream = new FileStream(savePath, FileMode.Open);
+					fileStream.Close();
+					fileStream = new FileStream(text, FileMode.Open);
 				}
 			}
 			else
 			{
-				stream.Close();
-				stream = new FileStream(savePath, FileMode.Open);
+				fileStream.Close();
+				fileStream = new FileStream(text, FileMode.Open);
 			}
-			ProgressDataNew data = formatter.Deserialize(stream) as ProgressDataNew;
-			stream.Close();
-			return data;
+			ProgressDataNew result = binaryFormatter.Deserialize(fileStream) as ProgressDataNew;
+			fileStream.Close();
+			return result;
 		}
-		Debug.LogError("Save file not found!!" + savePath);
+		Debug.LogError("Save file not found!!" + text);
 		return null;
 	}
 
 	public static SettingsData LoadSettingsData()
 	{
-		string savePath = Application.persistentDataPath + "/tank_settings.tnk";
-		if (File.Exists(savePath))
+		string text = Application.persistentDataPath + "/tank_settings.tnk";
+		if (File.Exists(text))
 		{
-			FileStream stream = new FileStream(savePath, FileMode.Open);
+			FileStream fileStream = new FileStream(text, FileMode.Open);
 			Debug.Log(Application.persistentDataPath);
-			if (stream.Length > 0)
+			if (fileStream.Length > 0)
 			{
-				BinaryFormatter formatter = new BinaryFormatter();
-				SettingsData data = formatter.Deserialize(stream) as SettingsData;
-				stream.Close();
-				return data;
+				SettingsData result = new BinaryFormatter().Deserialize(fileStream) as SettingsData;
+				fileStream.Close();
+				return result;
 			}
 			Debug.LogError("Save file corrupted!!");
 			return null;
 		}
-		Debug.LogError("Settings file not found!!" + savePath);
+		Debug.LogError("Settings file not found!!" + text);
 		return null;
 	}
 
 	public static bool ExistData()
 	{
-		string savePath = Application.persistentDataPath + "/tank_progress.tnk";
-		if (File.Exists(savePath) && new FileInfo(savePath).Length != 0)
+		string text = Application.persistentDataPath + "/tank_progress.tnk";
+		if (File.Exists(text) && new FileInfo(text).Length != 0L)
 		{
 			return true;
 		}
@@ -101,13 +97,13 @@ public static class SavingData
 
 	public static bool ExistSettingsData()
 	{
-		string savePath = Application.persistentDataPath + "/tank_settings.tnk";
-		if (File.Exists(savePath))
+		string text = Application.persistentDataPath + "/tank_settings.tnk";
+		if (File.Exists(text))
 		{
-			Debug.LogWarning("Save settings file found!!" + savePath);
+			Debug.LogWarning("Save settings file found!!" + text);
 			return true;
 		}
-		Debug.LogError("Save settings file not found!!" + savePath);
+		Debug.LogError("Save settings file not found!!" + text);
 		return false;
 	}
 }

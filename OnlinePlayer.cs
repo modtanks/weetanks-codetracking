@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class OnlinePlayer : MonoBehaviour
 {
-	public int playerID = 0;
+	public int playerID;
 
 	public GameObject MyPlayerHolder;
 
-	public bool isOnlinePlayer = false;
+	public bool isOnlinePlayer;
 
 	public GameObject TurningBase;
 
@@ -32,7 +32,7 @@ public class OnlinePlayer : MonoBehaviour
 
 	private void Rotate()
 	{
-		Quaternion rotation = Quaternion.LookRotation(LobbyMaster.instance.OtherPlayerInfo.lookDir);
-		TurningBase.transform.rotation = Quaternion.Lerp(TurningBase.transform.rotation, rotation, Time.deltaTime * TurnSpeed);
+		Quaternion b = Quaternion.LookRotation(LobbyMaster.instance.OtherPlayerInfo.lookDir);
+		TurningBase.transform.rotation = Quaternion.Lerp(TurningBase.transform.rotation, b, Time.deltaTime * TurnSpeed);
 	}
 }

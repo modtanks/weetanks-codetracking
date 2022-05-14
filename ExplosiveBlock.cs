@@ -9,24 +9,23 @@ public class ExplosiveBlock : MonoBehaviour
 
 	public AudioClip FuseSound;
 
-	public bool isExploding = false;
+	public bool isExploding;
 
-	public bool isFusing = false;
+	public bool isFusing;
 
 	public ParticleSystem FuseSystem;
 
 	private void OnCollisionEnter(Collision collision)
 	{
 		Debug.Log("Collision!:" + collision.collider.name + collision.collider.tag);
-		PlayerBulletScript PBS = collision.collider.GetComponent<PlayerBulletScript>();
-		if (PBS.IsAirBullet)
+		PlayerBulletScript component = collision.collider.GetComponent<PlayerBulletScript>();
+		if (component.IsAirBullet)
 		{
 			isFusing = false;
-			Animator myAnimator = GetComponent<Animator>();
-			myAnimator.speed = 0f;
+			GetComponent<Animator>().speed = 0f;
 			FuseSystem.Stop();
 		}
-		else if ((bool)PBS && !isFusing)
+		else if ((bool)component && !isFusing)
 		{
 			StartFusing();
 		}
@@ -35,10 +34,10 @@ public class ExplosiveBlock : MonoBehaviour
 	public void StartFusing()
 	{
 		FuseSystem.Play();
-		Animator myAnimator = GetComponent<Animator>();
+		Animator component = GetComponent<Animator>();
 		SFXManager.instance.PlaySFX(FuseSound, 1f, null);
-		myAnimator.SetBool("InitiateDestroy", value: true);
-		myAnimator.speed = 1f;
+		component.SetBool("InitiateDestroy", value: true);
+		component.speed = 1f;
 		isFusing = true;
 	}
 
@@ -52,13 +51,13 @@ public class ExplosiveBlock : MonoBehaviour
 		}
 		if (ParticleManager.instance.CanDoTNTExplosion())
 		{
-			GameObject poof = Object.Instantiate(deathExplosion, base.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity);
-			Object.Destroy(poof.gameObject, 4f);
-			ParticleManager.instance.TNTExplosions.Add(poof);
-			CameraShake CS = Camera.main.GetComponent<CameraShake>();
-			if ((bool)CS)
+			GameObject gameObject = Object.Instantiate(deathExplosion, base.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity);
+			Object.Destroy(gameObject.gameObject, 4f);
+			ParticleManager.instance.TNTExplosions.Add(gameObject);
+			CameraShake component = Camera.main.GetComponent<CameraShake>();
+			if ((bool)component)
 			{
-				CS.StartCoroutine(CS.Shake(0.1f, 0.15f));
+				component.StartCoroutine(component.Shake(0.1f, 0.15f));
 			}
 			if (GameMaster.instance.GameHasStarted || GameMaster.instance.isZombieMode)
 			{
@@ -70,80 +69,78 @@ public class ExplosiveBlock : MonoBehaviour
 
 	private void AreaDamageEnemies(Vector3 location, float radius, float damage)
 	{
-		Collider[] objectsInRange = Physics.OverlapSphere(location, radius);
-		Collider[] array = objectsInRange;
-		foreach (Collider col in array)
+		Collider[] array = Physics.OverlapSphere(location, radius);
+		foreach (Collider obj in array)
 		{
-			HealthTanks enemy = col.GetComponent<HealthTanks>();
-			PlayerBulletScript friendbullet = col.GetComponent<PlayerBulletScript>();
-			MineScript mines = col.GetComponent<MineScript>();
-			DestroyableWall DestroyWall = col.GetComponent<DestroyableWall>();
-			WeeTurret WT = col.GetComponent<WeeTurret>();
-			ExplosiveBlock EB = col.GetComponent<ExplosiveBlock>();
-			if ((bool)EB && !EB.isExploding)
+			HealthTanks component = obj.GetComponent<HealthTanks>();
+			PlayerBulletScript component2 = obj.GetComponent<PlayerBulletScript>();
+			MineScript component3 = obj.GetComponent<MineScript>();
+			DestroyableWall component4 = obj.GetComponent<DestroyableWall>();
+			WeeTurret component5 = obj.GetComponent<WeeTurret>();
+			ExplosiveBlock component6 = obj.GetComponent<ExplosiveBlock>();
+			if ((bool)component6 && !component6.isExploding)
 			{
-				EB.StartCoroutine(EB.Death());
+				component6.StartCoroutine(component6.Death());
 			}
-			if (WT != null && GameMaster.instance.GameHasStarted)
+			if (component5 != null && GameMaster.instance.GameHasStarted)
 			{
-				WT.Health--;
+				component5.Health--;
 			}
-			if (enemy != null && !enemy.immuneToExplosion)
+			if (component != null && !component.immuneToExplosion)
 			{
-				if (GameMaster.instance.isZombieMode && enemy.health > 1 && GameMaster.instance.GameHasStarted)
+				if (GameMaster.instance.isZombieMode && component.health > 1 && GameMaster.instance.GameHasStarted)
 				{
-					SFXManager.instance.PlaySFX(enemy.Buzz);
+					SFXManager.instance.PlaySFX(component.Buzz);
 				}
 				if (GameMaster.instance.GameHasStarted)
 				{
-					if (enemy.ShieldFade.ShieldHealth > 0)
+					if (component.ShieldFade.ShieldHealth > 0)
 					{
-						enemy.ShieldFade.ShieldHealth = 0;
+						component.ShieldFade.ShieldHealth = 0;
 					}
 					else
 					{
-						enemy.DamageMe(1);
+						component.DamageMe(1);
 					}
 				}
 			}
-			if (friendbullet != null)
+			if (component2 != null)
 			{
-				if (!friendbullet.isSilver)
+				if (!component2.isSilver)
 				{
-					friendbullet.TimesBounced = 999;
+					component2.TimesBounced = 999;
 				}
-				if (!friendbullet.isElectric)
+				if (!component2.isElectric)
 				{
-					friendbullet.TimesBounced = 999;
+					component2.TimesBounced = 999;
 				}
 			}
-			if (mines != null)
+			if (component3 != null)
 			{
-				mines.DetinationTime = 0f;
+				component3.DetinationTime = 0f;
 			}
-			if (DestroyWall != null)
+			if (component4 != null)
 			{
-				if (DestroyWall.IsStone)
+				if (component4.IsStone)
 				{
-					DestroyWall.StartCoroutine(DestroyWall.stonedestroy());
+					component4.StartCoroutine(component4.stonedestroy());
 				}
 				else
 				{
-					DestroyWall.StartCoroutine(DestroyWall.destroy());
+					component4.StartCoroutine(component4.destroy());
 				}
 			}
 		}
-		Collider[] bigobjectsInRange = Physics.OverlapSphere(location, radius * 2f);
-		Collider[] array2 = bigobjectsInRange;
-		foreach (Collider col2 in array2)
+		array = Physics.OverlapSphere(location, radius * 2f);
+		foreach (Collider collider in array)
 		{
-			Rigidbody rigi = col2.GetComponent<Rigidbody>();
-			if (rigi != null && (col2.tag == "Player" || col2.tag == "Enemy"))
+			Rigidbody component7 = collider.GetComponent<Rigidbody>();
+			if (component7 != null && (collider.tag == "Player" || collider.tag == "Enemy"))
 			{
-				float distance = Vector3.Distance(rigi.transform.position, base.transform.position);
-				float force = (radius * 2f - distance) * 2f;
-				Vector3 direction = rigi.transform.position - base.transform.position;
-				rigi.AddForce(direction * force, ForceMode.Impulse);
+				float num = Vector3.Distance(component7.transform.position, base.transform.position);
+				float num2 = (radius * 2f - num) * 2f;
+				Vector3 vector = component7.transform.position - base.transform.position;
+				component7.AddForce(vector * num2, ForceMode.Impulse);
 			}
 		}
 	}

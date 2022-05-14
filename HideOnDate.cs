@@ -7,9 +7,9 @@ public class HideOnDate : MonoBehaviour
 
 	public int[] Days;
 
-	public bool MonthCheck = false;
+	public bool MonthCheck;
 
-	public bool DayCheck = false;
+	public bool DayCheck;
 
 	public GameObject[] ToEnable;
 
@@ -19,9 +19,9 @@ public class HideOnDate : MonoBehaviour
 		if (Months.Length != 0)
 		{
 			int[] months = Months;
-			foreach (int month in months)
+			foreach (int num in months)
 			{
-				if (DateTime.Now.Month == month)
+				if (DateTime.Now.Month == num)
 				{
 					MonthCheck = true;
 				}
@@ -29,10 +29,10 @@ public class HideOnDate : MonoBehaviour
 		}
 		if (Days.Length != 0)
 		{
-			int[] days = Days;
-			foreach (int day in days)
+			int[] months = Days;
+			foreach (int num2 in months)
 			{
-				if (DateTime.Now.Day == day)
+				if (DateTime.Now.Day == num2)
 				{
 					DayCheck = true;
 				}
@@ -43,9 +43,9 @@ public class HideOnDate : MonoBehaviour
 			base.gameObject.SetActive(value: true);
 			OptionsMainMenu.instance.SnowMode = true;
 			GameObject[] toEnable = ToEnable;
-			foreach (GameObject enable in toEnable)
+			for (int i = 0; i < toEnable.Length; i++)
 			{
-				enable.SetActive(value: true);
+				toEnable[i].SetActive(value: true);
 			}
 		}
 		else

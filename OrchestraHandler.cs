@@ -45,11 +45,11 @@ public class OrchestraHandler : MonoBehaviour
 
 	public bool isBlack;
 
-	public int lastKnownAmountEnemies = 0;
+	public int lastKnownAmountEnemies;
 
 	public float VolumeOffset = -0.5f;
 
-	public bool isPlaying = false;
+	public bool isPlaying;
 
 	public int lastKnownMusicVol;
 
@@ -128,25 +128,25 @@ public class OrchestraHandler : MonoBehaviour
 	{
 		if (isPlaying)
 		{
-			GameObject[] Enemies = GameObject.FindGameObjectsWithTag("Enemy");
-			GameObject[] Bosses = GameObject.FindGameObjectsWithTag("Boss");
-			GameObject[] all = Enemies.Concat(Bosses).ToArray();
+			GameObject[] first = GameObject.FindGameObjectsWithTag("Enemy");
+			GameObject[] second = GameObject.FindGameObjectsWithTag("Boss");
+			GameObject[] array = first.Concat(second).ToArray();
 			if (lastKnownAmountEnemies == 0 && !GameMaster.instance.isZombieMode && !GameMaster.instance.inMapEditor)
 			{
-				changeMusic(all);
-				lastKnownAmountEnemies = all.Length;
+				changeMusic(array);
+				lastKnownAmountEnemies = array.Length;
 			}
-			else if (all.Length != lastKnownAmountEnemies)
+			else if (array.Length != lastKnownAmountEnemies)
 			{
-				changeMusic(all);
-				lastKnownAmountEnemies = all.Length;
+				changeMusic(array);
+				lastKnownAmountEnemies = array.Length;
 			}
 			if (OptionsMainMenu.instance != null && (lastKnownMusicVol != OptionsMainMenu.instance.musicVolumeLvl || lastKnownMasterVol != OptionsMainMenu.instance.masterVolumeLvl))
 			{
 				lastKnownMusicVol = OptionsMainMenu.instance.musicVolumeLvl;
 				lastKnownMasterVol = OptionsMainMenu.instance.masterVolumeLvl;
-				changeMusic(all);
-				lastKnownAmountEnemies = all.Length;
+				changeMusic(array);
+				lastKnownAmountEnemies = array.Length;
 			}
 		}
 	}
@@ -178,49 +178,49 @@ public class OrchestraHandler : MonoBehaviour
 		isRussian = false;
 		isBlack = false;
 		Debug.LogWarning("changing music...");
-		foreach (GameObject EnemyTank in tanks)
+		foreach (GameObject gameObject in tanks)
 		{
-			if (EnemyTank.transform.parent.name == "Enemy_Tank-2")
+			if (gameObject.transform.parent.name == "Enemy_Tank-2")
 			{
 				isGrey = true;
 			}
-			if (EnemyTank.transform.parent.name == "Enemy_Tank-3")
+			if (gameObject.transform.parent.name == "Enemy_Tank-3")
 			{
 				isPurple = true;
 			}
-			if (EnemyTank.transform.parent.name == "Enemy_Tank-4" || EnemyTank.transform.parent.name == "Enemy_Tank-AI2(Clone)")
+			if (gameObject.transform.parent.name == "Enemy_Tank-4" || gameObject.transform.parent.name == "Enemy_Tank-AI2(Clone)")
 			{
 				isTeal = true;
 			}
-			if (EnemyTank.transform.parent.name == "Enemy_Tank-5")
+			if (gameObject.transform.parent.name == "Enemy_Tank-5")
 			{
 				isYellow = true;
 			}
-			if (EnemyTank.transform.parent.name == "Enemy_Tank-6" || EnemyTank.transform.parent.name == "Boss_Tank-10" || EnemyTank.transform.parent.name == "Enemy_Tank-AI3(Clone)")
+			if (gameObject.transform.parent.name == "Enemy_Tank-6" || gameObject.transform.parent.name == "Boss_Tank-10" || gameObject.transform.parent.name == "Enemy_Tank-AI3(Clone)")
 			{
 				isRed = true;
 			}
-			if (EnemyTank.transform.parent.name == "Enemy_Tank-7")
+			if (gameObject.transform.parent.name == "Enemy_Tank-7")
 			{
 				isGreen = true;
 			}
-			if (EnemyTank.transform.parent.name == "Enemy_Tank-8")
+			if (gameObject.transform.parent.name == "Enemy_Tank-8")
 			{
 				isWhite = true;
 			}
-			if (EnemyTank.transform.parent.name == "Enemy_Tank-10")
+			if (gameObject.transform.parent.name == "Enemy_Tank-10")
 			{
 				isArmoured = true;
 			}
-			if (EnemyTank.transform.parent.name == "Enemy_Tank-11")
+			if (gameObject.transform.parent.name == "Enemy_Tank-11")
 			{
 				isOrange = true;
 			}
-			if (EnemyTank.transform.parent.name == "Enemy_Tank-12" || EnemyTank.transform.parent.name == "Boss_Tank-50-Others")
+			if (gameObject.transform.parent.name == "Enemy_Tank-12" || gameObject.transform.parent.name == "Boss_Tank-50-Others")
 			{
 				isRussian = true;
 			}
-			if (EnemyTank.transform.parent.name == "Enemy_Tank-13")
+			if (gameObject.transform.parent.name == "Enemy_Tank-13")
 			{
 				isBlack = true;
 			}

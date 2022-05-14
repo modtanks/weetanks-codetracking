@@ -51,7 +51,7 @@ public class CustomTankData
 
 	public int CustomBulletSpeed = 7;
 
-	public bool CanShootAirMissiles = false;
+	public bool CanShootAirMissiles;
 
 	public int CustomMissileCapacity = 1;
 

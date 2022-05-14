@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class SuicideTankScript : MonoBehaviour
 {
-	public bool canSeePlayer = false;
+	public bool canSeePlayer;
 
 	public Transform BaseRay;
 
@@ -19,7 +19,7 @@ public class SuicideTankScript : MonoBehaviour
 
 	public bool canShoot = true;
 
-	public bool canShootAirRockets = false;
+	public bool canShootAirRockets;
 
 	public RocketScript RS;
 
@@ -45,16 +45,16 @@ public class SuicideTankScript : MonoBehaviour
 		if ((bool)aiAgent.TheTarget)
 		{
 			targetPos = aiAgent.TheTarget.transform.position;
-			Vector3 lookPos = targetPos - base.transform.position;
-			lookPos.y = 0f;
-			Quaternion rotation = Quaternion.LookRotation(lookPos);
+			Vector3 forward = targetPos - base.transform.position;
+			forward.y = 0f;
+			Quaternion rotation = Quaternion.LookRotation(forward);
 			base.transform.rotation = rotation;
 		}
-		Vector3 direction = (targetPos - BaseRay.transform.position).normalized;
-		Debug.DrawRay(BaseRay.transform.position, direction * 20f, Color.blue);
-		if (Physics.Raycast(BaseRay.transform.position, direction * 20f, out var rayhit, float.PositiveInfinity, layerMask))
+		Vector3 normalized = (targetPos - BaseRay.transform.position).normalized;
+		Debug.DrawRay(BaseRay.transform.position, normalized * 20f, Color.blue);
+		if (Physics.Raycast(BaseRay.transform.position, normalized * 20f, out var hitInfo, float.PositiveInfinity, layerMask))
 		{
-			if (rayhit.collider.tag == "Player" || rayhit.collider.tag == "Turret")
+			if (hitInfo.collider.tag == "Player" || hitInfo.collider.tag == "Turret")
 			{
 				canSeePlayer = true;
 			}
@@ -67,44 +67,43 @@ public class SuicideTankScript : MonoBehaviour
 
 	private IEnumerator ShootAirRandom()
 	{
-		float random = (float)ShootInterval + Random.Range(0f, ShootInterval);
-		yield return new WaitForSeconds(random);
+		float seconds = (float)ShootInterval + Random.Range(0f, ShootInterval);
+		yield return new WaitForSeconds(seconds);
 		RS.Launch();
 		yield return new WaitForSeconds(ShootInterval);
-		GameObject NewRocket = Object.Instantiate(RocketPrefab, RocketSpawnLocation);
-		RS = NewRocket.GetComponent<RocketScript>();
+		GameObject gameObject = Object.Instantiate(RocketPrefab, RocketSpawnLocation);
+		RS = gameObject.GetComponent<RocketScript>();
 		StartCoroutine("ShootAirRandom");
 	}
 
 	private IEnumerator ShootRandom()
 	{
-		float random = (float)ShootInterval + Random.Range(0f, ShootInterval);
-		yield return new WaitForSeconds(random);
+		float seconds = (float)ShootInterval + Random.Range(0f, ShootInterval);
+		yield return new WaitForSeconds(seconds);
 		if (canSeePlayer)
 		{
 			Play2DClipAtPoint(shotSound);
-			GameObject bulletGO = Object.Instantiate(bulletPrefab, BaseRay.position, BaseRay.transform.rotation);
-			PlayerBulletScript bullet = bulletGO.GetComponent<PlayerBulletScript>();
-			if ((bool)bullet)
+			GameObject obj = Object.Instantiate(bulletPrefab, BaseRay.position, BaseRay.transform.rotation);
+			PlayerBulletScript component = obj.GetComponent<PlayerBulletScript>();
+			if ((bool)component)
 			{
-				bullet.papaTank = aiAgent.gameObject;
+				component.papaTank = aiAgent.gameObject;
 			}
-			bulletGO.transform.Rotate(Vector3.right * 90f);
-			Rigidbody bulletBody = bulletGO.GetComponent<Rigidbody>();
-			bulletBody.AddForce(BaseRay.forward * 6f);
-			bullet.StartingVelocity = BaseRay.forward * 6f;
+			obj.transform.Rotate(Vector3.right * 90f);
+			obj.GetComponent<Rigidbody>().AddForce(BaseRay.forward * 6f);
+			component.StartingVelocity = BaseRay.forward * 6f;
 		}
 		StartCoroutine("ShootRandom");
 	}
 
 	public void Play2DClipAtPoint(AudioClip clip)
 	{
-		GameObject tempAudioSource = new GameObject("TempAudio");
-		AudioSource audioSource = tempAudioSource.AddComponent<AudioSource>();
+		GameObject obj = new GameObject("TempAudio");
+		AudioSource audioSource = obj.AddComponent<AudioSource>();
 		audioSource.clip = clip;
 		audioSource.volume = 1f;
 		audioSource.spatialBlend = 0f;
 		audioSource.Play();
-		Object.Destroy(tempAudioSource, clip.length);
+		Object.Destroy(obj, clip.length);
 	}
 }

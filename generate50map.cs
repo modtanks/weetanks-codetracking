@@ -10,14 +10,13 @@ public class generate50map : MonoBehaviour
 
 	private void Start()
 	{
-		for (int x = 0; x < xsize; x++)
+		for (int i = 0; i < xsize; i++)
 		{
-			for (int z = 0; z < zsize; z++)
+			for (int j = 0; j < zsize; j++)
 			{
-				if (x != 0 || z != 0)
+				if (i != 0 || j != 0)
 				{
-					GameObject spawnedIn = Object.Instantiate(prefabFloorTile, prefabFloorTile.transform.position + new Vector3(x * 2, 0f, -z * 2), Quaternion.identity, base.transform);
-					spawnedIn.transform.rotation = prefabFloorTile.transform.rotation;
+					Object.Instantiate(prefabFloorTile, prefabFloorTile.transform.position + new Vector3(i * 2, 0f, -j * 2), Quaternion.identity, base.transform).transform.rotation = prefabFloorTile.transform.rotation;
 				}
 			}
 		}

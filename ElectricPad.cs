@@ -15,7 +15,7 @@ public class ElectricPad : MonoBehaviour
 
 	public HealthTanks HTboss;
 
-	public bool ActiveBecauseCloseToBoss = false;
+	public bool ActiveBecauseCloseToBoss;
 
 	public ParticleSystem ElectroParticles;
 
@@ -33,15 +33,15 @@ public class ElectricPad : MonoBehaviour
 
 	public Color OriginalColor;
 
-	public bool ChangingColor = false;
+	public bool ChangingColor;
 
 	public float intensityEmission = 10f;
 
 	public float Duration = 1f;
 
-	public float t = 0f;
+	public float t;
 
-	public bool gameOver = false;
+	public bool gameOver;
 
 	private void Start()
 	{
@@ -69,6 +69,7 @@ public class ElectricPad : MonoBehaviour
 
 	private void LightUp()
 	{
+		MR.material.EnableKeyword("_EMISSION");
 		MR.material.SetColor("_EmissionColor", EmissionColor * intensityEmission);
 		if (OptionsMainMenu.instance.currentGraphicSettings > 4)
 		{
@@ -103,13 +104,12 @@ public class ElectricPad : MonoBehaviour
 		{
 			return;
 		}
-		Collider[] objectsInRange = Physics.OverlapSphere(base.transform.position, 2.5f);
-		Collider[] array = objectsInRange;
-		foreach (Collider col in array)
+		Collider[] array = Physics.OverlapSphere(base.transform.position, 2.5f);
+		foreach (Collider collider in array)
 		{
-			if (col.tag == "Boss")
+			if (collider.tag == "Boss")
 			{
-				BossObject = col.gameObject;
+				BossObject = collider.gameObject;
 				ActiveBecauseCloseToBoss = true;
 			}
 		}
@@ -209,32 +209,32 @@ public class ElectricPad : MonoBehaviour
 	{
 		if (other.tag == "Player" && (Active || ActiveBecauseCloseToBoss))
 		{
-			MoveTankScript MTS = other.GetComponent<MoveTankScript>();
-			if ((bool)MTS)
+			MoveTankScript component = other.GetComponent<MoveTankScript>();
+			if ((bool)component)
 			{
-				MTS.StunMe(1.5f);
+				component.StunMe(1.5f);
 				return;
 			}
-			EnemyAI AIscript = other.GetComponent<EnemyAI>();
-			if ((bool)AIscript)
+			EnemyAI component2 = other.GetComponent<EnemyAI>();
+			if ((bool)component2)
 			{
-				AIscript.StunMe(1.5f);
+				component2.StunMe(1.5f);
 			}
 		}
 		else if (other.tag == "Enemy" && (Active || ActiveBecauseCloseToBoss) && GameMaster.instance.CurrentMission != 69)
 		{
-			EnemyAI EA = other.GetComponent<EnemyAI>();
-			if ((bool)EA && !EA.isElectric)
+			EnemyAI component3 = other.GetComponent<EnemyAI>();
+			if ((bool)component3 && !component3.isElectric)
 			{
-				EA.StunMe(1.5f);
+				component3.StunMe(1.5f);
 			}
 		}
 		else if (other.tag == "Bullet" && (Active || ActiveBecauseCloseToBoss))
 		{
-			PlayerBulletScript PBS = other.GetComponent<PlayerBulletScript>();
-			if ((bool)PBS && (Active || ActiveBecauseCloseToBoss))
+			PlayerBulletScript component4 = other.GetComponent<PlayerBulletScript>();
+			if ((bool)component4 && (Active || ActiveBecauseCloseToBoss))
 			{
-				PBS.ChargeElectric();
+				component4.ChargeElectric();
 			}
 		}
 		else if (other.tag == "Player")
@@ -286,27 +286,23 @@ public class ElectricPad : MonoBehaviour
 			}
 			if ((bool)PlayerOnMe)
 			{
-				MoveTankScript MTS = PlayerOnMe.GetComponent<MoveTankScript>();
-				if ((bool)MTS && !MTS.isStunned)
+				MoveTankScript component = PlayerOnMe.GetComponent<MoveTankScript>();
+				if ((bool)component && !component.isStunned)
 				{
-					MTS.StunMe(2f);
+					component.StunMe(2f);
 				}
 				else
 				{
-					EnemyAI AIscript = PlayerOnMe.GetComponent<EnemyAI>();
-					if ((bool)AIscript && !AIscript.isStunned)
+					EnemyAI component2 = PlayerOnMe.GetComponent<EnemyAI>();
+					if ((bool)component2 && !component2.isStunned)
 					{
-						AIscript.StunMe(2f);
+						component2.StunMe(2f);
 					}
 				}
 			}
-			if (ActiveBecauseCloseToBoss)
+			if (ActiveBecauseCloseToBoss && Vector3.Distance(base.transform.position, BossObject.transform.position) > 5f)
 			{
-				float dist = Vector3.Distance(base.transform.position, BossObject.transform.position);
-				if (dist > 5f)
-				{
-					ActiveBecauseCloseToBoss = false;
-				}
+				ActiveBecauseCloseToBoss = false;
 			}
 		}
 		else if (!picked)

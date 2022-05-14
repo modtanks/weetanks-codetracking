@@ -25,7 +25,7 @@ public class PressStartToJoinExample_Assigner : MonoBehaviour
 
 	private List<PlayerMap> playerMap;
 
-	private int gamePlayerIdCounter = 0;
+	private int gamePlayerIdCounter;
 
 	public static Player GetRewiredPlayer(int gamePlayerId)
 	{
@@ -72,12 +72,12 @@ public class PressStartToJoinExample_Assigner : MonoBehaviour
 			Debug.LogError("Max player limit already reached!");
 			return;
 		}
-		int gamePlayerId = GetNextGamePlayerId();
-		playerMap.Add(new PlayerMap(rewiredPlayerId, gamePlayerId));
-		Player rewiredPlayer = ReInput.players.GetPlayer(rewiredPlayerId);
-		rewiredPlayer.controllers.maps.SetMapsEnabled(state: false, "Assignment");
-		rewiredPlayer.controllers.maps.SetMapsEnabled(state: true, "Default");
-		Debug.Log("Added Rewired Player id " + rewiredPlayerId + " to game player " + gamePlayerId);
+		int nextGamePlayerId = GetNextGamePlayerId();
+		playerMap.Add(new PlayerMap(rewiredPlayerId, nextGamePlayerId));
+		Player player = ReInput.players.GetPlayer(rewiredPlayerId);
+		player.controllers.maps.SetMapsEnabled(state: false, "Assignment");
+		player.controllers.maps.SetMapsEnabled(state: true, "Default");
+		Debug.Log("Added Rewired Player id " + rewiredPlayerId + " to game player " + nextGamePlayerId);
 	}
 
 	private int GetNextGamePlayerId()

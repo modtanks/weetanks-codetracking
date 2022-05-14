@@ -21,7 +21,17 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 
 			public JoystickInfo[] joysticks;
 
-			public int joystickCount => (joysticks != null) ? joysticks.Length : 0;
+			public int joystickCount
+			{
+				get
+				{
+					if (joysticks == null)
+					{
+						return 0;
+					}
+					return joysticks.Length;
+				}
+			}
 
 			public int IndexOfJoystick(int joystickId)
 			{
@@ -52,7 +62,17 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 
 		public PlayerInfo[] players;
 
-		public int playerCount => (players != null) ? players.Length : 0;
+		public int playerCount
+		{
+			get
+			{
+				if (players == null)
+				{
+					return 0;
+				}
+				return players.Length;
+			}
+		}
 
 		public ControllerAssignmentSaveInfo()
 		{
@@ -233,7 +253,17 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 
 	private string playerPrefsKey_controllerAssignments => string.Format("{0}_{1}", playerPrefsKeyPrefix, "ControllerAssignments");
 
-	private bool loadControllerAssignments => loadKeyboardAssignments || loadMouseAssignments || loadJoystickAssignments;
+	private bool loadControllerAssignments
+	{
+		get
+		{
+			if (!loadKeyboardAssignments && !loadMouseAssignments)
+			{
+				return loadJoystickAssignments;
+			}
+			return true;
+		}
+	}
 
 	private List<int> allActionIds
 	{
@@ -243,14 +273,14 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 			{
 				return __allActionIds;
 			}
-			List<int> ids = new List<int>();
+			List<int> list = new List<int>();
 			IList<InputAction> actions = ReInput.mapping.Actions;
 			for (int i = 0; i < actions.Count; i++)
 			{
-				ids.Add(actions[i].id);
+				list.Add(actions[i].id);
 			}
-			__allActionIds = ids;
-			return ids;
+			__allActionIds = list;
+			return list;
 		}
 	}
 
@@ -262,17 +292,17 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 			{
 				return __allActionIdsString;
 			}
-			StringBuilder sb = new StringBuilder();
-			List<int> ids = allActionIds;
-			for (int i = 0; i < ids.Count; i++)
+			StringBuilder stringBuilder = new StringBuilder();
+			List<int> list = allActionIds;
+			for (int i = 0; i < list.Count; i++)
 			{
 				if (i > 0)
 				{
-					sb.Append(",");
+					stringBuilder.Append(",");
 				}
-				sb.Append(ids[i]);
+				stringBuilder.Append(list[i]);
 			}
-			__allActionIdsString = sb.ToString();
+			__allActionIdsString = stringBuilder.ToString();
 			return __allActionIdsString;
 		}
 	}
@@ -345,7 +375,7 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 		}
 		else
 		{
-			int count = LoadAll();
+			LoadAll();
 		}
 	}
 
@@ -357,7 +387,7 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 		}
 		else
 		{
-			int count = LoadControllerDataNow(playerId, controllerType, controllerId);
+			LoadControllerDataNow(playerId, controllerType, controllerId);
 		}
 	}
 
@@ -369,7 +399,7 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 		}
 		else
 		{
-			int count = LoadControllerDataNow(controllerType, controllerId);
+			LoadControllerDataNow(controllerType, controllerId);
 		}
 	}
 
@@ -381,7 +411,7 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 		}
 		else
 		{
-			int count = LoadPlayerDataNow(playerId);
+			LoadPlayerDataNow(playerId);
 		}
 	}
 
@@ -393,7 +423,7 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 		}
 		else
 		{
-			int count = LoadInputBehaviorNow(playerId, behaviorId);
+			LoadInputBehaviorNow(playerId, behaviorId);
 		}
 	}
 
@@ -414,7 +444,7 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 	{
 		if (isEnabled && args.controllerType == ControllerType.Joystick)
 		{
-			int count = LoadJoystickData(args.controllerId);
+			LoadJoystickData(args.controllerId);
 			if (loadDataOnStart && loadJoystickAssignments && !wasJoystickEverDetected)
 			{
 				StartCoroutine(LoadJoystickAssignmentsDeferred());
@@ -467,17 +497,17 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 
 	private int LoadAll()
 	{
-		int count = 0;
+		int num = 0;
 		if (loadControllerAssignments && LoadControllerAssignmentsNow())
 		{
-			count++;
+			num++;
 		}
 		IList<Player> allPlayers = ReInput.players.AllPlayers;
 		for (int i = 0; i < allPlayers.Count; i++)
 		{
-			count += LoadPlayerDataNow(allPlayers[i]);
+			num += LoadPlayerDataNow(allPlayers[i]);
 		}
-		return count + LoadAllJoystickCalibrationData();
+		return num + LoadAllJoystickCalibrationData();
 	}
 
 	private int LoadPlayerDataNow(int playerId)
@@ -491,27 +521,27 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 		{
 			return 0;
 		}
-		int count = 0;
-		count += LoadInputBehaviors(player.id);
-		count += LoadControllerMaps(player.id, ControllerType.Keyboard, 0);
-		count += LoadControllerMaps(player.id, ControllerType.Mouse, 0);
+		int num = 0;
+		num += LoadInputBehaviors(player.id);
+		num += LoadControllerMaps(player.id, ControllerType.Keyboard, 0);
+		num += LoadControllerMaps(player.id, ControllerType.Mouse, 0);
 		foreach (Joystick joystick in player.controllers.Joysticks)
 		{
-			count += LoadControllerMaps(player.id, ControllerType.Joystick, joystick.id);
+			num += LoadControllerMaps(player.id, ControllerType.Joystick, joystick.id);
 		}
 		RefreshLayoutManager(player.id);
-		return count;
+		return num;
 	}
 
 	private int LoadAllJoystickCalibrationData()
 	{
-		int count = 0;
+		int num = 0;
 		IList<Joystick> joysticks = ReInput.controllers.Joysticks;
 		for (int i = 0; i < joysticks.Count; i++)
 		{
-			count += LoadJoystickCalibrationData(joysticks[i]);
+			num += LoadJoystickCalibrationData(joysticks[i]);
 		}
-		return count;
+		return num;
 	}
 
 	private int LoadJoystickCalibrationData(Joystick joystick)
@@ -520,7 +550,11 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 		{
 			return 0;
 		}
-		return joystick.ImportCalibrationMapFromXmlString(GetJoystickCalibrationMapXml(joystick)) ? 1 : 0;
+		if (!joystick.ImportCalibrationMapFromXmlString(GetJoystickCalibrationMapXml(joystick)))
+		{
+			return 0;
+		}
+		return 1;
 	}
 
 	private int LoadJoystickCalibrationData(int joystickId)
@@ -530,72 +564,71 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 
 	private int LoadJoystickData(int joystickId)
 	{
-		int count = 0;
+		int num = 0;
 		IList<Player> allPlayers = ReInput.players.AllPlayers;
 		for (int i = 0; i < allPlayers.Count; i++)
 		{
 			Player player = allPlayers[i];
 			if (player.controllers.ContainsController(ControllerType.Joystick, joystickId))
 			{
-				count += LoadControllerMaps(player.id, ControllerType.Joystick, joystickId);
+				num += LoadControllerMaps(player.id, ControllerType.Joystick, joystickId);
 				RefreshLayoutManager(player.id);
 			}
 		}
-		return count + LoadJoystickCalibrationData(joystickId);
+		return num + LoadJoystickCalibrationData(joystickId);
 	}
 
 	private int LoadControllerDataNow(int playerId, ControllerType controllerType, int controllerId)
 	{
-		int count = 0;
-		count += LoadControllerMaps(playerId, controllerType, controllerId);
+		int num = 0 + LoadControllerMaps(playerId, controllerType, controllerId);
 		RefreshLayoutManager(playerId);
-		return count + LoadControllerDataNow(controllerType, controllerId);
+		return num + LoadControllerDataNow(controllerType, controllerId);
 	}
 
 	private int LoadControllerDataNow(ControllerType controllerType, int controllerId)
 	{
-		int count = 0;
+		int num = 0;
 		if (controllerType == ControllerType.Joystick)
 		{
-			count += LoadJoystickCalibrationData(controllerId);
+			num += LoadJoystickCalibrationData(controllerId);
 		}
-		return count;
+		return num;
 	}
 
 	private int LoadControllerMaps(int playerId, ControllerType controllerType, int controllerId)
 	{
-		int count = 0;
+		int num = 0;
 		Player player = ReInput.players.GetPlayer(playerId);
 		if (player == null)
 		{
-			return count;
+			return num;
 		}
 		Controller controller = ReInput.controllers.GetController(controllerType, controllerId);
 		if (controller == null)
 		{
-			return count;
+			return num;
 		}
-		IList<InputMapCategory> categories = ReInput.mapping.MapCategories;
-		for (int i = 0; i < categories.Count; i++)
+		IList<InputMapCategory> mapCategories = ReInput.mapping.MapCategories;
+		for (int i = 0; i < mapCategories.Count; i++)
 		{
-			InputMapCategory category = categories[i];
-			if (!category.userAssignable)
+			InputMapCategory inputMapCategory = mapCategories[i];
+			if (!inputMapCategory.userAssignable)
 			{
 				continue;
 			}
-			IList<InputLayout> layouts = ReInput.mapping.MapLayouts(controller.type);
-			for (int j = 0; j < layouts.Count; j++)
+			IList<InputLayout> list = ReInput.mapping.MapLayouts(controller.type);
+			for (int j = 0; j < list.Count; j++)
 			{
-				InputLayout layout = layouts[j];
-				ControllerMap controllerMap = LoadControllerMap(player, controller.identifier, category.id, layout.id);
+				InputLayout inputLayout = list[j];
+				ControllerMap controllerMap = LoadControllerMap(player, controller.identifier, inputMapCategory.id, inputLayout.id);
 				if (controllerMap != null)
 				{
 					player.controllers.maps.AddMap(controller, controllerMap);
-					count++;
+					num++;
 				}
 			}
 		}
-		return count;
+		return num;
 	}
 
 	private ControllerMap LoadControllerMap(Player player, ControllerIdentifier controllerIdentifier, int categoryId, int layoutId)
@@ -604,18 +637,18 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 		{
 			return null;
 		}
-		string xml = GetControllerMapXml(player, controllerIdentifier, categoryId, layoutId);
-		if (string.IsNullOrEmpty(xml))
+		string controllerMapXml = GetControllerMapXml(player, controllerIdentifier, categoryId, layoutId);
+		if (string.IsNullOrEmpty(controllerMapXml))
 		{
 			return null;
 		}
-		ControllerMap controllerMap = ControllerMap.CreateFromXml(controllerIdentifier.controllerType, xml);
+		ControllerMap controllerMap = ControllerMap.CreateFromXml(controllerIdentifier.controllerType, controllerMapXml);
 		if (controllerMap == null)
 		{
 			return null;
 		}
-		List<int> knownActionIds = GetControllerMapKnownActionIds(player, controllerIdentifier, categoryId, layoutId);
-		AddDefaultMappingsForNewActions(controllerIdentifier, controllerMap, knownActionIds);
+		List<int> controllerMapKnownActionIds = GetControllerMapKnownActionIds(player, controllerIdentifier, categoryId, layoutId);
+		AddDefaultMappingsForNewActions(controllerIdentifier, controllerMap, controllerMapKnownActionIds);
 		return controllerMap;
 	}
 
@@ -626,13 +659,13 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 		{
 			return 0;
 		}
-		int count = 0;
-		IList<InputBehavior> behaviors = ReInput.mapping.GetInputBehaviors(player.id);
-		for (int i = 0; i < behaviors.Count; i++)
+		int num = 0;
+		IList<InputBehavior> inputBehaviors = ReInput.mapping.GetInputBehaviors(player.id);
+		for (int i = 0; i < inputBehaviors.Count; i++)
 		{
-			count += LoadInputBehaviorNow(player, behaviors[i]);
+			num += LoadInputBehaviorNow(player, inputBehaviors[i]);
 		}
-		return count;
+		return num;
 	}
 
 	private int LoadInputBehaviorNow(int playerId, int behaviorId)
@@ -642,12 +675,12 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 		{
 			return 0;
 		}
-		InputBehavior behavior = ReInput.mapping.GetInputBehavior(playerId, behaviorId);
-		if (behavior == null)
+		InputBehavior inputBehavior = ReInput.mapping.GetInputBehavior(playerId, behaviorId);
+		if (inputBehavior == null)
 		{
 			return 0;
 		}
-		return LoadInputBehaviorNow(player, behavior);
+		return LoadInputBehaviorNow(player, inputBehavior);
 	}
 
 	private int LoadInputBehaviorNow(Player player, InputBehavior inputBehavior)
@@ -656,30 +689,34 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 		{
 			return 0;
 		}
-		string xml = GetInputBehaviorXml(player, inputBehavior.id);
-		if (xml == null || xml == string.Empty)
+		string inputBehaviorXml = GetInputBehaviorXml(player, inputBehavior.id);
+		if (inputBehaviorXml == null || inputBehaviorXml == string.Empty)
 		{
 			return 0;
 		}
-		return inputBehavior.ImportXmlString(xml) ? 1 : 0;
+		if (!inputBehavior.ImportXmlString(inputBehaviorXml))
+		{
+			return 0;
+		}
+		return 1;
 	}
 
 	private bool LoadControllerAssignmentsNow()
 	{
 		try
 		{
-			ControllerAssignmentSaveInfo data = LoadControllerAssignmentData();
-			if (data == null)
+			ControllerAssignmentSaveInfo controllerAssignmentSaveInfo = LoadControllerAssignmentData();
+			if (controllerAssignmentSaveInfo == null)
 			{
 				return false;
 			}
 			if (loadKeyboardAssignments || loadMouseAssignments)
 			{
-				LoadKeyboardAndMouseAssignmentsNow(data);
+				LoadKeyboardAndMouseAssignmentsNow(controllerAssignmentSaveInfo);
 			}
 			if (loadJoystickAssignments)
 			{
-				LoadJoystickAssignmentsNow(data);
+				LoadJoystickAssignmentsNow(controllerAssignmentSaveInfo);
 			}
 		}
 		catch
@@ -696,18 +733,18 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 			{
 				return false;
 			}
-			foreach (Player player in ReInput.players.AllPlayers)
+			foreach (Player allPlayer in ReInput.players.AllPlayers)
 			{
-				if (data.ContainsPlayer(player.id))
+				if (data.ContainsPlayer(allPlayer.id))
 				{
-					ControllerAssignmentSaveInfo.PlayerInfo playerData = data.players[data.IndexOfPlayer(player.id)];
+					ControllerAssignmentSaveInfo.PlayerInfo playerInfo = data.players[data.IndexOfPlayer(allPlayer.id)];
 					if (loadKeyboardAssignments)
 					{
-						player.controllers.hasKeyboard = playerData.hasKeyboard;
+						allPlayer.controllers.hasKeyboard = playerInfo.hasKeyboard;
 					}
 					if (loadMouseAssignments)
 					{
-						player.controllers.hasMouse = playerData.hasMouse;
+						allPlayer.controllers.hasMouse = playerInfo.hasMouse;
 					}
 				}
 			}
@@ -730,57 +767,57 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 			{
 				return false;
 			}
-			foreach (Player player3 in ReInput.players.AllPlayers)
+			foreach (Player allPlayer in ReInput.players.AllPlayers)
 			{
-				player3.controllers.ClearControllersOfType(ControllerType.Joystick);
+				allPlayer.controllers.ClearControllersOfType(ControllerType.Joystick);
 			}
-			List<JoystickAssignmentHistoryInfo> joystickHistory = (loadJoystickAssignments ? new List<JoystickAssignmentHistoryInfo>() : null);
-			foreach (Player player2 in ReInput.players.AllPlayers)
+			List<JoystickAssignmentHistoryInfo> list = (loadJoystickAssignments ? new List<JoystickAssignmentHistoryInfo>() : null);
+			foreach (Player allPlayer2 in ReInput.players.AllPlayers)
 			{
-				if (!data.ContainsPlayer(player2.id))
+				if (!data.ContainsPlayer(allPlayer2.id))
 				{
 					continue;
 				}
-				ControllerAssignmentSaveInfo.PlayerInfo playerData2 = data.players[data.IndexOfPlayer(player2.id)];
-				for (int j = 0; j < playerData2.joystickCount; j++)
+				ControllerAssignmentSaveInfo.PlayerInfo playerInfo = data.players[data.IndexOfPlayer(allPlayer2.id)];
+				for (int i = 0; i < playerInfo.joystickCount; i++)
 				{
-					ControllerAssignmentSaveInfo.JoystickInfo joystickInfo2 = playerData2.joysticks[j];
+					ControllerAssignmentSaveInfo.JoystickInfo joystickInfo2 = playerInfo.joysticks[i];
 					if (joystickInfo2 == null)
 					{
 						continue;
 					}
-					Joystick joystick2 = FindJoystickPrecise(joystickInfo2);
-					if (joystick2 != null)
+					Joystick joystick = FindJoystickPrecise(joystickInfo2);
+					if (joystick != null)
 					{
-						if (joystickHistory.Find((JoystickAssignmentHistoryInfo x) => x.joystick == joystick2) == null)
+						if (list.Find((JoystickAssignmentHistoryInfo x) => x.joystick == joystick) == null)
 						{
-							joystickHistory.Add(new JoystickAssignmentHistoryInfo(joystick2, joystickInfo2.id));
+							list.Add(new JoystickAssignmentHistoryInfo(joystick, joystickInfo2.id));
 						}
-						player2.controllers.AddController(joystick2, removeFromOtherPlayers: false);
+						allPlayer2.controllers.AddController(joystick, removeFromOtherPlayers: false);
 					}
 				}
 			}
 			if (allowImpreciseJoystickAssignmentMatching)
 			{
-				foreach (Player player in ReInput.players.AllPlayers)
+				foreach (Player allPlayer3 in ReInput.players.AllPlayers)
 				{
-					if (!data.ContainsPlayer(player.id))
+					if (!data.ContainsPlayer(allPlayer3.id))
 					{
 						continue;
 					}
-					ControllerAssignmentSaveInfo.PlayerInfo playerData = data.players[data.IndexOfPlayer(player.id)];
-					for (int i = 0; i < playerData.joystickCount; i++)
+					ControllerAssignmentSaveInfo.PlayerInfo playerInfo2 = data.players[data.IndexOfPlayer(allPlayer3.id)];
+					for (int j = 0; j < playerInfo2.joystickCount; j++)
 					{
-						ControllerAssignmentSaveInfo.JoystickInfo joystickInfo = playerData.joysticks[i];
+						ControllerAssignmentSaveInfo.JoystickInfo joystickInfo = playerInfo2.joysticks[j];
 						if (joystickInfo == null)
 						{
 							continue;
 						}
-						Joystick joystick = null;
-						int index = joystickHistory.FindIndex((JoystickAssignmentHistoryInfo x) => x.oldJoystickId == joystickInfo.id);
-						if (index >= 0)
+						Joystick joystick2 = null;
+						int num = list.FindIndex((JoystickAssignmentHistoryInfo x) => x.oldJoystickId == joystickInfo.id);
+						if (num >= 0)
 						{
-							joystick = joystickHistory[index].joystick;
+							joystick2 = list[num].joystick;
 						}
 						else
 						{
@@ -790,20 +827,19 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 							}
 							foreach (Joystick match in matches)
 							{
-								if (joystickHistory.Find((JoystickAssignmentHistoryInfo x) => x.joystick == match) != null)
+								if (list.Find((JoystickAssignmentHistoryInfo x) => x.joystick == match) == null)
 								{
-									continue;
+									joystick2 = match;
+									break;
 								}
-								joystick = match;
-								break;
 							}
-							if (joystick == null)
+							if (joystick2 == null)
 							{
 								continue;
 							}
-							joystickHistory.Add(new JoystickAssignmentHistoryInfo(joystick, joystickInfo.id));
+							list.Add(new JoystickAssignmentHistoryInfo(joystick2, joystickInfo.id));
 						}
-						player.controllers.AddController(joystick, removeFromOtherPlayers: false);
+						allPlayer3.controllers.AddController(joystick2, removeFromOtherPlayers: false);
 					}
 				}
 			}
@@ -826,17 +862,17 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 			{
 				return null;
 			}
-			string json = PlayerPrefs.GetString(playerPrefsKey_controllerAssignments);
-			if (string.IsNullOrEmpty(json))
+			string @string = PlayerPrefs.GetString(playerPrefsKey_controllerAssignments);
+			if (string.IsNullOrEmpty(@string))
 			{
 				return null;
 			}
-			ControllerAssignmentSaveInfo data = JsonParser.FromJson<ControllerAssignmentSaveInfo>(json);
-			if (data == null || data.playerCount == 0)
+			ControllerAssignmentSaveInfo controllerAssignmentSaveInfo = JsonParser.FromJson<ControllerAssignmentSaveInfo>(@string);
+			if (controllerAssignmentSaveInfo == null || controllerAssignmentSaveInfo.playerCount == 0)
 			{
 				return null;
 			}
-			return data;
+			return controllerAssignmentSaveInfo;
 		}
 		catch
 		{
@@ -850,9 +886,7 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 		yield return new WaitForEndOfFrame();
 		if (ReInput.isReady)
 		{
-			if (LoadJoystickAssignmentsNow(null))
-			{
-			}
+			LoadJoystickAssignmentsNow(null);
 			SaveControllerAssignments();
 			deferredJoystickAssignmentLoadPending = false;
 		}
@@ -883,9 +917,9 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 	{
 		if (player != null)
 		{
-			PlayerSaveData playerData = player.GetSaveData(userAssignableMapsOnly: true);
-			SaveInputBehaviors(player, playerData);
-			SaveControllerMaps(player, playerData);
+			PlayerSaveData saveData = player.GetSaveData(userAssignableMapsOnly: true);
+			SaveInputBehaviors(player, saveData);
+			SaveControllerMaps(player, saveData);
 		}
 	}
 
@@ -907,9 +941,8 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 	{
 		if (joystick != null)
 		{
-			JoystickCalibrationMapSaveData saveData = joystick.GetCalibrationMapSaveData();
-			string key = GetJoystickCalibrationMapPlayerPrefsKey(joystick);
-			PlayerPrefs.SetString(key, saveData.map.ToXmlString());
+			JoystickCalibrationMapSaveData calibrationMapSaveData = joystick.GetCalibrationMapSaveData();
+			PlayerPrefs.SetString(GetJoystickCalibrationMapPlayerPrefsKey(joystick), calibrationMapSaveData.map.ToXmlString());
 		}
 	}
 
@@ -945,9 +978,9 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 
 	private void SaveControllerMaps(Player player, PlayerSaveData playerSaveData)
 	{
-		foreach (ControllerMapSaveData saveData in playerSaveData.AllControllerMapSaveData)
+		foreach (ControllerMapSaveData allControllerMapSaveDatum in playerSaveData.AllControllerMapSaveData)
 		{
-			SaveControllerMap(player, saveData.map);
+			SaveControllerMap(player, allControllerMapSaveDatum.map);
 		}
 	}
 
@@ -958,22 +991,20 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 		{
 			return;
 		}
-		ControllerMapSaveData[] saveData = player.controllers.maps.GetMapSaveData(controllerType, controllerId, userAssignableMapsOnly: true);
-		if (saveData != null)
+		ControllerMapSaveData[] mapSaveData = player.controllers.maps.GetMapSaveData(controllerType, controllerId, userAssignableMapsOnly: true);
+		if (mapSaveData != null)
 		{
-			for (int i = 0; i < saveData.Length; i++)
+			for (int i = 0; i < mapSaveData.Length; i++)
 			{
-				SaveControllerMap(player, saveData[i].map);
+				SaveControllerMap(player, mapSaveData[i].map);
 			}
 		}
 	}
 
 	private void SaveControllerMap(Player player, ControllerMap controllerMap)
 	{
-		string key = GetControllerMapPlayerPrefsKey(player, controllerMap.controller.identifier, controllerMap.categoryId, controllerMap.layoutId, 2);
-		PlayerPrefs.SetString(key, controllerMap.ToXmlString());
-		key = GetControllerMapKnownActionIdsPlayerPrefsKey(player, controllerMap.controller.identifier, controllerMap.categoryId, controllerMap.layoutId, 2);
-		PlayerPrefs.SetString(key, allActionIdsString);
+		PlayerPrefs.SetString(GetControllerMapPlayerPrefsKey(player, controllerMap.controller.identifier, controllerMap.categoryId, controllerMap.layoutId, 2), controllerMap.ToXmlString());
+		PlayerPrefs.SetString(GetControllerMapKnownActionIdsPlayerPrefsKey(player, controllerMap.controller.identifier, controllerMap.categoryId, controllerMap.layoutId, 2), allActionIdsString);
 	}
 
 	private void SaveInputBehaviors(Player player, PlayerSaveData playerSaveData)
@@ -993,10 +1024,10 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 		Player player = ReInput.players.GetPlayer(playerId);
 		if (player != null)
 		{
-			InputBehavior behavior = ReInput.mapping.GetInputBehavior(playerId, behaviorId);
-			if (behavior != null)
+			InputBehavior inputBehavior = ReInput.mapping.GetInputBehavior(playerId, behaviorId);
+			if (inputBehavior != null)
 			{
-				SaveInputBehaviorNow(player, behavior);
+				SaveInputBehaviorNow(player, inputBehavior);
 				PlayerPrefs.Save();
 			}
 		}
@@ -1006,8 +1037,7 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 	{
 		if (player != null && inputBehavior != null)
 		{
-			string key = GetInputBehaviorPlayerPrefsKey(player, inputBehavior.id);
-			PlayerPrefs.SetString(key, inputBehavior.ToXmlString());
+			PlayerPrefs.SetString(GetInputBehaviorPlayerPrefsKey(player, inputBehavior.id), inputBehavior.ToXmlString());
 		}
 	}
 
@@ -1015,16 +1045,16 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 	{
 		try
 		{
-			ControllerAssignmentSaveInfo allPlayerData = new ControllerAssignmentSaveInfo(ReInput.players.allPlayerCount);
+			ControllerAssignmentSaveInfo controllerAssignmentSaveInfo = new ControllerAssignmentSaveInfo(ReInput.players.allPlayerCount);
 			for (int i = 0; i < ReInput.players.allPlayerCount; i++)
 			{
 				Player player = ReInput.players.AllPlayers[i];
-				ControllerAssignmentSaveInfo.PlayerInfo playerData = new ControllerAssignmentSaveInfo.PlayerInfo();
-				allPlayerData.players[i] = playerData;
-				playerData.id = player.id;
-				playerData.hasKeyboard = player.controllers.hasKeyboard;
-				playerData.hasMouse = player.controllers.hasMouse;
-				ControllerAssignmentSaveInfo.JoystickInfo[] joystickInfos = (playerData.joysticks = new ControllerAssignmentSaveInfo.JoystickInfo[player.controllers.joystickCount]);
+				ControllerAssignmentSaveInfo.PlayerInfo playerInfo = new ControllerAssignmentSaveInfo.PlayerInfo();
+				controllerAssignmentSaveInfo.players[i] = playerInfo;
+				playerInfo.id = player.id;
+				playerInfo.hasKeyboard = player.controllers.hasKeyboard;
+				playerInfo.hasMouse = player.controllers.hasMouse;
+				ControllerAssignmentSaveInfo.JoystickInfo[] array = (playerInfo.joysticks = new ControllerAssignmentSaveInfo.JoystickInfo[player.controllers.joystickCount]);
 				for (int j = 0; j < player.controllers.joystickCount; j++)
 				{
 					Joystick joystick = player.controllers.Joysticks[j];
@@ -1032,10 +1062,10 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 					joystickInfo.instanceGuid = joystick.deviceInstanceGuid;
 					joystickInfo.id = joystick.id;
 					joystickInfo.hardwareIdentifier = joystick.hardwareIdentifier;
-					joystickInfos[j] = joystickInfo;
+					array[j] = joystickInfo;
 				}
 			}
-			PlayerPrefs.SetString(playerPrefsKey_controllerAssignments, JsonWriter.ToJson(allPlayerData));
+			PlayerPrefs.SetString(playerPrefsKey_controllerAssignments, JsonWriter.ToJson(controllerAssignmentSaveInfo));
 			PlayerPrefs.Save();
 		}
 		catch
@@ -1050,8 +1080,7 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 		{
 			return false;
 		}
-		string json = PlayerPrefs.GetString(playerPrefsKey_controllerAssignments);
-		if (string.IsNullOrEmpty(json))
+		if (string.IsNullOrEmpty(PlayerPrefs.GetString(playerPrefsKey_controllerAssignments)))
 		{
 			return false;
 		}
@@ -1060,84 +1089,73 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 
 	private string GetBasePlayerPrefsKey(Player player)
 	{
-		string key = playerPrefsKeyPrefix;
-		return key + "|playerName=" + player.name;
+		return playerPrefsKeyPrefix + "|playerName=" + player.name;
 	}
 
 	private string GetControllerMapPlayerPrefsKey(Player player, ControllerIdentifier controllerIdentifier, int categoryId, int layoutId, int ppKeyVersion)
 	{
-		string key = GetBasePlayerPrefsKey(player);
-		key += "|dataType=ControllerMap";
-		return key + GetControllerMapPlayerPrefsKeyCommonSuffix(player, controllerIdentifier, categoryId, layoutId, ppKeyVersion);
+		return string.Concat(GetBasePlayerPrefsKey(player) + "|dataType=ControllerMap", GetControllerMapPlayerPrefsKeyCommonSuffix(player, controllerIdentifier, categoryId, layoutId, ppKeyVersion));
 	}
 
 	private string GetControllerMapKnownActionIdsPlayerPrefsKey(Player player, ControllerIdentifier controllerIdentifier, int categoryId, int layoutId, int ppKeyVersion)
 	{
-		string key = GetBasePlayerPrefsKey(player);
-		key += "|dataType=ControllerMap_KnownActionIds";
-		return key + GetControllerMapPlayerPrefsKeyCommonSuffix(player, controllerIdentifier, categoryId, layoutId, ppKeyVersion);
+		return string.Concat(GetBasePlayerPrefsKey(player) + "|dataType=ControllerMap_KnownActionIds", GetControllerMapPlayerPrefsKeyCommonSuffix(player, controllerIdentifier, categoryId, layoutId, ppKeyVersion));
 	}
 
 	private static string GetControllerMapPlayerPrefsKeyCommonSuffix(Player player, ControllerIdentifier controllerIdentifier, int categoryId, int layoutId, int ppKeyVersion)
 	{
-		string key = "";
+		string text = "";
 		if (ppKeyVersion >= 2)
 		{
-			key = key + "|kv=" + ppKeyVersion;
+			text = text + "|kv=" + ppKeyVersion;
 		}
-		key = key + "|controllerMapType=" + GetControllerMapType(controllerIdentifier.controllerType).Name;
-		key = key + "|categoryId=" + categoryId + "|layoutId=" + layoutId;
+		text = text + "|controllerMapType=" + GetControllerMapType(controllerIdentifier.controllerType).Name;
+		text = text + "|categoryId=" + categoryId + "|layoutId=" + layoutId;
 		if (ppKeyVersion >= 2)
 		{
-			key = key + "|hardwareGuid=" + controllerIdentifier.hardwareTypeGuid.ToString();
+			text = text + "|hardwareGuid=" + controllerIdentifier.hardwareTypeGuid.ToString();
 			if (controllerIdentifier.hardwareTypeGuid == Guid.Empty)
 			{
-				key = key + "|hardwareIdentifier=" + controllerIdentifier.hardwareIdentifier;
+				text = text + "|hardwareIdentifier=" + controllerIdentifier.hardwareIdentifier;
 			}
 			if (controllerIdentifier.controllerType == ControllerType.Joystick)
 			{
-				key = key + "|duplicate=" + GetDuplicateIndex(player, controllerIdentifier);
+				text = text + "|duplicate=" + GetDuplicateIndex(player, controllerIdentifier);
 			}
 		}
 		else
 		{
-			key = key + "|hardwareIdentifier=" + controllerIdentifier.hardwareIdentifier;
+			text = text + "|hardwareIdentifier=" + controllerIdentifier.hardwareIdentifier;
 			if (controllerIdentifier.controllerType == ControllerType.Joystick)
 			{
-				key = key + "|hardwareGuid=" + controllerIdentifier.hardwareTypeGuid.ToString();
+				text = text + "|hardwareGuid=" + controllerIdentifier.hardwareTypeGuid.ToString();
 				if (ppKeyVersion >= 1)
 				{
-					key = key + "|duplicate=" + GetDuplicateIndex(player, controllerIdentifier);
+					text = text + "|duplicate=" + GetDuplicateIndex(player, controllerIdentifier);
 				}
 			}
 		}
-		return key;
+		return text;
 	}
 
 	private string GetJoystickCalibrationMapPlayerPrefsKey(Joystick joystick)
 	{
-		string key = playerPrefsKeyPrefix;
-		key += "|dataType=CalibrationMap";
-		key = key + "|controllerType=" + joystick.type;
-		key = key + "|hardwareIdentifier=" + joystick.hardwareIdentifier;
-		return key + "|hardwareGuid=" + joystick.hardwareTypeGuid.ToString();
+		return string.Concat(string.Concat(string.Concat(playerPrefsKeyPrefix + "|dataType=CalibrationMap", "|controllerType=", joystick.type.ToString()), "|hardwareIdentifier=", joystick.hardwareIdentifier), "|hardwareGuid=", joystick.hardwareTypeGuid.ToString());
 	}
 
 	private string GetInputBehaviorPlayerPrefsKey(Player player, int inputBehaviorId)
 	{
-		string key = GetBasePlayerPrefsKey(player);
-		key += "|dataType=InputBehavior";
-		return key + "|id=" + inputBehaviorId;
+		return string.Concat(GetBasePlayerPrefsKey(player) + "|dataType=InputBehavior", "|id=", inputBehaviorId.ToString());
 	}
 
 	private string GetControllerMapXml(Player player, ControllerIdentifier controllerIdentifier, int categoryId, int layoutId)
 	{
-		for (int i = 2; i >= 0; i--)
+		for (int num = 2; num >= 0; num--)
 		{
-			string key = GetControllerMapPlayerPrefsKey(player, controllerIdentifier, categoryId, layoutId, i);
-			if (PlayerPrefs.HasKey(key))
+			string controllerMapPlayerPrefsKey = GetControllerMapPlayerPrefsKey(player, controllerIdentifier, categoryId, layoutId, num);
+			if (PlayerPrefs.HasKey(controllerMapPlayerPrefsKey))
 			{
-				return PlayerPrefs.GetString(key);
+				return PlayerPrefs.GetString(controllerMapPlayerPrefsKey);
 			}
 		}
 		return null;
@@ -1145,56 +1163,56 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 
 	private List<int> GetControllerMapKnownActionIds(Player player, ControllerIdentifier controllerIdentifier, int categoryId, int layoutId)
 	{
-		List<int> actionIds = new List<int>();
+		List<int> list = new List<int>();
 		string key = null;
-		bool found = false;
-		for (int j = 2; j >= 0; j--)
+		bool flag = false;
+		for (int num = 2; num >= 0; num--)
 		{
-			key = GetControllerMapKnownActionIdsPlayerPrefsKey(player, controllerIdentifier, categoryId, layoutId, j);
+			key = GetControllerMapKnownActionIdsPlayerPrefsKey(player, controllerIdentifier, categoryId, layoutId, num);
 			if (PlayerPrefs.HasKey(key))
 			{
-				found = true;
+				flag = true;
 				break;
 			}
 		}
-		if (!found)
+		if (!flag)
 		{
-			return actionIds;
+			return list;
 		}
-		string data = PlayerPrefs.GetString(key);
-		if (string.IsNullOrEmpty(data))
+		string @string = PlayerPrefs.GetString(key);
+		if (string.IsNullOrEmpty(@string))
 		{
-			return actionIds;
+			return list;
 		}
-		string[] split = data.Split(',');
-		for (int i = 0; i < split.Length; i++)
+		string[] array = @string.Split(',');
+		for (int i = 0; i < array.Length; i++)
 		{
-			if (!string.IsNullOrEmpty(split[i]) && int.TryParse(split[i], out var id))
+			if (!string.IsNullOrEmpty(array[i]) && int.TryParse(array[i], out var result))
 			{
-				actionIds.Add(id);
+				list.Add(result);
 			}
 		}
-		return actionIds;
+		return list;
 	}
 
 	private string GetJoystickCalibrationMapXml(Joystick joystick)
 	{
-		string key = GetJoystickCalibrationMapPlayerPrefsKey(joystick);
-		if (!PlayerPrefs.HasKey(key))
+		string joystickCalibrationMapPlayerPrefsKey = GetJoystickCalibrationMapPlayerPrefsKey(joystick);
+		if (!PlayerPrefs.HasKey(joystickCalibrationMapPlayerPrefsKey))
 		{
 			return string.Empty;
 		}
-		return PlayerPrefs.GetString(key);
+		return PlayerPrefs.GetString(joystickCalibrationMapPlayerPrefsKey);
 	}
 
 	private string GetInputBehaviorXml(Player player, int id)
 	{
-		string key = GetInputBehaviorPlayerPrefsKey(player, id);
-		if (!PlayerPrefs.HasKey(key))
+		string inputBehaviorPlayerPrefsKey = GetInputBehaviorPlayerPrefsKey(player, id);
+		if (!PlayerPrefs.HasKey(inputBehaviorPlayerPrefsKey))
 		{
 			return string.Empty;
 		}
-		return PlayerPrefs.GetString(key);
+		return PlayerPrefs.GetString(inputBehaviorPlayerPrefsKey);
 	}
 
 	private void AddDefaultMappingsForNewActions(ControllerIdentifier controllerIdentifier, ControllerMap controllerMap, List<int> knownActionIds)
@@ -1203,29 +1221,29 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 		{
 			return;
 		}
-		ControllerMap defaultMap = ReInput.mapping.GetControllerMapInstance(controllerIdentifier, controllerMap.categoryId, controllerMap.layoutId);
-		if (defaultMap == null)
+		ControllerMap controllerMapInstance = ReInput.mapping.GetControllerMapInstance(controllerIdentifier, controllerMap.categoryId, controllerMap.layoutId);
+		if (controllerMapInstance == null)
 		{
 			return;
 		}
-		List<int> unknownActionIds = new List<int>();
-		foreach (int id in allActionIds)
+		List<int> list = new List<int>();
+		foreach (int allActionId in allActionIds)
 		{
-			if (!knownActionIds.Contains(id))
+			if (!knownActionIds.Contains(allActionId))
 			{
-				unknownActionIds.Add(id);
+				list.Add(allActionId);
 			}
 		}
-		if (unknownActionIds.Count == 0)
+		if (list.Count == 0)
 		{
 			return;
 		}
-		foreach (ActionElementMap aem in defaultMap.AllMaps)
+		foreach (ActionElementMap allMap in controllerMapInstance.AllMaps)
 		{
-			if (unknownActionIds.Contains(aem.actionId) && !controllerMap.DoesElementAssignmentConflict(aem))
+			if (list.Contains(allMap.actionId) && !controllerMap.DoesElementAssignmentConflict(allMap))
 			{
-				ElementAssignment assignment = new ElementAssignment(controllerMap.controllerType, aem.elementType, aem.elementIdentifierId, aem.axisRange, aem.keyCode, aem.modifierKeyFlags, aem.actionId, aem.axisContribution, aem.invert);
-				controllerMap.CreateElementMap(assignment);
+				ElementAssignment elementAssignment = new ElementAssignment(controllerMap.controllerType, allMap.elementType, allMap.elementIdentifierId, allMap.axisRange, allMap.keyCode, allMap.modifierKeyFlags, allMap.actionId, allMap.axisContribution, allMap.invert);
+				controllerMap.CreateElementMap(elementAssignment);
 			}
 		}
 	}
@@ -1284,35 +1302,35 @@ public class UserDataStore_PlayerPrefs : UserDataStore
 		{
 			return 0;
 		}
-		int duplicateCount = 0;
-		foreach (Controller c in player.controllers.Controllers)
+		int num = 0;
+		foreach (Controller controller2 in player.controllers.Controllers)
 		{
-			if (c.type != controller.type)
+			if (controller2.type != controller.type)
 			{
 				continue;
 			}
-			bool isRecognized = false;
+			bool flag = false;
 			if (controller.type == ControllerType.Joystick)
 			{
-				if ((c as Joystick).hardwareTypeGuid != controller.hardwareTypeGuid)
+				if ((controller2 as Joystick).hardwareTypeGuid != controller.hardwareTypeGuid)
 				{
 					continue;
 				}
 				if (controller.hardwareTypeGuid != Guid.Empty)
 				{
-					isRecognized = true;
+					flag = true;
 				}
 			}
-			if (isRecognized || !(c.hardwareIdentifier != controller.hardwareIdentifier))
+			if (flag || !(controller2.hardwareIdentifier != controller.hardwareIdentifier))
 			{
-				if (c == controller)
+				if (controller2 == controller)
 				{
-					return duplicateCount;
+					return num;
 				}
-				duplicateCount++;
+				num++;
 			}
 		}
-		return duplicateCount;
+		return num;
 	}
 
 	private void RefreshLayoutManager(int playerId)

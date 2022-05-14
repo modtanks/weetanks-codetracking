@@ -26,8 +26,8 @@ public class RewiredEventSystem : EventSystem
 	{
 		if (alwaysUpdate)
 		{
-			EventSystem prev = EventSystem.current;
-			if (prev != this)
+			EventSystem eventSystem = EventSystem.current;
+			if (eventSystem != this)
 			{
 				EventSystem.current = this;
 			}
@@ -38,9 +38,9 @@ public class RewiredEventSystem : EventSystem
 			}
 			finally
 			{
-				if (prev != this)
+				if (eventSystem != this)
 				{
-					EventSystem.current = prev;
+					EventSystem.current = eventSystem;
 				}
 			}
 		}

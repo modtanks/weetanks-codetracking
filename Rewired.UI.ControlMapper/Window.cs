@@ -90,7 +90,17 @@ public class Window : MonoBehaviour
 
 	private GameObject lastUISelection;
 
-	public bool hasFocus => _isFocusedCallback != null && _isFocusedCallback(_id);
+	public bool hasFocus
+	{
+		get
+		{
+			if (_isFocusedCallback == null)
+			{
+				return false;
+			}
+			return _isFocusedCallback(_id);
+		}
+	}
 
 	public int id => _id;
 
@@ -144,9 +154,9 @@ public class Window : MonoBehaviour
 		}
 		set
 		{
-			Vector2 size = rectTransform.sizeDelta;
-			size.x = value;
-			rectTransform.sizeDelta = size;
+			Vector2 sizeDelta = rectTransform.sizeDelta;
+			sizeDelta.x = value;
+			rectTransform.sizeDelta = sizeDelta;
 		}
 	}
 
@@ -158,9 +168,9 @@ public class Window : MonoBehaviour
 		}
 		set
 		{
-			Vector2 size = rectTransform.sizeDelta;
-			size.y = value;
-			rectTransform.sizeDelta = size;
+			Vector2 sizeDelta = rectTransform.sizeDelta;
+			sizeDelta.y = value;
+			rectTransform.sizeDelta = sizeDelta;
 		}
 	}
 
@@ -216,9 +226,9 @@ public class Window : MonoBehaviour
 
 	public void AddContentText(GameObject prefab, UIPivot pivot, UIAnchor anchor, Vector2 offset)
 	{
-		TMP_Text text = null;
-		CreateText(prefab, ref text, "Content Text", pivot, anchor, offset);
-		_contentText.Add(text);
+		TMP_Text textComponent = null;
+		CreateText(prefab, ref textComponent, "Content Text", pivot, anchor, offset);
+		_contentText.Add(textComponent);
 	}
 
 	public void AddContentText(GameObject prefab, UIPivot pivot, UIAnchor anchor, Vector2 offset, string text)
@@ -244,15 +254,15 @@ public class Window : MonoBehaviour
 			return;
 		}
 		ButtonInfo buttonInfo;
-		GameObject instance = CreateButton(prefab, "Button", anchor, pivot, offset, out buttonInfo);
-		if (!(instance == null))
+		GameObject gameObject = CreateButton(prefab, "Button", anchor, pivot, offset, out buttonInfo);
+		if (!(gameObject == null))
 		{
-			Button button = instance.GetComponent<Button>();
+			Button component = gameObject.GetComponent<Button>();
 			if (confirmCallback != null)
 			{
-				button.onClick.AddListener(confirmCallback);
+				component.onClick.AddListener(confirmCallback);
 			}
-			CustomButton customButton = button as CustomButton;
+			CustomButton customButton = component as CustomButton;
 			if (cancelCallback != null && customButton != null)
 			{
 				customButton.CancelEvent += cancelCallback;
@@ -263,7 +273,7 @@ public class Window : MonoBehaviour
 			}
 			if (setDefault)
 			{
-				_defaultUIElement = instance;
+				_defaultUIElement = gameObject;
 			}
 		}
 	}
@@ -354,10 +364,10 @@ public class Window : MonoBehaviour
 			Debug.LogError("Window already has " + name + "!");
 			return;
 		}
-		GameObject instance = UITools.InstantiateGUIObject<TMP_Text>(prefab, content.transform, name, pivot, anchor.min, anchor.max, offset);
-		if (!(instance == null))
+		GameObject gameObject = UITools.InstantiateGUIObject<TMP_Text>(prefab, content.transform, name, pivot, anchor.min, anchor.max, offset);
+		if (!(gameObject == null))
 		{
-			textComponent = instance.GetComponent<TMP_Text>();
+			textComponent = gameObject.GetComponent<TMP_Text>();
 		}
 	}
 
@@ -376,14 +386,13 @@ public class Window : MonoBehaviour
 		{
 			return null;
 		}
-		GameObject instance = UITools.InstantiateGUIObject<ButtonInfo>(prefab, content.transform, name, pivot, anchor.min, anchor.max, offset);
-		if (instance == null)
+		GameObject gameObject = UITools.InstantiateGUIObject<ButtonInfo>(prefab, content.transform, name, pivot, anchor.min, anchor.max, offset);
+		if (gameObject == null)
 		{
 			return null;
 		}
-		buttonInfo = instance.GetComponent<ButtonInfo>();
-		Button button = instance.GetComponent<Button>();
-		if (button == null)
+		buttonInfo = gameObject.GetComponent<ButtonInfo>();
+		if (gameObject.GetComponent<Button>() == null)
 		{
 			Debug.Log("Button prefab is missing Button component!");
 			return null;
@@ -393,7 +402,7 @@ public class Window : MonoBehaviour
 			Debug.Log("Button prefab is missing ButtonInfo component!");
 			return null;
 		}
-		return instance;
+		return gameObject;
 	}
 
 	private IEnumerator OnEnableAsync()

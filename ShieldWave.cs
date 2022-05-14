@@ -25,36 +25,35 @@ public class ShieldWave : MonoBehaviour
 
 	public void CheckForShields()
 	{
-		Collider[] objectsInRange = Physics.OverlapSphere(base.transform.position, 14f);
-		Collider[] array = objectsInRange;
-		foreach (Collider col in array)
+		Collider[] array = Physics.OverlapSphere(base.transform.position, 14f);
+		foreach (Collider collider in array)
 		{
-			Transform Shield = col.transform.Find("Shield");
-			if (!Shield)
+			Transform transform = collider.transform.Find("Shield");
+			if (!transform)
 			{
 				continue;
 			}
-			EnemyAI EA = col.GetComponent<EnemyAI>();
-			if ((bool)EA && ((EA.MyTeam != myEA.MyTeam && myEA.MyTeam != 0) || EA.HTscript.EnemyID == 16))
+			EnemyAI component = collider.GetComponent<EnemyAI>();
+			if ((bool)component && ((component.MyTeam != myEA.MyTeam && myEA.MyTeam != 0) || component.HTscript.EnemyID == 16))
 			{
 				continue;
 			}
-			MoveTankScript MTS = col.GetComponent<MoveTankScript>();
-			if ((bool)MTS && MTS.MyTeam != myEA.MyTeam && myEA.MyTeam != 0)
+			MoveTankScript component2 = collider.GetComponent<MoveTankScript>();
+			if ((bool)component2 && component2.MyTeam != myEA.MyTeam && myEA.MyTeam != 0)
 			{
 				continue;
 			}
-			ShieldScript SS = Shield.GetComponent<ShieldScript>();
-			if ((bool)SS)
+			ShieldScript component3 = transform.GetComponent<ShieldScript>();
+			if ((bool)component3)
 			{
-				if (SS.isPeachShield)
+				if (component3.isPeachShield)
 				{
 					break;
 				}
-				int maxHealth = ((OptionsMainMenu.instance.currentDifficulty == 0) ? 2 : ((OptionsMainMenu.instance.currentDifficulty == 1) ? 3 : 5));
-				if (SS.ShieldHealth < maxHealth)
+				int num = ((OptionsMainMenu.instance.currentDifficulty == 0) ? 2 : ((OptionsMainMenu.instance.currentDifficulty == 1) ? 3 : 5));
+				if (component3.ShieldHealth < num)
 				{
-					SS.ShieldHealth++;
+					component3.ShieldHealth++;
 				}
 			}
 		}

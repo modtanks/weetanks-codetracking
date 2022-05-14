@@ -25,29 +25,29 @@ public class CarePackageScript : MonoBehaviour
 		SFXManager.instance.PlaySFX(ChuteOpen, 1f, null);
 		if (index == 17 || index == 16 || index == 15)
 		{
-			Material[] i = ChuteRenderer.materials;
-			int number = Random.Range(0, mats.Count);
-			i[1] = mats[number];
-			ChuteRenderer.materials = i;
+			Material[] materials = ChuteRenderer.materials;
+			int num = Random.Range(0, mats.Count);
+			materials[1] = mats[num];
+			ChuteRenderer.materials = materials;
 			return;
 		}
 		if (index > 17)
 		{
-			Material[] k = ChuteRenderer.materials;
-			k[1] = mats[index + 1];
-			ChuteRenderer.materials = k;
+			Material[] materials2 = ChuteRenderer.materials;
+			materials2[1] = mats[index + 1];
+			ChuteRenderer.materials = materials2;
 			return;
 		}
-		Material[] j = ChuteRenderer.materials;
-		if (int.TryParse(Regex.Replace(TankToSpawn.name, "[^0-9]", ""), out var number2))
+		Material[] materials3 = ChuteRenderer.materials;
+		if (int.TryParse(Regex.Replace(TankToSpawn.name, "[^0-9]", ""), out var result))
 		{
 			if (TankToSpawn.name == "Enemy_Tank-12")
 			{
-				j[0] = mats[13];
+				materials3[0] = mats[13];
 			}
-			j[1] = mats[number2];
+			materials3[1] = mats[result];
 		}
-		ChuteRenderer.materials = j;
+		ChuteRenderer.materials = materials3;
 	}
 
 	private void Update()
@@ -64,80 +64,79 @@ public class CarePackageScript : MonoBehaviour
 		{
 			return;
 		}
-		GameObject SpawnedTank = Object.Instantiate(TankToSpawn, TankSpawnPoint.position, Quaternion.identity);
-		HealthTanks SpawnedHT = null;
-		EnemyAI EA = null;
-		MapEditorProp MEP = null;
-		DestroyableWall DW = SpawnedTank.GetComponent<DestroyableWall>();
-		if ((bool)DW)
+		GameObject gameObject = Object.Instantiate(TankToSpawn, TankSpawnPoint.position, Quaternion.identity);
+		HealthTanks healthTanks = null;
+		EnemyAI enemyAI = null;
+		MapEditorProp mapEditorProp = null;
+		DestroyableWall component = gameObject.GetComponent<DestroyableWall>();
+		if ((bool)component)
 		{
-			DW.IsSpawnedIn = true;
+			component.IsSpawnedIn = true;
 		}
-		if (SpawnedTank.transform.childCount > 0)
+		if (gameObject.transform.childCount > 0)
 		{
-			SpawnedHT = SpawnedTank.transform.GetChild(0).GetComponent<HealthTanks>();
+			healthTanks = gameObject.transform.GetChild(0).GetComponent<HealthTanks>();
 		}
-		if (SpawnedTank.transform.childCount > 0)
+		if (gameObject.transform.childCount > 0)
 		{
-			EA = SpawnedTank.transform.GetChild(0).GetComponent<EnemyAI>();
-			if (EA == null && SpawnedTank.transform.GetChild(0).transform.childCount > 0)
+			enemyAI = gameObject.transform.GetChild(0).GetComponent<EnemyAI>();
+			if (enemyAI == null && gameObject.transform.GetChild(0).transform.childCount > 0)
 			{
-				EA = SpawnedTank.transform.GetChild(0).transform.GetChild(0).GetComponent<EnemyAI>();
+				enemyAI = gameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<EnemyAI>();
 			}
 		}
-		if (SpawnedTank.transform.childCount > 0)
+		if (gameObject.transform.childCount > 0)
 		{
-			MEP = SpawnedTank.transform.GetChild(0).GetComponent<MapEditorProp>();
-			if (MEP == null && SpawnedTank.transform.GetChild(0).transform.childCount > 0)
+			mapEditorProp = gameObject.transform.GetChild(0).GetComponent<MapEditorProp>();
+			if (mapEditorProp == null && gameObject.transform.GetChild(0).transform.childCount > 0)
 			{
-				MEP = SpawnedTank.transform.GetChild(0).transform.GetChild(0).GetComponent<MapEditorProp>();
+				mapEditorProp = gameObject.transform.GetChild(0).transform.GetChild(0).GetComponent<MapEditorProp>();
 			}
 		}
-		if ((bool)MEP && index > 17)
+		if ((bool)mapEditorProp && index > 17)
 		{
 			Debug.Log("INDEX IS " + index);
-			MEP.CustomAInumber = index - 18;
-			MEP.CustomUniqueTankID = MapEditorMaster.instance.CustomTankDatas[index - 18].UniqueTankID;
+			mapEditorProp.CustomAInumber = index - 18;
+			mapEditorProp.CustomUniqueTankID = MapEditorMaster.instance.CustomTankDatas[index - 18].UniqueTankID;
 			Debug.Log("CUSTOM ID = " + MapEditorMaster.instance.CustomTankDatas[index - 18].UniqueTankID);
-			MEP.SetRendColors();
-			MEP.UpdateTankProperties();
+			mapEditorProp.UpdateTankProperties();
 		}
 		else
 		{
 			Debug.Log("NO MEP");
 		}
-		bool IsTank = false;
-		if ((bool)SpawnedHT)
+		bool flag = false;
+		if ((bool)healthTanks)
 		{
-			SpawnedHT.IsAirdropped = true;
+			healthTanks.IsAirdropped = true;
 		}
-		if ((bool)EA)
+		if ((bool)enemyAI)
 		{
-			IsTank = true;
-			EA.MyTeam = MyTeam;
+			flag = true;
+			enemyAI.MyTeam = MyTeam;
 		}
-		if (!IsTank && index == 16)
+		if (!flag && index == 16)
 		{
-			SpawnedTank.transform.position += new Vector3(0f, 0f, 0f);
-			DestroyableBox DB = SpawnedTank.GetComponent<DestroyableBox>();
-			if ((bool)DB)
+			gameObject.transform.position += new Vector3(0f, 0f, 0f);
+			DestroyableBox component2 = gameObject.GetComponent<DestroyableBox>();
+			if ((bool)component2)
 			{
-				DB.AmountArmourPlates = 1;
+				component2.AmountArmourPlates = 1;
 			}
 		}
 		else if (index == 15)
 		{
-			SpawnedTank.transform.position += new Vector3(0f, 1f, 0f);
+			gameObject.transform.position += new Vector3(0f, 1f, 0f);
 		}
 		else if (index == 17)
 		{
-			ExplosiveBlock EB = SpawnedTank.GetComponent<ExplosiveBlock>();
-			if ((bool)EB)
+			ExplosiveBlock component3 = gameObject.GetComponent<ExplosiveBlock>();
+			if ((bool)component3)
 			{
-				EB.StartFusing();
+				component3.StartFusing();
 			}
 		}
-		if (GameMaster.instance.CurrentMission == 99 && IsTank)
+		if (GameMaster.instance.CurrentMission == 99 && flag)
 		{
 			GameMaster.instance.AmountEnemyTanks++;
 			GameMaster.instance.AmountTeamTanks[MyTeam]++;
@@ -148,7 +147,7 @@ public class CarePackageScript : MonoBehaviour
 			}
 			GameMaster.instance.Enemies = new List<GameObject>(GameObject.FindGameObjectsWithTag("Enemy"));
 		}
-		else if (IsTank)
+		else if (flag)
 		{
 			GameMaster.instance.AmountCalledInTanks++;
 		}

@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class OnCusorText : MonoBehaviour
 {
-	public float Yoffset = 0f;
+	public float Yoffset;
 
-	public bool enable = false;
+	public bool enable;
 
-	public bool Updated = false;
+	public bool Updated;
 
 	public bool isNormalText = true;
 

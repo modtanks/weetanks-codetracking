@@ -4,7 +4,7 @@ public class ExtendBox : MonoBehaviour
 {
 	public TutorialMaster TM;
 
-	public bool IsExtended = false;
+	public bool IsExtended;
 
 	public void DoBox()
 	{

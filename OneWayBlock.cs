@@ -10,11 +10,11 @@ public class OneWayBlock : MonoBehaviour
 
 	public Animator blockAnimator;
 
-	public bool fixer = false;
+	public bool fixer;
 
 	public OneWayBlock wayblockScript;
 
-	public bool fixField = false;
+	public bool fixField;
 
 	public AudioSource mySource;
 
@@ -22,7 +22,7 @@ public class OneWayBlock : MonoBehaviour
 
 	public AudioClip breakSound;
 
-	public bool inField = false;
+	public bool inField;
 
 	public Collider other;
 
@@ -46,7 +46,7 @@ public class OneWayBlock : MonoBehaviour
 
 	public Collider PlayerObject;
 
-	public bool FastBreaker = false;
+	public bool FastBreaker;
 
 	private void Start()
 	{
@@ -57,25 +57,25 @@ public class OneWayBlock : MonoBehaviour
 
 	private void Checker()
 	{
-		List<Collider> ToRemove = new List<Collider>();
+		List<Collider> list = new List<Collider>();
 		PlayerInMe = false;
-		foreach (Collider Coll in MyColliders)
+		foreach (Collider myCollider in MyColliders)
 		{
-			if (Coll == null)
+			if (myCollider == null)
 			{
-				ToRemove.Add(Coll);
+				list.Add(myCollider);
 			}
-			else if (Coll.tag == "Player")
+			else if (myCollider.tag == "Player")
 			{
-				PlayerObject = Coll;
+				PlayerObject = myCollider;
 				PlayerInMe = true;
 			}
 		}
-		if (ToRemove.Count > 0)
+		if (list.Count > 0)
 		{
-			for (int i = 0; i < ToRemove.Count; i++)
+			for (int i = 0; i < list.Count; i++)
 			{
-				MyColliders.Remove(ToRemove[i]);
+				MyColliders.Remove(list[i]);
 			}
 		}
 		if (MyColliders.Count < 1)
@@ -89,16 +89,16 @@ public class OneWayBlock : MonoBehaviour
 	{
 		if ((collision.tag == "Player" || collision.tag == "Enemy") && !MyColliders.Contains(collision))
 		{
-			HealthTanks HT = collision.gameObject.GetComponent<HealthTanks>();
-			if (HT.EnemyID == -13)
+			if (collision.gameObject.GetComponent<HealthTanks>().EnemyID == -13)
 			{
 				FastBreaker = true;
 			}
 			MyColliders.Add(collision);
 			CheckEnteringObject(collision);
 		}
-		if ((!(blocker < 1f) || fixer) && fixer && !(collision.tag == "Player"))
+		if ((!(blocker < 1f) || fixer) && fixer)
 		{
+			_ = collision.tag == "Player";
 		}
 	}
 
@@ -116,12 +116,11 @@ public class OneWayBlock : MonoBehaviour
 				}
 				repareTheBlock();
 				{
-					foreach (Collider Enemy2 in MyColliders)
+					foreach (Collider myCollider in MyColliders)
 					{
-						if (Enemy2.tag == "Enemy")
+						if (myCollider.tag == "Enemy")
 						{
-							NavMeshAgent NMA2 = Enemy2.GetComponent<NavMeshAgent>();
-							NMA2.isStopped = true;
+							myCollider.GetComponent<NavMeshAgent>().isStopped = true;
 						}
 					}
 					return;
@@ -132,12 +131,11 @@ public class OneWayBlock : MonoBehaviour
 			mySource.Stop();
 			if (EnteredObject.tag == "Enemy")
 			{
-				foreach (Collider Enemy in MyColliders)
+				foreach (Collider myCollider2 in MyColliders)
 				{
-					if (Enemy.tag == "Enemy")
+					if (myCollider2.tag == "Enemy")
 					{
-						NavMeshAgent NMA = Enemy.GetComponent<NavMeshAgent>();
-						NMA.isStopped = false;
+						myCollider2.GetComponent<NavMeshAgent>().isStopped = false;
 					}
 				}
 			}
@@ -164,12 +162,11 @@ public class OneWayBlock : MonoBehaviour
 			invisibleBlocker.SetActive(value: false);
 			GenerateNavMeshSurface.instance.GenerateSurface();
 		}
-		foreach (Collider Enemy in MyColliders)
+		foreach (Collider myCollider in MyColliders)
 		{
-			if (Enemy.tag == "Enemy")
+			if (myCollider.tag == "Enemy")
 			{
-				NavMeshAgent NMA = Enemy.GetComponent<NavMeshAgent>();
-				NMA.isStopped = false;
+				myCollider.GetComponent<NavMeshAgent>().isStopped = false;
 			}
 		}
 	}
@@ -208,8 +205,7 @@ public class OneWayBlock : MonoBehaviour
 	{
 		if (MyColliders.Contains(collision))
 		{
-			HealthTanks HT = collision.gameObject.GetComponent<HealthTanks>();
-			if (HT.EnemyID == -13)
+			if (collision.gameObject.GetComponent<HealthTanks>().EnemyID == -13)
 			{
 				FastBreaker = false;
 			}
@@ -227,10 +223,9 @@ public class OneWayBlock : MonoBehaviour
 		if (fixer && PlayerInMe && wayblockScript.MyColliders.Count < 1)
 		{
 			ImageIndicator.SetActive(value: true);
-			RectTransform ImageRect = Indicator.GetComponent<RectTransform>();
-			ImageRect.sizeDelta = new Vector2(0.5f * (float)Mathf.RoundToInt(wayblockScript.blocker), 0.25f);
-			MoveTankScript MTS = PlayerObject.GetComponent<MoveTankScript>();
-			wayblockScript.blocker += Time.deltaTime * (float)ZombieTankSpawner.instance.UpgradedBuildSpeeds[MTS.Upgrades[0]];
+			Indicator.GetComponent<RectTransform>().sizeDelta = new Vector2(0.5f * (float)Mathf.RoundToInt(wayblockScript.blocker), 0.25f);
+			MoveTankScript component = PlayerObject.GetComponent<MoveTankScript>();
+			wayblockScript.blocker += Time.deltaTime * (float)ZombieTankSpawner.instance.UpgradedBuildSpeeds[component.Upgrades[0]];
 			if (wayblockScript.blocker > 9.5f)
 			{
 				mySource.volume = 0f;
@@ -257,8 +252,8 @@ public class OneWayBlock : MonoBehaviour
 			blockAnimator.SetFloat("Health", blocker);
 			if (MyColliders.Count > 0 && blocker > 0.4f)
 			{
-				float addition = (FastBreaker ? 3f : 1f);
-				blocker -= Time.deltaTime * breakspeed * addition;
+				float num = (FastBreaker ? 3f : 1f);
+				blocker -= Time.deltaTime * breakspeed * num;
 			}
 			else if (blocker > 9.5f)
 			{

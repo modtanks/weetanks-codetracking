@@ -2,18 +2,18 @@ using UnityEngine;
 
 public class SetGraphicSettings : MonoBehaviour
 {
-	private float lastRatio = 0f;
+	private float lastRatio;
 
 	private void Update()
 	{
-		float ratio = Screen.width / Screen.height;
-		if (ratio != lastRatio && Application.platform == RuntimePlatform.Android)
+		float num = Screen.width / Screen.height;
+		if (num != lastRatio && Application.platform == RuntimePlatform.Android)
 		{
-			Camera mycam = GetComponent<Camera>();
-			lastRatio = ratio;
-			if ((double)ratio > 1.8)
+			Camera component = GetComponent<Camera>();
+			lastRatio = num;
+			if ((double)num > 1.8)
 			{
-				mycam.orthographicSize = 10.4f;
+				component.orthographicSize = 10.4f;
 			}
 		}
 	}

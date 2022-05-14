@@ -25,21 +25,21 @@ public class UIControlSet : MonoBehaviour
 
 	public T GetControl<T>(int uniqueId) where T : UIControl
 	{
-		controls.TryGetValue(uniqueId, out var control);
-		return control as T;
+		controls.TryGetValue(uniqueId, out var value);
+		return value as T;
 	}
 
 	public UISliderControl CreateSlider(GameObject prefab, Sprite icon, float minValue, float maxValue, Action<int, float> valueChangedCallback, Action<int> cancelCallback)
 	{
-		GameObject instance = UnityEngine.Object.Instantiate(prefab);
-		UISliderControl control = instance.GetComponent<UISliderControl>();
+		GameObject gameObject = UnityEngine.Object.Instantiate(prefab);
+		UISliderControl control = gameObject.GetComponent<UISliderControl>();
 		if (control == null)
 		{
-			UnityEngine.Object.Destroy(instance);
+			UnityEngine.Object.Destroy(gameObject);
 			Debug.LogError("Prefab missing UISliderControl component!");
 			return null;
 		}
-		instance.transform.SetParent(base.transform, worldPositionStays: false);
+		gameObject.transform.SetParent(base.transform, worldPositionStays: false);
 		if (control.iconImage != null)
 		{
 			control.iconImage.sprite = icon;

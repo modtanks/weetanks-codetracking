@@ -21,7 +21,7 @@ public class ObjectPlacing : MonoBehaviour
 
 	private TankCustoms GetMaterialBody;
 
-	public bool InPlacingMode = false;
+	public bool InPlacingMode;
 
 	private void Start()
 	{
@@ -40,10 +40,10 @@ public class ObjectPlacing : MonoBehaviour
 
 	private void Update()
 	{
-		Vector3 placepos = ((!MTS.DrivingBackwards) ? (base.transform.position + base.transform.forward * 2.5f) : (base.transform.position + -base.transform.forward * 2.5f));
+		Vector3 vector = ((!MTS.DrivingBackwards) ? (base.transform.position + base.transform.forward * 2.5f) : (base.transform.position + -base.transform.forward * 2.5f));
 		if ((bool)HoldingPrefab)
 		{
-			HoldingPrefab.transform.position = new Vector3(Mathf.Round(placepos.x), base.transform.position.y, Mathf.Round(placepos.z));
+			HoldingPrefab.transform.position = new Vector3(Mathf.Round(vector.x), base.transform.position.y, Mathf.Round(vector.z));
 			if (MTS.player.GetButtonDown("Use"))
 			{
 				PlaceTurret();
@@ -60,13 +60,13 @@ public class ObjectPlacing : MonoBehaviour
 			SIM.SetMaterial(Color.white, backToNormal: true);
 			HoldingPrefab.GetComponent<BoxCollider>().isTrigger = false;
 			HoldingPrefab.GetComponent<Rigidbody>().isKinematic = false;
-			WeeTurret WT = HoldingPrefab.GetComponent<WeeTurret>();
-			WT.enabled = true;
-			WT.myMTS = GetComponent<MoveTankScript>();
-			WT.PlacedByPlayer = GetComponent<MoveTankScript>().playerId;
+			WeeTurret component = HoldingPrefab.GetComponent<WeeTurret>();
+			component.enabled = true;
+			component.myMTS = GetComponent<MoveTankScript>();
+			component.PlacedByPlayer = GetComponent<MoveTankScript>().playerId;
 			HoldingPrefab = null;
 			StartCoroutine(disablePlacingMode());
-			GameMaster.instance.TurretsPlaced[WT.myMTS.playerId]++;
+			GameMaster.instance.TurretsPlaced[component.myMTS.playerId]++;
 		}
 		else if (SIM.EnteredTrigger)
 		{

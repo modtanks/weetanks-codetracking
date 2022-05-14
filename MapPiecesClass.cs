@@ -5,19 +5,23 @@ public class MapPiecesClass
 {
 	public int ID;
 
-	public int offsetX;
-
-	public int offsetY;
-
-	public int[] propID = new int[5];
+	public int[] propID;
 
 	public int missionNumber;
 
-	public int[] propRotation = new int[5];
+	public int[] propRotation;
 
-	public int[] TeamColor = new int[5];
+	public int[] TeamColor;
 
-	public int SpawnDifficulty = 0;
+	public int SpawnDifficulty;
 
-	public SerializableColor[] CustomColor = new SerializableColor[5];
+	public int[] I1;
+
+	public int[] I2;
+
+	public float[] F1;
+
+	public float[] F2;
+
+	public SerializableColor[] CustomColor;
 }

@@ -5,11 +5,11 @@ public class SteamTest : MonoBehaviour
 {
 	private static SteamTest _instance;
 
-	public bool SteamOverlayActive = false;
+	public bool SteamOverlayActive;
 
 	public ulong SteamAccountID;
 
-	public string username = null;
+	public string username;
 
 	protected Callback<GameOverlayActivated_t> m_GameOverlayActivated;
 
@@ -45,14 +45,14 @@ public class SteamTest : MonoBehaviour
 		}
 		if (number < 10)
 		{
-			string digit = "0" + number;
-			if (SteamUserStats.SetAchievement("AM_" + digit))
+			string text = "0" + number;
+			if (SteamUserStats.SetAchievement("AM_" + text))
 			{
-				Debug.LogWarning("NEW ACHIEVEMENT SET! AM_" + digit);
+				Debug.LogWarning("NEW ACHIEVEMENT SET! AM_" + text);
 			}
 			else
 			{
-				Debug.LogWarning("NEW ACHIEVEMENT FAILED TO SET! AM_" + digit);
+				Debug.LogWarning("NEW ACHIEVEMENT FAILED TO SET! AM_" + text);
 			}
 		}
 		else if (SteamUserStats.SetAchievement("AM_" + number))
@@ -87,22 +87,22 @@ public class SteamTest : MonoBehaviour
 				return;
 			}
 			SteamFriends.SetRichPresence("gamestatus", "Custom Campaign");
-			string lvl2 = "Mission " + (GameMaster.instance.CurrentMission + 1);
-			SteamFriends.SetRichPresence("Level", lvl2);
+			string pchValue = "Mission " + (GameMaster.instance.CurrentMission + 1);
+			SteamFriends.SetRichPresence("Level", pchValue);
 			SteamFriends.SetRichPresence("steam_display", "#StatusWithLevel");
 		}
 		else if (GameMaster.instance.isZombieMode)
 		{
 			SteamFriends.SetRichPresence("gamestatus", "Survival Mode");
-			string lvl3 = "Wave " + ZombieTankSpawner.instance.Wave;
-			SteamFriends.SetRichPresence("Level", lvl3);
+			string pchValue2 = "Wave " + ZombieTankSpawner.instance.Wave;
+			SteamFriends.SetRichPresence("Level", pchValue2);
 			SteamFriends.SetRichPresence("steam_display", "#StatusWithLevel");
 		}
 		else if (GameMaster.instance.isOfficialCampaign)
 		{
 			SteamFriends.SetRichPresence("gamestatus", "Campaign");
-			string lvl = "Mission " + (GameMaster.instance.CurrentMission + 1);
-			SteamFriends.SetRichPresence("Level", lvl);
+			string pchValue3 = "Mission " + (GameMaster.instance.CurrentMission + 1);
+			SteamFriends.SetRichPresence("Level", pchValue3);
 			SteamFriends.SetRichPresence("steam_display", "#StatusWithLevel");
 		}
 	}
