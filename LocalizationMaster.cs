@@ -996,6 +996,20 @@ public class LocalizationMaster : MonoBehaviour
 		public string CE_Custom_Tank_Music21;
 
 		public string CE_Custom_Tank_Music22;
+
+		public string Tutorial_0;
+
+		public string Tutorial_1;
+
+		public string Tutorial_2;
+
+		public string Tutorial_3;
+
+		public string Tutorial_4;
+
+		public string Tutorial_5;
+
+		public string Tutorial_6;
 	}
 
 	private static LocalizationMaster _instance;

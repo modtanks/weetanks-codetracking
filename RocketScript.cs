@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class RocketScript : MonoBehaviour
@@ -199,7 +200,9 @@ public class RocketScript : MonoBehaviour
 		GameObject[] array;
 		if (!onlyPlayers)
 		{
-			array = GameObject.FindGameObjectsWithTag("Enemy");
+			GameObject[] first = GameObject.FindGameObjectsWithTag("Enemy");
+			GameObject[] second = GameObject.FindGameObjectsWithTag("Boss");
+			array = first.Concat(second).ToArray();
 			foreach (GameObject gameObject in array)
 			{
 				EnemyAI component = gameObject.GetComponent<EnemyAI>();

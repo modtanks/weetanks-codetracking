@@ -101,7 +101,7 @@ public class CameraFollowPlayer : MonoBehaviour
 		{
 			SetPos(GameMaster.instance.playerLocation[0]);
 		}
-		else
+		else if (!TankeyTownMaster.instance)
 		{
 			SetPos(new Vector3(0f, 0f, 0f));
 		}

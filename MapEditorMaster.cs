@@ -1357,6 +1357,7 @@ public class MapEditorMaster : MonoBehaviour
 		foreach (GameObject gameObject in array2)
 		{
 			MapEditorGridPiece MEGP = gameObject.GetComponent<MapEditorGridPiece>();
+			MEGP.GetComponent<BoxCollider>().enabled = true;
 			MapPiecesClass mapPiecesClass = allPropData.Find((MapPiecesClass x) => x.ID == MEGP.ID);
 			if (mapPiecesClass == null || mapPiecesClass.propID == null)
 			{
@@ -1371,80 +1372,54 @@ public class MapEditorMaster : MonoBehaviour
 				}
 				int direction = Convert.ToInt32(mapPiecesClass.propRotation);
 				int num2 = Convert.ToInt32(mapPiecesClass.TeamColor);
-				if (num > -1)
+				if (num <= -1)
 				{
-					switch (num)
+					continue;
+				}
+				MEGP.GetComponent<BoxCollider>().enabled = false;
+				switch (num)
+				{
+				case 4:
+					playerOnePlaced[mapPiecesClass.missionNumber]++;
+					break;
+				case 5:
+					playerTwoPlaced[mapPiecesClass.missionNumber]++;
+					break;
+				case 28:
+					playerThreePlaced[mapPiecesClass.missionNumber]++;
+					break;
+				case 29:
+					playerFourPlaced[mapPiecesClass.missionNumber]++;
+					break;
+				default:
+					if (IsATank(num, OnlyEnemies: true))
 					{
-					case 4:
-						playerOnePlaced[mapPiecesClass.missionNumber]++;
-						break;
-					case 5:
-						playerTwoPlaced[mapPiecesClass.missionNumber]++;
-						break;
-					case 28:
-						playerThreePlaced[mapPiecesClass.missionNumber]++;
-						break;
-					case 29:
-						playerFourPlaced[mapPiecesClass.missionNumber]++;
-						break;
-					case 6:
-					case 7:
-					case 8:
-					case 9:
-					case 10:
-					case 11:
-					case 12:
-					case 13:
-					case 14:
-					case 15:
-					case 16:
-					case 17:
-					case 18:
-					case 19:
-					case 20:
-					case 21:
-					case 22:
-					case 23:
-					case 24:
-					case 25:
-					case 26:
-					case 27:
-					case 30:
-					case 31:
-					case 32:
-					case 33:
-					case 34:
-					case 35:
-					case 36:
-					case 37:
-					case 38:
-					case 39:
 						enemyTanksPlaced[mapPiecesClass.missionNumber]++;
-						break;
 					}
-					MEGP.MyTeamNumber = num2;
-					switch (num)
-					{
-					case 41:
-						MEGP.SpawnInProps(0, direction, num2, 0, 0);
-						MEGP.SpawnInProps(41, direction, num2, 1, 0);
-						break;
-					case 42:
-						MEGP.SpawnInProps(1, direction, num2, 0, 0);
-						MEGP.SpawnInProps(42, direction, num2, 1, 0);
-						break;
-					case 43:
-						MEGP.SpawnInProps(1, direction, num2, 0, 0);
-						MEGP.SpawnInProps(1, direction, num2, 1, 0);
-						break;
-					case 44:
-						MEGP.SpawnInProps(0, direction, num2, 0, 0);
-						MEGP.SpawnInProps(0, direction, num2, 1, 0);
-						break;
-					default:
-						MEGP.SpawnInProps(num, direction, num2, 0, 0);
-						break;
-					}
+					break;
+				}
+				MEGP.MyTeamNumber = num2;
+				switch (num)
+				{
+				case 41:
+					MEGP.SpawnInProps(0, direction, num2, 0, 0);
+					MEGP.SpawnInProps(41, direction, num2, 1, 0);
+					break;
+				case 42:
+					MEGP.SpawnInProps(1, direction, num2, 0, 0);
+					MEGP.SpawnInProps(42, direction, num2, 1, 0);
+					break;
+				case 43:
+					MEGP.SpawnInProps(1, direction, num2, 0, 0);
+					MEGP.SpawnInProps(1, direction, num2, 1, 0);
+					break;
+				case 44:
+					MEGP.SpawnInProps(0, direction, num2, 0, 0);
+					MEGP.SpawnInProps(0, direction, num2, 1, 0);
+					break;
+				default:
+					MEGP.SpawnInProps(num, direction, num2, 0, 0);
+					break;
 				}
 				continue;
 			}
@@ -1629,6 +1604,22 @@ public class MapEditorMaster : MonoBehaviour
 		}
 	}
 
+	public bool IsATank(int ID, bool OnlyEnemies)
+	{
+		if (OnlyEnemies)
+		{
+			if ((ID > 5 && ID < 40) || ID == 46 || (ID >= 100 && ID < 120) || ID == 1000 || ID == 1010 || ID == 1011 || ID == 1012 || ID == 1013 || ID == 2003 || ID == 2004 || ID == 2005)
+			{
+				return true;
+			}
+		}
+		else if ((ID > 3 && ID < 40) || ID == 28 || ID == 29 || ID == 46 || (ID >= 100 && ID < 120) || ID == 1000 || ID == 1010 || ID == 1011 || ID == 1012 || ID == 1013 || ID == 2003 || ID == 2004 || ID == 2005)
+		{
+			return true;
+		}
+		return false;
+	}
+
 	public IEnumerator ResetTestLevel(bool skip)
 	{
 		GameMaster.instance.DestroyTemps();
@@ -1685,7 +1676,7 @@ public class MapEditorMaster : MonoBehaviour
 					UnityEngine.Object.Destroy(component.myProp[l]);
 					component.propOnMe[l] = false;
 					component.SpawnInProps(component.myPropID[l], component.rotationDirection[l], team, l, component.SpawnDifficulty);
-					if (component.myPropID[l] > 5 && component.myPropID[l] < 40)
+					if (IsATank(component.myPropID[l], OnlyEnemies: true))
 					{
 						enemyTanksPlaced[GameMaster.instance.CurrentMission]++;
 					}

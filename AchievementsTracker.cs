@@ -57,7 +57,7 @@ public class AchievementsTracker : MonoBehaviour
 	private void Start()
 	{
 		InvokeRepeating("SearchParent", 2f, 2f);
-		if (OptionsMainMenu.instance.StartLevel < 9)
+		if (OptionsMainMenu.instance.StartLevel < 2)
 		{
 			StartedFromBegin = true;
 		}
@@ -109,7 +109,7 @@ public class AchievementsTracker : MonoBehaviour
 		{
 			HasShootedThisRound = false;
 		}
-		if (OptionsMainMenu.instance.StartLevel < 4 && GameMaster.instance.CurrentMission < 4)
+		if (OptionsMainMenu.instance.StartLevel < 2 && GameMaster.instance.CurrentMission < 2)
 		{
 			StartedFromBegin = true;
 		}
@@ -257,18 +257,27 @@ public class AchievementsTracker : MonoBehaviour
 			GameMaster.instance.NAS.ResetExtraWait();
 		}
 		GameObject[] array2 = array;
-		for (int i = 0; i < array2.Length; i++)
+		foreach (GameObject gameObject2 in array2)
 		{
-			AchievementFireWork component = array2[i].GetComponent<AchievementFireWork>();
-			if ((bool)component)
+			if ((bool)gameObject2)
 			{
-				component.NewAchievement();
+				AchievementFireWork component = gameObject2.GetComponent<AchievementFireWork>();
+				if ((bool)component)
+				{
+					component.NewAchievement();
+				}
 			}
 		}
-		gameObject.transform.parent = AchievementNotificationParent.transform;
+		if ((bool)AchievementNotificationParent)
+		{
+			gameObject.transform.parent = AchievementNotificationParent.transform;
+		}
 		gameObject.transform.localPosition = new Vector3(0f, -350f, 0f);
 		AchievementItemScript component2 = gameObject.GetComponent<AchievementItemScript>();
-		SFXManager.instance.PlaySFX(AchievementCompleted, 1f, null);
+		if ((bool)AchievementCompleted)
+		{
+			SFXManager.instance.PlaySFX(AchievementCompleted, 1f, null);
+		}
 		if (AccountMaster.instance.isSignedIn)
 		{
 			AccountMaster.instance.IncreaseMarbles(OptionsMainMenu.instance.AM_marbles[ID]);

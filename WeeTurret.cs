@@ -326,7 +326,7 @@ public class WeeTurret : MonoBehaviour
 				secondUpgradeParts[i].SetActive(value: true);
 			}
 		}
-		Health = 5 + upgradeLevel * 5;
+		Health = 5 + upgradeLevel * 2;
 		maxHealth = Health;
 	}
 }

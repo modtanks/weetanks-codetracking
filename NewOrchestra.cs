@@ -322,6 +322,20 @@ public class NewOrchestra : MonoBehaviour
 		{
 			int ID = gameObject.GetComponentInChildren<HealthTanks>().EnemyID;
 			bool flag3 = false;
+			if (ID == 7)
+			{
+				BaseInstruments[0].volume = 0f;
+				BaseInstruments[1].volume = 1f;
+				SetInstruments(WhiteTankIds, 1);
+				currentlyPlaying = "white";
+			}
+			if (ID == 14)
+			{
+				BaseInstruments[0].volume = 0f;
+				BaseInstruments[2].volume = 1f;
+				SetInstruments(TeleportingTankIds, 2);
+				currentlyPlaying = "electro";
+			}
 			if (ID == 15 && CherryRage)
 			{
 				flag3 = true;

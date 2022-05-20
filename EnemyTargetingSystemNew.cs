@@ -36,6 +36,8 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 	private Quaternion originalRotation;
 
 	[Header("New Shoot Mechanism")]
+	public bool CanSpawnBullet = true;
+
 	public bool canShoot;
 
 	public float ShootCountdown;
@@ -86,6 +88,10 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 	private Vector3 lastFrameVelocity;
 
 	[Header("MainMenu Properties")]
+	public bool CanGetNewTarget = true;
+
+	public bool IsJustLookingAround;
+
 	public bool isHuntingEnemies;
 
 	public bool isTeamBlue;
@@ -218,7 +224,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	private void StartInvokes()
 	{
-		float repeatRate = ((AIscript.difficulty < 2) ? 0.8f : 0.25f) + Random.Range(-0.1f, 0.1f);
+		float repeatRate = ((AIscript.difficulty < 2) ? 0.9f : 0.35f) + Random.Range(-0.1f, 0.1f);
 		if (!PlayerInsightRunning)
 		{
 			InvokeRepeating("PlayerInsight", 0.3f, repeatRate);
@@ -324,11 +330,24 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	private Vector3 CalculateEnemyPosition(GameObject TargetObject)
 	{
-		if (currentTarget.GetComponent<Rigidbody>().velocity.magnitude > 0.5f)
+		Rigidbody component = currentTarget.GetComponent<Rigidbody>();
+		Vector3 vector = Vector3.forward;
+		if (component.velocity.magnitude > 0.5f)
 		{
 			float num = Vector3.Distance(currentTarget.transform.position, base.transform.position);
-			EnemyAI component = currentTarget.GetComponent<EnemyAI>();
-			Vector3 vector = (component ? ((!component.DrivingBackwards) ? (currentTarget.transform.position + currentTarget.transform.forward * (num / 6f)) : (currentTarget.transform.position + -currentTarget.transform.forward * (num / 6f))) : ((!currentTarget.GetComponent<MoveTankScript>().DrivingBackwards) ? (currentTarget.transform.position + currentTarget.transform.forward * (num / 6f)) : (currentTarget.transform.position + -currentTarget.transform.forward * (num / 6f))));
+			EnemyAI component2 = currentTarget.GetComponent<EnemyAI>();
+			if ((bool)component2)
+			{
+				vector = ((!component2.DrivingBackwards) ? (currentTarget.transform.position + currentTarget.transform.forward * (num / 6f)) : (currentTarget.transform.position + -currentTarget.transform.forward * (num / 6f)));
+			}
+			else
+			{
+				MoveTankScript component3 = currentTarget.GetComponent<MoveTankScript>();
+				if ((bool)component3)
+				{
+					vector = ((!component3.DrivingBackwards) ? (currentTarget.transform.position + currentTarget.transform.forward * (num / 6f)) : (currentTarget.transform.position + -currentTarget.transform.forward * (num / 6f)));
+				}
+			}
 			Debug.DrawLine(vector, base.transform.position, Color.blue);
 			return vector - base.transform.position;
 		}
@@ -337,6 +356,61 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	private void Update()
 	{
+		if (IsJustLookingAround)
+		{
+			if (specialMove || normalLockedIn)
+			{
+				return;
+			}
+			if (!turning)
+			{
+				rotation = Quaternion.LookRotation(base.transform.forward);
+				pick = Random.Range(-50f, 50f) + LookAngleOffset;
+				rotation *= Quaternion.Euler(0f, pick, 0f);
+				angleSize = Quaternion.Angle(base.transform.rotation, rotation);
+				if (!(angleSize > 1f))
+				{
+					return;
+				}
+				turning = true;
+				normalLockedIn = false;
+				timeTakenDuringLerp = angleSize / 180f * (5.5f - myTurnSpeed);
+				if (timeTakenDuringLerp < 0.5f)
+				{
+					if (IsJustLookingAround)
+					{
+						timeTakenDuringLerp = Random.Range(0.5f, 1.5f);
+					}
+					else if (AIscript.isAggro || AIscript.isAggressive || AIscript.ShootSpeed < 0.2f)
+					{
+						timeTakenDuringLerp = 0.2f;
+					}
+					else
+					{
+						timeTakenDuringLerp = 0.5f;
+					}
+				}
+				startRot = base.transform.rotation;
+				_timeStartedLerping = Time.time;
+			}
+			else
+			{
+				float t = (Time.time - _timeStartedLerping) / timeTakenDuringLerp;
+				if (!AIscript.isStunned)
+				{
+					base.transform.rotation = Quaternion.Lerp(startRot, rotation, t);
+				}
+				if (Quaternion.Angle(base.transform.rotation, rotation) <= 0.6f)
+				{
+					LookingAtTarget = true;
+					normalLockedIn = true;
+					StartCoroutine(AutoUnlock());
+					base.transform.rotation = rotation;
+					StartCoroutine(SetTurnFalse());
+				}
+			}
+			return;
+		}
 		if (GameMaster.instance.restartGame)
 		{
 			base.transform.rotation = originalRotation;
@@ -358,7 +432,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		if (firedBullets >= maxFiredBullets)
 		{
 			SecretTimer += Time.deltaTime;
-			if (SecretTimer >= 10f)
+			if (SecretTimer >= 12f)
 			{
 				firedBullets = 0;
 			}
@@ -368,7 +442,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 			SecretTimer = 0f;
 		}
 		int amountCalledInTanks = GameMaster.instance.AmountCalledInTanks;
-		if (Targets.Count < 1 || amountCalledInTanks != prevKnownEnemies)
+		if ((Targets.Count < 1 || amountCalledInTanks != prevKnownEnemies) && CanGetNewTarget)
 		{
 			prevKnownEnemies = amountCalledInTanks;
 			SearchPlayers();
@@ -477,10 +551,10 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				}
 				else
 				{
-					float t = (Time.time - _timeStartedLerping) / timeTakenDuringLerp;
+					float t2 = (Time.time - _timeStartedLerping) / timeTakenDuringLerp;
 					if (!AIscript.isStunned)
 					{
-						base.transform.rotation = Quaternion.Lerp(startRot, rotation, t);
+						base.transform.rotation = Quaternion.Lerp(startRot, rotation, t2);
 					}
 					if (Quaternion.Angle(base.transform.rotation, rotation) <= 0.6f)
 					{
@@ -535,10 +609,10 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 					}
 					else
 					{
-						float t2 = (Time.time - _timeStartedLerping) / timeTakenDuringLerp;
+						float t3 = (Time.time - _timeStartedLerping) / timeTakenDuringLerp;
 						if (!AIscript.isStunned)
 						{
-							base.transform.rotation = Quaternion.Lerp(startRot, rotation, t2);
+							base.transform.rotation = Quaternion.Lerp(startRot, rotation, t3);
 						}
 					}
 				}
@@ -570,6 +644,10 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	private void SearchPlayers()
 	{
+		if (!CanGetNewTarget)
+		{
+			return;
+		}
 		Targets.Clear();
 		GameObject[] array;
 		if ((bool)MapEditorMaster.instance)
@@ -689,7 +767,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 				}
 			}
 			RaycastHit hitInfo;
-			if (Targets[0] != currentTarget)
+			if (Targets.Count > 0 && Targets[0] != currentTarget)
 			{
 				float num = Vector3.Distance(base.transform.position, Targets[0].transform.position);
 				float num2 = Vector3.Distance(base.transform.position, currentTarget.transform.position);
@@ -829,7 +907,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		return null;
 	}
 
-	private IEnumerator StartTheShooting(GameObject Target)
+	public IEnumerator StartTheShooting(GameObject Target)
 	{
 		yield return new WaitForSeconds(FirstShotDelay);
 		TargetInSight = true;
@@ -1238,7 +1316,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 			}
 		}
 		CR_running = true;
-		if (GameMaster.instance.AmountGoodTanks < 1 && !isHuntingEnemies && !GameMaster.instance.CM && !GameMaster.instance.inMenuMode && !MapEditorMaster.instance)
+		if (GameMaster.instance.AmountGoodTanks < 1 && !isHuntingEnemies && !GameMaster.instance.CM && !GameMaster.instance.inMenuMode && !MapEditorMaster.instance && !TankeyTownMaster.instance)
 		{
 			yield break;
 		}
@@ -1546,12 +1624,16 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	public void FireTank(Transform firepoint, GameObject bulletprefab)
 	{
+		if (!CanSpawnBullet)
+		{
+			return;
+		}
 		if (doubleStopper && !AIscript.isLevel30Boss && firePoint.Length < 2)
 		{
 			Debug.LogError("Doublestopper kicked in");
 			return;
 		}
-		if ((!GameMaster.instance.GameHasStarted || GameMaster.instance.AmountGoodTanks < 1) && !isHuntingEnemies && !GameMaster.instance.CM && !GameMaster.instance.inMenuMode && !MapEditorMaster.instance)
+		if ((!GameMaster.instance.GameHasStarted || GameMaster.instance.AmountGoodTanks < 1) && !isHuntingEnemies && !GameMaster.instance.CM && !GameMaster.instance.inMenuMode && !MapEditorMaster.instance && !TankeyTownMaster.instance)
 		{
 			Debug.LogError("End game stopping Bullet Firing");
 			return;

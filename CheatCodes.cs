@@ -32,11 +32,11 @@ public class CheatCodes : MonoBehaviour
 			{
 				if (c == '\n' || c == '\r')
 				{
-					Play2DClipAtPoint(CheckSound);
+					SFXManager.instance.PlaySFX(CheckSound);
 				}
 				else
 				{
-					Play2DClipAtPoint(ClickSound);
+					SFXManager.instance.PlaySFX(ClickSound);
 				}
 			}
 		}
@@ -81,32 +81,19 @@ public class CheatCodes : MonoBehaviour
 			if (uwr.downloadHandler.text != "false")
 			{
 				int num = int.Parse(uwr.downloadHandler.text);
-				if (OptionsMainMenu.instance.AM[num] != 1)
+				if (!AccountMaster.instance.PDO.CC.Contains(num))
 				{
-					OptionsMainMenu.instance.AM[num] = 1;
+					OptionsMainMenu.instance.AM_unlocked.Add(num);
 					OptionsMainMenu.instance.SaveNewData();
-					AccountMaster.instance.PDO.AM[num] = 1;
-					AccountMaster.instance.SaveCloudData(3, num, 0, bounceKill: false);
-					Play2DClipAtPoint(UnlockedSound);
+					AccountMaster.instance.SaveCloudData(9, num, 0, bounceKill: false);
+					SFXManager.instance.PlaySFX(UnlockedSound);
 				}
 			}
 			else
 			{
-				Play2DClipAtPoint(ErrorSound);
+				SFXManager.instance.PlaySFX(ErrorSound);
 			}
 		}
 		uwr.Dispose();
-	}
-
-	public void Play2DClipAtPoint(AudioClip clip)
-	{
-		GameObject obj = new GameObject("TempAudio");
-		AudioSource audioSource = obj.AddComponent<AudioSource>();
-		audioSource.clip = clip;
-		audioSource.ignoreListenerVolume = true;
-		audioSource.volume = 1f * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
-		audioSource.spatialBlend = 0f;
-		audioSource.Play();
-		Object.Destroy(obj, clip.length);
 	}
 }

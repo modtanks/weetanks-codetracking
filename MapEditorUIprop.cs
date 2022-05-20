@@ -47,7 +47,7 @@ public class MapEditorUIprop : MonoBehaviour, IPointerEnterHandler, IEventSystem
 			int[] needCustomMissions = NeedCustomMissions;
 			foreach (int item in needCustomMissions)
 			{
-				if (GameMaster.instance.FoundSecretMissions.Contains(item))
+				if (AccountMaster.instance.PDO.FoundMissions.Contains(item))
 				{
 					num++;
 				}

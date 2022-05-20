@@ -19,9 +19,9 @@ public class OnlinePlayer : MonoBehaviour
 			MyPlayerHolder.SetActive(value: true);
 			Object.Destroy(base.gameObject);
 		}
-		else if (!LobbyMaster.instance.isDoingInfo)
+		else
 		{
-			LobbyMaster.instance.StartCoroutine(LobbyMaster.instance.DoPlayerInfo());
+			_ = LobbyMaster.instance.isDoingInfo;
 		}
 	}
 

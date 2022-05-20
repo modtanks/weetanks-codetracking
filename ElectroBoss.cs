@@ -44,6 +44,15 @@ public class ElectroBoss : MonoBehaviour
 		}
 	}
 
+	private void OnEnable()
+	{
+		GameObject[] array = GameObject.FindGameObjectsWithTag("ElectricPad");
+		foreach (GameObject gameObject in array)
+		{
+			AllPads.Add(gameObject.GetComponent<ElectricPad>());
+		}
+	}
+
 	private void OnDisable()
 	{
 		ParticleSystem[] chargeAttack = ChargeAttack;
@@ -70,6 +79,13 @@ public class ElectroBoss : MonoBehaviour
 
 	private void Update()
 	{
+		if (!GameMaster.instance.GameHasStarted)
+		{
+			ChargeTimer = ChargeTimerDuration + Random.Range(0f, ChargeTimerDuration);
+			isAlmostCharged = false;
+			SetBodyMaterial(OriginalMaterial);
+			return;
+		}
 		if (myHT.health < 1)
 		{
 			ParticleSystem[] chargeAttack = ChargeAttack;
@@ -98,6 +114,10 @@ public class ElectroBoss : MonoBehaviour
 			int num = GetComponent<HealthTanks>().maxHealth - GetComponent<HealthTanks>().health;
 			int num2 = -5 + OptionsMainMenu.instance.currentDifficulty * 5;
 			int num3 = Random.Range(15, 25 + num + num2);
+			if (AllPads.Count <= 0)
+			{
+				return;
+			}
 			for (int j = 0; j < num3; j++)
 			{
 				int num4 = 0;
@@ -118,15 +138,10 @@ public class ElectroBoss : MonoBehaviour
 		}
 		else
 		{
-			if (!(ChargeTimer <= 0f) || AllPads.Count <= 0)
+			if (!(ChargeTimer <= 0f))
 			{
 				return;
 			}
-			foreach (ElectricPad item in PadsToActivate)
-			{
-				item.SetActive(3);
-			}
-			PadsToActivate.Clear();
 			ChargeTimer = ChargeTimerDuration + Random.Range(0f, ChargeTimerDuration);
 			isAlmostCharged = false;
 			ParticleSystem[] chargeAttack = ChargeAttack;
@@ -135,9 +150,9 @@ public class ElectroBoss : MonoBehaviour
 				obj3.Clear();
 				obj3.Stop();
 			}
-			SetBodyMaterial(OriginalMaterial);
 			PlayedSound = false;
 			ElectricBlast.Play();
+			SetBodyMaterial(OriginalMaterial);
 			CameraShake component = Camera.main.GetComponent<CameraShake>();
 			if ((bool)component)
 			{
@@ -155,6 +170,15 @@ public class ElectroBoss : MonoBehaviour
 					component2.AddForce(vector * num6, ForceMode.Impulse);
 				}
 			}
+			if (AllPads.Count <= 0)
+			{
+				return;
+			}
+			foreach (ElectricPad item in PadsToActivate)
+			{
+				item.SetActive(3);
+			}
+			PadsToActivate.Clear();
 		}
 	}
 }

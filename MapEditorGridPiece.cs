@@ -74,7 +74,17 @@ public class MapEditorGridPiece : MonoBehaviour
 
 	private void OnMouseEnter()
 	{
-		if (!(MapEditorMaster.instance == null) && !(GameMaster.instance == null) && (!MapEditorMaster.instance.OTM || !(MapEditorMaster.instance.OTM.SelectedMEP != null)) && !MapEditorMaster.instance.isTesting && !MapEditorMaster.instance.inPlayingMode && !GameMaster.instance.GameHasPaused && MapEditorMaster.instance.SelectedProp >= 0 && selected && !check)
+		if (MapEditorMaster.instance == null || GameMaster.instance == null || ((bool)MapEditorMaster.instance.OTM && MapEditorMaster.instance.OTM.SelectedMEP != null))
+		{
+			return;
+		}
+		if (myProp[MapEditorMaster.instance.CurrentLayer] != null)
+		{
+			GetComponent<BoxCollider>().enabled = false;
+			return;
+		}
+		GetComponent<BoxCollider>().enabled = true;
+		if (!MapEditorMaster.instance.isTesting && !MapEditorMaster.instance.inPlayingMode && !GameMaster.instance.GameHasPaused && MapEditorMaster.instance.SelectedProp >= 0 && selected && !check)
 		{
 			checkSelections();
 		}
@@ -82,11 +92,24 @@ public class MapEditorGridPiece : MonoBehaviour
 
 	private void OnMouseOver()
 	{
-		if (MapEditorMaster.instance == null || GameMaster.instance == null || ((bool)MapEditorMaster.instance.OTM && MapEditorMaster.instance.OTM.SelectedMEP != null) || MapEditorMaster.instance.isTesting || MapEditorMaster.instance.inPlayingMode || GameMaster.instance.GameHasPaused || MapEditorMaster.instance.SelectedProp < 0)
+		if (MapEditorMaster.instance == null || GameMaster.instance == null)
 		{
 			return;
 		}
-		myRend.enabled = true;
+		if (myProp[MapEditorMaster.instance.CurrentLayer] != null)
+		{
+			GetComponent<BoxCollider>().enabled = false;
+			return;
+		}
+		GetComponent<BoxCollider>().enabled = true;
+		if (((bool)MapEditorMaster.instance.OTM && MapEditorMaster.instance.OTM.SelectedMEP != null) || MapEditorMaster.instance.isTesting || MapEditorMaster.instance.inPlayingMode || GameMaster.instance.GameHasPaused || MapEditorMaster.instance.SelectedProp < 0)
+		{
+			return;
+		}
+		if ((bool)myRend)
+		{
+			myRend.enabled = true;
+		}
 		if (!MapEditorMaster.instance.RemoveMode)
 		{
 			if (myRend != null)
@@ -381,7 +404,7 @@ public class MapEditorGridPiece : MonoBehaviour
 		{
 			return;
 		}
-		if ((MapEditorMaster.instance.SelectedProp > 3 && MapEditorMaster.instance.SelectedProp < 40) || MapEditorMaster.instance.SelectedProp == 46 || (MapEditorMaster.instance.SelectedProp >= 100 && MapEditorMaster.instance.SelectedProp < 120))
+		if (MapEditorMaster.instance.IsATank(MapEditorMaster.instance.SelectedProp, OnlyEnemies: false))
 		{
 			if (IDlayer > 0)
 			{
@@ -394,7 +417,7 @@ public class MapEditorGridPiece : MonoBehaviour
 			MapEditorMaster.instance.ShowErrorMessage("ERROR: No Block Below!");
 			return;
 		}
-		if ((MapEditorMaster.instance.SelectedProp > 5 && MapEditorMaster.instance.SelectedProp < 40 && MapEditorMaster.instance.SelectedProp != 28 && MapEditorMaster.instance.SelectedProp != 29) || (MapEditorMaster.instance.SelectedProp >= 100 && MapEditorMaster.instance.SelectedProp < 120) || MapEditorMaster.instance.SelectedProp == 1000 || MapEditorMaster.instance.SelectedProp == 2003 || MapEditorMaster.instance.SelectedProp == 2004)
+		if (MapEditorMaster.instance.IsATank(MapEditorMaster.instance.SelectedProp, OnlyEnemies: true))
 		{
 			if (MapEditorMaster.instance.enemyTanksPlaced[GameMaster.instance.CurrentMission] >= MapEditorMaster.instance.maxEnemyTanks)
 			{

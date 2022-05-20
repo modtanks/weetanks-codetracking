@@ -196,7 +196,7 @@ public class ZombieTankSpawner : MonoBehaviour
 			{
 				tutorialCanvas.CheckTut();
 			}
-			Play2DClipAtPoint(WinClip);
+			SFXManager.instance.PlaySFX(WinClip);
 			StartCoroutine("Timer");
 		}
 		StartCoroutine(Spawner());
@@ -305,7 +305,7 @@ public class ZombieTankSpawner : MonoBehaviour
 			ParticleSystem component = obj.GetComponent<ParticleSystem>();
 			obj.transform.Rotate(new Vector3(-90f, 0f, 0f));
 			component.Play();
-			Play2DClipAtPoint(MagicSound);
+			SFXManager.instance.PlaySFX(MagicSound);
 		}
 		if ((GameMaster.instance.PlayerDied[1] && GameMaster.instance.PlayerJoined[1]) || GameMaster.instance.PlayerJoining[1])
 		{
@@ -319,7 +319,7 @@ public class ZombieTankSpawner : MonoBehaviour
 			ParticleSystem component2 = obj2.GetComponent<ParticleSystem>();
 			obj2.transform.Rotate(new Vector3(-90f, 0f, 0f));
 			component2.Play();
-			Play2DClipAtPoint(MagicSound);
+			SFXManager.instance.PlaySFX(MagicSound);
 		}
 		if ((GameMaster.instance.PlayerDied[2] && GameMaster.instance.PlayerJoined[2]) || GameMaster.instance.PlayerJoining[2])
 		{
@@ -333,7 +333,7 @@ public class ZombieTankSpawner : MonoBehaviour
 			ParticleSystem component3 = obj3.GetComponent<ParticleSystem>();
 			obj3.transform.Rotate(new Vector3(-90f, 0f, 0f));
 			component3.Play();
-			Play2DClipAtPoint(MagicSound);
+			SFXManager.instance.PlaySFX(MagicSound);
 		}
 		if ((GameMaster.instance.PlayerDied[3] && GameMaster.instance.PlayerJoined[3]) || GameMaster.instance.PlayerJoining[3])
 		{
@@ -347,7 +347,7 @@ public class ZombieTankSpawner : MonoBehaviour
 			ParticleSystem component4 = obj4.GetComponent<ParticleSystem>();
 			obj4.transform.Rotate(new Vector3(-90f, 0f, 0f));
 			component4.Play();
-			Play2DClipAtPoint(MagicSound);
+			SFXManager.instance.PlaySFX(MagicSound);
 		}
 		GameMaster.instance.FindPlayers();
 		yield return new WaitForSeconds(3f);
@@ -357,16 +357,5 @@ public class ZombieTankSpawner : MonoBehaviour
 			counterScript.start = true;
 		}
 		timerRunning = false;
-	}
-
-	public void Play2DClipAtPoint(AudioClip clip)
-	{
-		GameObject obj = new GameObject("TempAudio");
-		AudioSource audioSource = obj.AddComponent<AudioSource>();
-		audioSource.clip = clip;
-		audioSource.volume = 1f;
-		audioSource.spatialBlend = 0f;
-		audioSource.Play();
-		Object.Destroy(obj, clip.length);
 	}
 }

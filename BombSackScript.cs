@@ -61,7 +61,7 @@ public class BombSackScript : MonoBehaviour
 
 	private void Start()
 	{
-		TimeTillDetonation = TimeTillDetonation + TimeTillDetonation + Random.Range(0f, TimeTillDetonation / 2f);
+		TimeTillDetonation += Random.Range(0f, TimeTillDetonation);
 		rb = GetComponent<Rigidbody>();
 		BombAnimator = GetComponent<Animator>();
 		StartPos = base.transform.position;

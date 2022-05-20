@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using QFSW.QC;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class HealthTanks : MonoBehaviour
 {
@@ -321,14 +322,6 @@ public class HealthTanks : MonoBehaviour
 				DamageMe(999);
 			}
 		}
-		if (!canGetHurt || GameMaster.instance.inTankeyTown)
-		{
-			if (GameMaster.instance.inTankeyTown)
-			{
-				health = 999;
-			}
-			return;
-		}
 		if (!GameMaster.instance.GameHasStarted && IsAirdropped)
 		{
 			DamageMe(999);
@@ -598,7 +591,7 @@ public class HealthTanks : MonoBehaviour
 				{
 					AchievementsTracker.instance.completeAchievement(16);
 				}
-				if (component2.isLevel100Boss)
+				if (component2.isLevel100Boss && GameMaster.instance.isOfficialCampaign)
 				{
 					if (OptionsMainMenu.instance.AM[0] != 1)
 					{
@@ -699,7 +692,7 @@ public class HealthTanks : MonoBehaviour
 		}
 		if ((bool)component7)
 		{
-			if (component7.isLevel100Boss)
+			if (component7.isLevel100Boss && GameMaster.instance.isOfficialCampaign)
 			{
 				GameMaster.instance.totalWins++;
 				AccountMaster.instance.SaveCloudData(1, 1, 0, bounceKill: false);
@@ -1026,6 +1019,10 @@ public class HealthTanks : MonoBehaviour
 		}
 		if (MTS != null)
 		{
+			if ((bool)TankeyTownMaster.instance)
+			{
+				Camera.main.gameObject.AddComponent<AudioListener>();
+			}
 			if (!instadie && dying)
 			{
 				GameMaster.instance.AmountPlayersThatNeedRevive--;
@@ -1126,8 +1123,17 @@ public class HealthTanks : MonoBehaviour
 		{
 			GameMaster.instance.StartCoroutine(GameMaster.instance.GetTankTeamData(fast: false));
 		}
-		GameMaster.instance.CheckGameState();
-		Object.Destroy(base.transform.parent.gameObject);
+		if ((bool)TankeyTownMaster.instance)
+		{
+			Object.Destroy(base.transform.parent.gameObject);
+			yield return new WaitForSeconds(1f);
+			SceneManager.LoadScene(0);
+		}
+		else
+		{
+			GameMaster.instance.CheckGameState();
+			Object.Destroy(base.transform.parent.gameObject);
+		}
 	}
 
 	private void AreaDamageEnemies(Vector3 location, float radius, float damage)

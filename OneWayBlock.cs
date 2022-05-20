@@ -252,7 +252,7 @@ public class OneWayBlock : MonoBehaviour
 			blockAnimator.SetFloat("Health", blocker);
 			if (MyColliders.Count > 0 && blocker > 0.4f)
 			{
-				float num = (FastBreaker ? 3f : 1f);
+				float num = (FastBreaker ? 4f : 1f);
 				blocker -= Time.deltaTime * breakspeed * num;
 			}
 			else if (blocker > 9.5f)

@@ -190,7 +190,7 @@ public class UpgradeField : MonoBehaviour
 			}
 			else
 			{
-				int num = ((myTurret.upgradeLevel < 1) ? ZombieTankSpawner.instance.TurretRepairPrice : (ZombieTankSpawner.instance.TurretRepairPrice * 2));
+				int num = ((myTurret.upgradeLevel == 0) ? ZombieTankSpawner.instance.TurretRepairPrice : ((myTurret.upgradeLevel == 1) ? (ZombieTankSpawner.instance.TurretRepairPrice * 2) : (ZombieTankSpawner.instance.TurretRepairPrice * 3)));
 				if (GameMaster.instance.isPlayingWithController || isPlayer2)
 				{
 					UpgradeText.text = "Press " + text + " to buy: Repair Turret";

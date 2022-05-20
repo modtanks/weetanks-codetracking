@@ -63,33 +63,14 @@ public class UnlockableScript : MonoBehaviour
 		{
 			return;
 		}
-		if (AccountMaster.instance.PDO.AM.Length > ULID)
+		if (AccountMaster.instance.PDO.CC.Contains(ULID))
 		{
-			if (AccountMaster.instance.PDO.AM[ULID] == 1)
+			UnlockableTitle.text = myUI.UnlockableName;
+			UnlockableRequire.text = "";
+			GetComponent<MainMenuButtons>().MakeAvailable();
+			if (myUI.code != "")
 			{
-				UnlockableTitle.text = myUI.UnlockableName;
-				UnlockableRequire.text = "";
-				GetComponent<MainMenuButtons>().MakeAvailable();
-				if (myUI.code != "")
-				{
-					code = myUI.code;
-				}
-			}
-			else if (!myUI.codeNeededToUnlock)
-			{
-				UnlockableTitle.text = myUI.UnlockableName;
-				GetComponent<MainMenuButtons>().MakeUnavailable();
-				if (myUI.code != "")
-				{
-					code = myUI.code;
-				}
-				UnlockableRequire.text = "( Achievement: '" + LocalizationMaster.instance.GetText("AM_" + ULID) + "' required!)";
-			}
-			else
-			{
-				UnlockableTitle.text = myUI.UnlockableName;
 				code = myUI.code;
-				GetComponent<MainMenuButtons>().MakeUnavailable();
 			}
 		}
 		else if (!myUI.codeNeededToUnlock)
@@ -105,8 +86,8 @@ public class UnlockableScript : MonoBehaviour
 		else
 		{
 			UnlockableTitle.text = myUI.UnlockableName;
-			GetComponent<MainMenuButtons>().MakeUnavailable();
 			code = myUI.code;
+			GetComponent<MainMenuButtons>().MakeUnavailable();
 		}
 	}
 
@@ -209,7 +190,7 @@ public class UnlockableScript : MonoBehaviour
 			{
 				return;
 			}
-			if (AccountMaster.instance.PDO.AM[ULID] == 1)
+			if (AccountMaster.instance.PDO.CC.Contains(ULID))
 			{
 				if (myUI.codeNeededToUnlock && base.transform.parent == null)
 				{
@@ -244,7 +225,7 @@ public class UnlockableScript : MonoBehaviour
 			return;
 		}
 		Debug.Log("You have clicked the button!");
-		if (ULID >= 1000 || AccountMaster.instance.PDO.AM[ULID] == 1)
+		if (ULID >= 1000 || AccountMaster.instance.PDO.CC.Contains(ULID))
 		{
 			if (!AccountMaster.instance.PDO.ActivatedAM.Contains(ULID) && ULID < 1000)
 			{
@@ -294,7 +275,7 @@ public class UnlockableScript : MonoBehaviour
 							return;
 						}
 					}
-					Play2DClipAtPoint(ErrorSound);
+					SFXManager.instance.PlaySFX(ErrorSound);
 				}
 				else if (isMine && flag4)
 				{
@@ -306,7 +287,7 @@ public class UnlockableScript : MonoBehaviour
 							return;
 						}
 					}
-					Play2DClipAtPoint(ErrorSound);
+					SFXManager.instance.PlaySFX(ErrorSound);
 				}
 				else if (isBullet && flag5)
 				{
@@ -318,7 +299,7 @@ public class UnlockableScript : MonoBehaviour
 							return;
 						}
 					}
-					Play2DClipAtPoint(ErrorSound);
+					SFXManager.instance.PlaySFX(ErrorSound);
 				}
 				else if (isSkidmarks && flag2)
 				{
@@ -330,7 +311,7 @@ public class UnlockableScript : MonoBehaviour
 							return;
 						}
 					}
-					Play2DClipAtPoint(ErrorSound);
+					SFXManager.instance.PlaySFX(ErrorSound);
 				}
 				else if (isBoost && flag3)
 				{
@@ -342,7 +323,7 @@ public class UnlockableScript : MonoBehaviour
 							return;
 						}
 					}
-					Play2DClipAtPoint(ErrorSound);
+					SFXManager.instance.PlaySFX(ErrorSound);
 				}
 				else if (isHitmarker && flag6)
 				{
@@ -355,11 +336,11 @@ public class UnlockableScript : MonoBehaviour
 							return;
 						}
 					}
-					Play2DClipAtPoint(ErrorSound);
+					SFXManager.instance.PlaySFX(ErrorSound);
 				}
 				else
 				{
-					Play2DClipAtPoint(SuccesSound);
+					SFXManager.instance.PlaySFX(SuccesSound);
 					AccountMaster.instance.PDO.ActivatedAM.Add(ULID);
 					OptionsMainMenu.instance.AMUS.Add(this);
 					AccountMaster.instance.SaveCloudData(4, ULID, 0, bounceKill: false);
@@ -371,7 +352,7 @@ public class UnlockableScript : MonoBehaviour
 			}
 			else
 			{
-				Play2DClipAtPoint(SuccesSound);
+				SFXManager.instance.PlaySFX(SuccesSound);
 				if (OptionsMainMenu.instance.AMselected.Contains(ULID))
 				{
 					OptionsMainMenu.instance.AMselected.Remove(ULID);
@@ -390,7 +371,7 @@ public class UnlockableScript : MonoBehaviour
 		}
 		else
 		{
-			Play2DClipAtPoint(ErrorSound);
+			SFXManager.instance.PlaySFX(ErrorSound);
 		}
 	}
 
@@ -401,18 +382,6 @@ public class UnlockableScript : MonoBehaviour
 		AccountMaster.instance.PDO.ActivatedAM.Add(ULID);
 		OptionsMainMenu.instance.AMUS.Add(this);
 		AccountMaster.instance.SaveCloudData(4, ULID, otherUS.ULID, bounceKill: false);
-		Play2DClipAtPoint(SuccesSound);
-	}
-
-	public void Play2DClipAtPoint(AudioClip clip)
-	{
-		GameObject obj = new GameObject("TempAudio");
-		AudioSource audioSource = obj.AddComponent<AudioSource>();
-		audioSource.clip = clip;
-		audioSource.ignoreListenerVolume = true;
-		audioSource.volume = 1f * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
-		audioSource.spatialBlend = 0f;
-		audioSource.Play();
-		Object.Destroy(obj, clip.length);
+		SFXManager.instance.PlaySFX(SuccesSound);
 	}
 }

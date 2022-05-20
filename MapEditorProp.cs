@@ -36,6 +36,8 @@ public class MapEditorProp : MonoBehaviour
 
 	public bool CanBeColored;
 
+	public bool DisableColliderOnStart;
+
 	private HealthTanks HT;
 
 	public bool removeParentOnDelete;
@@ -349,6 +351,9 @@ public class MapEditorProp : MonoBehaviour
 		base.transform.localPosition = Vector3.zero;
 		base.transform.localRotation = Quaternion.identity;
 		yield return new WaitForSeconds(0.1f);
+		base.transform.localPosition = Vector3.zero;
+		base.transform.localRotation = Quaternion.identity;
+		yield return new WaitForSeconds(0.2f);
 		base.transform.localPosition = Vector3.zero;
 		base.transform.localRotation = Quaternion.identity;
 	}
@@ -708,6 +713,10 @@ public class MapEditorProp : MonoBehaviour
 		{
 			if (!ColorSetPlayingMode && CanBeColored)
 			{
+				if (DisableColliderOnStart)
+				{
+					GetComponent<Collider>().enabled = false;
+				}
 				ColorSetPlayingMode = true;
 				if (MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber] != null)
 				{
@@ -761,6 +770,15 @@ public class MapEditorProp : MonoBehaviour
 					MapEditorMaster.instance.LastPlacedRotation = myMEGP.rotationDirection[LayerNumber];
 				}
 			}
+			else if (Input.GetMouseButtonDown(2))
+			{
+				MapEditorMaster.instance.SelectedProp = myMEGP.myPropID[LayerNumber];
+				if (CanBeColored)
+				{
+					MapEditorMaster.instance.OTM.FCP.color = MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber].Color;
+					MapEditorMaster.instance.OTM.FCP.startingColor = MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[myMEGP.ID].CustomColor[LayerNumber].Color;
+				}
+			}
 		}
 		if (Input.GetMouseButtonUp(0) && Selected && MapEditorMaster.instance.canPlaceProp)
 		{
@@ -783,6 +801,7 @@ public class MapEditorProp : MonoBehaviour
 		}
 		myMEGP.myPropID[myMEGP.IDlayer] = -1;
 		myMEGP.myPropPrefab[myMEGP.IDlayer] = null;
+		myMEGP.GetComponent<BoxCollider>().enabled = true;
 		if (MapEditorMaster.instance.OTM.SelectedMEP == this)
 		{
 			DeselectThisProp();

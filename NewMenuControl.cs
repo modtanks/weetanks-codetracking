@@ -454,11 +454,11 @@ public class NewMenuControl : MonoBehaviour
 				obj.GetComponent<AchievementItemScript>().AMID = k;
 			}
 		}
-		for (int l = 0; l < OptionsMainMenu.instance.AM.Length; l++)
+		for (int l = 0; l < OptionsMainMenu.instance.UIs.Length; l++)
 		{
 			GameObject obj2 = UnityEngine.Object.Instantiate(UnlockablePrefab);
 			obj2.transform.SetParent(UnlockableParent.transform);
-			obj2.GetComponent<UnlockableScript>().ULID = l;
+			obj2.GetComponent<UnlockableScript>().ULID = OptionsMainMenu.instance.UIs[l].ULID;
 		}
 		MusicVolume_list.SetValueWithoutNotify(OptionsMainMenu.instance.musicVolumeLvl);
 		MasterVolume_list.SetValueWithoutNotify(OptionsMainMenu.instance.masterVolumeLvl);
@@ -788,19 +788,22 @@ public class NewMenuControl : MonoBehaviour
 			Debug.Log("Error While Sending: " + uwr.error);
 			AccountMaster.instance.isSignedIn = false;
 			UpdateMenuSignedInText();
-			yield break;
 		}
-		Debug.Log("Received: " + uwr.downloadHandler.text);
-		Menus[currentMenu].SetActive(value: false);
-		CenterText.text = "You are now signed out.";
-		CenterText.gameObject.SetActive(value: true);
-		AccountMaster.instance.SignOut(manual: true);
-		yield return new WaitForSeconds(2f);
-		CenterText.gameObject.SetActive(value: false);
-		currentMenu = 18;
-		Menus[currentMenu].SetActive(value: true);
-		SignInNotificationText.gameObject.SetActive(value: false);
-		UpdateMenuSignedInText();
+		else
+		{
+			Debug.Log("Received: " + uwr.downloadHandler.text);
+			Menus[currentMenu].SetActive(value: false);
+			CenterText.text = "You are now signed out.";
+			CenterText.gameObject.SetActive(value: true);
+			AccountMaster.instance.SignOut(manual: true);
+			yield return new WaitForSeconds(2f);
+			CenterText.gameObject.SetActive(value: false);
+			currentMenu = 18;
+			Menus[currentMenu].SetActive(value: true);
+			SignInNotificationText.gameObject.SetActive(value: false);
+			UpdateMenuSignedInText();
+		}
+		uwr.Dispose();
 	}
 
 	public IEnumerator SetNewPassword(string password)
@@ -818,26 +821,29 @@ public class NewMenuControl : MonoBehaviour
 		if (uwr.isNetworkError)
 		{
 			Debug.Log("Error While Sending: " + uwr.error);
-			yield break;
-		}
-		Debug.Log("Received: " + uwr.downloadHandler.text);
-		if (uwr.downloadHandler.text.Contains("done"))
-		{
-			CenterText.text = "Password set!";
-			CenterText.gameObject.SetActive(value: true);
-			yield return new WaitForSeconds(2f);
-			CenterText.gameObject.SetActive(value: false);
-			enableMenu(18);
-			AccountMaster.instance.CanSetNewPassword = false;
 		}
 		else
 		{
-			CenterText.text = "Failed!";
-			CenterText.gameObject.SetActive(value: true);
-			yield return new WaitForSeconds(2f);
-			CenterText.gameObject.SetActive(value: false);
-			enableMenu(18);
+			Debug.Log("Received: " + uwr.downloadHandler.text);
+			if (uwr.downloadHandler.text.Contains("done"))
+			{
+				CenterText.text = "Password set!";
+				CenterText.gameObject.SetActive(value: true);
+				yield return new WaitForSeconds(2f);
+				CenterText.gameObject.SetActive(value: false);
+				enableMenu(18);
+				AccountMaster.instance.CanSetNewPassword = false;
+			}
+			else
+			{
+				CenterText.text = "Failed!";
+				CenterText.gameObject.SetActive(value: true);
+				yield return new WaitForSeconds(2f);
+				CenterText.gameObject.SetActive(value: false);
+				enableMenu(18);
+			}
 		}
+		uwr.Dispose();
 	}
 
 	private IEnumerator CreateAccount(string url, string username, string password)
@@ -910,6 +916,7 @@ public class NewMenuControl : MonoBehaviour
 		}
 		CenterText.gameObject.SetActive(value: false);
 		Menus[currentMenu].SetActive(value: true);
+		uwr.Dispose();
 	}
 
 	private IEnumerator SignIn(string url, string username, string password)
@@ -982,6 +989,7 @@ public class NewMenuControl : MonoBehaviour
 		}
 		CenterText.gameObject.SetActive(value: false);
 		Menus[currentMenu].SetActive(value: true);
+		uwr.Dispose();
 	}
 
 	public void UploadCampaign(int ID)
@@ -1380,112 +1388,107 @@ public class NewMenuControl : MonoBehaviour
 				deselectButton(MMB);
 				enableMenu(10);
 			}
-			else
+			else if (MMB.IsToTankeyTown)
 			{
-				if (MMB.IsToTankeyTown)
+				StartCoroutine(LoadYourAsyncScene(6));
+			}
+			else if (MMB.IsSurvivalMode)
+			{
+				deselectButton(MMB);
+				enableMenu(8);
+			}
+			else if (MMB.IsSurvivalMap)
+			{
+				if (!MMB.canBeSelected)
 				{
-					TutorialMaster.instance.ShowTutorial("Tankey town has been disabled for now!");
 					SFXManager.instance.PlaySFX(errorSound);
 					return;
 				}
-				if (MMB.IsSurvivalMode)
+				Temp_MMB = MMB;
+				Temp_scene = 2;
+				Temp_startingLevel = MMB.SurvivalMapNumber;
+				PIM.CanPlayWithAI = false;
+				PIM.SetControllers();
+				deselectButton(MMB);
+				enableMenu(25);
+				PIM.DisableDifficultySetter();
+			}
+			else if (MMB.IsContinue && MMB.canBeSelected)
+			{
+				Temp_MMB = MMB;
+				Temp_scene = 1;
+				Temp_startingLevel = MMB.ContinueLevel;
+				PIM.CanPlayWithAI = true;
+				PIM.SetControllers();
+				PIM.LoadData();
+				PIM.DisableDifficultySetter();
+				deselectButton(MMB);
+				enableMenu(25);
+			}
+			else if (MMB.StartMatchButton)
+			{
+				Debug.Log("Starting Match..");
+				for (int j = 0; j < 4; j++)
 				{
-					deselectButton(MMB);
-					enableMenu(8);
-				}
-				else if (MMB.IsSurvivalMap)
-				{
-					if (!MMB.canBeSelected)
+					bool flag = false;
+					for (int k = 0; k < ReInput.controllers.GetControllers(ControllerType.Joystick).Length; k++)
 					{
-						SFXManager.instance.PlaySFX(errorSound);
-						return;
-					}
-					Temp_MMB = MMB;
-					Temp_scene = 2;
-					Temp_startingLevel = MMB.SurvivalMapNumber;
-					PIM.CanPlayWithAI = false;
-					PIM.SetControllers();
-					deselectButton(MMB);
-					enableMenu(25);
-					PIM.DisableDifficultySetter();
-				}
-				else if (MMB.IsContinue && MMB.canBeSelected)
-				{
-					Temp_MMB = MMB;
-					Temp_scene = 1;
-					Temp_startingLevel = MMB.ContinueLevel;
-					PIM.CanPlayWithAI = true;
-					PIM.SetControllers();
-					PIM.LoadData();
-					PIM.DisableDifficultySetter();
-					deselectButton(MMB);
-					enableMenu(25);
-				}
-				else if (MMB.StartMatchButton)
-				{
-					Debug.Log("Starting Match..");
-					for (int j = 0; j < 4; j++)
-					{
-						bool flag = false;
-						for (int k = 0; k < ReInput.controllers.GetControllers(ControllerType.Joystick).Length; k++)
+						if (PIM.Dropdowns[j].captionText.text == ReInput.controllers.GetController(ControllerType.Joystick, k).name)
 						{
-							if (PIM.Dropdowns[j].captionText.text == ReInput.controllers.GetController(ControllerType.Joystick, k).name)
-							{
-								Debug.Log("FOUND ONE!!!: " + ReInput.controllers.GetController(ControllerType.Joystick, k).name);
-								ReInput.players.GetPlayer(j).controllers.AddController(ReInput.controllers.GetController(ControllerType.Joystick, k), removeFromOtherPlayers: true);
-								flag = true;
-								OptionsMainMenu.instance.PlayerJoined[j] = true;
-							}
-						}
-						if (!flag)
-						{
-							if (j == 0)
-							{
-								ReInput.players.GetPlayer(j).controllers.ClearAllControllers();
-								ReInput.players.GetPlayer(j).controllers.AddController(ReInput.controllers.GetController(ControllerType.Keyboard, 0), removeFromOtherPlayers: true);
-								ReInput.players.GetPlayer(j).controllers.AddController(ReInput.controllers.GetController(ControllerType.Mouse, 0), removeFromOtherPlayers: true);
-								OptionsMainMenu.instance.PlayerJoined[j] = true;
-							}
-							else if (PIM.Dropdowns[j].captionText.text.Contains("AI"))
-							{
-								OptionsMainMenu.instance.AIcompanion[j] = true;
-								OptionsMainMenu.instance.PlayerJoined[j] = false;
-							}
-							else
-							{
-								OptionsMainMenu.instance.PlayerJoined[j] = false;
-							}
+							Debug.Log("FOUND ONE!!!: " + ReInput.controllers.GetController(ControllerType.Joystick, k).name);
+							ReInput.players.GetPlayer(j).controllers.AddController(ReInput.controllers.GetController(ControllerType.Joystick, k), removeFromOtherPlayers: true);
+							flag = true;
+							OptionsMainMenu.instance.PlayerJoined[j] = true;
 						}
 					}
-					Debug.Log("Controllers set..");
-					if (Temp_scene == 100)
+					if (!flag)
 					{
-						OnMapStart();
-						return;
-					}
-					if (Temp_scene == 1)
-					{
-						Debug.Log("Starting game scene 1");
-						PIM.CanPlayWithAI = true;
-						if (Temp_startingLevel == 0 && Temp_scene == 1)
+						if (j == 0)
 						{
-							OptionsMainMenu.instance.StartLevel = 0;
-							StartCoroutine(LoadYourAsyncScene(1));
-							TTL.ContinueCheckpoint = 0;
-							TTL.ClassicCampaign = true;
+							ReInput.players.GetPlayer(j).controllers.ClearAllControllers();
+							ReInput.players.GetPlayer(j).controllers.AddController(ReInput.controllers.GetController(ControllerType.Keyboard, 0), removeFromOtherPlayers: true);
+							ReInput.players.GetPlayer(j).controllers.AddController(ReInput.controllers.GetController(ControllerType.Mouse, 0), removeFromOtherPlayers: true);
+							OptionsMainMenu.instance.PlayerJoined[j] = true;
+						}
+						else if (PIM.Dropdowns[j].captionText.text.Contains("AI"))
+						{
+							OptionsMainMenu.instance.AIcompanion[j] = true;
+							OptionsMainMenu.instance.PlayerJoined[j] = false;
 						}
 						else
 						{
-							Debug.Log("Starting game scene 1 0");
-							LoadLevel(Temp_scene, Temp_MMB, Temp_startingLevel);
+							OptionsMainMenu.instance.PlayerJoined[j] = false;
 						}
 					}
-					else if (Temp_scene == 2)
+				}
+				Debug.Log("Controllers set..");
+				if (Temp_scene == 100)
+				{
+					OnMapStart();
+					return;
+				}
+				if (Temp_scene == 1)
+				{
+					Debug.Log("Starting game scene 1");
+					PIM.CanPlayWithAI = true;
+					if (Temp_startingLevel == 0 && Temp_scene == 1)
 					{
-						Debug.Log("Starting game scene 2");
-						PIM.CanPlayWithAI = false;
+						OptionsMainMenu.instance.StartLevel = 0;
+						StartCoroutine(LoadYourAsyncScene(1));
+						TTL.ContinueCheckpoint = 0;
+						TTL.ClassicCampaign = true;
+					}
+					else
+					{
+						Debug.Log("Starting game scene 1 0");
 						LoadLevel(Temp_scene, Temp_MMB, Temp_startingLevel);
 					}
+				}
+				else if (Temp_scene == 2)
+				{
+					Debug.Log("Starting game scene 2");
+					PIM.CanPlayWithAI = false;
+					LoadLevel(Temp_scene, Temp_MMB, Temp_startingLevel);
 				}
 			}
 		}

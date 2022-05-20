@@ -50,7 +50,7 @@ public class LookAtMouse : MonoBehaviour
 
 	private void Update()
 	{
-		if (GameMaster.instance != null)
+		if (GameMaster.instance != null && myController != null)
 		{
 			if ((GameMaster.instance.inMapEditor && !GameMaster.instance.GameHasStarted) || myController.isStunned)
 			{

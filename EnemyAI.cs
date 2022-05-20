@@ -490,9 +490,13 @@ public class EnemyAI : MonoBehaviour
 		{
 			InvokeRepeating("CheckForDownedPlayer", 0.4f, 0.4f);
 		}
-		if ((bool)MapEditorMaster.instance && !isShiny && !isSuperShiny && (bool)GameObject.Find("Cube.003").GetComponent<MeshRenderer>() && Body != null && MyTeam > -1 && MapEditorMaster.instance.TeamColorEnabled[MyTeam])
+		if ((bool)MapEditorMaster.instance && !isShiny && !isSuperShiny)
 		{
-			Body.materials[0].SetColor("_Color", MapEditorMaster.instance.TeamColors[MyTeam]);
+			GameObject gameObject = GameObject.Find("Cube.003");
+			if ((bool)gameObject && (bool)gameObject.GetComponent<MeshRenderer>() && Body != null && MyTeam > -1 && MapEditorMaster.instance.TeamColorEnabled[MyTeam])
+			{
+				Body.materials[0].SetColor("_Color", MapEditorMaster.instance.TeamColors[MyTeam]);
+			}
 		}
 		if (isLevel50Boss && OptionsMainMenu.instance.currentDifficulty > 1)
 		{
@@ -834,7 +838,8 @@ public class EnemyAI : MonoBehaviour
 			yield break;
 		}
 		new List<int>();
-		yield return new WaitForSeconds(4f);
+		float seconds = Random.Range(3f, 5f);
+		yield return new WaitForSeconds(seconds);
 		if (isCharged && (GameMaster.instance.GameHasStarted || GameMaster.instance.inMenuMode))
 		{
 			Vector3 validLocation = GameMaster.instance.GetValidLocation(CheckForDist: true, 8f, base.transform.position, TargetPlayer: false);

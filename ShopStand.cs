@@ -144,7 +144,7 @@ public class ShopStand : MonoBehaviour
 				SFXManager.instance.PlaySFX(ErrorSound, 0.8f, null);
 			}
 		}
-		else
+		else if (ReInput.players.GetPlayer(0).GetButtonDown("Use") && PlayerBoughtMeAlready)
 		{
 			SFXManager.instance.PlaySFX(ErrorSound, 0.8f, null);
 		}
@@ -153,6 +153,7 @@ public class ShopStand : MonoBehaviour
 	public void TransactionSucces()
 	{
 		SFXManager.instance.PlaySFX(BoughtSound, 0.8f, null);
+		TutorialMaster.instance.ShowTutorial("Item bought succesfully!");
 		StartCoroutine(ResetStock());
 	}
 
@@ -187,8 +188,6 @@ public class ShopStand : MonoBehaviour
 		Vector2 renderedValues = ItemDescription.GetRenderedValues(onlyVisibleCharacters: true);
 		PercentChangeY = renderedValues.y / BaseHeight;
 		PercentChangeY -= 0.1f;
-		Vector2 vector = renderedValues;
-		Debug.Log("size of description: " + vector.ToString());
 		if (PercentChangeY <= 1f)
 		{
 			PercentChangeY = 1f;
@@ -198,7 +197,6 @@ public class ShopStand : MonoBehaviour
 		{
 			HLGIcons.padding.top = 3;
 		}
-		Debug.Log("setting size, with new width of: " + SizeOfTitle.x);
 		for (int i = 0; i < Boxes.Length; i++)
 		{
 			RectTransform rectTransform2 = Boxes[i].GetComponent(typeof(RectTransform)) as RectTransform;
@@ -264,6 +262,7 @@ public class ShopStand : MonoBehaviour
 		if (MySpawnedItem != null && IsUpdate && MySpawnedItem != gameObject)
 		{
 			Object.Destroy(MySpawnedItem);
+			MySpawnedItem = null;
 		}
 		if (MySpawnedItem == null)
 		{

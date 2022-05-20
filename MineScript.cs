@@ -128,7 +128,7 @@ public class MineScript : MonoBehaviour
 
 	private void InitiateDeath()
 	{
-		if (!GameMaster.instance.inTankeyTown && (GameMaster.instance.GameHasStarted || isHuntingEnemies || GameMaster.instance.isZombieMode))
+		if (GameMaster.instance.GameHasStarted || isHuntingEnemies || GameMaster.instance.isZombieMode)
 		{
 			AreaDamageEnemies(base.transform.position, 3.5f, 1f);
 			if (GameMaster.instance.CurrentMission == 49)
@@ -335,7 +335,23 @@ public class MineScript : MonoBehaviour
 			WeeTurret component12 = collider.GetComponent<WeeTurret>();
 			ExplosiveBlock component13 = collider.GetComponent<ExplosiveBlock>();
 			BombSackScript component14 = collider.GetComponent<BombSackScript>();
-			if ((bool)component13)
+			SoundTrigger component15 = collider.GetComponent<SoundTrigger>();
+			if ((bool)component15)
+			{
+				if (component15.ChangeSourceToClip)
+				{
+					if (component15.GetComponent<AudioSource>().clip != component15.Clips[0])
+					{
+						component15.GetComponent<AudioSource>().clip = component15.Clips[0];
+						component15.GetComponent<AudioSource>().Play();
+					}
+				}
+				else if (component15.Clips.Count > 0)
+				{
+					SFXManager.instance.PlaySFX(component15.Clips[Random.Range(0, component15.Clips.Count)]);
+				}
+			}
+			else if ((bool)component13)
 			{
 				if (!component13.isExploding)
 				{
@@ -353,8 +369,8 @@ public class MineScript : MonoBehaviour
 			{
 				if (component7.isMainTank)
 				{
-					EnemyAI component15 = component7.GetComponent<EnemyAI>();
-					if ((bool)component15 && component15.IsCompanion && MyPlacer == component15.gameObject)
+					EnemyAI component16 = component7.GetComponent<EnemyAI>();
+					if ((bool)component16 && component16.IsCompanion && MyPlacer == component16.gameObject)
 					{
 						return;
 					}
@@ -377,6 +393,10 @@ public class MineScript : MonoBehaviour
 						{
 							AchievementsTracker.instance.completeAchievement(20);
 						}
+					}
+					if (component7.health < 1 && !GameMaster.instance.inMapEditor && !MapEditorMaster.instance && !GameMaster.instance.isZombieMode && (bool)AccountMaster.instance && !component7.isMainTank)
+					{
+						AccountMaster.instance.SaveCloudData(0, component7.EnemyID, 0, bounceKill: false);
 					}
 				}
 				if (component7.immuneToExplosion)
@@ -490,17 +510,17 @@ public class MineScript : MonoBehaviour
 		array = Physics.OverlapSphere(location, radius * 2.75f);
 		foreach (Collider collider2 in array)
 		{
-			Rigidbody component16 = collider2.GetComponent<Rigidbody>();
-			if (component16 != null && (collider2.tag == "Player" || collider2.tag == "Enemy"))
+			Rigidbody component17 = collider2.GetComponent<Rigidbody>();
+			if (component17 != null && (collider2.tag == "Player" || collider2.tag == "Enemy"))
 			{
-				float num2 = Vector3.Distance(component16.transform.position, base.transform.position);
+				float num2 = Vector3.Distance(component17.transform.position, base.transform.position);
 				float num3 = (radius * 2.75f - num2) * 2.2f;
-				Vector3 vector = component16.transform.position - base.transform.position;
+				Vector3 vector = component17.transform.position - base.transform.position;
 				if (num3 > 16f)
 				{
 					num3 = 16f;
 				}
-				component16.AddForce(vector * num3, ForceMode.Impulse);
+				component17.AddForce(vector * num3, ForceMode.Impulse);
 			}
 		}
 	}

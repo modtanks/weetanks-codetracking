@@ -101,6 +101,8 @@ public class GameMaster : MonoBehaviour
 
 	public GameObject[] ObjectsEnablingAtStart;
 
+	public TextMeshProUGUI AchievementDebugText;
+
 	[Header("Spawning Map Loading")]
 	public List<GameObject> Players = new List<GameObject>();
 
@@ -376,7 +378,7 @@ public class GameMaster : MonoBehaviour
 				}
 			}
 			CurrentMission = OptionsMainMenu.instance.StartLevel;
-			if (!isZombieMode && !inMapEditor)
+			if (!isZombieMode && !inMapEditor && !TankeyTownMaster.instance)
 			{
 				Mission_Text.text = LocalizationMaster.instance.GetText("HUD_mission") + " " + (CurrentMission + 1);
 				if (isOfficialCampaign)
@@ -655,6 +657,11 @@ public class GameMaster : MonoBehaviour
 
 	private void Update()
 	{
+		if ((bool)AchievementDebugText && OptionsMainMenu.instance.AMselected.Contains(850))
+		{
+			AchievementDebugText.gameObject.SetActive(value: true);
+			AchievementDebugText.text = "Has moved: " + AchievementsTracker.instance.Moved + "<br>Has shooted: " + AchievementsTracker.instance.HasShooted + "<br>Has killed without bounce: " + AchievementsTracker.instance.KilledWithoutBounce + "<br>Has shot boss: " + AchievementsTracker.instance.HasShotBoss + "<br>Has missed shot: " + AchievementsTracker.instance.HasMissed + "<br>Has started from begin:" + AchievementsTracker.instance.StartedFromBegin + "<br>Has been stunned by boss:" + AchievementsTracker.instance.HasBeenStunnedByBoss + "<br>Has shooted this round:" + AchievementsTracker.instance.HasShootedThisRound;
+		}
 		if (inOnlineMode || (bool)CM)
 		{
 			return;
@@ -977,6 +984,7 @@ public class GameMaster : MonoBehaviour
 
 	private void CheckSecretMission()
 	{
+		Debug.Log("CHECK secrot" + SecretMissionCounter);
 		SecretMissionCounter--;
 		if (SecretMissionCounter == 1)
 		{
@@ -984,14 +992,11 @@ public class GameMaster : MonoBehaviour
 			{
 				FoundSecretMissions.Add(CurrentMission);
 			}
-			if (!AccountMaster.instance.PDO.foundSecretMissions.Contains(CurrentMission))
-			{
-				AccountMaster.instance.PDO.foundSecretMissions.Add(CurrentMission);
-			}
 			if (FoundSecretMissions.Count > 10 && (bool)AchievementsTracker.instance)
 			{
 				AchievementsTracker.instance.completeAchievement(33);
 			}
+			AccountMaster.instance.SaveCloudData(8, 0, 0, bounceKill: false);
 			Debug.Log("CHECK ESCROTR");
 			SaveData(skipCloud: false);
 		}
@@ -1091,21 +1096,30 @@ public class GameMaster : MonoBehaviour
 				AmountTeamTanks[component.MyTeam]++;
 			}
 		}
-		array = GameObject.FindGameObjectsWithTag("Player");
-		foreach (GameObject gameObject in array)
+		array = GameObject.FindGameObjectsWithTag("Boss");
+		for (int j = 0; j < array.Length; j++)
 		{
-			MoveTankScript component2 = gameObject.GetComponent<MoveTankScript>();
+			EnemyAI component2 = array[j].GetComponent<EnemyAI>();
 			if ((bool)component2)
 			{
 				AmountTeamTanks[component2.MyTeam]++;
-				PlayerTeamColor[component2.playerId] = component2.MyTeam;
-				continue;
 			}
-			EnemyAI component3 = gameObject.GetComponent<EnemyAI>();
+		}
+		array = GameObject.FindGameObjectsWithTag("Player");
+		foreach (GameObject gameObject in array)
+		{
+			MoveTankScript component3 = gameObject.GetComponent<MoveTankScript>();
 			if ((bool)component3)
 			{
 				AmountTeamTanks[component3.MyTeam]++;
-				PlayerTeamColor[1] = component3.MyTeam;
+				PlayerTeamColor[component3.playerId] = component3.MyTeam;
+				continue;
+			}
+			EnemyAI component4 = gameObject.GetComponent<EnemyAI>();
+			if ((bool)component4)
+			{
+				AmountTeamTanks[component4.MyTeam]++;
+				PlayerTeamColor[1] = component4.MyTeam;
 			}
 		}
 		if (MapEditorMaster.instance != null)
@@ -1164,18 +1178,16 @@ public class GameMaster : MonoBehaviour
 		CloudGeneration.instance.GlobalVolume.profile = CloudGeneration.instance.PPPs[0];
 		if ((CurrentMission == 49 || CurrentMission == 29) && MapEditorMaster.instance == null)
 		{
-			if (!MapEditorMaster.instance)
+			if (!MapEditorMaster.instance && CurrentMission != 29)
 			{
 				mapBorders.SetActive(value: false);
 			}
-			if (floor != null)
+			if (floor != null && CurrentMission != 29)
 			{
 				floor.SetActive(value: false);
 			}
-			if (CurrentMission == 29)
+			if (CurrentMission != 29)
 			{
-				RenderSettings.skybox = CloudGeneration.instance.SkyBoxDark;
-				CloudGeneration.instance.GlobalVolume.profile = CloudGeneration.instance.PPPs[5];
 			}
 		}
 		else
@@ -1233,7 +1245,7 @@ public class GameMaster : MonoBehaviour
 		}
 		if (isOfficialCampaign && MissionTutorials.Count > CurrentMission && MissionTutorials[CurrentMission] != null && MissionTutorials[CurrentMission] != "")
 		{
-			TutorialMaster.instance.ShowTutorial(MissionTutorials[CurrentMission]);
+			TutorialMaster.instance.ShowTutorial(LocalizationMaster.instance.GetText(MissionTutorials[CurrentMission]));
 		}
 		if (CurrentMission == 49 && MapEditorMaster.instance == null)
 		{
@@ -1493,6 +1505,14 @@ public class GameMaster : MonoBehaviour
 				enemy.transform.parent.transform.gameObject.SetActive(value: false);
 			}
 		}
+		foreach (GameObject item in new List<GameObject>(GameObject.FindGameObjectsWithTag("Boss")))
+		{
+			MapEditorProp component2 = item.GetComponent<MapEditorProp>();
+			if ((bool)component2 && component2.MyDifficultySpawn > OptionsMainMenu.instance.currentDifficulty)
+			{
+				item.transform.parent.transform.gameObject.SetActive(value: false);
+			}
+		}
 		levelIsLoaded = true;
 		BreakableBlocksLocations.Clear();
 		BreakableHalfBlocksLocations.Clear();
@@ -1726,7 +1746,7 @@ public class GameMaster : MonoBehaviour
 
 	public void defeated()
 	{
-		if (!inMapEditor)
+		if (!inMapEditor && !TankeyTownMaster.instance)
 		{
 			if (!isZombieMode)
 			{

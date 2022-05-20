@@ -119,7 +119,7 @@ public class KingTankScript : MonoBehaviour
 		StartingRotation = base.transform.rotation;
 		MyAnimator = GetComponent<Animator>();
 		RD.enabled = false;
-		if (!MHC.DevMode)
+		if ((bool)MHC && !MHC.DevMode)
 		{
 			DeactivateBoss();
 		}
@@ -143,16 +143,21 @@ public class KingTankScript : MonoBehaviour
 
 	private void Update()
 	{
-		if (IsInFinalBattle && !BossDefeated)
+		if ((bool)MapEditorMaster.instance && !GameMaster.instance.GameHasStarted && ETSN.enabled)
 		{
+			ETSN.enabled = false;
+		}
+		else if ((bool)MapEditorMaster.instance && GameMaster.instance.GameHasStarted && !ETSN.enabled)
+		{
+			ETSN.enabled = true;
+		}
+		if ((IsInFinalBattle && !BossDefeated) || (bool)MapEditorMaster.instance)
+		{
+			IsInFinalBattle = true;
 			CallInTimer -= Time.deltaTime;
-			if (CallInTimer < 0f)
+			if (CallInTimer < 0f && !MapEditorMaster.instance)
 			{
-				int[] array = ((OptionsMainMenu.instance.currentDifficulty != 0) ? ((OptionsMainMenu.instance.currentDifficulty != 1) ? ((OptionsMainMenu.instance.currentDifficulty != 2) ? new int[11]
-				{
-					0, 1, 2, 3, 4, 5, 6, 8, 9, 16,
-					16
-				} : new int[10] { 0, 1, 2, 3, 4, 5, 6, 16, 16, 16 }) : new int[3] { 16, 16, 16 }) : new int[2] { 16, 16 });
+				int[] array = ((OptionsMainMenu.instance.currentDifficulty != 0) ? ((OptionsMainMenu.instance.currentDifficulty != 1) ? ((OptionsMainMenu.instance.currentDifficulty != 2) ? new int[8] { 0, 1, 2, 3, 4, 5, 16, 16 } : new int[7] { 0, 1, 2, 3, 16, 16, 16 }) : new int[3] { 16, 16, 16 }) : new int[2] { 16, 16 });
 				int item = array[Random.Range(0, array.Length)];
 				MHC.PM.SpawnInOrder.Add(item);
 				MHC.PM.StartCoroutine(MHC.PM.DoOrder());
@@ -160,11 +165,16 @@ public class KingTankScript : MonoBehaviour
 			}
 			if (isRammingMoving && isRamming)
 			{
+				Timer -= Time.deltaTime;
 				if ((bool)rb)
 				{
 					rb.isKinematic = false;
 					rb.AddRelativeForce(RamDirection * RamSpeed * Time.deltaTime * 50f);
 					EA.ETSN.ShootCountdown = 2f;
+				}
+				if (Timer < 4f)
+				{
+					ResetAfterRam();
 				}
 				return;
 			}
@@ -193,7 +203,21 @@ public class KingTankScript : MonoBehaviour
 	private IEnumerator RamSequence()
 	{
 		_ = EA.transform.rotation;
-		Vector3 from = GameMaster.instance.Players[0].transform.position - EA.transform.position;
+		Transform Target;
+		if (ETSN.currentTarget != null)
+		{
+			Target = ETSN.currentTarget.transform;
+		}
+		else
+		{
+			if (GameMaster.instance.Players.Count <= 0)
+			{
+				ResetAfterRam();
+				yield break;
+			}
+			Target = GameMaster.instance.Players[0].transform;
+		}
+		Vector3 from = Target.position - EA.transform.position;
 		from.y = 0f;
 		float angle = Vector3.Angle(from, EA.transform.forward);
 		while (angle > 6f)
@@ -203,7 +227,7 @@ public class KingTankScript : MonoBehaviour
 				yield break;
 			}
 			EA.CanMove = false;
-			from = GameMaster.instance.Players[0].transform.position - EA.transform.position;
+			from = Target.position - EA.transform.position;
 			from.y = 0f;
 			Quaternion b = Quaternion.LookRotation(from);
 			float num = (((float)HT.health < (float)HT.maxHealth / 2f) ? 7f : 5f);
@@ -427,10 +451,11 @@ public class KingTankScript : MonoBehaviour
 		{
 			SFXManager.instance.PlaySFX(OnlyShootingChargeSound_quick);
 			IsDoingAShot = true;
+			Color value = new Color(1f, 0.64f, 0f);
 			foreach (GameObject item3 in ChargeCirclesBarrel)
 			{
 				item3.SetActive(value: false);
-				item3.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.yellow);
+				item3.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", value);
 			}
 			yield return new WaitForSeconds(0.05f);
 			ChargeCirclesBarrel[0].SetActive(value: true);
@@ -503,7 +528,12 @@ public class KingTankScript : MonoBehaviour
 		Debug.Log("SHOOTING CHECK");
 		float seconds = ((OptionsMainMenu.instance.currentDifficulty < 2) ? 2.5f : 1.75f);
 		yield return new WaitForSeconds(seconds);
-		if (!isRamming && Timer < 8f && !IsDoingAShot && IsInFinalBattle && EA.ETSN.currentTarget != null && !MHC.BomberPlane.isFlying)
+		bool flag = false;
+		if ((bool)MHC && MHC.BomberPlane.isFlying)
+		{
+			flag = true;
+		}
+		if (!isRamming && Timer < 8f && !IsDoingAShot && IsInFinalBattle && EA.ETSN.currentTarget != null && !flag)
 		{
 			float num = Vector3.Distance(EA.ETSN.currentTarget.transform.position, base.transform.position);
 			if (OptionsMainMenu.instance.currentDifficulty == 0)
@@ -523,11 +553,30 @@ public class KingTankScript : MonoBehaviour
 			}
 			else if (OptionsMainMenu.instance.currentDifficulty == 1 || OptionsMainMenu.instance.currentDifficulty == 2)
 			{
-				if ((float)EA.HTscript.health < (float)EA.HTscript.maxHealth * 0.6f && Random.Range(0, 1) == 0)
+				if ((float)EA.HTscript.health < (float)EA.HTscript.maxHealth * 0.6f && Random.Range(0, 4) == 0)
 				{
 					StartCoroutine(DoAttack(2));
 				}
 				if (num < 14f)
+				{
+					StartCoroutine(DoAttack(0));
+				}
+				else if (Random.Range(0, 2) == 0)
+				{
+					StartCoroutine(DoAttack(0));
+				}
+				else
+				{
+					StartCoroutine(DoAttack(1));
+				}
+			}
+			else if (OptionsMainMenu.instance.currentDifficulty == 3)
+			{
+				if ((float)EA.HTscript.health < (float)EA.HTscript.maxHealth * 0.6f && Random.Range(0, 3) == 0)
+				{
+					StartCoroutine(DoAttack(2));
+				}
+				if (num < 12f)
 				{
 					StartCoroutine(DoAttack(0));
 				}
@@ -570,7 +619,7 @@ public class KingTankScript : MonoBehaviour
 		}
 		SFXManager.instance.PlaySFX(MortarSound[Random.Range(0, MortarSound.Length)], 1f, null);
 		MortarParticles.Play(withChildren: true);
-		yield return new WaitForSeconds(1f);
+		yield return new WaitForSeconds(0.4f);
 		if (shotsToGo < 1)
 		{
 			LAO.LookStraight = false;

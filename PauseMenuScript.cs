@@ -31,6 +31,8 @@ public class PauseMenuScript : MonoBehaviour
 
 	public GameObject[] HideOnNormal;
 
+	public GameObject[] HideOnTankeyTown;
+
 	public int Selection;
 
 	public TextMeshProUGUI[] MenuTexts;
@@ -182,6 +184,14 @@ public class PauseMenuScript : MonoBehaviour
 				{
 					menus[i].SetActive(value: false);
 				}
+			}
+		}
+		else if ((bool)TankeyTownMaster.instance)
+		{
+			menus = HideOnTankeyTown;
+			for (int i = 0; i < menus.Length; i++)
+			{
+				menus[i].SetActive(value: false);
 			}
 		}
 		else
@@ -375,19 +385,22 @@ public class PauseMenuScript : MonoBehaviour
 			StartCoroutine(ShowCampaignInputError("File saved! (but upload failed)", Color.green));
 			SFXManager.instance.PlaySFX(SuccesSound);
 			Debug.Log("Error While Sending: " + uwr.error);
-			yield break;
-		}
-		Debug.Log("Received: " + uwr.downloadHandler.text);
-		if (uwr.downloadHandler.text.Contains("FAILED"))
-		{
-			StartCoroutine(ShowCampaignInputError("File saved! (but upload failed)", Color.green));
-			SFXManager.instance.PlaySFX(SuccesSound);
 		}
 		else
 		{
-			StartCoroutine(ShowCampaignInputError("File saved!", Color.green));
-			SFXManager.instance.PlaySFX(SuccesSound);
+			Debug.Log("Received: " + uwr.downloadHandler.text);
+			if (uwr.downloadHandler.text.Contains("FAILED"))
+			{
+				StartCoroutine(ShowCampaignInputError("File saved! (but upload failed)", Color.green));
+				SFXManager.instance.PlaySFX(SuccesSound);
+			}
+			else
+			{
+				StartCoroutine(ShowCampaignInputError("File saved!", Color.green));
+				SFXManager.instance.PlaySFX(SuccesSound);
+			}
 		}
+		uwr.Dispose();
 	}
 
 	private void deselectButton(MainMenuButtons MMB)

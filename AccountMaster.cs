@@ -47,6 +47,8 @@ public class AccountMaster : MonoBehaviour
 
 	private bool isSaving;
 
+	private bool IsSendingSaveData;
+
 	public ShopStand ConnectedStand;
 
 	public static AccountMaster instance => _instance;
@@ -139,9 +141,7 @@ public class AccountMaster : MonoBehaviour
 	{
 		if (isSignedIn)
 		{
-			PDO.marbles += amount;
 			SaveCloudData(5, amount, 0, bounceKill: false);
-			ShowMarbleNotification(amount);
 		}
 	}
 
@@ -245,6 +245,22 @@ public class AccountMaster : MonoBehaviour
 		{
 			yield break;
 		}
+		bool SetSaveDataVariable = false;
+		if (IsSendingSaveData)
+		{
+			float seconds = Random.Range(0.15f, 0.3f);
+			yield return new WaitForSeconds(seconds);
+		}
+		else
+		{
+			SetSaveDataVariable = true;
+			IsSendingSaveData = true;
+		}
+		if (type == 3)
+		{
+			float seconds2 = Random.Range(1f, 1.5f);
+			yield return new WaitForSeconds(seconds2);
+		}
 		WWWForm wWWForm = new WWWForm();
 		wWWForm.AddField("key", Key);
 		wWWForm.AddField("userid", UserID);
@@ -282,26 +298,49 @@ public class AccountMaster : MonoBehaviour
 			wWWForm.AddField("dF", OptionsMainMenu.instance.currentDifficulty);
 			wWWForm.AddField("cP", GameMaster.instance.CurrentMission + 1);
 			break;
+		case 8:
+			Debug.Log(GameMaster.instance.CurrentMission);
+			wWWForm.AddField("sM", GameMaster.instance.CurrentMission);
+			break;
+		case 9:
+			wWWForm.AddField("CC", amount);
+			break;
 		}
 		if (bounceKill)
 		{
 			wWWForm.AddField("kB", 1);
 		}
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_stats_b.php", wWWForm);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_stats_c.php", wWWForm);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
 		{
 			isSaving = false;
+			Debug.Log("Error While Sending: " + uwr.error);
 		}
-		else if (uwr.downloadHandler.text.Contains("FAILED"))
+		else
 		{
-			isSaving = false;
+			Debug.Log("Received: " + uwr.downloadHandler.text);
+			if (uwr.downloadHandler.text.Contains("FAILED"))
+			{
+				isSaving = false;
+			}
+			else if (uwr.downloadHandler.text.Contains("killed"))
+			{
+				isSaving = false;
+				ProgressDataOnline progressDataOnline = JsonUtility.FromJson<ProgressDataOnline>(uwr.downloadHandler.text);
+				if (progressDataOnline.marbles > PDO.marbles)
+				{
+					int amount2 = progressDataOnline.marbles - PDO.marbles;
+					Debug.Log("difference is : " + amount2 + " from: " + PDO.marbles);
+					ShowMarbleNotification(amount2);
+				}
+				AssignData(uwr.downloadHandler.text);
+			}
 		}
-		else if (uwr.downloadHandler.text.Contains("killed"))
+		if (SetSaveDataVariable)
 		{
-			isSaving = false;
-			AssignData(uwr.downloadHandler.text);
+			IsSendingSaveData = false;
 		}
 		uwr.Dispose();
 	}
@@ -688,7 +727,10 @@ public class AccountMaster : MonoBehaviour
 	public IEnumerator GetCloudInventory()
 	{
 		WWWForm wWWForm = new WWWForm();
-		wWWForm.AddField("key", Key);
+		if (Key != null)
+		{
+			wWWForm.AddField("key", Key);
+		}
 		Debug.Log("ITS:" + Key);
 		wWWForm.AddField("userid", UserID);
 		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/get_inventory.php", wWWForm);
@@ -696,12 +738,10 @@ public class AccountMaster : MonoBehaviour
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
 		{
-			Debug.Log("Error While Sending: " + uwr.error);
 			Inventory = null;
 		}
 		else
 		{
-			Debug.Log("Received: " + uwr.downloadHandler.text);
 			if (!uwr.downloadHandler.text.Contains("FAILED"))
 			{
 				Inventory = JsonUtility.FromJson<PlayerInventory>("{\"InventoryItems\":" + uwr.downloadHandler.text + "}");

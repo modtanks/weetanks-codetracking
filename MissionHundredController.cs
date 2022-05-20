@@ -88,6 +88,8 @@ public class MissionHundredController : MonoBehaviour
 
 	public float TimeInBattle;
 
+	public PlaneScript PS;
+
 	private static MissionHundredController _instance;
 
 	private NewOrchestra orchestra;
@@ -114,6 +116,7 @@ public class MissionHundredController : MonoBehaviour
 
 	private void Start()
 	{
+		StartCoroutine(DoLowTierDrop());
 		StartCoroutine(InitiateAirRaid());
 		PM = GameMaster.instance.GetComponent<PlaneMaster>();
 		CameraObject = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
@@ -263,6 +266,53 @@ public class MissionHundredController : MonoBehaviour
 		}
 	}
 
+	private IEnumerator DoLowTierDrop()
+	{
+		if (OptionsMainMenu.instance.currentDifficulty == 0 || OptionsMainMenu.instance.currentDifficulty != 1)
+		{
+		}
+		Random.Range(3, 5);
+		yield return new WaitForSeconds(3f);
+		if (KTS.IsInFinalBattle || !KTS.IsInBattle)
+		{
+			StartCoroutine(DoLowTierDrop());
+			yield break;
+		}
+		int[] array = null;
+		if (OptionsMainMenu.instance.currentDifficulty == 0)
+		{
+			array = new int[2] { 0, 1 };
+		}
+		else if (OptionsMainMenu.instance.currentDifficulty == 1)
+		{
+			array = new int[2] { 0, 1 };
+		}
+		else if (OptionsMainMenu.instance.currentDifficulty == 2)
+		{
+			array = new int[3] { 1, 3, 4 };
+		}
+		else if (OptionsMainMenu.instance.currentDifficulty == 3)
+		{
+			array = new int[3] { 3, 4, 5 };
+		}
+		int tankID = array[Random.Range(0, array.Length)];
+		SpawnPlaneLowTier(tankID);
+		StartCoroutine(DoLowTierDrop());
+	}
+
+	public void SpawnPlaneLowTier(int TankID)
+	{
+		if (!PS.isFlying)
+		{
+			Vector3 validLocation = GameMaster.instance.GetValidLocation(CheckForDist: false, 0f, Vector3.zero, TargetPlayer: false);
+			if (validLocation != Vector3.zero)
+			{
+				PS.TargetLocation = new Vector3(validLocation.x, 10f, validLocation.z);
+				PS.StartFlyToTB(2, TankID);
+			}
+		}
+	}
+
 	private IEnumerator InitiateAirRaid()
 	{
 		float seconds = Random.Range(10f, 30f);
@@ -323,19 +373,19 @@ public class MissionHundredController : MonoBehaviour
 				int[] array = null;
 				if (OptionsMainMenu.instance.currentDifficulty == 0)
 				{
-					array = new int[5] { 3, 4, 5, 6, 8 };
+					array = new int[3] { 3, 4, 5 };
 				}
 				else if (OptionsMainMenu.instance.currentDifficulty == 1)
 				{
-					array = new int[4] { 4, 5, 6, 8 };
+					array = new int[3] { 5, 9, 6 };
 				}
 				else if (OptionsMainMenu.instance.currentDifficulty == 2)
 				{
-					array = new int[5] { 6, 7, 8, 9, 11 };
+					array = new int[3] { 5, 9, 8 };
 				}
 				else if (OptionsMainMenu.instance.currentDifficulty == 3)
 				{
-					array = new int[7] { 2, 6, 7, 8, 9, 11, 14 };
+					array = new int[4] { 6, 9, 8, 11 };
 				}
 				int item = array[Random.Range(0, array.Length)];
 				list.Add(item);
@@ -345,19 +395,19 @@ public class MissionHundredController : MonoBehaviour
 				int[] array2 = null;
 				if (OptionsMainMenu.instance.currentDifficulty == 0)
 				{
-					array2 = new int[4] { 0, 1, 3, 4 };
+					array2 = new int[2] { 3, 4 };
 				}
 				else if (OptionsMainMenu.instance.currentDifficulty == 1)
 				{
-					array2 = new int[4] { 1, 3, 4, 5 };
+					array2 = new int[2] { 5, 9 };
 				}
 				else if (OptionsMainMenu.instance.currentDifficulty == 2)
 				{
-					array2 = new int[5] { 3, 4, 5, 6, 7 };
+					array2 = new int[3] { 5, 9, 8 };
 				}
 				else if (OptionsMainMenu.instance.currentDifficulty == 3)
 				{
-					array2 = new int[8] { 4, 5, 6, 7, 8, 9, 11, 14 };
+					array2 = new int[4] { 6, 9, 8, 11 };
 				}
 				int item2 = array2[Random.Range(0, array2.Length)];
 				list.Add(item2);
@@ -367,19 +417,19 @@ public class MissionHundredController : MonoBehaviour
 				int[] array3 = null;
 				if (OptionsMainMenu.instance.currentDifficulty == 0)
 				{
-					array3 = new int[2] { 0, 1 };
+					array3 = new int[2] { 3, 4 };
 				}
 				else if (OptionsMainMenu.instance.currentDifficulty == 1)
 				{
-					array3 = new int[4] { 0, 1, 3, 4 };
+					array3 = new int[2] { 5, 9 };
 				}
 				else if (OptionsMainMenu.instance.currentDifficulty == 2)
 				{
-					array3 = new int[5] { 0, 1, 3, 4, 5 };
+					array3 = new int[3] { 5, 9, 8 };
 				}
 				else if (OptionsMainMenu.instance.currentDifficulty == 3)
 				{
-					array3 = new int[6] { 0, 1, 3, 4, 5, 6 };
+					array3 = new int[3] { 6, 9, 8 };
 				}
 				int item3 = array3[Random.Range(0, array3.Length)];
 				list.Add(item3);
@@ -403,12 +453,12 @@ public class MissionHundredController : MonoBehaviour
 		}
 		if (GameMaster.instance.Enemies != null && (GameMaster.instance.Enemies.Count > 1 || GameMaster.instance.AmountCalledInTanks > 0))
 		{
-			yield return new WaitForSeconds(7f);
+			yield return new WaitForSeconds(8f);
 		}
 		yield return new WaitForSeconds(13f);
 		if (!KTS.IsInFinalBattle && KTS.IsInBattle)
 		{
-			num = Random.Range(1, 4);
+			num = Random.Range(3, 6);
 			StartCoroutine(KTS.ShootABomb(first: true, num));
 			yield return new WaitForSeconds(4f);
 			if (!MessageHasBeenShown)

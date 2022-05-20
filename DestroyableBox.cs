@@ -25,59 +25,66 @@ public class DestroyableBox : MonoBehaviour
 
 	public void Destruct(Collision other)
 	{
-		if (!(other.gameObject.tag == "Bullet") && !(other.gameObject.tag == "Player"))
+		if (other.gameObject.tag == "Bullet" || other.gameObject.tag == "Player")
 		{
-			return;
-		}
-		if ((bool)GameMaster.instance)
-		{
-			SFXManager.instance.PlaySFX(BreakSound, 1f, null);
-		}
-		if (other.gameObject.tag == "Player")
-		{
-			HealthTanks component = other.gameObject.GetComponent<HealthTanks>();
-			if ((bool)component && component.health_armour < 4)
+			if ((bool)GameMaster.instance)
 			{
-				component.health_armour += AmountArmourPlates;
-				if (component.maxArmour < 4)
+				SFXManager.instance.PlaySFX(BreakSound, 1f, null);
+			}
+			if (other.gameObject.tag == "Player")
+			{
+				HealthTanks component = other.gameObject.GetComponent<HealthTanks>();
+				if ((bool)component && component.health_armour < 4)
 				{
-					component.maxArmour += AmountArmourPlates;
-				}
-				if (component.health_armour > 4)
-				{
-					component.health_armour = 4;
-				}
-				if (component.health_armour > 4)
-				{
-					component.health_armour = 4;
+					component.health_armour += AmountArmourPlates;
+					if (component.maxArmour < 4)
+					{
+						component.maxArmour += AmountArmourPlates;
+					}
+					if (component.health_armour > 4)
+					{
+						component.health_armour = 4;
+					}
+					if (component.health_armour > 4)
+					{
+						component.health_armour = 4;
+					}
 				}
 			}
-		}
-		else if (other.gameObject.tag == "Bullet")
-		{
-			HealthTanks component2 = other.gameObject.GetComponent<PlayerBulletScript>().papaTank.GetComponent<HealthTanks>();
-			if ((bool)component2)
+			else if (other.gameObject.tag == "Bullet")
 			{
-				if (component2.health_armour < 4)
+				HealthTanks component2 = other.gameObject.GetComponent<PlayerBulletScript>().papaTank.GetComponent<HealthTanks>();
+				if ((bool)component2)
 				{
-					component2.health_armour += AmountArmourPlates;
-					if (component2.maxArmour < 4)
+					if (component2.health_armour < 4)
 					{
-						component2.maxArmour += AmountArmourPlates;
+						component2.health_armour += AmountArmourPlates;
+						if (component2.maxArmour < 4)
+						{
+							component2.maxArmour += AmountArmourPlates;
+						}
+						if (component2.health_armour > 4)
+						{
+							component2.health_armour = 4;
+						}
+						if (component2.health_armour > 4)
+						{
+							component2.health_armour = 4;
+						}
 					}
-					if (component2.health_armour > 4)
-					{
-						component2.health_armour = 4;
-					}
-					if (component2.health_armour > 4)
-					{
-						component2.health_armour = 4;
-					}
+					other.gameObject.GetComponent<PlayerBulletScript>().TimesBounced = 9999;
 				}
-				other.gameObject.GetComponent<PlayerBulletScript>().TimesBounced = 9999;
 			}
+			Object.Destroy(Object.Instantiate(DestructionParticles, base.transform.position, Quaternion.identity), 3f);
+			Object.Destroy(base.gameObject);
 		}
-		Object.Destroy(Object.Instantiate(DestructionParticles, base.transform.position, Quaternion.identity), 3f);
-		Object.Destroy(base.gameObject);
+		else if (other.gameObject.tag == "Enemy")
+		{
+			Object.Destroy(base.gameObject);
+		}
+		else if (other.gameObject.tag == "Boss")
+		{
+			Object.Destroy(base.gameObject);
+		}
 	}
 }

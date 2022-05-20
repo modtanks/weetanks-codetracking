@@ -53,6 +53,8 @@ public class OptionsMainMenu : MonoBehaviour
 
 	public int UIsetting = 1;
 
+	public List<int> AM_unlocked = new List<int>();
+
 	public int[] AM;
 
 	public int[] AM_marbles;

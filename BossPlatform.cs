@@ -46,7 +46,7 @@ public class BossPlatform : MonoBehaviour
 
 	private IEnumerator MissileSpawning()
 	{
-		if (KTS.IsInBattle && !KTS.IsInFinalBattle)
+		if (KTS.IsInBattle && !KTS.IsInFinalBattle && !KTS.IsInMortarMode && KTS.ShotMortars.Count < 2)
 		{
 			ThroneAnimator.SetBool("OpenFlaps", value: true);
 			yield return new WaitForSeconds(1f);

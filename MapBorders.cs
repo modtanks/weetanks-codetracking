@@ -11,12 +11,17 @@ public class MapBorders : MonoBehaviour
 			{
 				component.enabled = false;
 			}
+			MeshRenderer component2 = item.GetComponent<MeshRenderer>();
+			if ((bool)component2)
+			{
+				component2.enabled = false;
+			}
 			foreach (Transform item2 in item)
 			{
-				MeshRenderer component2 = item2.GetComponent<MeshRenderer>();
-				if ((bool)component2)
+				MeshRenderer component3 = item2.GetComponent<MeshRenderer>();
+				if ((bool)component3)
 				{
-					component2.enabled = false;
+					component3.enabled = false;
 				}
 			}
 		}
@@ -31,12 +36,17 @@ public class MapBorders : MonoBehaviour
 			{
 				component.enabled = true;
 			}
+			MeshRenderer component2 = item.GetComponent<MeshRenderer>();
+			if ((bool)component2)
+			{
+				component2.enabled = true;
+			}
 			foreach (Transform item2 in item)
 			{
-				MeshRenderer component2 = item2.GetComponent<MeshRenderer>();
-				if ((bool)component2)
+				MeshRenderer component3 = item2.GetComponent<MeshRenderer>();
+				if ((bool)component3)
 				{
-					component2.enabled = true;
+					component3.enabled = true;
 				}
 			}
 		}

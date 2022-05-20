@@ -16,7 +16,12 @@ public class PlaneMaster : MonoBehaviour
 
 	public IEnumerator DoOrder()
 	{
-		yield return new WaitForSeconds(0.4f);
+		float num = 0.4f;
+		if (GameMaster.instance.CurrentMission >= 99 && GameMaster.instance.isOfficialCampaign)
+		{
+			num += 1.4f;
+		}
+		yield return new WaitForSeconds(num);
 		if (SpawnInOrder.Count > 0 && !PS.isFlying)
 		{
 			Debug.Log("Doing order, spawn now!");

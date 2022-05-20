@@ -87,6 +87,8 @@ public class PlayerBulletScript : MonoBehaviour
 
 	public bool IsAirBullet;
 
+	public bool IsKingTankBullet;
+
 	public GameObject ElectricState;
 
 	public GameObject papaTank;
@@ -211,7 +213,11 @@ public class PlayerBulletScript : MonoBehaviour
 			}
 			else if (OptionsMainMenu.instance.currentDifficulty == 2)
 			{
-				BulletSpeed *= 1.25f;
+				BulletSpeed *= 1.2f;
+			}
+			else if (OptionsMainMenu.instance.currentDifficulty == 2)
+			{
+				BulletSpeed *= 1.3f;
 			}
 		}
 		if (isShiny)
@@ -701,9 +707,9 @@ public class PlayerBulletScript : MonoBehaviour
 		PlayerBulletScript component = collision.gameObject.GetComponent<PlayerBulletScript>();
 		if (component != null)
 		{
-			if (GameMaster.instance.CurrentMission == 69 && isBossBullet)
+			if (isBossBullet && EnemyTankScript != null && EnemyTankScript.AIscript != null)
 			{
-				if (BulletSpeed > 5f)
+				if (EnemyTankScript.AIscript.HTscript.EnemyID == 170 && BulletSpeed > 5f)
 				{
 					BulletSpeed -= 3f;
 				}
@@ -736,11 +742,11 @@ public class PlayerBulletScript : MonoBehaviour
 				IgnoreThatCollision(collision);
 				return true;
 			}
-			if (component.isExplosive || component.isSilver)
+			if (component.isExplosive || component.isSilver || component.IsKingTankBullet)
 			{
 				return false;
 			}
-			if (isExplosive || isSilver)
+			if (isExplosive || isSilver || IsKingTankBullet)
 			{
 				IgnoreThatCollision(collision);
 				return true;
@@ -874,6 +880,10 @@ public class PlayerBulletScript : MonoBehaviour
 			if (component != null && GameMaster.instance.GameHasStarted)
 			{
 				component.Health--;
+				TimesBounced = 999;
+			}
+			else
+			{
 				TimesBounced = 999;
 			}
 		}
@@ -1054,7 +1064,7 @@ public class PlayerBulletScript : MonoBehaviour
 			{
 				component6.DamageMe(1);
 			}
-			if (component6.health < 1 && !GameMaster.instance.inMapEditor && !GameMaster.instance.isZombieMode && (bool)AccountMaster.instance)
+			if (component6.health < 1 && !GameMaster.instance.inMapEditor && !MapEditorMaster.instance && !GameMaster.instance.isZombieMode && (bool)AccountMaster.instance)
 			{
 				if (TimesBounced == 0)
 				{
@@ -1093,7 +1103,7 @@ public class PlayerBulletScript : MonoBehaviour
 				yield break;
 			}
 			EnemyAI component10 = collision.gameObject.GetComponent<EnemyAI>();
-			if ((bool)EnemyTankScript && component10 == EnemyTankScript.AIscript && TimesBounced < 1)
+			if ((bool)EnemyTankScript && component10 == EnemyTankScript.AIscript && TimesBounced < 1 && !IsAirPushed)
 			{
 				IgnoreThatCollision(collision);
 			}
@@ -1171,15 +1181,17 @@ public class PlayerBulletScript : MonoBehaviour
 	{
 		if (isElectric)
 		{
-			if (GameMaster.instance.CurrentMission == 69)
+			bool flag = false;
+			if (EnemyTankScript != null && EnemyTankScript.AIscript != null && EnemyTankScript.AIscript.HTscript.EnemyID == 170)
 			{
 				HealthTanks component = collision.gameObject.GetComponent<HealthTanks>();
 				if ((bool)component)
 				{
 					component.DamageMe(1);
+					flag = true;
 				}
 			}
-			else
+			if (!flag)
 			{
 				MoveTankScript component2 = collision.gameObject.GetComponent<MoveTankScript>();
 				if (component2 != null)
