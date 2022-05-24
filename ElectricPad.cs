@@ -47,9 +47,13 @@ public class ElectricPad : MonoBehaviour
 	{
 		MR = GetComponent<MeshRenderer>();
 		OriginalColor = MR.material.color;
+		if (!GameMaster.instance.NightLevels.Contains(GameMaster.instance.CurrentMission))
+		{
+			intensityEmission = 0.9f;
+		}
 		if ((bool)GameMaster.instance)
 		{
-			if (GameMaster.instance.CurrentMission == 69)
+			if (GameMaster.instance.CurrentMission == 69 && GameMaster.instance.isOfficialCampaign)
 			{
 				InvokeRepeating("ChangeTile", 0.2f, 0.2f);
 				InvokeRepeating("CheckForBoss", 0.5f, 0.5f);
@@ -60,10 +64,6 @@ public class ElectricPad : MonoBehaviour
 			{
 				LightUp();
 			}
-		}
-		if (!GameMaster.instance.NightLevels.Contains(GameMaster.instance.CurrentMission))
-		{
-			intensityEmission = 1f;
 		}
 	}
 
@@ -142,7 +142,7 @@ public class ElectricPad : MonoBehaviour
 					LightUp();
 				}
 			}
-			if (GameMaster.instance.CurrentMission != 69)
+			if (GameMaster.instance.CurrentMission != 69 || !GameMaster.instance.isOfficialCampaign)
 			{
 				return;
 			}

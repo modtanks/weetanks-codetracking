@@ -48,35 +48,35 @@ public class LoadCustomMap : MonoBehaviour
 			MapEditorMaster.instance.PlayerAmountBounces = mapEditorData.PAB;
 			if (mapEditorData.TeamColorsShowing != null)
 			{
-				for (int j = 0; j < mapEditorData.TeamColorsShowing.Length; j++)
+				for (int k = 0; k < mapEditorData.TeamColorsShowing.Length; k++)
 				{
-					MapEditorMaster.instance.TeamColorEnabled[j] = mapEditorData.TeamColorsShowing[j];
+					MapEditorMaster.instance.TeamColorEnabled[k] = mapEditorData.TeamColorsShowing[k];
 				}
 			}
 		}
 		MapEditorMaster.instance.SetCustomTankData(mapEditorData);
 		GameObject item = UnityEngine.Object.Instantiate(LevelPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
 		GameMaster.instance.Levels.Add(item);
-		int i;
-		for (i = 0; i < missionAmount; i++)
+		int j;
+		for (j = 0; j < missionAmount; j++)
 		{
 			SingleMapEditorData singleMapEditorData = new SingleMapEditorData(null, null);
-			singleMapEditorData.MissionDataProps = mapEditorData.MissionDataProps.FindAll((MapPiecesClass x) => x.missionNumber == i);
-			singleMapEditorData.MissionMessage = mapEditorData.MissionMessages[i];
-			for (int k = 0; k < OptionsMainMenu.instance.MapSize; k++)
+			singleMapEditorData.MissionDataProps = mapEditorData.MissionDataProps.FindAll((MapPiecesClass x) => x.missionNumber == j);
+			singleMapEditorData.MissionMessage = mapEditorData.MissionMessages[j];
+			for (int l = 0; l < OptionsMainMenu.instance.MapSize; l++)
 			{
-				singleMapEditorData.MissionDataProps[k].ID = k;
+				singleMapEditorData.MissionDataProps[l].ID = l;
 			}
 			GameMaster.instance.MissionNames.Add("Level " + MapEditorMaster.instance.Levels.Count);
 			MapEditorMaster.instance.Levels.Add(singleMapEditorData);
 			MapEditorMaster.instance.CreateNewLevel(isBrandNew: false);
-			if (list.ElementAtOrDefault(i) != null)
+			if (list.ElementAtOrDefault(j) != null)
 			{
-				GameMaster.instance.MissionNames[i] = list[i];
+				GameMaster.instance.MissionNames[j] = list[j];
 			}
 			else
 			{
-				GameMaster.instance.MissionNames[i] = "no name";
+				GameMaster.instance.MissionNames[j] = "no name";
 			}
 		}
 		bool oldVersion = false;
@@ -85,6 +85,66 @@ public class LoadCustomMap : MonoBehaviour
 			oldVersion = true;
 		}
 		MapEditorMaster.instance.StartCoroutine(MapEditorMaster.instance.PlaceAllProps(MapEditorMaster.instance.Levels[0].MissionDataProps, oldVersion, 0));
+		if (mapEditorData.WeatherTypes != null)
+		{
+			if (mapEditorData.WeatherTypes.Length != 0)
+			{
+				if (mapEditorData.WeatherTypes != null && mapEditorData.WeatherTypes.Length != 0)
+				{
+					for (int m = 0; m < mapEditorData.WeatherTypes.Length; m++)
+					{
+						int num = mapEditorData.WeatherTypes[m];
+						if (num > 0)
+						{
+							MapEditorMaster.MissionProperties missionProperties = new MapEditorMaster.MissionProperties();
+							missionProperties.MissionFloorTexture = 0;
+							missionProperties.WeatherType = num;
+							missionProperties.MissionNumber = m;
+							MapEditorMaster.instance.Properties.Add(missionProperties);
+						}
+					}
+				}
+				if (mapEditorData.MissionFloorTextures != null && mapEditorData.MissionFloorTextures.Length != 0)
+				{
+					int i;
+					for (i = 0; i < mapEditorData.MissionFloorTextures.Length; i++)
+					{
+						int num2 = mapEditorData.MissionFloorTextures[i];
+						if (num2 > 0)
+						{
+							MapEditorMaster.MissionProperties missionProperties2 = MapEditorMaster.instance.Properties.Find((MapEditorMaster.MissionProperties x) => x.MissionNumber == i);
+							if (missionProperties2 != null)
+							{
+								missionProperties2.MissionFloorTexture = num2;
+								continue;
+							}
+							MapEditorMaster.MissionProperties missionProperties3 = new MapEditorMaster.MissionProperties();
+							missionProperties3.MissionFloorTexture = num2;
+							missionProperties3.WeatherType = 0;
+							missionProperties3.MissionNumber = i;
+							MapEditorMaster.instance.Properties.Add(missionProperties3);
+						}
+					}
+				}
+			}
+			Debug.Log(mapEditorData.WeatherTypes[0]);
+		}
+		else
+		{
+			Debug.Log("NEW WAY FOUND!");
+			if (mapEditorData.Properties != null)
+			{
+				for (int n = 0; n < mapEditorData.Properties.Count; n++)
+				{
+					MapEditorMaster.MissionProperties missionProperties4 = new MapEditorMaster.MissionProperties();
+					missionProperties4.CurrentFloorName = mapEditorData.Properties[n].CurrentFloorName;
+					missionProperties4.WeatherType = mapEditorData.Properties[n].WeatherType;
+					missionProperties4.MissionNumber = n;
+					MapEditorMaster.instance.Properties.Add(missionProperties4);
+				}
+				GameMaster.instance.floor.GetComponent<MeshRenderer>().material = GlobalAssets.instance.TheFloors.Find((GlobalAssets.Floors x) => x.FloorName == MapEditorMaster.instance.Properties.Find((MapEditorMaster.MissionProperties x) => x.MissionNumber == 0).CurrentFloorName).FloorTexture;
+			}
+		}
 		if (mapEditorData.NoBordersMissions != null)
 		{
 			MapEditorMaster.instance.NoBordersMissions = mapEditorData.NoBordersMissions;

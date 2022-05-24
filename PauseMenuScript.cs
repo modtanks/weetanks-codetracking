@@ -346,28 +346,11 @@ public class PauseMenuScript : MonoBehaviour
 
 	public IEnumerator UploadCampaign(MapEditorData MED)
 	{
-		UnityWebRequest keyRequest = UnityWebRequest.Get("https://weetanks.com/create_ip_key.php");
-		yield return keyRequest.SendWebRequest();
-		if (keyRequest.isNetworkError)
-		{
-			Debug.Log("Error While Sending: " + keyRequest.error);
-			StartCoroutine(ShowCampaignInputError("File saved! (but upload failed)", Color.green));
-			SFXManager.instance.PlaySFX(SuccesSound);
-			yield break;
-		}
-		if (keyRequest.downloadHandler.text == "WAIT")
-		{
-			StartCoroutine(ShowCampaignInputError("File saved! (but upload failed)", Color.green));
-			SFXManager.instance.PlaySFX(SuccesSound);
-			yield break;
-		}
-		string text = keyRequest.downloadHandler.text;
 		_ = Application.persistentDataPath + "/";
-		string text2 = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
-		text2 = text2 + "/My Games/Wee Tanks/" + MED.campaignName + ".campaign";
+		string text = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
+		text = text + "/My Games/Wee Tanks/" + MED.campaignName + ".campaign";
 		WWWForm wWWForm = new WWWForm();
 		wWWForm.AddField("key", AccountMaster.instance.Key);
-		wWWForm.AddField("authKey", text);
 		wWWForm.AddField("userid", AccountMaster.instance.UserID);
 		wWWForm.AddField("campaignName", MED.campaignName);
 		wWWForm.AddField("campaignVersion", MED.VersionCreated);
@@ -375,7 +358,7 @@ public class PauseMenuScript : MonoBehaviour
 		wWWForm.AddField("campaignSize", MED.MapSize);
 		wWWForm.AddField("campaignMissions", MED.missionAmount);
 		wWWForm.AddField("campaignDifficulty", MED.difficulty);
-		wWWForm.AddBinaryData("file", File.ReadAllBytes(text2), MED.campaignName + ".campaign", "text/plain");
+		wWWForm.AddBinaryData("file", File.ReadAllBytes(text), MED.campaignName + ".campaign", "text/plain");
 		Debug.Log("SENDING NOW");
 		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_map.php", wWWForm);
 		uwr.chunkedTransfer = false;
@@ -848,6 +831,7 @@ public class PauseMenuScript : MonoBehaviour
 
 	public IEnumerator LoadYourAsyncScene(int lvlNumber)
 	{
+		yield return new WaitForSecondsRealtime(0.1f);
 		if (!LIS.Play)
 		{
 			GameObject[] menus = Menus;

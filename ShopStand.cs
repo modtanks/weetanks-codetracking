@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Linq;
 using Rewired;
 using TMPro;
 using UnityEngine;
@@ -122,7 +121,7 @@ public class ShopStand : MonoBehaviour
 					AccountMaster.instance.ConnectedStand = this;
 					AccountMaster.instance.StartCoroutine(AccountMaster.instance.BuyTankeyTownItem(MyStandItem));
 				}
-				else if (AccountMaster.instance.Inventory.InventoryItems.Length == 0)
+				else if (AccountMaster.instance.Inventory.InventoryItems.Count <= 0)
 				{
 					AccountMaster.instance.IsDoingTransaction = true;
 					AccountMaster.instance.ConnectedStand = this;
@@ -211,15 +210,24 @@ public class ShopStand : MonoBehaviour
 		ItemDescription.text = MyStandItem.ItemDescription;
 		string text = ((MyStandItem.ItemRare == 0) ? "Very Common" : ((MyStandItem.ItemRare == 1) ? "Common" : ((MyStandItem.ItemRare == 2) ? "Rare" : ((MyStandItem.ItemRare == 3) ? "Very Rare" : ((MyStandItem.ItemRare == 4) ? "Super Rare" : "Legendary")))));
 		ItemRare.text = text;
-		ItemStock.text = MyStandItem.AmountInStock + " <font-weight=700><color=#A0A0A0>in stock</color></font-weight>";
-		ItemPrice.text = MyStandItem.ItemPrice + " <font-weight=700><color=#A0A0A0>marbles</color></font-weight>";
+		if (MyStandItem.AmountInStock <= 0)
+		{
+			ItemStock.text = "<color=#FF0000>" + MyStandItem.AmountInStock + "</color> <font-weight=700><color=#A0A0A0>in stock</color></font-weight>";
+			float num = Mathf.Floor((float)MyStandItem.ItemPrice * 0.5f);
+			ItemPrice.text = "<color=#FF0000>" + MyStandItem.ItemPrice + " (+" + num + ")</color>";
+		}
+		else
+		{
+			ItemStock.text = MyStandItem.AmountInStock + " <font-weight=700><color=#A0A0A0>in stock</color></font-weight>";
+			ItemPrice.text = MyStandItem.ItemPrice + " <font-weight=700><color=#A0A0A0>marbles</color></font-weight>";
+		}
 		Color color = RareColor[MyStandItem.ItemRare];
 		if (AccountMaster.instance.Inventory.InventoryItems != null)
 		{
 			if (AccountMaster.instance.Inventory.InventoryItems.Contains(MyStandItem.ItemID))
 			{
 				PlayerBoughtMeAlready = true;
-				BuyNote.text = "You already have the " + MyStandItem.ItemName;
+				BuyNote.text = "You already own this";
 				CheckMark.gameObject.SetActive(value: true);
 				CheckMark.color = color;
 			}

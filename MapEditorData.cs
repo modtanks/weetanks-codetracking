@@ -10,6 +10,8 @@ public class MapEditorData
 		public int WeatherType;
 
 		public int MissionFloorTexture;
+
+		public string CurrentFloorName;
 	}
 
 	public int missionAmount;
@@ -132,5 +134,15 @@ public class MapEditorData
 		difficulty = MEM.Difficulty;
 		isPublished = MEM.IsPublished;
 		NoBordersMissions = MEM.NoBordersMissions;
+		for (int k = 0; k < MEM.Properties.Count; k++)
+		{
+			MissionProperties item = new MissionProperties
+			{
+				MissionFloorTexture = MEM.Properties[k].MissionFloorTexture,
+				CurrentFloorName = MEM.Properties[k].CurrentFloorName,
+				WeatherType = MEM.Properties[k].WeatherType
+			};
+			Properties.Add(item);
+		}
 	}
 }

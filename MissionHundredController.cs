@@ -268,11 +268,9 @@ public class MissionHundredController : MonoBehaviour
 
 	private IEnumerator DoLowTierDrop()
 	{
-		if (OptionsMainMenu.instance.currentDifficulty == 0 || OptionsMainMenu.instance.currentDifficulty != 1)
-		{
-		}
-		Random.Range(3, 5);
-		yield return new WaitForSeconds(3f);
+		int num = ((OptionsMainMenu.instance.currentDifficulty == 0) ? 4 : ((OptionsMainMenu.instance.currentDifficulty == 1) ? 3 : 2));
+		float seconds = Random.Range(3f, 5f) + (float)num;
+		yield return new WaitForSeconds(seconds);
 		if (KTS.IsInFinalBattle || !KTS.IsInBattle)
 		{
 			StartCoroutine(DoLowTierDrop());
@@ -315,7 +313,7 @@ public class MissionHundredController : MonoBehaviour
 
 	private IEnumerator InitiateAirRaid()
 	{
-		float seconds = Random.Range(10f, 30f);
+		float seconds = Random.Range(15f, 35f);
 		yield return new WaitForSeconds(seconds);
 		if ((KTS.IsInBattle || KTS.IsInFinalBattle) && TimeInBattle > 10f && KTS.HT.health > 0 && OptionsMainMenu.instance.currentDifficulty > 0)
 		{
@@ -364,7 +362,7 @@ public class MissionHundredController : MonoBehaviour
 		{
 			yield break;
 		}
-		int num = Random.Range(2, 5);
+		int num = Random.Range(1, 4);
 		List<int> list = new List<int>();
 		for (int i = 0; i < num; i++)
 		{

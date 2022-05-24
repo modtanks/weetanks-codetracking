@@ -88,7 +88,7 @@ public class AccountMaster : MonoBehaviour
 			SetTime = false;
 			if (TimePlayed % 300 == 0)
 			{
-				SaveCloudData(-1, -1, 0, bounceKill: false);
+				SaveCloudData(-1, -1, 0, bounceKill: false, 0f);
 			}
 		}
 	}
@@ -141,7 +141,7 @@ public class AccountMaster : MonoBehaviour
 	{
 		if (isSignedIn)
 		{
-			SaveCloudData(5, amount, 0, bounceKill: false);
+			SaveCloudData(5, amount, 0, bounceKill: false, 0f);
 		}
 	}
 
@@ -233,23 +233,29 @@ public class AccountMaster : MonoBehaviour
 		uwr.Dispose();
 	}
 
-	public void SaveCloudData(int type, int amount, int secondary_amount, bool bounceKill)
+	public void SaveCloudData(int type, int amount, int secondary_amount, bool bounceKill, float WaitTime)
 	{
 		Debug.Log("SAVING CALLED " + type + amount);
-		StartCoroutine(IESaveCloudData(type, amount, secondary_amount, bounceKill));
+		StartCoroutine(IESaveCloudData(type, amount, secondary_amount, bounceKill, WaitTime));
 	}
 
-	public IEnumerator IESaveCloudData(int type, int amount, int secondary_amount, bool bounceKill)
+	public IEnumerator IESaveCloudData(int type, int amount, int secondary_amount, bool bounceKill, float WaitTime)
 	{
 		if (!isSignedIn || type == 5)
 		{
 			yield break;
 		}
+		if (WaitTime > 0.1f)
+		{
+			yield return new WaitForSeconds(WaitTime);
+		}
+		float seconds = Random.Range(0.05f, 0.5f);
+		yield return new WaitForSeconds(seconds);
 		bool SetSaveDataVariable = false;
 		if (IsSendingSaveData)
 		{
-			float seconds = Random.Range(0.15f, 0.3f);
-			yield return new WaitForSeconds(seconds);
+			float seconds2 = Random.Range(0.15f, 0.3f);
+			yield return new WaitForSeconds(seconds2);
 		}
 		else
 		{
@@ -258,8 +264,8 @@ public class AccountMaster : MonoBehaviour
 		}
 		if (type == 3)
 		{
-			float seconds2 = Random.Range(1f, 1.5f);
-			yield return new WaitForSeconds(seconds2);
+			float seconds3 = Random.Range(1f, 1.5f);
+			yield return new WaitForSeconds(seconds3);
 		}
 		WWWForm wWWForm = new WWWForm();
 		wWWForm.AddField("key", Key);
@@ -304,6 +310,12 @@ public class AccountMaster : MonoBehaviour
 			break;
 		case 9:
 			wWWForm.AddField("CC", amount);
+			break;
+		case 10:
+			wWWForm.AddField("SK", amount);
+			break;
+		case 11:
+			wWWForm.AddField("SSK", amount);
 			break;
 		}
 		if (bounceKill)
@@ -354,7 +366,7 @@ public class AccountMaster : MonoBehaviour
 		newPDO.accountid = int.Parse(UserID);
 		newPDO.accountname = Username;
 		wWWForm.AddField("NewSaveData", JsonUtility.ToJson(newPDO));
-		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_stats.php", wWWForm);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_stats_c.php", wWWForm);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		if (uwr.isNetworkError)
@@ -683,6 +695,7 @@ public class AccountMaster : MonoBehaviour
 		wWWForm.AddField("key", Key);
 		Debug.Log("ITS:" + Key);
 		wWWForm.AddField("userid", UserID);
+		Debug.Log("getting cloud data...");
 		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/check_account.php", wWWForm);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
@@ -692,7 +705,7 @@ public class AccountMaster : MonoBehaviour
 		}
 		else
 		{
-			Debug.Log("Received: " + uwr.downloadHandler.text);
+			Debug.Log("Received cloud data: " + uwr.downloadHandler.text);
 			if (!uwr.downloadHandler.text.Contains("FAILED"))
 			{
 				if (uwr.downloadHandler.text.Contains("killed"))
@@ -831,13 +844,13 @@ public class AccountMaster : MonoBehaviour
 			{
 				if (uwr.downloadHandler.text.Contains("stock"))
 				{
-					Debug.LogError("Out of stock!");
+					Debug.Log("Out of stock!");
 					ConnectedStand.MyStandItem.AmountInStock = 0;
 					ConnectedStand.SetItemOnDisplay(IsUpdate: true);
 				}
 				else if (uwr.downloadHandler.text.Contains("already"))
 				{
-					Debug.LogError("Got item already!");
+					Debug.Log("Got item already!");
 				}
 				ConnectedStand.TransactionFailed();
 			}

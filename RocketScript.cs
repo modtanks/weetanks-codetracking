@@ -393,6 +393,6 @@ public class RocketScript : MonoBehaviour
 	{
 		int maxExclusive = DeadHit.Length;
 		int num = Random.Range(0, maxExclusive);
-		SFXManager.instance.PlaySFX(DeadHit[num], 0.6f, null);
+		SFXManager.instance.PlaySFX(DeadHit[num], 0.5f, null);
 	}
 }

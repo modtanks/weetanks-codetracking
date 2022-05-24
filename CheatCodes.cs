@@ -85,7 +85,7 @@ public class CheatCodes : MonoBehaviour
 				{
 					OptionsMainMenu.instance.AM_unlocked.Add(num);
 					OptionsMainMenu.instance.SaveNewData();
-					AccountMaster.instance.SaveCloudData(9, num, 0, bounceKill: false);
+					AccountMaster.instance.SaveCloudData(9, num, 0, bounceKill: false, 0f);
 					SFXManager.instance.PlaySFX(UnlockedSound);
 				}
 			}

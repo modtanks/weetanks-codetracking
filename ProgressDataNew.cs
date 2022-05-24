@@ -32,6 +32,8 @@ public class ProgressDataNew
 
 	public int accountID = -1;
 
+	public int lastKnownDays;
+
 	public ProgressDataNew(GameMaster GM, ProgressData old)
 	{
 		if (old != null)

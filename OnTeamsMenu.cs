@@ -101,7 +101,10 @@ public class OnTeamsMenu : MonoBehaviour
 		{
 			myAnimator.SetBool("ShowMenu", value: false);
 		}
-		MapEditorMaster.instance.SelectedParticles.transform.position = new Vector3(9999f, 9999f, 9999f);
+		if (MapEditorMaster.instance.SelectedParticles != null)
+		{
+			MapEditorMaster.instance.SelectedParticles.transform.position = new Vector3(999f, 999f, 999f);
+		}
 		SelectedMEP = null;
 	}
 
@@ -111,7 +114,10 @@ public class OnTeamsMenu : MonoBehaviour
 		{
 			SelectedMEP.myMEGP.FieldSelected = false;
 		}
-		MapEditorMaster.instance.SelectedParticles.transform.position = new Vector3(9999f, 9999f, 9999f);
+		if (MapEditorMaster.instance.SelectedParticles != null)
+		{
+			MapEditorMaster.instance.SelectedParticles.transform.position = new Vector3(999f, 999f, 999f);
+		}
 		SelectedMEP = null;
 	}
 

@@ -322,13 +322,26 @@ public class HealthTanks : MonoBehaviour
 				DamageMe(999);
 			}
 		}
+		if (GameMaster.instance.CurrentMission >= 99 && GameMaster.instance.isOfficialCampaign && isMainTank)
+		{
+			if (GameMaster.instance.Bosses.Length < 1)
+			{
+				health = 999;
+				return;
+			}
+			if (GameMaster.instance.Bosses[0] == null)
+			{
+				health = 999;
+				return;
+			}
+		}
 		if (!GameMaster.instance.GameHasStarted && IsAirdropped)
 		{
 			DamageMe(999);
 			EnemyTankDeath();
 			return;
 		}
-		if (GameMaster.instance.CurrentMission >= 99 && IsAirdropped && !MapEditorMaster.instance)
+		if (GameMaster.instance.CurrentMission >= 99 && IsAirdropped && !MapEditorMaster.instance && GameMaster.instance.isOfficialCampaign)
 		{
 			if (GameMaster.instance.Bosses.Length < 1)
 			{
@@ -546,7 +559,7 @@ public class HealthTanks : MonoBehaviour
 			GameMaster.instance.survivalTanksKilled++;
 			int num = ((EnemyID != -10) ? ((EnemyID == -11) ? 1 : ((EnemyID == -12) ? 2 : ((EnemyID == -13) ? 3 : ((EnemyID == -14) ? 4 : ((EnemyID == -15) ? 5 : ((EnemyID == -110) ? 9 : 0)))))) : 0);
 			ZombieTankSpawner.instance.CurrentAmountOfEnemyTypes[num]--;
-			AccountMaster.instance.SaveCloudData(0, EnemyID, 0, bounceKill: false);
+			AccountMaster.instance.SaveCloudData(0, EnemyID, 0, bounceKill: false, 0f);
 		}
 		else if (!GameMaster.instance.inMenuMode && !GameMaster.instance.inMapEditor)
 		{
@@ -695,7 +708,7 @@ public class HealthTanks : MonoBehaviour
 			if (component7.isLevel100Boss && GameMaster.instance.isOfficialCampaign)
 			{
 				GameMaster.instance.totalWins++;
-				AccountMaster.instance.SaveCloudData(1, 1, 0, bounceKill: false);
+				AccountMaster.instance.SaveCloudData(1, 1, 0, bounceKill: false, 0.5f);
 				GameMaster.instance.SaveData(skipCloud: false);
 				int amount = ((OptionsMainMenu.instance.currentDifficulty == 0) ? 10 : ((OptionsMainMenu.instance.currentDifficulty == 1) ? 20 : ((OptionsMainMenu.instance.currentDifficulty == 2) ? 30 : 40)));
 				AccountMaster.instance.IncreaseMarbles(amount);
@@ -926,7 +939,7 @@ public class HealthTanks : MonoBehaviour
 		{
 			instadie = true;
 		}
-		if (!instadie && amountRevivesLeft > 0)
+		if (!instadie && amountRevivesLeft > 0 && base.transform.position.y > -30f)
 		{
 			SFXManager.instance.PlaySFX(Buzz);
 			reviveText.SetActive(value: true);

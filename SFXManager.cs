@@ -84,7 +84,7 @@ public class SFXManager : MonoBehaviour
 			audioSource.outputAudioMixerGroup = Mixer;
 		}
 		audioSource.clip = sound;
-		audioSource.volume = (float)OptionsMainMenu.instance.masterVolumeLvl / 10f * (float)OptionsMainMenu.instance.sfxVolumeLvl / 10f;
+		audioSource.volume = volume * ((float)OptionsMainMenu.instance.masterVolumeLvl / 10f * (float)OptionsMainMenu.instance.sfxVolumeLvl) / 10f;
 		audioSource.spatialBlend = 0f;
 		audioSource.Play();
 		Object.Destroy(obj, sound.length);

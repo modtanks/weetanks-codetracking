@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class PlayerBulletScript : MonoBehaviour
@@ -164,7 +163,7 @@ public class PlayerBulletScript : MonoBehaviour
 			return;
 		}
 		Dart.SetActive(value: false);
-		if (AccountMaster.instance.Inventory != null && AccountMaster.instance.Inventory.InventoryItems.Length != 0 && AccountMaster.instance.Inventory.InventoryItems.Contains(26) && OptionsMainMenu.instance.AMselected.Contains(1026))
+		if (AccountMaster.instance.Inventory != null && AccountMaster.instance.Inventory.InventoryItems.Count > 0 && AccountMaster.instance.Inventory.InventoryItems.Contains(26) && OptionsMainMenu.instance.AMselected.Contains(1026))
 		{
 			InstantiateOneParticle component = GetComponent<InstantiateOneParticle>();
 			if ((bool)component)
@@ -765,6 +764,14 @@ public class PlayerBulletScript : MonoBehaviour
 	public void HitNoBounceWall(Collision collision)
 	{
 		BombSackScript component = collision.gameObject.GetComponent<BombSackScript>();
+		if (collision.transform.parent != null && collision.transform.parent.parent != null)
+		{
+			SlotMachine component2 = collision.transform.parent.parent.GetComponent<SlotMachine>();
+			if ((bool)component2)
+			{
+				component2.GetShot();
+			}
+		}
 		if (component != null && !IsSackBullet)
 		{
 			Vector3 direction = new Vector3(component.transform.position.x, base.transform.position.y + 1f, component.transform.position.z) - base.transform.position;
@@ -1069,12 +1076,12 @@ public class PlayerBulletScript : MonoBehaviour
 				if (TimesBounced == 0)
 				{
 					AchievementsTracker.instance.KilledWithoutBounce = true;
-					AccountMaster.instance.SaveCloudData(0, component6.EnemyID, 0, bounceKill: false);
+					AccountMaster.instance.SaveCloudData(0, component6.EnemyID, 0, bounceKill: false, 0f);
 				}
 				else
 				{
 					GameMaster.instance.totalKillsBounce++;
-					AccountMaster.instance.SaveCloudData(0, component6.EnemyID, 0, bounceKill: true);
+					AccountMaster.instance.SaveCloudData(0, component6.EnemyID, 0, bounceKill: true, 0f);
 				}
 			}
 			else if (component6.health > 0)
@@ -1106,8 +1113,18 @@ public class PlayerBulletScript : MonoBehaviour
 			if ((bool)EnemyTankScript && component10 == EnemyTankScript.AIscript && TimesBounced < 1 && !IsAirPushed)
 			{
 				IgnoreThatCollision(collision);
+				yield break;
 			}
-			else if (MyTeam == 0)
+			HealthTanks component11 = collision.gameObject.GetComponent<HealthTanks>();
+			if ((bool)component11 && component11.health > 0 && (component10.MyTeam != MyTeam || OptionsMainMenu.instance.FriendlyFire))
+			{
+				MakeWhite component12 = component11.GetComponent<MakeWhite>();
+				if ((bool)component12)
+				{
+					component12.GotHit();
+				}
+			}
+			if (MyTeam == 0)
 			{
 				HitTank(collision);
 			}

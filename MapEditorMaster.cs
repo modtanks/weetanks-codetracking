@@ -16,6 +16,8 @@ public class MapEditorMaster : MonoBehaviour
 		public int WeatherType;
 
 		public int MissionFloorTexture;
+
+		public string CurrentFloorName;
 	}
 
 	private static MapEditorMaster _instance;
@@ -506,22 +508,21 @@ public class MapEditorMaster : MonoBehaviour
 		MapEditorDifficultyList.value = OptionsMainMenu.instance.currentDifficulty;
 		UpdateMembus();
 		int num = 0;
-		if (AccountMaster.instance.Inventory.InventoryItems != null && AccountMaster.instance.Inventory.InventoryItems.Length != 0)
+		if (AccountMaster.instance.Inventory.InventoryItems != null && AccountMaster.instance.Inventory.InventoryItems.Count > 0)
 		{
-			int[] inventoryItems = AccountMaster.instance.Inventory.InventoryItems;
-			foreach (int num2 in inventoryItems)
+			foreach (int inventoryItem in AccountMaster.instance.Inventory.InventoryItems)
 			{
-				for (int k = 0; k < GlobalAssets.instance.StockDatabase.Count; k++)
+				for (int j = 0; j < GlobalAssets.instance.StockDatabase.Count; j++)
 				{
-					if (num2 == GlobalAssets.instance.StockDatabase[k].ItemID && GlobalAssets.instance.StockDatabase[k].IsMapEditorObject)
+					if (inventoryItem == GlobalAssets.instance.StockDatabase[j].ItemID && GlobalAssets.instance.StockDatabase[j].IsMapEditorObject)
 					{
-						ItemsPlayerHas.Add(GlobalAssets.instance.StockDatabase[k]);
+						ItemsPlayerHas.Add(GlobalAssets.instance.StockDatabase[j]);
 						num++;
 						MapEditorUIprop component = UnityEngine.Object.Instantiate(MenuItemPrefab, TankeyTownListParent.transform).GetComponent<MapEditorUIprop>();
 						if ((bool)component)
 						{
-							component.PropID = GlobalAssets.instance.StockDatabase[k].MapEditorPropID;
-							component.customTex = GlobalAssets.instance.StockDatabase[k].ItemTexture;
+							component.PropID = GlobalAssets.instance.StockDatabase[j].MapEditorPropID;
+							component.customTex = GlobalAssets.instance.StockDatabase[j].ItemTexture;
 						}
 					}
 				}
@@ -1268,6 +1269,23 @@ public class MapEditorMaster : MonoBehaviour
 			}
 			Debug.Log(mapEditorData.WeatherTypes[0]);
 		}
+		else
+		{
+			Debug.Log("NEW WAY FOUND!");
+			if (mapEditorData.Properties != null && mapEditorData.Properties.Count > 0)
+			{
+				for (int m = 0; m < mapEditorData.Properties.Count; m++)
+				{
+					MissionProperties missionProperties4 = new MissionProperties();
+					missionProperties4.CurrentFloorName = mapEditorData.Properties[m].CurrentFloorName;
+					missionProperties4.MissionFloorTexture = mapEditorData.Properties[m].MissionFloorTexture;
+					missionProperties4.WeatherType = mapEditorData.Properties[m].WeatherType;
+					missionProperties4.MissionNumber = m;
+					Properties.Add(missionProperties4);
+				}
+				FloorDropdown.value = mapEditorData.Properties[0].MissionFloorTexture;
+			}
+		}
 		if (mapEditorData.NoBordersMissions != null)
 		{
 			NoBordersMissions = mapEditorData.NoBordersMissions;
@@ -1557,31 +1575,35 @@ public class MapEditorMaster : MonoBehaviour
 
 	public void SaveFloorType()
 	{
-		if (canChangeValues)
+		if (!canChangeValues)
 		{
-			MissionProperties missionProperties = Properties.Find((MissionProperties x) => x.MissionNumber == GameMaster.instance.CurrentMission);
-			if (missionProperties != null)
-			{
-				missionProperties.MissionFloorTexture = FloorDropdown.value;
-			}
-			else
-			{
-				MissionProperties missionProperties2 = new MissionProperties();
-				missionProperties2.MissionFloorTexture = FloorDropdown.value;
-				missionProperties2.WeatherType = 0;
-				missionProperties2.MissionNumber = GameMaster.instance.CurrentMission;
-				Properties.Add(missionProperties2);
-			}
-			SetFloorTexture();
+			return;
 		}
+		MissionProperties missionProperties = Properties.Find((MissionProperties x) => x.MissionNumber == GameMaster.instance.CurrentMission);
+		if (missionProperties != null)
+		{
+			Debug.Log("NMAME : " + FloorDropdown.options[FloorDropdown.value].text);
+			missionProperties.MissionFloorTexture = GlobalAssets.instance.TheFloors.Find((GlobalAssets.Floors x) => x.FloorName == FloorDropdown.options[FloorDropdown.value].text).FloorID;
+			missionProperties.CurrentFloorName = FloorDropdown.options[FloorDropdown.value].text;
+		}
+		else
+		{
+			MissionProperties missionProperties2 = new MissionProperties();
+			missionProperties2.CurrentFloorName = FloorDropdown.options[FloorDropdown.value].text;
+			missionProperties2.MissionFloorTexture = GlobalAssets.instance.TheFloors.Find((GlobalAssets.Floors x) => x.FloorName == FloorDropdown.options[FloorDropdown.value].text).FloorID;
+			missionProperties2.WeatherType = 0;
+			missionProperties2.MissionNumber = GameMaster.instance.CurrentMission;
+			Properties.Add(missionProperties2);
+		}
+		SetFloorTexture();
 	}
 
 	private void SetFloorTexture()
 	{
 		LoadModTexture component = GameMaster.instance.floor.GetComponent<LoadModTexture>();
-		if (!component || !component.IsModded)
+		if ((!component || !component.IsModded) && GlobalAssets.instance.TheFloors.Find((GlobalAssets.Floors x) => x.FloorName == FloorDropdown.options[FloorDropdown.value].text) != null)
 		{
-			GameMaster.instance.floor.GetComponent<MeshRenderer>().material = FloorMaterials[FloorDropdown.value];
+			GameMaster.instance.floor.GetComponent<MeshRenderer>().material = GlobalAssets.instance.TheFloors.Find((GlobalAssets.Floors x) => x.FloorName == FloorDropdown.options[FloorDropdown.value].text).FloorTexture;
 		}
 	}
 
@@ -1602,6 +1624,15 @@ public class MapEditorMaster : MonoBehaviour
 			camAnimator.SetBool("CameraDownEditor", value: true);
 			camAnimator.SetBool("CameraUpEditor", value: false);
 		}
+	}
+
+	public bool IsABlock(int ID)
+	{
+		if (ID == 0 || ID == 1 || ID == 2 || ID == 2002 || ID == 1029)
+		{
+			return true;
+		}
+		return false;
 	}
 
 	public bool IsATank(int ID, bool OnlyEnemies)
@@ -1946,9 +1977,20 @@ public class MapEditorMaster : MonoBehaviour
 		MissionProperties missionProperties = Properties.Find((MissionProperties x) => x.MissionNumber == removeMission + 1);
 		if (missionProperties != null)
 		{
+			Properties.RemoveAll((MissionProperties x) => x.MissionNumber == removeMission);
 			missionProperties.MissionNumber--;
 		}
-		Properties.RemoveAll((MissionProperties x) => x.MissionNumber == removeMission);
+		else
+		{
+			Properties.RemoveAll((MissionProperties x) => x.MissionNumber == removeMission);
+		}
+		for (int i = 0; i < Properties.Count; i++)
+		{
+			if (Properties[i].MissionNumber > removeMission + 1)
+			{
+				Properties[i].MissionNumber--;
+			}
+		}
 		UnityEngine.Object.Destroy(LevelUIList[removeMission]);
 		LevelUIList.RemoveAt(removeMission);
 		UpdateMembus();
@@ -1958,10 +2000,16 @@ public class MapEditorMaster : MonoBehaviour
 		NoBordersToggler.IsEnabled = ((!NoBordersMissions.Contains(0)) ? true : false);
 		UpdateMapBorder(0);
 		MissionNameInputField.text = GameMaster.instance.MissionNames[0];
-		if (Properties.Count > 0)
+		MissionProperties missionProperties2 = Properties.Find((MissionProperties x) => x.MissionNumber == 0);
+		if (missionProperties2 != null)
 		{
-			WeatherList.value = Properties[0].WeatherType;
-			FloorDropdown.value = Properties[0].MissionFloorTexture;
+			WeatherList.value = missionProperties2.WeatherType;
+			FloorDropdown.value = missionProperties2.MissionFloorTexture;
+		}
+		else if (Properties.Count > 0)
+		{
+			WeatherList.value = 0;
+			FloorDropdown.value = 0;
 		}
 		RefreshMissionNumbers();
 		StartCoroutine(MembusDelay());
@@ -2328,6 +2376,13 @@ public class MapEditorMaster : MonoBehaviour
 			missionProperties2.WeatherType = missionProperties.WeatherType;
 			missionProperties2.MissionFloorTexture = missionProperties.MissionFloorTexture;
 			Properties.Add(missionProperties2);
+		}
+		for (int k = 0; k < Properties.Count; k++)
+		{
+			if (Properties[k].MissionNumber > MissionToDuplicate + 1)
+			{
+				Properties[k].MissionNumber++;
+			}
 		}
 		if (GameMaster.instance.NightLevels.Contains(MissionToDuplicate))
 		{

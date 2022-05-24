@@ -51,6 +51,8 @@ public class SettingsData
 
 	public int LangSetting;
 
+	public int lastKnownDays;
+
 	public SettingsData(OptionsMainMenu OMM)
 	{
 		musicVolLevel = OMM.musicVolumeLvl;
@@ -75,5 +77,6 @@ public class SettingsData
 		xraybullets = OMM.showxraybullets;
 		AIactived = OMM.MenuCompanion;
 		LangSetting = OMM.GetComponent<LocalizationMaster>().CurrentLang;
+		lastKnownDays = OMM.LastKnownDaysInARow;
 	}
 }

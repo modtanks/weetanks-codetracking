@@ -494,7 +494,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		mineCountdown -= Time.deltaTime;
 		ShootCountdown -= Time.deltaTime;
 		specialMoveBounceCooldown -= Time.deltaTime;
-		if (AIscript.HTscript.health < 1 || !CanRotateHead)
+		if ((AIscript.HTscript != null && AIscript.HTscript.health < 1) || !CanRotateHead)
 		{
 			return;
 		}

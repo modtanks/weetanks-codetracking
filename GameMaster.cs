@@ -346,7 +346,7 @@ public class GameMaster : MonoBehaviour
 		ambientCLR = RenderSettings.ambientLight;
 		InvokeRepeating("ControllerCheck", 0.5f, 0.5f);
 		InvokeRepeating("PlayerListCheck", 0.5f, 0.5f);
-		Debug.LogError("now here in start from GameMaster!");
+		Debug.Log("now here in start from GameMaster!");
 		if (!inMenuMode && !inMapEditor)
 		{
 			if (MapEditorMaster.instance == null)
@@ -415,7 +415,7 @@ public class GameMaster : MonoBehaviour
 		{
 			PlayerJoined[j] = OptionsMainMenu.instance.PlayerJoined[j];
 		}
-		Debug.LogError("End of start!");
+		Debug.Log("End of start!");
 		GameState();
 	}
 
@@ -541,7 +541,7 @@ public class GameMaster : MonoBehaviour
 						}
 						component.enabled = true;
 						totalDefeats++;
-						AccountMaster.instance.SaveCloudData(2, 1, 0, bounceKill: false);
+						AccountMaster.instance.SaveCloudData(2, 1, 0, bounceKill: false, 0.1f);
 						SaveData(skipCloud: false);
 						PlayerAlive = false;
 						musicScript.Defeat();
@@ -560,7 +560,7 @@ public class GameMaster : MonoBehaviour
 				{
 					CheckSecretMission();
 					totalWins++;
-					AccountMaster.instance.SaveCloudData(1, 1, 0, bounceKill: false);
+					AccountMaster.instance.SaveCloudData(1, 1, 0, bounceKill: false, 0.1f);
 					SaveData(skipCloud: false);
 					EndTheGame();
 				}
@@ -575,7 +575,7 @@ public class GameMaster : MonoBehaviour
 			{
 				CheckSecretMission();
 				totalWins++;
-				AccountMaster.instance.SaveCloudData(1, 1, 0, bounceKill: false);
+				AccountMaster.instance.SaveCloudData(1, 1, 0, bounceKill: false, 0.1f);
 				SaveData(skipCloud: false);
 				EndTheGame();
 			}
@@ -650,7 +650,7 @@ public class GameMaster : MonoBehaviour
 		}
 		if (ZombieTankSpawner.instance != null && AmountEnemyTanks < 1 && ZombieTankSpawner.instance.Wave < 1 && isZombieMode && !NAS.playingAnimation)
 		{
-			Debug.LogError("Loading first lvl");
+			Debug.Log("Loading first lvl");
 			NAS.NextRound();
 		}
 	}
@@ -966,7 +966,7 @@ public class GameMaster : MonoBehaviour
 		}
 		if (vector == Vector3.zero)
 		{
-			Debug.LogError("GOT A ZERO LOCATION ERROR!");
+			Debug.Log("GOT A ZERO LOCATION ERROR!");
 		}
 		return vector;
 	}
@@ -996,7 +996,7 @@ public class GameMaster : MonoBehaviour
 			{
 				AchievementsTracker.instance.completeAchievement(33);
 			}
-			AccountMaster.instance.SaveCloudData(8, 0, 0, bounceKill: false);
+			AccountMaster.instance.SaveCloudData(8, 0, 0, bounceKill: false, 0.8f);
 			Debug.Log("CHECK ESCROTR");
 			SaveData(skipCloud: false);
 		}
@@ -1093,33 +1093,37 @@ public class GameMaster : MonoBehaviour
 			EnemyAI component = array[j].GetComponent<EnemyAI>();
 			if ((bool)component)
 			{
-				AmountTeamTanks[component.MyTeam]++;
+				HealthTanks component2 = component.GetComponent<HealthTanks>();
+				if (!component2 || !component2.IsAirdropped)
+				{
+					AmountTeamTanks[component.MyTeam]++;
+				}
 			}
 		}
 		array = GameObject.FindGameObjectsWithTag("Boss");
 		for (int j = 0; j < array.Length; j++)
 		{
-			EnemyAI component2 = array[j].GetComponent<EnemyAI>();
-			if ((bool)component2)
+			EnemyAI component3 = array[j].GetComponent<EnemyAI>();
+			if ((bool)component3)
 			{
-				AmountTeamTanks[component2.MyTeam]++;
+				AmountTeamTanks[component3.MyTeam]++;
 			}
 		}
 		array = GameObject.FindGameObjectsWithTag("Player");
 		foreach (GameObject gameObject in array)
 		{
-			MoveTankScript component3 = gameObject.GetComponent<MoveTankScript>();
-			if ((bool)component3)
-			{
-				AmountTeamTanks[component3.MyTeam]++;
-				PlayerTeamColor[component3.playerId] = component3.MyTeam;
-				continue;
-			}
-			EnemyAI component4 = gameObject.GetComponent<EnemyAI>();
+			MoveTankScript component4 = gameObject.GetComponent<MoveTankScript>();
 			if ((bool)component4)
 			{
 				AmountTeamTanks[component4.MyTeam]++;
-				PlayerTeamColor[1] = component4.MyTeam;
+				PlayerTeamColor[component4.playerId] = component4.MyTeam;
+				continue;
+			}
+			EnemyAI component5 = gameObject.GetComponent<EnemyAI>();
+			if ((bool)component5)
+			{
+				AmountTeamTanks[component5.MyTeam]++;
+				PlayerTeamColor[1] = component5.MyTeam;
 			}
 		}
 		if (MapEditorMaster.instance != null)
@@ -1226,6 +1230,7 @@ public class GameMaster : MonoBehaviour
 		if ((bool)MapEditorMaster.instance && MapEditorMaster.instance.Properties.Find((MapEditorMaster.MissionProperties x) => x.MissionNumber == CurrentMission) != null)
 		{
 			CloudGeneration.instance.StartCoroutine(CloudGeneration.instance.SetWeatherType(MapEditorMaster.instance.Properties.Find((MapEditorMaster.MissionProperties x) => x.MissionNumber == CurrentMission).WeatherType, force: false));
+			floor.GetComponent<MeshRenderer>().material = GlobalAssets.instance.TheFloors.Find((GlobalAssets.Floors x) => x.FloorName == MapEditorMaster.instance.Properties.Find((MapEditorMaster.MissionProperties x) => x.MissionNumber == CurrentMission).CurrentFloorName).FloorTexture;
 		}
 		if (!flag)
 		{
@@ -1356,7 +1361,14 @@ public class GameMaster : MonoBehaviour
 				{
 					return;
 				}
-				floor.GetComponent<MeshRenderer>().material = MapEditorMaster.instance.FloorMaterials[MapEditorMaster.instance.Properties.Find((MapEditorMaster.MissionProperties x) => x.MissionNumber == CurrentMission).MissionFloorTexture];
+				if (MapEditorMaster.instance.Properties.Find((MapEditorMaster.MissionProperties x) => x.MissionNumber == CurrentMission) == null)
+				{
+					floor.GetComponent<MeshRenderer>().material = GlobalAssets.instance.TheFloors.Find((GlobalAssets.Floors x) => x.FloorName == "Normal").FloorTexture;
+				}
+				else
+				{
+					floor.GetComponent<MeshRenderer>().material = GlobalAssets.instance.TheFloors.Find((GlobalAssets.Floors x) => x.FloorName == MapEditorMaster.instance.Properties.Find((MapEditorMaster.MissionProperties x) => x.MissionNumber == CurrentMission).CurrentFloorName).FloorTexture;
+				}
 			}
 			if (MapEditorMaster.instance.NoBordersMissions.Count > 0)
 			{
@@ -1490,7 +1502,7 @@ public class GameMaster : MonoBehaviour
 		DestroyTemps();
 		AmountEnemyTanks = GameObject.FindGameObjectsWithTag("Enemy").Length + GameObject.FindGameObjectsWithTag("Boss").Length;
 		StartCoroutine(GetTankTeamData(fast: false));
-		Debug.LogError("Lets start the test!");
+		Debug.Log("Lets start the test!");
 		Camera.main.GetComponent<AudioSource>().volume = 0f * (float)OptionsMainMenu.instance.musicVolumeLvl * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f;
 		AmountGoodTanks = PlayerJoined.Count;
 		SetPlayerPosition("Main_Tank_Prop(Clone)", "Second_Tank_Prop(Clone)", "Third_Tank_Prop(Clone)", "Fourth_Tank_Prop(Clone)");
@@ -1676,7 +1688,7 @@ public class GameMaster : MonoBehaviour
 	{
 		if (MapEditorMaster.instance != null)
 		{
-			Debug.LogError("cant save because in map editor mode");
+			Debug.Log("cant save because in map editor mode");
 		}
 		else
 		{
@@ -1739,7 +1751,7 @@ public class GameMaster : MonoBehaviour
 			}
 			else if (!isZombieMode && MapEditorMaster.instance == null)
 			{
-				AccountMaster.instance.SaveCloudData(7, -1, 0, bounceKill: false);
+				AccountMaster.instance.SaveCloudData(7, -1, 0, bounceKill: false, 0.1f);
 			}
 		}
 	}
@@ -1751,7 +1763,7 @@ public class GameMaster : MonoBehaviour
 			if (!isZombieMode)
 			{
 				totalDefeats++;
-				AccountMaster.instance.SaveCloudData(2, 1, 0, bounceKill: false);
+				AccountMaster.instance.SaveCloudData(2, 1, 0, bounceKill: false, 0.2f);
 				Debug.Log("DEFEATION");
 				SaveData(skipCloud: false);
 			}
@@ -2184,7 +2196,7 @@ public class GameMaster : MonoBehaviour
 	{
 		if (isZombieMode)
 		{
-			Debug.LogError("NEW ROUND!");
+			Debug.Log("NEW ROUND!");
 			ZombieTankSpawner component = GetComponent<ZombieTankSpawner>();
 			component.Wave++;
 			AccountMaster.instance.UpdateServerStatus(component.Wave + 100);
@@ -2202,7 +2214,7 @@ public class GameMaster : MonoBehaviour
 			}
 			GameHasStarted = true;
 			Players.Clear();
-			AccountMaster.instance.SaveCloudData(6, component.Wave, 0, bounceKill: false);
+			AccountMaster.instance.SaveCloudData(6, component.Wave, 0, bounceKill: false, 0.1f);
 			sun = GameObject.FindGameObjectsWithTag("Player");
 			foreach (GameObject item in sun)
 			{

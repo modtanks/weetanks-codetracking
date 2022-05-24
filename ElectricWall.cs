@@ -12,7 +12,7 @@ public class ElectricWall : MonoBehaviour
 	{
 		if ((bool)GameMaster.instance)
 		{
-			if (GameMaster.instance.CurrentMission == 69)
+			if (GameMaster.instance.CurrentMission == 69 && GameMaster.instance.isOfficialCampaign)
 			{
 				InvokeRepeating("UpdateCheck", 0.5f, 0.5f);
 			}

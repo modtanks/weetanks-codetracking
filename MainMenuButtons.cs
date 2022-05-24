@@ -41,6 +41,10 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 
 	public bool HoverOnEnter;
 
+	public GameObject Notification_background;
+
+	public TextMeshProUGUI Notification_text;
+
 	[Header("Meta Button Stuff")]
 	public TextMeshProUGUI ButtonMetaTitle;
 
@@ -95,6 +99,8 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 	public bool IsMapEditor;
 
 	public bool IsOptions;
+
+	public bool IsRewards;
 
 	public bool IsStats;
 
@@ -523,6 +529,20 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 	public void LoadButton()
 	{
 		RightClicked = false;
+		if (IsRewards)
+		{
+			if (OptionsMainMenu.instance.LastKnownDaysInARow < AccountMaster.instance.PDO.DaysLogInARow)
+			{
+				Notification_background.gameObject.SetActive(value: true);
+				Notification_text.gameObject.SetActive(value: true);
+				Notification_text.text = (AccountMaster.instance.PDO.DaysLogInARow - OptionsMainMenu.instance.LastKnownDaysInARow).ToString();
+			}
+			else
+			{
+				Notification_background.gameObject.SetActive(value: false);
+				Notification_text.gameObject.SetActive(value: false);
+			}
+		}
 		if (!ButtonMetaTitle)
 		{
 			return;

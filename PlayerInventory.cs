@@ -1,7 +1,8 @@
 using System;
+using System.Collections.Generic;
 
 [Serializable]
 public class PlayerInventory
 {
-	public int[] InventoryItems;
+	public List<int> InventoryItems;
 }

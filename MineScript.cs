@@ -61,6 +61,8 @@ public class MineScript : MonoBehaviour
 
 	public AudioClip NukeSound;
 
+	public bool IsDestroyedByOtherMine;
+
 	private void Start()
 	{
 		if ((bool)MyPlacer)
@@ -396,7 +398,7 @@ public class MineScript : MonoBehaviour
 					}
 					if (component7.health < 1 && !GameMaster.instance.inMapEditor && !MapEditorMaster.instance && !GameMaster.instance.isZombieMode && (bool)AccountMaster.instance && !component7.isMainTank)
 					{
-						AccountMaster.instance.SaveCloudData(0, component7.EnemyID, 0, bounceKill: false);
+						AccountMaster.instance.SaveCloudData(0, component7.EnemyID, 0, bounceKill: false, 0.2f);
 					}
 				}
 				if (component7.immuneToExplosion)
@@ -494,9 +496,10 @@ public class MineScript : MonoBehaviour
 					component9.BounceAmount = 999;
 				}
 			}
-			else if (component10 != null)
+			else if (component10 != null && component10 != this)
 			{
 				component10.DetinationTime = 0f;
+				component10.IsDestroyedByOtherMine = true;
 			}
 			else if (component11 != null)
 			{
@@ -507,6 +510,10 @@ public class MineScript : MonoBehaviour
 				component14.FlyBack();
 			}
 		}
+		if (IsDestroyedByOtherMine)
+		{
+			return;
+		}
 		array = Physics.OverlapSphere(location, radius * 2.75f);
 		foreach (Collider collider2 in array)
 		{
@@ -514,12 +521,8 @@ public class MineScript : MonoBehaviour
 			if (component17 != null && (collider2.tag == "Player" || collider2.tag == "Enemy"))
 			{
 				float num2 = Vector3.Distance(component17.transform.position, base.transform.position);
-				float num3 = (radius * 2.75f - num2) * 2.2f;
+				float num3 = Mathf.Clamp((radius * 2.75f - num2) * 2.2f, 1f, 16f);
 				Vector3 vector = component17.transform.position - base.transform.position;
-				if (num3 > 16f)
-				{
-					num3 = 16f;
-				}
 				component17.AddForce(vector * num3, ForceMode.Impulse);
 			}
 		}

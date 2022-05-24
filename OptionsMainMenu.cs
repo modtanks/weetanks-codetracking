@@ -53,6 +53,8 @@ public class OptionsMainMenu : MonoBehaviour
 
 	public int UIsetting = 1;
 
+	public int LastKnownDaysInARow;
+
 	public List<int> AM_unlocked = new List<int>();
 
 	public int[] AM;
@@ -189,6 +191,7 @@ public class OptionsMainMenu : MonoBehaviour
 				MenuCompanion = settingsData.AIactived;
 			}
 			LocalizationMaster.instance.CurrentLang = settingsData.LangSetting;
+			LastKnownDaysInARow = settingsData.lastKnownDays;
 			Debug.LogWarning("Settings-Data loaded from save file");
 		}
 		else
@@ -288,12 +291,12 @@ public class OptionsMainMenu : MonoBehaviour
 		if (musicVolumeLvl > 0 && change == -1)
 		{
 			musicVolumeLvl--;
-			Debug.LogError("Volume downed");
+			Debug.Log("Volume downed");
 		}
 		else if (musicVolumeLvl < 10 && change == 1)
 		{
 			musicVolumeLvl++;
-			Debug.LogError("Volumeupped");
+			Debug.Log("Volumeupped");
 		}
 		SaveNewData();
 	}
@@ -303,12 +306,12 @@ public class OptionsMainMenu : MonoBehaviour
 		if (masterVolumeLvl > 0 && change == -1)
 		{
 			masterVolumeLvl--;
-			Debug.LogError("Volume downed");
+			Debug.Log("Volume downed");
 		}
 		else if (masterVolumeLvl < 10 && change == 1)
 		{
 			masterVolumeLvl++;
-			Debug.LogError("Volumeupped");
+			Debug.Log("Volumeupped");
 		}
 		SaveNewData();
 	}
@@ -318,12 +321,12 @@ public class OptionsMainMenu : MonoBehaviour
 		if (sfxVolumeLvl > 0 && change == -1)
 		{
 			sfxVolumeLvl--;
-			Debug.LogError("Volume downed");
+			Debug.Log("Volume downed");
 		}
 		else if (sfxVolumeLvl < 10 && change == 1)
 		{
 			sfxVolumeLvl++;
-			Debug.LogError("Volumeupped");
+			Debug.Log("Volumeupped");
 		}
 		SaveNewData();
 	}

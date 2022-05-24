@@ -75,6 +75,10 @@ public class NewMenuControl : MonoBehaviour
 
 	public TextMeshProUGUI SetNewPasswordNotificationText;
 
+	public GameObject DailyRewardPrefab;
+
+	public GameObject DailyRewardParent;
+
 	public GameObject OnlineMapPrefab;
 
 	public GameObject OnlineMyMapPrefab;
@@ -275,7 +279,7 @@ public class NewMenuControl : MonoBehaviour
 		FileInfo[] files = new DirectoryInfo(text).GetFiles("*.campaign");
 		if (files.Length != 0)
 		{
-			Debug.LogError("MapFiles FOUND!" + files.Length);
+			Debug.Log("MapFiles FOUND!" + files.Length);
 			FileInfo[] array = files;
 			foreach (FileInfo fileInfo in array)
 			{
@@ -374,7 +378,7 @@ public class NewMenuControl : MonoBehaviour
 		}
 		else if (NoMapsText != null)
 		{
-			Debug.LogError("NO MAPS FOUND! " + text);
+			Debug.Log("NO MAPS FOUND! " + text);
 			NoMapsText.gameObject.SetActive(value: true);
 		}
 	}
@@ -520,7 +524,7 @@ public class NewMenuControl : MonoBehaviour
 		UpdateMenuSignedInText();
 		yield return new WaitForSeconds(2f);
 		bool assignedInventory = false;
-		if (AccountMaster.instance.Inventory.InventoryItems != null)
+		if (AccountMaster.instance.Inventory != null && AccountMaster.instance.Inventory.InventoryItems != null)
 		{
 			AssignInventory();
 			assignedInventory = true;
@@ -536,7 +540,7 @@ public class NewMenuControl : MonoBehaviour
 
 	private void AssignInventory()
 	{
-		for (int i = 0; i < AccountMaster.instance.Inventory.InventoryItems.Length; i++)
+		for (int i = 0; i < AccountMaster.instance.Inventory.InventoryItems.Count; i++)
 		{
 			foreach (TankeyTownStockItem item in GlobalAssets.instance.StockDatabase)
 			{
@@ -761,25 +765,10 @@ public class NewMenuControl : MonoBehaviour
 
 	private IEnumerator SignMeOut(string url, string name, string key, string userid)
 	{
-		UnityWebRequest keyRequest = UnityWebRequest.Get("https://weetanks.com/create_ip_key.php");
-		yield return keyRequest.SendWebRequest();
-		if (keyRequest.isNetworkError)
-		{
-			Debug.Log("Error While Sending: " + keyRequest.error);
-			yield break;
-		}
-		if (keyRequest.downloadHandler.text == "WAIT")
-		{
-			CreateAccountNotificationText.gameObject.SetActive(value: true);
-			CreateAccountNotificationText.text = "Please wait before request";
-			yield break;
-		}
-		string text = keyRequest.downloadHandler.text;
 		WWWForm wWWForm = new WWWForm();
 		wWWForm.AddField("key", key);
 		wWWForm.AddField("userid", userid);
 		wWWForm.AddField("username", name);
-		wWWForm.AddField("authKey", text);
 		UnityWebRequest uwr = UnityWebRequest.Post(url, wWWForm);
 		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
@@ -848,25 +837,9 @@ public class NewMenuControl : MonoBehaviour
 
 	private IEnumerator CreateAccount(string url, string username, string password)
 	{
-		UnityWebRequest keyRequest = UnityWebRequest.Get("https://weetanks.com/create_ip_key.php");
-		yield return keyRequest.SendWebRequest();
-		if (keyRequest.isNetworkError)
-		{
-			Debug.Log("Error While Sending: " + keyRequest.error);
-			yield break;
-		}
-		if (keyRequest.downloadHandler.text == "WAIT")
-		{
-			CreateAccountNotificationText.gameObject.SetActive(value: true);
-			CreateAccountNotificationText.text = "Please wait before request";
-			yield break;
-		}
-		string text = keyRequest.downloadHandler.text;
 		WWWForm wWWForm = new WWWForm();
 		wWWForm.AddField("username", username);
 		wWWForm.AddField("password", password);
-		wWWForm.AddField("authKey", text);
-		wWWForm.AddField("authKey", text);
 		wWWForm.AddField("userData", JsonUtility.ToJson(GameMaster.instance.CurrentData));
 		UnityWebRequest uwr = UnityWebRequest.Post(url, wWWForm);
 		uwr.SetRequestHeader("Access-Control-Allow-Credentials", "true");
@@ -1068,7 +1041,7 @@ public class NewMenuControl : MonoBehaviour
 				CreateAccountNotificationText.text = text;
 				return;
 			}
-			Debug.LogError("Creating account");
+			Debug.Log("Creating account");
 			StartCoroutine(CreateAccount("https://www.weetanks.com/create_account.php", Create_AccountNameInput.text, Create_PasswordInput.text));
 		}
 		else if (MMB.IsSignIn && CanDoSomething)
@@ -1086,7 +1059,7 @@ public class NewMenuControl : MonoBehaviour
 				SignInNotificationText.text = "Error: Password has to be at least 6 long";
 				return;
 			}
-			Debug.LogError("Loggin in account");
+			Debug.Log("Loggin in account");
 			StartCoroutine(SignIn("https://www.weetanks.com/signin_account.php", Login_AccountNameInput.text, Login_PasswordInput.text));
 		}
 		else if (MMB.IsSetNewPassword && AccountMaster.instance.CanSetNewPassword)
@@ -1113,6 +1086,85 @@ public class NewMenuControl : MonoBehaviour
 		{
 			deselectButton(MMB);
 			enableMenu(1);
+		}
+		else if (MMB.IsRewards)
+		{
+			OptionsMainMenu.instance.LastKnownDaysInARow = AccountMaster.instance.PDO.DaysLogInARow;
+			if (DailyRewardParent.transform.childCount < 20)
+			{
+				for (int i = 0; i < 100; i++)
+				{
+					GameObject obj = UnityEngine.Object.Instantiate(DailyRewardPrefab);
+					obj.transform.SetParent(DailyRewardParent.transform);
+					DailyRewardItem component = obj.GetComponent<DailyRewardItem>();
+					MainMenuButtons component2 = component.GetComponent<MainMenuButtons>();
+					component.DayTitle.text = "Day #" + (i + 1);
+					float num = 0f;
+					float num2 = 0f;
+					switch (i)
+					{
+					case 9:
+						num = 10f;
+						num2 = 100f;
+						break;
+					case 29:
+						num = 30f;
+						num2 = 300f;
+						break;
+					case 49:
+						num = 50f;
+						num2 = 500f;
+						break;
+					case 69:
+						num = 70f;
+						num2 = 700f;
+						break;
+					case 99:
+						num = 100f;
+						num2 = 1000f;
+						break;
+					}
+					component.MarbleText.text = "+" + Mathf.Floor(Mathf.Pow((float)(i + 1) / 0.01f, 0.3f)) + " Marbles";
+					component.XPText.text = "+" + Mathf.Floor(Mathf.Pow((float)(i + 1) / 0.01f, 0.3f)) * 5f + " XP";
+					if (num > 0f)
+					{
+						TextMeshProUGUI marbleText = component.MarbleText;
+						marbleText.text = marbleText.text + "\n+" + num + " Marbles";
+					}
+					if (num2 > 0f)
+					{
+						TextMeshProUGUI xPText = component.XPText;
+						xPText.text = xPText.text + "\n+" + num2 + " XP";
+					}
+					if (i < OptionsMainMenu.instance.LastKnownDaysInARow)
+					{
+						Color color = component2.AvailableColor;
+						if (num > 0f)
+						{
+							color = Color.yellow;
+						}
+						component.DayTitle.color = color;
+						component.MarbleText.color = color;
+						component.XPText.color = color;
+						component.CheckMark.SetActive(value: true);
+					}
+					else
+					{
+						Color color2 = component2.unavailableColor;
+						if (num > 0f)
+						{
+							color2 = Color.yellow;
+						}
+						component.DayTitle.color = color2;
+						component.MarbleText.color = component2.unavailableColor;
+						component.XPText.color = component2.unavailableColor;
+						component.CheckMark.SetActive(value: false);
+					}
+				}
+			}
+			OptionsMainMenu.instance.SaveNewData();
+			deselectButton(MMB);
+			enableMenu(28);
 		}
 		else if (MMB.IsStats)
 		{
@@ -1157,9 +1209,9 @@ public class NewMenuControl : MonoBehaviour
 				if (TransferAccountText.text.Contains("overwrite"))
 				{
 					GameObject[] transferButtons = TransferButtons;
-					for (int i = 0; i < transferButtons.Length; i++)
+					for (int j = 0; j < transferButtons.Length; j++)
 					{
-						transferButtons[i].SetActive(value: false);
+						transferButtons[j].SetActive(value: false);
 					}
 					TransferAccountText.text = "setting new account data...";
 					AccountMaster.instance.StartCoroutine(AccountMaster.instance.TransferAccountToSteam("https://www.weetanks.com/overwrite_to_steam_account.php"));
@@ -1167,9 +1219,9 @@ public class NewMenuControl : MonoBehaviour
 				else if (AccountMaster.instance.isSignedIn)
 				{
 					GameObject[] transferButtons = TransferButtons;
-					for (int i = 0; i < transferButtons.Length; i++)
+					for (int j = 0; j < transferButtons.Length; j++)
 					{
-						transferButtons[i].SetActive(value: false);
+						transferButtons[j].SetActive(value: false);
 					}
 					TransferAccountText.text = "transferring...";
 					AccountMaster.instance.StartCoroutine(AccountMaster.instance.TransferAccountToSteam("https://www.weetanks.com/transfer_to_steam_account.php"));
@@ -1265,7 +1317,7 @@ public class NewMenuControl : MonoBehaviour
 			}
 			else if (MMB.IsExit)
 			{
-				Debug.LogError("buh bye");
+				Debug.Log("buh bye");
 				Application.Quit();
 			}
 			else if (MMB.IsVideo && !OptionsMainMenu.instance.inAndroid)
@@ -1280,10 +1332,10 @@ public class NewMenuControl : MonoBehaviour
 			}
 			else if (MMB.IsControls)
 			{
-				ControlMapper component = GameObject.Find("ControlMapper").GetComponent<ControlMapper>();
-				if ((bool)component)
+				ControlMapper component3 = GameObject.Find("ControlMapper").GetComponent<ControlMapper>();
+				if ((bool)component3)
 				{
-					component.Open();
+					component3.Open();
 				}
 			}
 			else if (MMB.IsAudio)
@@ -1428,36 +1480,36 @@ public class NewMenuControl : MonoBehaviour
 			else if (MMB.StartMatchButton)
 			{
 				Debug.Log("Starting Match..");
-				for (int j = 0; j < 4; j++)
+				for (int k = 0; k < 4; k++)
 				{
 					bool flag = false;
-					for (int k = 0; k < ReInput.controllers.GetControllers(ControllerType.Joystick).Length; k++)
+					for (int l = 0; l < ReInput.controllers.GetControllers(ControllerType.Joystick).Length; l++)
 					{
-						if (PIM.Dropdowns[j].captionText.text == ReInput.controllers.GetController(ControllerType.Joystick, k).name)
+						if (PIM.Dropdowns[k].captionText.text == ReInput.controllers.GetController(ControllerType.Joystick, l).name)
 						{
-							Debug.Log("FOUND ONE!!!: " + ReInput.controllers.GetController(ControllerType.Joystick, k).name);
-							ReInput.players.GetPlayer(j).controllers.AddController(ReInput.controllers.GetController(ControllerType.Joystick, k), removeFromOtherPlayers: true);
+							Debug.Log("FOUND ONE!!!: " + ReInput.controllers.GetController(ControllerType.Joystick, l).name);
+							ReInput.players.GetPlayer(k).controllers.AddController(ReInput.controllers.GetController(ControllerType.Joystick, l), removeFromOtherPlayers: true);
 							flag = true;
-							OptionsMainMenu.instance.PlayerJoined[j] = true;
+							OptionsMainMenu.instance.PlayerJoined[k] = true;
 						}
 					}
 					if (!flag)
 					{
-						if (j == 0)
+						if (k == 0)
 						{
-							ReInput.players.GetPlayer(j).controllers.ClearAllControllers();
-							ReInput.players.GetPlayer(j).controllers.AddController(ReInput.controllers.GetController(ControllerType.Keyboard, 0), removeFromOtherPlayers: true);
-							ReInput.players.GetPlayer(j).controllers.AddController(ReInput.controllers.GetController(ControllerType.Mouse, 0), removeFromOtherPlayers: true);
-							OptionsMainMenu.instance.PlayerJoined[j] = true;
+							ReInput.players.GetPlayer(k).controllers.ClearAllControllers();
+							ReInput.players.GetPlayer(k).controllers.AddController(ReInput.controllers.GetController(ControllerType.Keyboard, 0), removeFromOtherPlayers: true);
+							ReInput.players.GetPlayer(k).controllers.AddController(ReInput.controllers.GetController(ControllerType.Mouse, 0), removeFromOtherPlayers: true);
+							OptionsMainMenu.instance.PlayerJoined[k] = true;
 						}
-						else if (PIM.Dropdowns[j].captionText.text.Contains("AI"))
+						else if (PIM.Dropdowns[k].captionText.text.Contains("AI"))
 						{
-							OptionsMainMenu.instance.AIcompanion[j] = true;
-							OptionsMainMenu.instance.PlayerJoined[j] = false;
+							OptionsMainMenu.instance.AIcompanion[k] = true;
+							OptionsMainMenu.instance.PlayerJoined[k] = false;
 						}
 						else
 						{
-							OptionsMainMenu.instance.PlayerJoined[j] = false;
+							OptionsMainMenu.instance.PlayerJoined[k] = false;
 						}
 					}
 				}

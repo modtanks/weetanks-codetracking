@@ -1,4 +1,5 @@
 using Rewired;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,6 +8,14 @@ public class ScrollWithController : MonoBehaviour
 	public ScrollRect SR;
 
 	public Player player;
+
+	public Vector2 ScrollPart;
+
+	private Vector2 prev;
+
+	public Transform content;
+
+	public bool CalculatePositionAndChangeTexts;
 
 	private void Start()
 	{
@@ -25,6 +34,37 @@ public class ScrollWithController : MonoBehaviour
 				if (vector.y < 0f || vector.y > 0f)
 				{
 					break;
+				}
+			}
+		}
+		ScrollPart = SR.normalizedPosition;
+		if (ScrollPart != prev && CalculatePositionAndChangeTexts)
+		{
+			prev = ScrollPart;
+			if ((bool)content)
+			{
+				int childCount = content.childCount;
+				int num = Mathf.RoundToInt((1f - ScrollPart.y) * (float)childCount);
+				int num2 = 0;
+				foreach (Transform item in content)
+				{
+					if (num2 < num - 5 || num2 > num + 5)
+					{
+						TextMeshProUGUI[] componentsInChildren = item.GetComponentsInChildren<TextMeshProUGUI>();
+						for (int j = 0; j < componentsInChildren.Length; j++)
+						{
+							componentsInChildren[j].enabled = false;
+						}
+					}
+					else
+					{
+						TextMeshProUGUI[] componentsInChildren = item.GetComponentsInChildren<TextMeshProUGUI>();
+						for (int j = 0; j < componentsInChildren.Length; j++)
+						{
+							componentsInChildren[j].enabled = true;
+						}
+					}
+					num2++;
 				}
 			}
 		}

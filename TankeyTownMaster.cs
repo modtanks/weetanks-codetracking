@@ -17,6 +17,8 @@ public class TankeyTownMaster : MonoBehaviour
 
 	public Animator WalletAnimator;
 
+	public PauseMenuScript PMS;
+
 	public static TankeyTownMaster instance => _instance;
 
 	private void Awake()
@@ -45,9 +47,17 @@ public class TankeyTownMaster : MonoBehaviour
 	private IEnumerator UpdateStockRepeater()
 	{
 		yield return new WaitForSeconds(4f);
-		Debug.Log("UPDATING STOCK...");
-		StartCoroutine(GetLatestTankeyTownStock(IsUpdate: true));
-		StartCoroutine(UpdateStockRepeater());
+		if (GameMaster.instance.Players.Count < 1)
+		{
+			PMS.gameObject.SetActive(value: true);
+			PMS.StartCoroutine(PMS.LoadYourAsyncScene(0));
+		}
+		else
+		{
+			Debug.Log("UPDATING STOCK...");
+			StartCoroutine(GetLatestTankeyTownStock(IsUpdate: true));
+			StartCoroutine(UpdateStockRepeater());
+		}
 	}
 
 	public void AssignDataToShops(bool IsUpdate)

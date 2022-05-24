@@ -76,6 +76,12 @@ public class ProgressDataOnline
 
 	public List<int> FoundMissions = new List<int>();
 
+	public List<int> ShiniesKilled = new List<int>();
+
+	public List<int> SuperShiniesKilled = new List<int>();
+
+	public int DaysLogInARow;
+
 	public List<int> CC;
 
 	public kills killed_s;

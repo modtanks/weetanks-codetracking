@@ -248,7 +248,7 @@ public class AchievementsTracker : MonoBehaviour
 		Debug.Log("COMPLETING: " + ID);
 		OptionsMainMenu.instance.AM[ID] = 1;
 		OptionsMainMenu.instance.SaveNewData();
-		AccountMaster.instance.SaveCloudData(3, ID, 0, bounceKill: false);
+		AccountMaster.instance.SaveCloudData(3, ID, 0, bounceKill: false, 0.8f);
 		GameObject gameObject = Object.Instantiate(AchievementNotification);
 		GameObject[] array = GameObject.FindGameObjectsWithTag("Firework");
 		if ((bool)GameMaster.instance.NAS)
@@ -301,7 +301,7 @@ public class AchievementsTracker : MonoBehaviour
 			return;
 		}
 		Debug.Log("AI COMPLETING: " + ID);
-		AccountMaster.instance.SaveCloudData(3, ID, 0, bounceKill: false);
+		AccountMaster.instance.SaveCloudData(3, ID, 0, bounceKill: false, 0.8f);
 		OptionsMainMenu.instance.AM[ID] = 1;
 		OptionsMainMenu.instance.SaveNewData();
 		GameObject gameObject = Object.Instantiate(AchievementNotification);
@@ -338,7 +338,7 @@ public class AchievementsTracker : MonoBehaviour
 		if (OptionsMainMenu.instance.AM[ID] != 1 && AccountMaster.instance.isSignedIn)
 		{
 			Debug.Log("OTHER COMPLETING: " + ID);
-			AccountMaster.instance.SaveCloudData(3, ID, 0, bounceKill: false);
+			AccountMaster.instance.SaveCloudData(3, ID, 0, bounceKill: false, 0.8f);
 			OptionsMainMenu.instance.AM[ID] = 1;
 			GameObject obj = Object.Instantiate(AchievementNotification);
 			obj.transform.parent = AchievementNotificationParent.transform;
@@ -363,7 +363,7 @@ public class AchievementsTracker : MonoBehaviour
 		Debug.Log("ALWAYS COMPLETING: " + ID);
 		if (AccountMaster.instance.isSignedIn)
 		{
-			AccountMaster.instance.SaveCloudData(3, ID, 0, bounceKill: false);
+			AccountMaster.instance.SaveCloudData(3, ID, 0, bounceKill: false, 0.8f);
 			OptionsMainMenu.instance.AM[ID] = 1;
 			GameObject obj = Object.Instantiate(AchievementNotification);
 			obj.transform.parent = AchievementNotificationParent.transform;

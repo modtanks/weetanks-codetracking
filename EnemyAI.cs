@@ -322,76 +322,36 @@ public class EnemyAI : MonoBehaviour
 				armoured = true;
 			}
 		}
-		if ((bool)THEGRID)
+		if (!THEGRID)
 		{
-			for (int i = 0; i < THEGRID.transform.childCount; i++)
+			return;
+		}
+		for (int i = 0; i < THEGRID.transform.childCount; i++)
+		{
+			EnemyDetection component = THEGRID.transform.GetChild(i).GetComponent<EnemyDetection>();
+			component.papaTank = base.gameObject;
+			int num = 16;
+			int num2 = 16;
+			int num3 = 16;
+			component.ID = i;
+			if (i == 0)
 			{
-				EnemyDetection component = THEGRID.transform.GetChild(i).GetComponent<EnemyDetection>();
-				component.papaTank = base.gameObject;
-				int num = 16;
-				int num2 = 16;
-				int num3 = 16;
-				component.ID = i;
-				if (i == 0)
-				{
-					Ring0Detection = component;
-				}
-				else if (i > 0 && i <= num)
-				{
-					Ring1Detection.Add(component);
-					component.isRing1 = true;
-				}
-				else if (i > num && i <= num + num2)
-				{
-					Ring2Detection.Add(component);
-				}
-				else if (i > num + num2 && i <= num + num2 + num3)
-				{
-					Ring3Detection.Add(component);
-				}
+				Ring0Detection = component;
+			}
+			else if (i > 0 && i <= num)
+			{
+				Ring1Detection.Add(component);
+				component.isRing1 = true;
+			}
+			else if (i > num && i <= num + num2)
+			{
+				Ring2Detection.Add(component);
+			}
+			else if (i > num + num2 && i <= num + num2 + num3)
+			{
+				Ring3Detection.Add(component);
 			}
 		}
-		if (CanMove)
-		{
-			EnemyDetection[] array;
-			if (difficulty < 2)
-			{
-				array = Ring2Detection.Concat(Ring3Detection).ToArray();
-				for (int j = 0; j < array.Length; j++)
-				{
-					Object.Destroy(array[j].gameObject);
-				}
-				array = Ring3Detection.ToArray();
-				for (int j = 0; j < array.Length; j++)
-				{
-					Object.Destroy(array[j].gameObject);
-				}
-			}
-			else if (difficulty < 3)
-			{
-				array = Ring3Detection.ToArray();
-				for (int j = 0; j < array.Length; j++)
-				{
-					Object.Destroy(array[j].gameObject);
-				}
-			}
-			array = Ring3Detection.ToArray();
-			for (int j = 0; j < array.Length; j++)
-			{
-				Object.Destroy(array[j].gameObject);
-			}
-			Ring3Detection.Clear();
-			THEGRID.SetActive(value: false);
-		}
-		else if ((bool)THEGRID)
-		{
-			EnemyDetection[] array = Ring2Detection.Concat(Ring1Detection).Concat(Ring3Detection).ToArray();
-			for (int j = 0; j < array.Length; j++)
-			{
-				Object.Destroy(array[j].gameObject);
-			}
-		}
-		skidMarkCreator.Stop();
 	}
 
 	public void ActivateElectric()
@@ -399,7 +359,7 @@ public class EnemyAI : MonoBehaviour
 		if (!ElectricTeleportRunning)
 		{
 			ElectricTeleportRunning = true;
-			ElectricMeter = Random.Range(-2, 0);
+			ElectricMeter = Random.Range(-1f, 0f);
 			StartCoroutine(ElectricTeleport());
 		}
 	}
@@ -411,6 +371,47 @@ public class EnemyAI : MonoBehaviour
 
 	private void Start()
 	{
+		if (CanMove)
+		{
+			EnemyDetection[] array;
+			if (difficulty < 2)
+			{
+				array = Ring2Detection.Concat(Ring3Detection).ToArray();
+				for (int i = 0; i < array.Length; i++)
+				{
+					Object.Destroy(array[i].gameObject);
+				}
+				array = Ring3Detection.ToArray();
+				for (int i = 0; i < array.Length; i++)
+				{
+					Object.Destroy(array[i].gameObject);
+				}
+			}
+			else if (difficulty < 3)
+			{
+				array = Ring3Detection.ToArray();
+				for (int i = 0; i < array.Length; i++)
+				{
+					Object.Destroy(array[i].gameObject);
+				}
+			}
+			array = Ring3Detection.ToArray();
+			for (int i = 0; i < array.Length; i++)
+			{
+				Object.Destroy(array[i].gameObject);
+			}
+			Ring3Detection.Clear();
+			THEGRID.SetActive(value: false);
+		}
+		else if ((bool)THEGRID)
+		{
+			EnemyDetection[] array = Ring2Detection.Concat(Ring1Detection).Concat(Ring3Detection).ToArray();
+			for (int i = 0; i < array.Length; i++)
+			{
+				Object.Destroy(array[i].gameObject);
+			}
+		}
+		skidMarkCreator.Stop();
 		if (IsCompanion && MyTeam < 0)
 		{
 			MyTeam = 1;
@@ -466,6 +467,14 @@ public class EnemyAI : MonoBehaviour
 		if (GameMaster.instance.CurrentMission != 49 && !isLevel100Boss)
 		{
 			rigi.constraints = (RigidbodyConstraints)80;
+		}
+		if (isShiny)
+		{
+			AccountMaster.instance.SaveCloudData(10, GetComponent<HealthTanks>().EnemyID, 0, bounceKill: false, 1f);
+		}
+		else if (isSuperShiny)
+		{
+			AccountMaster.instance.SaveCloudData(11, GetComponent<HealthTanks>().EnemyID, 0, bounceKill: false, 1f);
 		}
 		desiredangle = angle;
 		if (CanMove)
@@ -810,7 +819,7 @@ public class EnemyAI : MonoBehaviour
 			GetComponent<Rigidbody>().isKinematic = false;
 			GetComponent<BoxCollider>().enabled = true;
 			StartCoroutine(MakeMeVisible());
-			ElectricMeter = Random.Range(-2, 0);
+			ElectricMeter = Random.Range(-1f, 0f);
 		}
 		ShootSpeed = OriginalShootSpeed;
 		SetTankBodyTracks();
@@ -1123,6 +1132,10 @@ public class EnemyAI : MonoBehaviour
 			{
 				isCharged = false;
 				float num2 = (isLevel70Boss ? 0.18f : 0.22f);
+				if (OptionsMainMenu.instance.currentDifficulty == 3)
+				{
+					num2 += 0.1f;
+				}
 				ElectricMeter += Time.deltaTime * num2;
 				GameObject[] electricComponents = ElectricComponents;
 				for (int i = 0; i < electricComponents.Length; i++)
@@ -1132,7 +1145,6 @@ public class EnemyAI : MonoBehaviour
 				ParticleSystem[] electricSystems = ElectricSystems;
 				foreach (ParticleSystem particleSystem in electricSystems)
 				{
-					particleSystem.gameObject.SetActive(value: false);
 					if (particleSystem.isPlaying)
 					{
 						particleSystem.Stop();
@@ -1149,7 +1161,6 @@ public class EnemyAI : MonoBehaviour
 				ParticleSystem[] electricSystems = ElectricSystems;
 				foreach (ParticleSystem particleSystem2 in electricSystems)
 				{
-					particleSystem2.gameObject.SetActive(value: true);
 					if (!particleSystem2.isPlaying)
 					{
 						particleSystem2.Play();

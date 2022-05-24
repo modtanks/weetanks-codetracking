@@ -25,7 +25,7 @@ public class PlaneMaster : MonoBehaviour
 		if (SpawnInOrder.Count > 0 && !PS.isFlying)
 		{
 			Debug.Log("Doing order, spawn now!");
-			SpawnPlane(0, SpawnInOrder[0]);
+			SpawnPlane(2, SpawnInOrder[0]);
 			SpawnInOrder.RemoveAt(0);
 			StartCoroutine(DoOrder());
 		}

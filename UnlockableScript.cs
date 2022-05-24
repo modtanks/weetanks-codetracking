@@ -63,7 +63,7 @@ public class UnlockableScript : MonoBehaviour
 		{
 			return;
 		}
-		if (AccountMaster.instance.PDO.CC.Contains(ULID))
+		if (AccountMaster.instance.PDO.CC.Contains(ULID) || (ULID < 50 && OptionsMainMenu.instance.AM[ULID] == 1))
 		{
 			UnlockableTitle.text = myUI.UnlockableName;
 			UnlockableRequire.text = "";
@@ -190,7 +190,7 @@ public class UnlockableScript : MonoBehaviour
 			{
 				return;
 			}
-			if (AccountMaster.instance.PDO.CC.Contains(ULID))
+			if (AccountMaster.instance.PDO.CC.Contains(ULID) || (ULID < 50 && OptionsMainMenu.instance.AM[ULID] == 1))
 			{
 				if (myUI.codeNeededToUnlock && base.transform.parent == null)
 				{
@@ -225,7 +225,7 @@ public class UnlockableScript : MonoBehaviour
 			return;
 		}
 		Debug.Log("You have clicked the button!");
-		if (ULID >= 1000 || AccountMaster.instance.PDO.CC.Contains(ULID))
+		if (ULID >= 1000 || AccountMaster.instance.PDO.CC.Contains(ULID) || (ULID < 50 && OptionsMainMenu.instance.AM[ULID] == 1))
 		{
 			if (!AccountMaster.instance.PDO.ActivatedAM.Contains(ULID) && ULID < 1000)
 			{
@@ -343,7 +343,7 @@ public class UnlockableScript : MonoBehaviour
 					SFXManager.instance.PlaySFX(SuccesSound);
 					AccountMaster.instance.PDO.ActivatedAM.Add(ULID);
 					OptionsMainMenu.instance.AMUS.Add(this);
-					AccountMaster.instance.SaveCloudData(4, ULID, 0, bounceKill: false);
+					AccountMaster.instance.SaveCloudData(4, ULID, 0, bounceKill: false, 0.1f);
 					if (isHitmarker)
 					{
 						OptionsMainMenu.instance.CheckCustomHitmarkers();
@@ -362,7 +362,7 @@ public class UnlockableScript : MonoBehaviour
 					AccountMaster.instance.PDO.ActivatedAM.Remove(ULID);
 				}
 				OptionsMainMenu.instance.AMUS.Remove(this);
-				AccountMaster.instance.SaveCloudData(4, ULID, 0, bounceKill: false);
+				AccountMaster.instance.SaveCloudData(4, ULID, 0, bounceKill: false, 0.1f);
 				if (isHitmarker)
 				{
 					OptionsMainMenu.instance.CheckCustomHitmarkers();
@@ -381,7 +381,7 @@ public class UnlockableScript : MonoBehaviour
 		OptionsMainMenu.instance.AMUS.Remove(otherUS);
 		AccountMaster.instance.PDO.ActivatedAM.Add(ULID);
 		OptionsMainMenu.instance.AMUS.Add(this);
-		AccountMaster.instance.SaveCloudData(4, ULID, otherUS.ULID, bounceKill: false);
+		AccountMaster.instance.SaveCloudData(4, ULID, otherUS.ULID, bounceKill: false, 0.1f);
 		SFXManager.instance.PlaySFX(SuccesSound);
 	}
 }

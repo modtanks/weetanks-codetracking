@@ -161,19 +161,24 @@ public class ZombieTankSpawner : MonoBehaviour
 		if (spawned < spawnAmount && GameMaster.instance.GameHasStarted && GameMaster.instance.AmountEnemyTanks < maxSpawnedAmount)
 		{
 			bool flag = false;
-			if (Wave >= 14 && Random.value < 0.04f && CurrentAmountOfEnemyTypes[9] < EnemyLimit[9])
+			if (Wave >= 14)
 			{
-				SpawnTank(BossTanks[0], 9);
-				spawned++;
-				amountEnemies++;
-				flag = true;
+				float value = Random.value;
+				int num2 = ((Wave <= 21) ? 1 : ((Wave <= 29) ? 2 : ((Wave <= 39) ? 3 : ((Wave <= 49) ? 4 : ((Wave > 59) ? 6 : 5)))));
+				if (value < 0.04f && CurrentAmountOfEnemyTypes[9] < num2)
+				{
+					SpawnTank(BossTanks[0], 9);
+					spawned++;
+					amountEnemies++;
+					flag = true;
+				}
 			}
 			while (!flag)
 			{
 				for (int i = 0; i < Tanks.Length; i++)
 				{
-					float num2 = ((i > 0) ? ((float)CurrentAmountOfEnemyTypes[i] / 32f) : 0f);
-					if (Random.value + num2 <= TankSpawnChance[i] && TanksSpawnRound[i] <= Wave && CurrentAmountOfEnemyTypes[i] < EnemyLimit[i])
+					float num3 = ((i > 0) ? ((float)CurrentAmountOfEnemyTypes[i] / 32f) : 0f);
+					if (Random.value + num3 <= TankSpawnChance[i] && TanksSpawnRound[i] <= Wave && CurrentAmountOfEnemyTypes[i] < EnemyLimit[i])
 					{
 						SpawnTank(Tanks[i], i);
 						spawned++;
@@ -271,11 +276,12 @@ public class ZombieTankSpawner : MonoBehaviour
 		timerRunning = true;
 		if ((bool)CloudGeneration.instance && WeatherCooldown < 1)
 		{
-			int[] array = new int[28]
+			int[] array = new int[31]
 			{
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				0, 1, 1, 1, 2, 2, 3, 3
+				0, 0, 0, 0, 1, 1, 1, 2, 2, 3,
+				3
 			};
 			int num = array[Random.Range(0, array.Length)];
 			if (num > 0 && num != CloudGeneration.instance.CurrentWeatherType)

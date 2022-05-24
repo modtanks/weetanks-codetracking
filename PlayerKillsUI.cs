@@ -303,7 +303,7 @@ public class PlayerKillsUI : MonoBehaviour
 				yield return null;
 				break;
 			}
-			Debug.LogError("BREAK!");
+			Debug.Log("BREAK!");
 			P1Boosts[type].transform.localPosition = Dest;
 			yield break;
 		case 1:

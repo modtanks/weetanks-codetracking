@@ -230,7 +230,7 @@ public class KingTankScript : MonoBehaviour
 			from = Target.position - EA.transform.position;
 			from.y = 0f;
 			Quaternion b = Quaternion.LookRotation(from);
-			float num = (((float)HT.health < (float)HT.maxHealth / 2f) ? 7f : 5f);
+			float num = (((float)HT.health < (float)HT.maxHealth / 2f) ? 6f : 4f);
 			EA.transform.rotation = Quaternion.Slerp(EA.transform.rotation, b, Time.deltaTime * num);
 			angle = Vector3.Angle(from, EA.transform.forward);
 			yield return null;

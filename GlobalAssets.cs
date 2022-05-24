@@ -9,6 +9,16 @@ using UnityEngine.Networking;
 public class GlobalAssets : MonoBehaviour
 {
 	[Serializable]
+	public class Floors
+	{
+		public int FloorID;
+
+		public Material FloorTexture;
+
+		public string FloorName;
+	}
+
+	[Serializable]
 	public class ModAudioDatabase
 	{
 		public AudioClip[] ArmourHits;
@@ -70,6 +80,8 @@ public class GlobalAssets : MonoBehaviour
 
 	public List<TankeyTownStockItem> StockDatabase = new List<TankeyTownStockItem>();
 
+	public List<Floors> TheFloors = new List<Floors>();
+
 	[Header("Cached mod textures")]
 	public Texture WoodenBlock_1;
 
@@ -111,7 +123,7 @@ public class GlobalAssets : MonoBehaviour
 		GetAudioMod("mine_explosion", 0);
 		GetAudioMod("tank_die", 0);
 		GetAudioMod("tank_die_last", 0);
-		Debug.LogError("SHOOT SOUNDS SET");
+		Debug.Log("SHOOT SOUNDS SET");
 	}
 
 	private void GetAudioMod(string filename, int index)

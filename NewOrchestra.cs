@@ -256,20 +256,32 @@ public class NewOrchestra : MonoBehaviour
 				changeMusic(array);
 				lastKnownAmountEnemies = array.Length;
 			}
-			else if (array.Length != lastKnownAmountEnemies)
+			else
 			{
-				changeMusic(array);
-				lastKnownAmountEnemies = array.Length;
-			}
-			else if (CherryRage && currentlyPlaying == "cherry")
-			{
-				changeMusic(array);
-				lastKnownAmountEnemies = array.Length;
-			}
-			else if (!CherryRage && currentlyPlaying == "cherryrage")
-			{
-				changeMusic(array);
-				lastKnownAmountEnemies = array.Length;
+				if ((bool)MapEditorMaster.instance && MapEditorMaster.instance.isTesting && !GameMaster.instance.GameHasStarted)
+				{
+					SetInstruments(BrownTankIds, 0);
+					SetSongsVolumes(0);
+					SetInstrumentVolumes(0);
+					SetBaseVolumes(0);
+					lastKnownAmountEnemies = -1;
+					return;
+				}
+				if (array.Length != lastKnownAmountEnemies)
+				{
+					changeMusic(array);
+					lastKnownAmountEnemies = array.Length;
+				}
+				else if (CherryRage && currentlyPlaying == "cherry")
+				{
+					changeMusic(array);
+					lastKnownAmountEnemies = array.Length;
+				}
+				else if (!CherryRage && currentlyPlaying == "cherryrage")
+				{
+					changeMusic(array);
+					lastKnownAmountEnemies = array.Length;
+				}
 			}
 			if (OptionsMainMenu.instance != null && (lastKnownMusicVol != OptionsMainMenu.instance.musicVolumeLvl || lastKnownMasterVol != OptionsMainMenu.instance.masterVolumeLvl))
 			{
@@ -289,6 +301,7 @@ public class NewOrchestra : MonoBehaviour
 	{
 		bool flag = false;
 		bool flag2 = false;
+		bool flag3 = false;
 		if (tanks.Length < 1)
 		{
 			return;
@@ -321,7 +334,7 @@ public class NewOrchestra : MonoBehaviour
 		foreach (GameObject gameObject in tanks)
 		{
 			int ID = gameObject.GetComponentInChildren<HealthTanks>().EnemyID;
-			bool flag3 = false;
+			bool flag4 = false;
 			if (ID == 7)
 			{
 				BaseInstruments[0].volume = 0f;
@@ -338,21 +351,25 @@ public class NewOrchestra : MonoBehaviour
 			}
 			if (ID == 15 && CherryRage)
 			{
-				flag3 = true;
+				flag4 = true;
 			}
-			TankIds tankIds = ((!flag3) ? TankInstruments.Find((TankIds x) => x.TankID == ID) : TankInstruments.Find((TankIds x) => x.TankName == "cherryrage"));
+			TankIds tankIds = ((!flag4) ? TankInstruments.Find((TankIds x) => x.TankID == ID) : TankInstruments.Find((TankIds x) => x.TankName == "cherryrage"));
 			if (tankIds != null)
 			{
 				SetInstruments(tankIds.ids, -1);
 				currentlyPlaying = tankIds.TankName;
 			}
-			if (ID == 150)
+			if (ID == 130)
 			{
 				flag = true;
 			}
-			if (ID == 170)
+			if (ID == 150)
 			{
 				flag2 = true;
+			}
+			if (ID == 170)
+			{
+				flag3 = true;
 			}
 		}
 		if (!isNight)
@@ -367,10 +384,15 @@ public class NewOrchestra : MonoBehaviour
 		}
 		if (flag)
 		{
+			SetBossMusic(2);
+			currentlyPlaying = "boss 30";
+		}
+		if (flag2)
+		{
 			SetBossMusic(0);
 			currentlyPlaying = "boss 50";
 		}
-		if (flag2)
+		if (flag3)
 		{
 			SetBossMusic(1);
 			currentlyPlaying = "boss 50";

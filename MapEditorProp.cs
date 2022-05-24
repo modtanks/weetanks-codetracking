@@ -808,7 +808,7 @@ public class MapEditorProp : MonoBehaviour
 		}
 		if (MapEditorMaster.instance.CurrentLayer < MapEditorMaster.instance.MaxLayer)
 		{
-			if (myMEGP.myPropID[myMEGP.IDlayer + 1] > 3 && myMEGP.myPropID[myMEGP.IDlayer + 1] < 40)
+			if (MapEditorMaster.instance.IsATank(myMEGP.myPropID[myMEGP.IDlayer + 1], OnlyEnemies: false))
 			{
 				SetMaterials(Color.white, reset: false);
 				mouseOverMe = false;
