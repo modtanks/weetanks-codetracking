@@ -155,7 +155,7 @@ public class AchievementsTracker : MonoBehaviour
 			{
 				completeAchievement(18);
 			}
-			else if (GameMaster.instance.totalRevivesPerformed > 49 && OptionsMainMenu.instance.AM[21] != 1)
+			else if (AccountMaster.instance.PDO.totalRevivesPerformed > 49 && OptionsMainMenu.instance.AM[21] != 1)
 			{
 				completeAchievement(21);
 			}
@@ -187,6 +187,10 @@ public class AchievementsTracker : MonoBehaviour
 				else if (ZombieTankSpawner.instance.Wave > 19 && OptionsMainMenu.instance.AM[7] != 1)
 				{
 					completeOtherAchievement(7);
+				}
+				else if (ZombieTankSpawner.instance.Wave > 49 && OptionsMainMenu.instance.AM[35] != 1)
+				{
+					completeOtherAchievement(35);
 				}
 			}
 		}
@@ -235,7 +239,7 @@ public class AchievementsTracker : MonoBehaviour
 
 	public void completeAchievement(int ID)
 	{
-		if (GameMaster.instance.PlayerModeWithAI[1] == 1 || GameMaster.instance.PlayerModeWithAI[2] == 1 || GameMaster.instance.PlayerModeWithAI[3] == 1 || GameMaster.instance.inMapEditor || GameMaster.instance.isZombieMode)
+		if (GameMaster.instance.PlayerModeWithAI[1] == 1 || GameMaster.instance.PlayerModeWithAI[2] == 1 || GameMaster.instance.PlayerModeWithAI[3] == 1 || GameMaster.instance.inMapEditor || GameMaster.instance.isZombieMode || (bool)MapEditorMaster.instance)
 		{
 			Debug.Log("Achievement " + ID);
 			return;
@@ -290,7 +294,7 @@ public class AchievementsTracker : MonoBehaviour
 
 	public void completeAchievementWithAI(int ID)
 	{
-		if (GameMaster.instance.inMapEditor || GameMaster.instance.isZombieMode)
+		if (GameMaster.instance.inMapEditor || GameMaster.instance.isZombieMode || (bool)MapEditorMaster.instance)
 		{
 			Debug.Log("AI.. Achievement " + ID);
 			return;

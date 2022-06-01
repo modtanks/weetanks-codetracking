@@ -310,6 +310,11 @@ public class MapEditorGridPiece : MonoBehaviour
 			if ((bool)myProp[IDlayer])
 			{
 				myProp[IDlayer].SetActive(value: true);
+				GetComponent<BoxCollider>().enabled = false;
+			}
+			else
+			{
+				GetComponent<BoxCollider>().enabled = true;
 			}
 		}
 		if (!ShowingProps && MapEditorMaster.instance.ShowAllLayers)

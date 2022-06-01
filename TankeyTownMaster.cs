@@ -19,6 +19,8 @@ public class TankeyTownMaster : MonoBehaviour
 
 	public PauseMenuScript PMS;
 
+	private int failedTimes;
+
 	public static TankeyTownMaster instance => _instance;
 
 	private void Awake()
@@ -54,7 +56,6 @@ public class TankeyTownMaster : MonoBehaviour
 		}
 		else
 		{
-			Debug.Log("UPDATING STOCK...");
 			StartCoroutine(GetLatestTankeyTownStock(IsUpdate: true));
 			StartCoroutine(UpdateStockRepeater());
 		}
@@ -81,38 +82,49 @@ public class TankeyTownMaster : MonoBehaviour
 		wWWForm.AddField("userid", AccountMaster.instance.UserID);
 		wWWForm.AddField("key", AccountMaster.instance.Key);
 		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/get_tankey_town_stock.php", wWWForm);
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
-		if (!uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
-			if (uwr.downloadHandler.text.Contains("FAILED"))
+			failedTimes++;
+			if (failedTimes >= 2)
+			{
+				uwr.Dispose();
+				TutorialMaster.instance.ShowTutorial("Getting stock failed... going back to main menu!");
+				yield return new WaitForSeconds(2f);
+				SceneManager.LoadScene(0);
+			}
+		}
+		else if (uwr.downloadHandler.text.Contains("FAILED"))
+		{
+			failedTimes++;
+			if (failedTimes >= 2)
 			{
 				TutorialMaster.instance.ShowTutorial("Getting stock failed... going back to main menu!");
 				uwr.Dispose();
 				yield return new WaitForSeconds(2f);
 				SceneManager.LoadScene(0);
 			}
-			else
+		}
+		else
+		{
+			string[] array = uwr.downloadHandler.text.Split(char.Parse("/"));
+			TTS_Shops.Clear();
+			if (array.Length != 0)
 			{
-				string[] array = uwr.downloadHandler.text.Split(char.Parse("/"));
-				TTS_Shops.Clear();
-				if (array.Length != 0)
-				{
-					TankeyTownShopData item = JsonUtility.FromJson<TankeyTownShopData>("{\"ShopData\":" + array[0] + "}");
-					TTS_Shops.Add(item);
-				}
-				if (array.Length > 1)
-				{
-					TankeyTownShopData item2 = JsonUtility.FromJson<TankeyTownShopData>("{\"ShopData\":" + array[1] + "}");
-					TTS_Shops.Add(item2);
-				}
-				if (array.Length > 2)
-				{
-					TankeyTownShopData item3 = JsonUtility.FromJson<TankeyTownShopData>("{\"ShopData\":" + array[2] + "}");
-					TTS_Shops.Add(item3);
-				}
-				AssignDataToShops(IsUpdate);
+				TankeyTownShopData item = JsonUtility.FromJson<TankeyTownShopData>("{\"ShopData\":" + array[0] + "}");
+				TTS_Shops.Add(item);
 			}
+			if (array.Length > 1)
+			{
+				TankeyTownShopData item2 = JsonUtility.FromJson<TankeyTownShopData>("{\"ShopData\":" + array[1] + "}");
+				TTS_Shops.Add(item2);
+			}
+			if (array.Length > 2)
+			{
+				TankeyTownShopData item3 = JsonUtility.FromJson<TankeyTownShopData>("{\"ShopData\":" + array[2] + "}");
+				TTS_Shops.Add(item3);
+			}
+			AssignDataToShops(IsUpdate);
 		}
 		uwr.Dispose();
 	}

@@ -22,6 +22,7 @@ public class PressurePlate : MonoBehaviour
 			SFXManager.instance.PlaySFX(StepOnSound, 1f, null);
 			GameMaster.instance.Levels[GameMaster.instance.CurrentMission + 1] = TheNextLevel;
 			GameMaster.instance.MissionNames[GameMaster.instance.CurrentMission + 1] = missionName;
+			GameMaster.instance.IsSecretName = true;
 			GameMaster.instance.SecretMissionCounter = 2;
 			if (isNightMission)
 			{

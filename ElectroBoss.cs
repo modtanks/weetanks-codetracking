@@ -37,19 +37,25 @@ public class ElectroBoss : MonoBehaviour
 	{
 		ChargeTimer = ChargeTimerDuration + Random.Range(0f, ChargeTimerDuration);
 		myHT = GetComponent<HealthTanks>();
-		GameObject[] array = GameObject.FindGameObjectsWithTag("ElectricPad");
-		foreach (GameObject gameObject in array)
+		if (GameMaster.instance.isOfficialCampaign)
 		{
-			AllPads.Add(gameObject.GetComponent<ElectricPad>());
+			GameObject[] array = GameObject.FindGameObjectsWithTag("ElectricPad");
+			foreach (GameObject gameObject in array)
+			{
+				AllPads.Add(gameObject.GetComponent<ElectricPad>());
+			}
 		}
 	}
 
 	private void OnEnable()
 	{
-		GameObject[] array = GameObject.FindGameObjectsWithTag("ElectricPad");
-		foreach (GameObject gameObject in array)
+		if (GameMaster.instance.isOfficialCampaign)
 		{
-			AllPads.Add(gameObject.GetComponent<ElectricPad>());
+			GameObject[] array = GameObject.FindGameObjectsWithTag("ElectricPad");
+			foreach (GameObject gameObject in array)
+			{
+				AllPads.Add(gameObject.GetComponent<ElectricPad>());
+			}
 		}
 	}
 
@@ -114,7 +120,7 @@ public class ElectroBoss : MonoBehaviour
 			int num = GetComponent<HealthTanks>().maxHealth - GetComponent<HealthTanks>().health;
 			int num2 = -5 + OptionsMainMenu.instance.currentDifficulty * 5;
 			int num3 = Random.Range(15, 25 + num + num2);
-			if (AllPads.Count <= 0)
+			if (!GameMaster.instance.isOfficialCampaign || AllPads.Count <= 0)
 			{
 				return;
 			}
@@ -170,7 +176,7 @@ public class ElectroBoss : MonoBehaviour
 					component2.AddForce(vector * num6, ForceMode.Impulse);
 				}
 			}
-			if (AllPads.Count <= 0)
+			if (!GameMaster.instance.isOfficialCampaign || AllPads.Count <= 0)
 			{
 				return;
 			}

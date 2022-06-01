@@ -539,6 +539,7 @@ public class MainMenuButtons : MonoBehaviour, IPointerClickHandler, IEventSystem
 			}
 			else
 			{
+				OptionsMainMenu.instance.LastKnownDaysInARow = AccountMaster.instance.PDO.DaysLogInARow;
 				Notification_background.gameObject.SetActive(value: false);
 				Notification_text.gameObject.SetActive(value: false);
 			}

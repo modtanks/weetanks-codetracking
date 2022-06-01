@@ -16,8 +16,6 @@ public class LobbyMaster : MonoBehaviour
 
 	public OnlinePlayerData MyPlayerInfo;
 
-	private bool prevRequestIsHere = true;
-
 	public float waitingTimeBetweenRequests = 0.4f;
 
 	public bool isDoingInfo;

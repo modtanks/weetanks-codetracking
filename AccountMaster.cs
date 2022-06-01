@@ -139,10 +139,7 @@ public class AccountMaster : MonoBehaviour
 
 	public void IncreaseMarbles(int amount)
 	{
-		if (isSignedIn)
-		{
-			SaveCloudData(5, amount, 0, bounceKill: false, 0f);
-		}
+		_ = isSignedIn;
 	}
 
 	public IEnumerator SaveSpeedrunData(int level, int difficulty)
@@ -157,9 +154,8 @@ public class AccountMaster : MonoBehaviour
 		wWWForm.AddField("Lv", level);
 		wWWForm.AddField("dF", difficulty);
 		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_stats.php", wWWForm);
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			isSaving = false;
 			Debug.Log("Error While Sending: " + uwr.error);
@@ -205,10 +201,9 @@ public class AccountMaster : MonoBehaviour
 			wWWForm.AddField("prev", PreviousCode);
 		}
 		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_log.php", wWWForm);
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		Debug.Log("sending status..!.333");
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			isSaving = false;
 			Debug.Log("Error While Sending: " + uwr.error);
@@ -223,11 +218,7 @@ public class AccountMaster : MonoBehaviour
 			else
 			{
 				PreviousCode = uwr.downloadHandler.text;
-				int num = int.Parse(uwr.downloadHandler.text.Split(char.Parse("/"))[1]);
-				if (num > 0)
-				{
-					ShowMarbleNotification(num);
-				}
+				uwr.downloadHandler.text.Split(char.Parse("/"));
 			}
 		}
 		uwr.Dispose();
@@ -249,7 +240,7 @@ public class AccountMaster : MonoBehaviour
 		{
 			yield return new WaitForSeconds(WaitTime);
 		}
-		float seconds = Random.Range(0.05f, 0.5f);
+		float seconds = Random.Range(0.05f, 0.3f);
 		yield return new WaitForSeconds(seconds);
 		bool SetSaveDataVariable = false;
 		if (IsSendingSaveData)
@@ -317,15 +308,21 @@ public class AccountMaster : MonoBehaviour
 		case 11:
 			wWWForm.AddField("SSK", amount);
 			break;
+		case 12:
+			wWWForm.AddField("rv", amount);
+			break;
+		}
+		if (type == 0 && amount >= 69 && amount < 100)
+		{
+			wWWForm.AddField("H", SystemInfo.deviceUniqueIdentifier);
 		}
 		if (bounceKill)
 		{
 			wWWForm.AddField("kB", 1);
 		}
 		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_stats_c.php", wWWForm);
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			isSaving = false;
 			Debug.Log("Error While Sending: " + uwr.error);
@@ -367,9 +364,8 @@ public class AccountMaster : MonoBehaviour
 		newPDO.accountname = Username;
 		wWWForm.AddField("NewSaveData", JsonUtility.ToJson(newPDO));
 		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_user_stats_c.php", wWWForm);
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			isSaving = false;
 			Debug.Log("Error While Sending: " + uwr.error);
@@ -489,9 +485,8 @@ public class AccountMaster : MonoBehaviour
 		uwr.SetRequestHeader("Access-Control-Allow-Headers", "Accept, Content-Type, X-Access-Token, X-Application-Name, X-Request-Sent-Time");
 		uwr.SetRequestHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
 		uwr.SetRequestHeader("Access-Control-Allow-Origin", "*");
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			Debug.Log("Error While Sending: " + uwr.error);
 		}
@@ -526,6 +521,7 @@ public class AccountMaster : MonoBehaviour
 				if (array.Length > 3 && array[3] != null)
 				{
 					AssignData(array[3]);
+					CheckAchievementLinks();
 				}
 				StartCoroutine(CanSetPasswordCheck());
 			}
@@ -547,9 +543,8 @@ public class AccountMaster : MonoBehaviour
 		uwr.SetRequestHeader("Access-Control-Allow-Headers", "Accept, Content-Type, X-Access-Token, X-Application-Name, X-Request-Sent-Time");
 		uwr.SetRequestHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
 		uwr.SetRequestHeader("Access-Control-Allow-Origin", "*");
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			Debug.Log("Error While Sending: " + uwr.error);
 			if ((bool)NMC)
@@ -592,6 +587,7 @@ public class AccountMaster : MonoBehaviour
 					if (array.Length > 3 && array[3] != null)
 					{
 						AssignData(array[3]);
+						CheckAchievementLinks();
 					}
 					if ((bool)NMC)
 					{
@@ -616,6 +612,7 @@ public class AccountMaster : MonoBehaviour
 				if (array2.Length > 3 && array2[3] != null)
 				{
 					AssignData(array2[3]);
+					CheckAchievementLinks();
 				}
 				if ((bool)NMC)
 				{
@@ -632,9 +629,8 @@ public class AccountMaster : MonoBehaviour
 		wWWForm.AddField("key", Key);
 		wWWForm.AddField("userid", UserID);
 		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/can_update_password.php", wWWForm);
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			Debug.Log("Error While Sending: " + uwr.error);
 		}
@@ -665,9 +661,8 @@ public class AccountMaster : MonoBehaviour
 		}
 		wWWForm.AddField("steamid", SteamTest.instance.SteamAccountID.ToString());
 		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/can_get_steam_achievements.php", wWWForm);
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			Debug.Log("Error While Sending: " + uwr.error);
 		}
@@ -697,9 +692,8 @@ public class AccountMaster : MonoBehaviour
 		wWWForm.AddField("userid", UserID);
 		Debug.Log("getting cloud data...");
 		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/check_account.php", wWWForm);
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			Debug.Log("Error While Sending: " + uwr.error);
 		}
@@ -737,6 +731,21 @@ public class AccountMaster : MonoBehaviour
 		hasDoneSignInCheck = true;
 	}
 
+	private void CheckAchievementLinks()
+	{
+		if (PDO == null || PDO.AM == null)
+		{
+			return;
+		}
+		for (int i = 0; i < PDO.AM.Length; i++)
+		{
+			if (PDO.AM[i] == 1)
+			{
+				SteamTest.instance.GetAchievement(i);
+			}
+		}
+	}
+
 	public IEnumerator GetCloudInventory()
 	{
 		WWWForm wWWForm = new WWWForm();
@@ -747,17 +756,18 @@ public class AccountMaster : MonoBehaviour
 		Debug.Log("ITS:" + Key);
 		wWWForm.AddField("userid", UserID);
 		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/get_inventory.php", wWWForm);
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			Inventory = null;
 		}
 		else
 		{
+			Debug.Log("Received: " + uwr.downloadHandler.text);
 			if (!uwr.downloadHandler.text.Contains("FAILED"))
 			{
 				Inventory = JsonUtility.FromJson<PlayerInventory>("{\"InventoryItems\":" + uwr.downloadHandler.text + "}");
+				uwr.Dispose();
 				yield break;
 			}
 			Inventory = null;
@@ -831,9 +841,8 @@ public class AccountMaster : MonoBehaviour
 		wWWForm.AddField("shopid", StandItem.ItemShopID);
 		wWWForm.AddField("itemid", StandItem.ItemID);
 		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/buy_item.php", wWWForm);
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			Debug.Log("Error While Sending: " + uwr.error);
 		}

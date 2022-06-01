@@ -142,7 +142,10 @@ public class LoadCustomMap : MonoBehaviour
 					missionProperties4.MissionNumber = n;
 					MapEditorMaster.instance.Properties.Add(missionProperties4);
 				}
-				GameMaster.instance.floor.GetComponent<MeshRenderer>().material = GlobalAssets.instance.TheFloors.Find((GlobalAssets.Floors x) => x.FloorName == MapEditorMaster.instance.Properties.Find((MapEditorMaster.MissionProperties x) => x.MissionNumber == 0).CurrentFloorName).FloorTexture;
+				if (MapEditorMaster.instance.Properties.Find((MapEditorMaster.MissionProperties x) => x.MissionNumber == 0) != null)
+				{
+					GameMaster.instance.floor.GetComponent<MeshRenderer>().material = GlobalAssets.instance.TheFloors.Find((GlobalAssets.Floors x) => x.FloorName == MapEditorMaster.instance.Properties.Find((MapEditorMaster.MissionProperties x) => x.MissionNumber == 0).CurrentFloorName).FloorTexture;
+				}
 			}
 		}
 		if (mapEditorData.NoBordersMissions != null)

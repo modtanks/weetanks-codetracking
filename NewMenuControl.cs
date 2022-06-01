@@ -280,6 +280,7 @@ public class NewMenuControl : MonoBehaviour
 		if (files.Length != 0)
 		{
 			Debug.Log("MapFiles FOUND!" + files.Length);
+			AmountMaps = 0;
 			FileInfo[] array = files;
 			foreach (FileInfo fileInfo in array)
 			{
@@ -303,25 +304,12 @@ public class NewMenuControl : MonoBehaviour
 				gameObject.transform.SetParent(MapFileView.transform, worldPositionStays: false);
 				gameObject.GetComponentInChildren<TextMeshProUGUI>().text = mapname;
 				CampaignItemScript campaignItemScript = null;
-				if (mapEditorData.VersionCreated != "v0.7.12" && mapEditorData.VersionCreated != "v0.7.11" && mapEditorData.VersionCreated != "v0.7.10" && mapEditorData.VersionCreated != "v0.8.0e" && mapEditorData.VersionCreated != "v0.8.0d" && mapEditorData.VersionCreated != "v0.8.0c" && mapEditorData.VersionCreated != "v0.8.0b")
+				if (mapEditorData.VersionCreated != "v0.7.12" && mapEditorData.VersionCreated != "v0.7.11" && mapEditorData.VersionCreated != "v0.7.10" && mapEditorData.VersionCreated != "v0.8.0e" && mapEditorData.VersionCreated != "v0.8.0d" && mapEditorData.VersionCreated != "v0.8.0c")
 				{
-					GameObject obj = UnityEngine.Object.Instantiate(OnlineMyMapPrefab);
-					obj.transform.SetParent(OnlineMyMapParent.transform, worldPositionStays: false);
-					campaignItemScript = obj.GetComponent<CampaignItemScript>();
-					campaignItemScript.campaignName = mapname;
-					campaignItemScript.campaignVersion = mapEditorData.VersionCreated;
-					campaignItemScript.NMC = this;
-					campaignItemScript.map_size = mapEditorData.MapSize;
-					campaignItemScript.amount_missions = mapEditorData.missionAmount;
-					campaignItemScript.campaign_difficulty = mapEditorData.difficulty;
-					AmountMaps++;
-					if (mapEditorData.PID > 0)
-					{
-						campaignItemScript.isPublished = mapEditorData.isPublished;
-						campaignItemScript.campaignID = mapEditorData.PID;
-					}
+					_ = mapEditorData.VersionCreated != "v0.8.0b";
 				}
 				campaignItemScript = gameObject.GetComponent<CampaignItemScript>();
+				AmountMaps++;
 				_ = (bool)campaignItemScript;
 				_ = campaignItemScript.isMainMenuCampaign;
 				if ((bool)campaignItemScript && campaignItemScript.isMainMenuCampaign)
@@ -362,9 +350,9 @@ public class NewMenuControl : MonoBehaviour
 						MapSize = 285;
 					}
 				}
-				catch (Exception)
+				catch (Exception ex)
 				{
-					Debug.Log("no map size found");
+					Debug.Log("no map size found! " + ex);
 				}
 				EventTrigger component = gameObject.gameObject.GetComponent<EventTrigger>();
 				EventTrigger.Entry entry = new EventTrigger.Entry();
@@ -449,21 +437,6 @@ public class NewMenuControl : MonoBehaviour
 		XRAYBULLETS_toggle.IsEnabled = OptionsMainMenu.instance.showxraybullets;
 		MarkedTanks_toggle.IsEnabled = OptionsMainMenu.instance.MarkedTanks;
 		vsync_toggle.IsEnabled = OptionsMainMenu.instance.vsync;
-		for (int k = 0; k < 50; k++)
-		{
-			if (OptionsMainMenu.instance.AMnames[k] != "")
-			{
-				GameObject obj = UnityEngine.Object.Instantiate(AchievementPrefab);
-				obj.transform.SetParent(AchievementParent.transform);
-				obj.GetComponent<AchievementItemScript>().AMID = k;
-			}
-		}
-		for (int l = 0; l < OptionsMainMenu.instance.UIs.Length; l++)
-		{
-			GameObject obj2 = UnityEngine.Object.Instantiate(UnlockablePrefab);
-			obj2.transform.SetParent(UnlockableParent.transform);
-			obj2.GetComponent<UnlockableScript>().ULID = OptionsMainMenu.instance.UIs[l].ULID;
-		}
 		MusicVolume_list.SetValueWithoutNotify(OptionsMainMenu.instance.musicVolumeLvl);
 		MasterVolume_list.SetValueWithoutNotify(OptionsMainMenu.instance.masterVolumeLvl);
 		SFXVolume_list.SetValueWithoutNotify(OptionsMainMenu.instance.sfxVolumeLvl);
@@ -488,39 +461,6 @@ public class NewMenuControl : MonoBehaviour
 	private IEnumerator LateStart()
 	{
 		yield return new WaitForSeconds(0.2f);
-		int num = 0;
-		for (int i = 0; i < GameMaster.instance.TankColorKilled.Count; i++)
-		{
-			GameObject obj = UnityEngine.Object.Instantiate(TankKillItemPrefab);
-			obj.transform.SetParent(TankKillItemParent.transform);
-			obj.GetComponent<TankStatsItem>().myMenu = 1;
-			obj.GetComponent<TankStatsItem>().myStatID = i;
-			obj.GetComponent<TankStatsItem>().NMC = this;
-			obj.GetComponent<TankStatsItem>().originalParent = TankKillItemParent.transform;
-			if (GameMaster.instance.TankColorKilled[i] > 0)
-			{
-				num++;
-			}
-		}
-		_ = 0;
-		for (int j = 0; j < 5; j++)
-		{
-			GameObject obj2 = UnityEngine.Object.Instantiate(TankKillItemPrefab);
-			obj2.transform.SetParent(TankKillItemParent.transform);
-			obj2.GetComponent<TankStatsItem>().myMenu = 0;
-			obj2.GetComponent<TankStatsItem>().myStatID = j;
-			obj2.GetComponent<TankStatsItem>().NMC = this;
-			obj2.GetComponent<TankStatsItem>().originalParent = TankKillItemParent.transform;
-		}
-		for (int k = 0; k < 8; k++)
-		{
-			GameObject obj3 = UnityEngine.Object.Instantiate(TankKillItemPrefab);
-			obj3.transform.SetParent(TankKillItemParent.transform);
-			obj3.GetComponent<TankStatsItem>().myMenu = 2;
-			obj3.GetComponent<TankStatsItem>().myStatID = k;
-			obj3.GetComponent<TankStatsItem>().NMC = this;
-			obj3.GetComponent<TankStatsItem>().originalParent = TankKillItemParent.transform;
-		}
 		UpdateMenuSignedInText();
 		yield return new WaitForSeconds(2f);
 		bool assignedInventory = false;
@@ -540,6 +480,11 @@ public class NewMenuControl : MonoBehaviour
 
 	private void AssignInventory()
 	{
+		if (AccountMaster.instance.Inventory == null)
+		{
+			Debug.LogError("NO inventory object");
+			return;
+		}
 		for (int i = 0; i < AccountMaster.instance.Inventory.InventoryItems.Count; i++)
 		{
 			foreach (TankeyTownStockItem item in GlobalAssets.instance.StockDatabase)
@@ -770,9 +715,8 @@ public class NewMenuControl : MonoBehaviour
 		wWWForm.AddField("userid", userid);
 		wWWForm.AddField("username", name);
 		UnityWebRequest uwr = UnityWebRequest.Post(url, wWWForm);
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			Debug.Log("Error While Sending: " + uwr.error);
 			AccountMaster.instance.isSignedIn = false;
@@ -805,9 +749,8 @@ public class NewMenuControl : MonoBehaviour
 		wWWForm.AddField("userid", AccountMaster.instance.UserID);
 		wWWForm.AddField("password", password);
 		UnityWebRequest uwr = UnityWebRequest.Post("https://www.weetanks.com/set_new_password.php", wWWForm);
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			Debug.Log("Error While Sending: " + uwr.error);
 		}
@@ -846,12 +789,11 @@ public class NewMenuControl : MonoBehaviour
 		uwr.SetRequestHeader("Access-Control-Allow-Headers", "Accept, Content-Type, X-Access-Token, X-Application-Name, X-Request-Sent-Time");
 		uwr.SetRequestHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
 		uwr.SetRequestHeader("Access-Control-Allow-Origin", "*");
-		uwr.chunkedTransfer = false;
 		CenterText.text = "Creating account...";
 		CenterText.gameObject.SetActive(value: true);
 		Menus[currentMenu].SetActive(value: false);
 		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			Debug.Log("Error While Sending: " + uwr.error);
 		}
@@ -913,12 +855,11 @@ public class NewMenuControl : MonoBehaviour
 			wWWForm.AddField("userData", JsonUtility.ToJson(GameMaster.instance.CurrentData));
 		}
 		UnityWebRequest uwr = UnityWebRequest.Post(url, wWWForm);
-		uwr.chunkedTransfer = false;
 		CenterText.text = "Signing in...";
 		CenterText.gameObject.SetActive(value: true);
 		Menus[currentMenu].SetActive(value: false);
 		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			Debug.Log("Error While Sending: " + uwr.error);
 		}
@@ -1274,6 +1215,15 @@ public class NewMenuControl : MonoBehaviour
 					StartCoroutine(DisplayExtrasNotification("You need to be signed in"));
 					return;
 				}
+				if (UnlockableParent.transform.childCount < 2)
+				{
+					for (int k = 0; k < OptionsMainMenu.instance.UIs.Length; k++)
+					{
+						GameObject obj2 = UnityEngine.Object.Instantiate(UnlockablePrefab);
+						obj2.transform.SetParent(UnlockableParent.transform);
+						obj2.GetComponent<UnlockableScript>().ULID = OptionsMainMenu.instance.UIs[k].ULID;
+					}
+				}
 				deselectButton(MMB);
 				enableMenu(13);
 				MMB.Selected = false;
@@ -1285,6 +1235,18 @@ public class NewMenuControl : MonoBehaviour
 					StartCoroutine(DisplayExtrasNotification("You need to be signed in"));
 					return;
 				}
+				if (AchievementParent.transform.childCount < 2)
+				{
+					for (int l = 0; l < 50; l++)
+					{
+						if (OptionsMainMenu.instance.AMnames[l] != "")
+						{
+							GameObject obj3 = UnityEngine.Object.Instantiate(AchievementPrefab);
+							obj3.transform.SetParent(AchievementParent.transform);
+							obj3.GetComponent<AchievementItemScript>().AMID = l;
+						}
+					}
+				}
 				deselectButton(MMB);
 				enableMenu(14);
 				MMB.Selected = false;
@@ -1295,6 +1257,42 @@ public class NewMenuControl : MonoBehaviour
 				{
 					StartCoroutine(DisplayExtrasNotification("You need to be signed in"));
 					return;
+				}
+				int num3 = 0;
+				if (TankKillItemParent.transform.childCount < 2)
+				{
+					for (int m = 0; m < GameMaster.instance.TankColorKilled.Count; m++)
+					{
+						GameObject obj4 = UnityEngine.Object.Instantiate(TankKillItemPrefab);
+						obj4.transform.SetParent(TankKillItemParent.transform);
+						obj4.GetComponent<TankStatsItem>().myMenu = 1;
+						obj4.GetComponent<TankStatsItem>().myStatID = m;
+						obj4.GetComponent<TankStatsItem>().NMC = this;
+						obj4.GetComponent<TankStatsItem>().originalParent = TankKillItemParent.transform;
+						if (GameMaster.instance.TankColorKilled[m] > 0)
+						{
+							num3++;
+						}
+					}
+					_ = 0;
+					for (int n = 0; n < 5; n++)
+					{
+						GameObject obj5 = UnityEngine.Object.Instantiate(TankKillItemPrefab);
+						obj5.transform.SetParent(TankKillItemParent.transform);
+						obj5.GetComponent<TankStatsItem>().myMenu = 0;
+						obj5.GetComponent<TankStatsItem>().myStatID = n;
+						obj5.GetComponent<TankStatsItem>().NMC = this;
+						obj5.GetComponent<TankStatsItem>().originalParent = TankKillItemParent.transform;
+					}
+					for (int num4 = 0; num4 < 7; num4++)
+					{
+						GameObject obj6 = UnityEngine.Object.Instantiate(TankKillItemPrefab);
+						obj6.transform.SetParent(TankKillItemParent.transform);
+						obj6.GetComponent<TankStatsItem>().myMenu = 2;
+						obj6.GetComponent<TankStatsItem>().myStatID = num4;
+						obj6.GetComponent<TankStatsItem>().NMC = this;
+						obj6.GetComponent<TankStatsItem>().originalParent = TankKillItemParent.transform;
+					}
 				}
 				deselectButton(MMB);
 				enableMenu(15);
@@ -1480,36 +1478,36 @@ public class NewMenuControl : MonoBehaviour
 			else if (MMB.StartMatchButton)
 			{
 				Debug.Log("Starting Match..");
-				for (int k = 0; k < 4; k++)
+				for (int num5 = 0; num5 < 4; num5++)
 				{
 					bool flag = false;
-					for (int l = 0; l < ReInput.controllers.GetControllers(ControllerType.Joystick).Length; l++)
+					for (int num6 = 0; num6 < ReInput.controllers.GetControllers(ControllerType.Joystick).Length; num6++)
 					{
-						if (PIM.Dropdowns[k].captionText.text == ReInput.controllers.GetController(ControllerType.Joystick, l).name)
+						if (PIM.Dropdowns[num5].captionText.text == ReInput.controllers.GetController(ControllerType.Joystick, num6).name)
 						{
-							Debug.Log("FOUND ONE!!!: " + ReInput.controllers.GetController(ControllerType.Joystick, l).name);
-							ReInput.players.GetPlayer(k).controllers.AddController(ReInput.controllers.GetController(ControllerType.Joystick, l), removeFromOtherPlayers: true);
+							Debug.Log("FOUND ONE!!!: " + ReInput.controllers.GetController(ControllerType.Joystick, num6).name);
+							ReInput.players.GetPlayer(num5).controllers.AddController(ReInput.controllers.GetController(ControllerType.Joystick, num6), removeFromOtherPlayers: true);
 							flag = true;
-							OptionsMainMenu.instance.PlayerJoined[k] = true;
+							OptionsMainMenu.instance.PlayerJoined[num5] = true;
 						}
 					}
 					if (!flag)
 					{
-						if (k == 0)
+						if (num5 == 0)
 						{
-							ReInput.players.GetPlayer(k).controllers.ClearAllControllers();
-							ReInput.players.GetPlayer(k).controllers.AddController(ReInput.controllers.GetController(ControllerType.Keyboard, 0), removeFromOtherPlayers: true);
-							ReInput.players.GetPlayer(k).controllers.AddController(ReInput.controllers.GetController(ControllerType.Mouse, 0), removeFromOtherPlayers: true);
-							OptionsMainMenu.instance.PlayerJoined[k] = true;
+							ReInput.players.GetPlayer(num5).controllers.ClearAllControllers();
+							ReInput.players.GetPlayer(num5).controllers.AddController(ReInput.controllers.GetController(ControllerType.Keyboard, 0), removeFromOtherPlayers: true);
+							ReInput.players.GetPlayer(num5).controllers.AddController(ReInput.controllers.GetController(ControllerType.Mouse, 0), removeFromOtherPlayers: true);
+							OptionsMainMenu.instance.PlayerJoined[num5] = true;
 						}
-						else if (PIM.Dropdowns[k].captionText.text.Contains("AI"))
+						else if (PIM.Dropdowns[num5].captionText.text.Contains("AI"))
 						{
-							OptionsMainMenu.instance.AIcompanion[k] = true;
-							OptionsMainMenu.instance.PlayerJoined[k] = false;
+							OptionsMainMenu.instance.AIcompanion[num5] = true;
+							OptionsMainMenu.instance.PlayerJoined[num5] = false;
 						}
 						else
 						{
-							OptionsMainMenu.instance.PlayerJoined[k] = false;
+							OptionsMainMenu.instance.PlayerJoined[num5] = false;
 						}
 					}
 				}

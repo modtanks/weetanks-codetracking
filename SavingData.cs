@@ -78,6 +78,7 @@ public static class SavingData
 				fileStream.Close();
 				return result;
 			}
+			fileStream.Close();
 			Debug.LogError("Save file corrupted!!");
 			return null;
 		}

@@ -14,7 +14,7 @@ public class MakeWhite : MonoBehaviour
 		MeshRenderer[] array2 = array;
 		foreach (MeshRenderer meshRenderer in array2)
 		{
-			if (meshRenderer != null && meshRenderer.gameObject.tag == "Untagged" && meshRenderer.material.HasProperty("_Color"))
+			if (meshRenderer != null && !meshRenderer.name.Contains("SSAO") && meshRenderer.gameObject.tag == "Untagged" && meshRenderer.material.HasProperty("_Color"))
 			{
 				MyRenderers.Add(meshRenderer);
 			}
@@ -30,7 +30,7 @@ public class MakeWhite : MonoBehaviour
 	{
 		foreach (Renderer myRenderer in MyRenderers)
 		{
-			if (!(myRenderer != null) || !(myRenderer.gameObject.tag == "Untagged") || !myRenderer.material.HasProperty("_Color"))
+			if (!(myRenderer != null) || myRenderer.name.Contains("SSAO") || !(myRenderer.gameObject.tag == "Untagged") || !myRenderer.material.HasProperty("_Color"))
 			{
 				continue;
 			}
@@ -57,7 +57,7 @@ public class MakeWhite : MonoBehaviour
 		yield return new WaitForSeconds(0.05f);
 		for (int j = 0; j < MyRenderers.Count; j++)
 		{
-			if (!(MyRenderers[j] != null) || !(MyRenderers[j].gameObject.tag == "Untagged") || !MyRenderers[j].material.HasProperty("_Color"))
+			if (!(MyRenderers[j] != null) || MyRenderers[j].name.Contains("SSAO") || !(MyRenderers[j].gameObject.tag == "Untagged") || !MyRenderers[j].material.HasProperty("_Color"))
 			{
 				continue;
 			}

@@ -72,6 +72,8 @@ public class ShopStand : MonoBehaviour
 
 	public bool PlayerBoughtMeAlready;
 
+	private GameObject LastStockItem;
+
 	private void Start()
 	{
 		MyAnimator.transform.position += new Vector3(0f, 0f, -3f);
@@ -257,7 +259,7 @@ public class ShopStand : MonoBehaviour
 			{
 				if (GlobalAssets.instance.StockDatabase[i].ItemObject != null)
 				{
-					gameObject = GlobalAssets.instance.StockDatabase[i].ItemObject;
+					gameObject = (LastStockItem = GlobalAssets.instance.StockDatabase[i].ItemObject);
 					y = GlobalAssets.instance.StockDatabase[i].ItemYoffset;
 				}
 				else
@@ -267,12 +269,13 @@ public class ShopStand : MonoBehaviour
 				}
 			}
 		}
-		if (MySpawnedItem != null && IsUpdate && MySpawnedItem != gameObject)
+		if (MySpawnedItem != null && IsUpdate && LastStockItem != gameObject)
 		{
+			Debug.Log("Its not the same!");
 			Object.Destroy(MySpawnedItem);
 			MySpawnedItem = null;
 		}
-		if (MySpawnedItem == null)
+		if (MySpawnedItem == null && gameObject != null)
 		{
 			MySpawnedItem = Object.Instantiate(gameObject, PlaceToSpawnObject.position, base.transform.rotation, PlaceToSpawnObject);
 			MySpawnedItem.transform.position += new Vector3(0f, y, 0f);

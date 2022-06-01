@@ -43,6 +43,9 @@ public class OnTeamsMenu : MonoBehaviour
 
 	public FlexibleColorPicker FCP_lighthouse;
 
+	[Header("Piston Menu")]
+	public Slider StartDelay_piston;
+
 	private void Start()
 	{
 		myAnimator = GetComponent<Animator>();
@@ -159,6 +162,14 @@ public class OnTeamsMenu : MonoBehaviour
 						MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[SelectedMEP.myMEGP.ID].I1 = new int[5];
 					}
 					MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[SelectedMEP.myMEGP.ID].I1[SelectedMEP.LayerNumber] = Mathf.RoundToInt(AmountLights_lighthouse.value);
+				}
+				else if (SelectedMEP.CP.IsPiston)
+				{
+					if (MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[SelectedMEP.myMEGP.ID].F1 == null)
+					{
+						MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[SelectedMEP.myMEGP.ID].F1 = new float[5];
+					}
+					MapEditorMaster.instance.Levels[GameMaster.instance.CurrentMission].MissionDataProps[SelectedMEP.myMEGP.ID].F1[SelectedMEP.LayerNumber] = StartDelay_piston.value;
 				}
 				SelectedMEP.CP.CheckCustomProp();
 			}

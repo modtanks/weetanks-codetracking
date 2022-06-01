@@ -361,9 +361,8 @@ public class PauseMenuScript : MonoBehaviour
 		wWWForm.AddBinaryData("file", File.ReadAllBytes(text), MED.campaignName + ".campaign", "text/plain");
 		Debug.Log("SENDING NOW");
 		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/update_map.php", wWWForm);
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			StartCoroutine(ShowCampaignInputError("File saved! (but upload failed)", Color.green));
 			SFXManager.instance.PlaySFX(SuccesSound);

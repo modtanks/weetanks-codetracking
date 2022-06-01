@@ -510,7 +510,7 @@ public class KingTankScript : MonoBehaviour
 				yield return new WaitForSeconds(0.15f);
 			}
 			EA.CanMove = true;
-			EA.TankSpeed = OriginalSpeed;
+			EA.TankSpeed = OriginalSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 			IsDoingAShot = false;
 			{
 				foreach (GameObject item6 in ChargeCirclesBarrel)

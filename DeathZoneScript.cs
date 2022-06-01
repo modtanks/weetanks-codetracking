@@ -2,9 +2,11 @@ using UnityEngine;
 
 public class DeathZoneScript : MonoBehaviour
 {
+	public bool OnlyBullets;
+
 	private void OnTriggerEnter(Collider other)
 	{
-		if (other.transform.tag == "Enemy" || other.transform.tag == "Player")
+		if ((other.transform.tag == "Enemy" || other.transform.tag == "Player") && !OnlyBullets)
 		{
 			other.GetComponent<HealthTanks>().health = -999;
 		}

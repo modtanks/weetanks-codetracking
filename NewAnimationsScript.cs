@@ -307,7 +307,7 @@ public class NewAnimationsScript : MonoBehaviour
 				missionNumber.text = (GameMaster.instance.CurrentMission + 1).ToString();
 			}
 			enemyCount.text = GameMaster.instance.TotalKillsThisSession + "x";
-			if (GameMaster.instance.isOfficialCampaign)
+			if (GameMaster.instance.isOfficialCampaign && !GameMaster.instance.IsSecretName)
 			{
 				missionName.text = LocalizationMaster.instance.GetText("Mission_" + (GameMaster.instance.CurrentMission + 1));
 			}
@@ -388,7 +388,7 @@ public class NewAnimationsScript : MonoBehaviour
 		{
 			if (GameMaster.instance.MissionNames.Count > GameMaster.instance.CurrentMission)
 			{
-				if (GameMaster.instance.isOfficialCampaign)
+				if (GameMaster.instance.isOfficialCampaign && !GameMaster.instance.IsSecretName)
 				{
 					missionName.text = LocalizationMaster.instance.GetText("Mission_" + (GameMaster.instance.CurrentMission + 1));
 				}

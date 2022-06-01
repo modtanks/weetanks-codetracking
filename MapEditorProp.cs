@@ -60,6 +60,10 @@ public class MapEditorProp : MonoBehaviour
 
 	public GameObject DarkLight;
 
+	public bool HasEmission;
+
+	public bool HoverNormalColor;
+
 	public string CustomUniqueTankID = "";
 
 	[Header("Tank Specific Options")]
@@ -106,15 +110,27 @@ public class MapEditorProp : MonoBehaviour
 		{
 			for (int k = 0; k < myRends.Length; k++)
 			{
-				if (!(myRends[k] == null))
+				if (myRends[k] == null)
 				{
-					Material[] materials = myRends[k].materials;
-					for (int l = 0; l < materials.Length; l++)
+					continue;
+				}
+				Material[] materials = myRends[k].materials;
+				for (int l = 0; l < materials.Length; l++)
+				{
+					if (HoverNormalColor)
+					{
+						materials[l].SetColor("_Color", OriginalBodyColor);
+					}
+					else if (!HasEmission)
 					{
 						materials[l].DisableKeyword("_EMISSION");
 					}
-					myRends[k].materials = materials;
+					else
+					{
+						materials[l].SetColor("_EmissionColor", OriginalBodyColor);
+					}
 				}
+				myRends[k].materials = materials;
 			}
 			return;
 		}
@@ -133,16 +149,29 @@ public class MapEditorProp : MonoBehaviour
 		}
 		for (int num = 0; num < myRends.Length; num++)
 		{
-			if (!(myRends[num] == null))
+			if (myRends[num] == null)
 			{
-				Material[] materials3 = myRends[num].materials;
-				for (int num2 = 0; num2 < materials3.Length; num2++)
+				continue;
+			}
+			Material[] materials3 = myRends[num].materials;
+			for (int num2 = 0; num2 < materials3.Length; num2++)
+			{
+				if (HoverNormalColor)
+				{
+					materials3[num2].SetColor("_Color", clr);
+				}
+				else if (!HasEmission)
 				{
 					materials3[num2].EnableKeyword("_EMISSION");
 					materials3[num2].SetColor("_EmissionColor", clr);
+					materials3[num2].EnableKeyword("_EMISSION");
 				}
-				myRends[num].materials = materials3;
+				else
+				{
+					materials3[num2].SetColor("_EmissionColor", clr);
+				}
 			}
+			myRends[num].materials = materials3;
 		}
 	}
 
@@ -155,7 +184,14 @@ public class MapEditorProp : MonoBehaviour
 		}
 		if (myRends.Length != 0 && myRends[0].materials[0].color != Color.black)
 		{
-			OriginalBodyColor = myRends[0].materials[0].color;
+			if (HasEmission)
+			{
+				OriginalBodyColor = myRends[0].materials[0].GetColor("_EmissionColor");
+			}
+			else
+			{
+				OriginalBodyColor = myRends[0].materials[0].color;
+			}
 		}
 		myEnemyAI = GetComponent<EnemyAI>();
 		MTS = GetComponent<MoveTankScript>();
@@ -556,9 +592,9 @@ public class MapEditorProp : MonoBehaviour
 		{
 			myEnemyAI.Accuracy = num4;
 		}
-		if (myEnemyAI.TankSpeed != (float)MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankSpeed)
+		if (myEnemyAI.TankSpeed / OptionsMainMenu.instance.GlobalTankSpeedModifier != (float)MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankSpeed)
 		{
-			myEnemyAI.TankSpeed = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankSpeed;
+			myEnemyAI.TankSpeed = (float)MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 			myEnemyAI.OriginalTankSpeed = MapEditorMaster.instance.CustomTankDatas[CustomAInumber].CustomTankSpeed;
 			if (myEnemyAI.TankSpeed < 1f)
 			{
@@ -596,9 +632,9 @@ public class MapEditorProp : MonoBehaviour
 				{
 					return;
 				}
-				if (myEnemyAI.TankSpeed != (float)MapEditorMaster.instance.PlayerSpeed)
+				if (myEnemyAI.TankSpeed / OptionsMainMenu.instance.GlobalTankSpeedModifier != (float)MapEditorMaster.instance.PlayerSpeed)
 				{
-					myEnemyAI.TankSpeed = MapEditorMaster.instance.PlayerSpeed;
+					myEnemyAI.TankSpeed = (float)MapEditorMaster.instance.PlayerSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 					myEnemyAI.OriginalTankSpeed = MapEditorMaster.instance.PlayerSpeed;
 				}
 				if (myEnemyAI.ETSN.maxFiredBullets != MapEditorMaster.instance.PlayerMaxBullets)
@@ -618,9 +654,9 @@ public class MapEditorProp : MonoBehaviour
 			}
 			else if ((bool)MTS)
 			{
-				if (MTS.TankSpeed != (float)MapEditorMaster.instance.PlayerSpeed)
+				if (MTS.TankSpeed / OptionsMainMenu.instance.GlobalTankSpeedModifier != (float)MapEditorMaster.instance.PlayerSpeed)
 				{
-					MTS.TankSpeed = MapEditorMaster.instance.PlayerSpeed;
+					MTS.TankSpeed = (float)MapEditorMaster.instance.PlayerSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 				}
 				if (FT.maxFiredBullets != MapEditorMaster.instance.PlayerMaxBullets)
 				{

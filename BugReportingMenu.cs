@@ -247,9 +247,8 @@ public class BugReportingMenu : MonoBehaviour
 			wWWForm.AddField("entry.1662013560", username);
 		}
 		UnityWebRequest uwr = UnityWebRequest.Post("https://docs.google.com/forms/u/0/d/e/1FAIpQLScpCY6PZeRcGnK_Z-1eingkVRReszR-tOFU3axgIF9yF0YtFQ/formResponse", wWWForm);
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			Debug.Log("Error While Sending: " + uwr.error);
 			StatusField.text = "<COLOR=#CF7171>Failed!</color>";

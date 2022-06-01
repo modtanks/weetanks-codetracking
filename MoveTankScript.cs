@@ -301,12 +301,12 @@ public class MoveTankScript : MonoBehaviour
 				{
 					TowerBoostEffect.Play();
 				}
-				TankSpeed = TankTowerBoostSpeed;
+				TankSpeed = TankTowerBoostSpeed * OptionsMainMenu.instance.GlobalBoostSpeedModifier;
 			}
 			else if (TowerBoostEffect.isPlaying)
 			{
 				TowerBoostEffect.Stop();
-				TankSpeed = TankNormalSpeed;
+				TankSpeed = TankNormalSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 			}
 		}
 		if (((GameMaster.instance.GameHasStarted && !GameMaster.instance.isZombieMode) || GameMaster.instance.isZombieMode) && ((HTtanks.health > 0 && (base.transform.rotation.eulerAngles.x > 350f || (base.transform.rotation.eulerAngles.x < 10f && base.transform.rotation.eulerAngles.z > 350f) || base.transform.rotation.eulerAngles.z < 10f)) || base.transform.position.y > 0.1f))
@@ -363,7 +363,7 @@ public class MoveTankScript : MonoBehaviour
 		}
 		if (GameMaster.instance != null && GameMaster.instance.isZombieMode && TankSpeed != (float)ZombieTankSpawner.instance.UpgradedSpeeds[Upgrades[1]])
 		{
-			TankSpeed = ZombieTankSpawner.instance.UpgradedSpeeds[Upgrades[1]];
+			TankSpeed = (float)ZombieTankSpawner.instance.UpgradedSpeeds[Upgrades[1]] * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 		}
 		if (stunTimer > 0f)
 		{
@@ -396,7 +396,7 @@ public class MoveTankScript : MonoBehaviour
 		if (OptionsMainMenu.instance.currentDifficulty == 3 && !GameMaster.instance.isZombieMode)
 		{
 			canBoost = false;
-			TankSpeed = 80f;
+			TankSpeed = 80f * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 		}
 		GetInput();
 		if (GameMaster.instance.isZombieMode && GameMaster.instance.CurrentMission == 3)
@@ -559,7 +559,7 @@ public class MoveTankScript : MonoBehaviour
 		if (canHonkIt && GameMaster.instance.isOfficialCampaign)
 		{
 			canHonkIt = false;
-			Play2DClipAtPoint(Honk, 0.5f);
+			SFXManager.instance.PlaySFX(Honk, 0.5f);
 			StartCoroutine(ResetHonk());
 		}
 	}
@@ -643,7 +643,7 @@ public class MoveTankScript : MonoBehaviour
 			if (driving && player.GetButton("Boost"))
 			{
 				boosterFluid -= Time.deltaTime;
-				num *= 1.5f;
+				num *= OptionsMainMenu.instance.GlobalBoostSpeedModifier;
 				if (GameMaster.instance.CurrentMission == 1)
 				{
 					GameMaster.instance.mission2HasBoosted = true;
@@ -811,16 +811,5 @@ public class MoveTankScript : MonoBehaviour
 		{
 			boosting = false;
 		}
-	}
-
-	public void Play2DClipAtPoint(AudioClip clip, float Vol)
-	{
-		GameObject obj = new GameObject("TempAudio");
-		AudioSource audioSource = obj.AddComponent<AudioSource>();
-		audioSource.clip = clip;
-		audioSource.volume = Vol;
-		audioSource.spatialBlend = 0f;
-		audioSource.Play();
-		UnityEngine.Object.Destroy(obj, clip.length);
 	}
 }

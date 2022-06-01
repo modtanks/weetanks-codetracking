@@ -1047,7 +1047,15 @@ public class LocalizationMaster : MonoBehaviour
 
 	public string GetText(string VarName)
 	{
-		return (string)langs[CurrentLang].GetType().GetField(VarName).GetValue(langs[CurrentLang]);
+		if (langs[CurrentLang].GetType().GetField(VarName) != null)
+		{
+			return (string)langs[CurrentLang].GetType().GetField(VarName).GetValue(langs[CurrentLang]);
+		}
+		if (langs[0].GetType().GetField(VarName) != null)
+		{
+			return (string)langs[0].GetType().GetField(VarName).GetValue(langs[0]);
+		}
+		return null;
 	}
 
 	private void Update()

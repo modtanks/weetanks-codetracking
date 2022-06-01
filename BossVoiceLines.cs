@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -24,28 +23,8 @@ public class BossVoiceLines : MonoBehaviour
 
 	public AudioClip[] SpecialAttacks2;
 
-	private bool KilledPlayerLine;
-
 	private void Start()
 	{
 		HT = GetComponent<HealthTanks>();
-		StartCoroutine(DoVoiceLine());
-	}
-
-	public void PlayDeathSound()
-	{
-	}
-
-	public void PlayHitSound()
-	{
-	}
-
-	private IEnumerator DoVoiceLine()
-	{
-		yield break;
-	}
-
-	private void PlayVoiceLine(AudioClip[] AudioArray, bool ByPass)
-	{
 	}
 }

@@ -51,6 +51,10 @@ public class ElectricPad : MonoBehaviour
 		{
 			intensityEmission = 0.9f;
 		}
+		else
+		{
+			intensityEmission = 1.2f;
+		}
 		if ((bool)GameMaster.instance)
 		{
 			if (GameMaster.instance.CurrentMission == 69 && GameMaster.instance.isOfficialCampaign)

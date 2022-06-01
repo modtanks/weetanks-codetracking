@@ -69,9 +69,8 @@ public class CheatCodes : MonoBehaviour
 		wWWForm.AddField("cheatCode", cheatcode);
 		wWWForm.AddField("fromGame", "true");
 		UnityWebRequest uwr = UnityWebRequest.Post(url, wWWForm);
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			Debug.Log("Error While Sending: " + uwr.error);
 		}

@@ -865,9 +865,12 @@ public class PlayerBulletScript : MonoBehaviour
 				rb.detectCollisions = true;
 				C.enabled = true;
 			}
-			PreviousCollision = collision.gameObject;
-			StartCoroutine(ResetBounce());
-			Bounce();
+			if (collision != null)
+			{
+				PreviousCollision = collision.gameObject;
+				StartCoroutine(ResetBounce());
+				Bounce();
+			}
 		}
 		else if (collision.gameObject.tag == "Bullet")
 		{
@@ -1028,21 +1031,14 @@ public class PlayerBulletScript : MonoBehaviour
 				}
 				if (component5.isLevel10Boss || component5.isLevel30Boss || component5.isLevel50Boss || component5.isLevel70Boss)
 				{
-					if ((bool)component6)
-					{
-						BossVoiceLines component7 = component6.GetComponent<BossVoiceLines>();
-						if ((bool)component7)
-						{
-							component7.PlayHitSound();
-						}
-					}
+					_ = (bool)component6;
 					GameObject gameObject = GameObject.Find("BossHealthBar");
 					if ((bool)gameObject)
 					{
-						BossHealthBar component8 = gameObject.GetComponent<BossHealthBar>();
-						if ((bool)component8)
+						BossHealthBar component7 = gameObject.GetComponent<BossHealthBar>();
+						if ((bool)component7)
 						{
-							component8.StartCoroutine(component8.MakeBarWhite());
+							component7.StartCoroutine(component7.MakeBarWhite());
 						}
 					}
 					AchievementsTracker.instance.HasShotBoss = true;
@@ -1086,10 +1082,10 @@ public class PlayerBulletScript : MonoBehaviour
 			}
 			else if (component6.health > 0)
 			{
-				MakeWhite component9 = component6.GetComponent<MakeWhite>();
-				if ((bool)component9)
+				MakeWhite component8 = component6.GetComponent<MakeWhite>();
+				if ((bool)component8)
 				{
-					component9.GotHit();
+					component8.GotHit();
 				}
 			}
 			if (ShotByPlayer > -1)
@@ -1109,30 +1105,30 @@ public class PlayerBulletScript : MonoBehaviour
 				IgnoreThatCollision(collision);
 				yield break;
 			}
-			EnemyAI component10 = collision.gameObject.GetComponent<EnemyAI>();
-			if ((bool)EnemyTankScript && component10 == EnemyTankScript.AIscript && TimesBounced < 1 && !IsAirPushed)
+			EnemyAI component9 = collision.gameObject.GetComponent<EnemyAI>();
+			if ((bool)EnemyTankScript && component9 == EnemyTankScript.AIscript && TimesBounced < 1 && !IsAirPushed)
 			{
 				IgnoreThatCollision(collision);
 				yield break;
 			}
-			HealthTanks component11 = collision.gameObject.GetComponent<HealthTanks>();
-			if ((bool)component11 && component11.health > 0 && (component10.MyTeam != MyTeam || OptionsMainMenu.instance.FriendlyFire))
+			HealthTanks component10 = collision.gameObject.GetComponent<HealthTanks>();
+			if ((bool)component10 && component10.health > 0 && (component9.MyTeam != MyTeam || OptionsMainMenu.instance.FriendlyFire))
 			{
-				MakeWhite component12 = component11.GetComponent<MakeWhite>();
-				if ((bool)component12)
+				MakeWhite component11 = component10.GetComponent<MakeWhite>();
+				if ((bool)component11)
 				{
-					component12.GotHit();
+					component11.GotHit();
 				}
 			}
 			if (MyTeam == 0)
 			{
 				HitTank(collision);
 			}
-			else if (component10.MyTeam == MyTeam && MyTeam != 0 && OptionsMainMenu.instance.FriendlyFire)
+			else if (component9.MyTeam == MyTeam && MyTeam != 0 && OptionsMainMenu.instance.FriendlyFire)
 			{
 				HitTank(collision);
 			}
-			else if (component10.MyTeam == MyTeam && MyTeam != 0 && !OptionsMainMenu.instance.FriendlyFire && component10.gameObject != papaTank.gameObject)
+			else if (component9.MyTeam == MyTeam && MyTeam != 0 && !OptionsMainMenu.instance.FriendlyFire && component9.gameObject != papaTank.gameObject)
 			{
 				if (IsAirBullet)
 				{
@@ -1145,7 +1141,7 @@ public class PlayerBulletScript : MonoBehaviour
 			}
 			else
 			{
-				_ = component10.MyTeam;
+				_ = component9.MyTeam;
 				_ = MyTeam;
 				HitTank(collision);
 			}

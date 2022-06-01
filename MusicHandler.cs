@@ -68,7 +68,7 @@ public class MusicHandler : MonoBehaviour
 				MusicSource.Play();
 			}
 		}
-		else if (masterScript.CurrentMission == 69)
+		else if (masterScript.CurrentMission == 69 && GameMaster.instance.isOfficialCampaign)
 		{
 			if (CanStartMusic)
 			{

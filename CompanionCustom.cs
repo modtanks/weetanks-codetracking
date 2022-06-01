@@ -24,8 +24,8 @@ public class CompanionCustom : MonoBehaviour
 	{
 		if (!isGary && OptionsMainMenu.instance.AMselected.Contains(31))
 		{
-			EA.TankSpeed = GarySpeed;
-			EA.OriginalTankSpeed = GarySpeed;
+			EA.TankSpeed = GarySpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
+			EA.OriginalTankSpeed = GarySpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 			EA.armoured = true;
 			EA.HTscript.isGary = true;
 			EA.HTscript.health = 3;

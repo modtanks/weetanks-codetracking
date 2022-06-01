@@ -7,6 +7,8 @@ public class MapEditorData
 	[Serializable]
 	public class MissionProperties
 	{
+		public int MissionNumber;
+
 		public int WeatherType;
 
 		public int MissionFloorTexture;
@@ -138,6 +140,7 @@ public class MapEditorData
 		{
 			MissionProperties item = new MissionProperties
 			{
+				MissionNumber = MEM.Properties[k].MissionNumber,
 				MissionFloorTexture = MEM.Properties[k].MissionFloorTexture,
 				CurrentFloorName = MEM.Properties[k].CurrentFloorName,
 				WeatherType = MEM.Properties[k].WeatherType

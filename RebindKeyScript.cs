@@ -1,4 +1,3 @@
-using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -48,58 +47,4 @@ public class RebindKeyScript : MonoBehaviour
 	public int myMenu;
 
 	public Vector3 scale;
-
-	private void Start()
-	{
-	}
-
-	private void ThisButtonClicked()
-	{
-		if (NMC.selectedRKS == this)
-		{
-			NMC.selectedRKS = null;
-			return;
-		}
-		NMC.selectedRKS = this;
-		StartCoroutine(blinkingMarker());
-	}
-
-	private IEnumerator blinkingMarker()
-	{
-		KeyBindKey.text = "___";
-		yield return new WaitForSeconds(0.25f);
-		KeyBindKey.text = "";
-		yield return new WaitForSeconds(0.25f);
-		KeyBindKey.text = "___";
-		if (NMC.selectedRKS == this)
-		{
-			StartCoroutine(blinkingMarker());
-		}
-		else
-		{
-			GetKeyData();
-		}
-	}
-
-	private void GetKeyData()
-	{
-	}
-
-	private void SetText(string text, string description)
-	{
-		KeyBindText.text = text;
-		KeyBindDescription.text = description;
-	}
-
-	private void Update()
-	{
-	}
-
-	private void SetKey()
-	{
-	}
-
-	private void OnGUI()
-	{
-	}
 }

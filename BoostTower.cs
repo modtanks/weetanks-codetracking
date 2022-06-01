@@ -70,53 +70,5 @@ public class BoostTower : MonoBehaviour
 			prevent = true;
 			DestroyTower();
 		}
-		if (PlayersInRange.Count > 0)
-		{
-			TowerLight.intensity = Mathf.Lerp(TowerLight.intensity, PlayerLightIntensity, Time.deltaTime);
-			float num = TowerGlowBlock.material.GetVector("_EmissionColor")[3];
-			if (num < BlockPlayerLightIntensity)
-			{
-				float num2 = num + 0.05f;
-				TowerGlowBlock.material.SetVector("_EmissionColor", TowerColor * num2);
-			}
-			if (!TowerParticles.isPlaying)
-			{
-				TowerParticles.Play();
-			}
-			List<MoveTankScript> list = new List<MoveTankScript>();
-			foreach (MoveTankScript item in PlayersInRange)
-			{
-				if (item != null)
-				{
-					if (Vector3.Distance(base.transform.position, item.transform.position) <= TowerRange + 0.3f)
-					{
-						item.isBeingTowerBoosted = true;
-						continue;
-					}
-					item.isBeingTowerBoosted = false;
-					list.Add(item);
-				}
-			}
-			if (list.Count <= 0)
-			{
-				return;
-			}
-			{
-				foreach (MoveTankScript item2 in list)
-				{
-					item2.isBeingTowerBoosted = false;
-					PlayersInRange.Remove(item2);
-				}
-				return;
-			}
-		}
-		float num3 = TowerGlowBlock.material.GetVector("_EmissionColor")[3];
-		if (num3 > BlockLightIntensity)
-		{
-			float num4 = num3 - 0.05f;
-			TowerGlowBlock.material.SetVector("_EmissionColor", TowerColor * num4);
-		}
-		TowerParticles.Stop();
-		TowerLight.intensity = Mathf.Lerp(TowerLight.intensity, NormalLightIntensity, Time.deltaTime);
 	}
 }

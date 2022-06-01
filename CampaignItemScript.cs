@@ -171,7 +171,7 @@ public class CampaignItemScript : MonoBehaviour
 		UnityWebRequest keyRequest = UnityWebRequest.Get("https://weetanks.com/create_ip_key.php");
 		yield return keyRequest.SendWebRequest();
 		isUploading = false;
-		if (keyRequest.isNetworkError)
+		if (keyRequest.result != UnityWebRequest.Result.Success)
 		{
 			NMC.GPM.isLoading = false;
 			Debug.Log("Error While Sending: " + keyRequest.error);
@@ -189,10 +189,9 @@ public class CampaignItemScript : MonoBehaviour
 		wWWForm.AddField("userid", AccountMaster.instance.UserID);
 		wWWForm.AddField("campaignID", campaignID);
 		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/remove_map.php", wWWForm);
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		NMC.GPM.isLoading = false;
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			Debug.Log("Error While Sending: " + uwr.error);
 			yield break;
@@ -243,10 +242,9 @@ public class CampaignItemScript : MonoBehaviour
 		wWWForm.AddField("userid", AccountMaster.instance.UserID);
 		wWWForm.AddField("campaignID", campaignID);
 		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/get_map_data.php", wWWForm);
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		NMC.GPM.isLoading = false;
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			Debug.Log("Error While Sending: " + uwr.error);
 			yield break;
@@ -277,7 +275,7 @@ public class CampaignItemScript : MonoBehaviour
 		UnityWebRequest keyRequest = UnityWebRequest.Get("https://weetanks.com/create_ip_key.php");
 		yield return keyRequest.SendWebRequest();
 		isUploading = false;
-		if (keyRequest.isNetworkError)
+		if (keyRequest.result != UnityWebRequest.Result.Success)
 		{
 			Debug.Log("Error While Sending: " + keyRequest.error);
 			NMC.GPM.isLoading = false;
@@ -314,10 +312,9 @@ public class CampaignItemScript : MonoBehaviour
 			wWWForm.AddBinaryData("file", File.ReadAllBytes(savePath2), campaignName + ".campaign", "text/plain");
 		}
 		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/add_map.php", wWWForm);
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		NMC.GPM.isLoading = false;
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			Debug.Log("Error While Sending: " + uwr.error);
 			yield break;
@@ -360,7 +357,7 @@ public class CampaignItemScript : MonoBehaviour
 		UnityWebRequest keyRequest = UnityWebRequest.Get("https://weetanks.com/create_ip_key.php");
 		yield return keyRequest.SendWebRequest();
 		isUploading = false;
-		if (keyRequest.isNetworkError)
+		if (keyRequest.result != UnityWebRequest.Result.Success)
 		{
 			isDownloading = false;
 			NMC.GPM.isLoading = false;
@@ -383,9 +380,8 @@ public class CampaignItemScript : MonoBehaviour
 		wWWForm.AddField("userid", AccountMaster.instance.UserID);
 		wWWForm.AddField("campaignID", campaignID);
 		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/download_map.php", wWWForm);
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			isDownloading = false;
 			NMC.GPM.isLoading = false;
@@ -458,9 +454,8 @@ public class CampaignItemScript : MonoBehaviour
 		wWWForm.AddField("userid", AccountMaster.instance.UserID);
 		wWWForm.AddField("campaignID", campaignID);
 		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/favorite_map.php", wWWForm);
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			isDownloading = false;
 			NMC.GPM.isLoading = false;
@@ -490,7 +485,7 @@ public class CampaignItemScript : MonoBehaviour
 		NMC.GPM.isLoading = true;
 		UnityWebRequest keyRequest = UnityWebRequest.Get("https://weetanks.com/create_ip_key.php");
 		yield return keyRequest.SendWebRequest();
-		if (keyRequest.isNetworkError)
+		if (keyRequest.result != UnityWebRequest.Result.Success)
 		{
 			isDownloading = false;
 			NMC.GPM.isLoading = false;
@@ -513,9 +508,8 @@ public class CampaignItemScript : MonoBehaviour
 		wWWForm.AddField("userid", AccountMaster.instance.UserID);
 		wWWForm.AddField("campaignID", campaignID);
 		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/remove_map_download.php", wWWForm);
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			NMC.GPM.isLoading = false;
 			Debug.Log("Error While Sending: " + uwr.error);

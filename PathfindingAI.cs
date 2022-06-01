@@ -268,7 +268,7 @@ public class PathfindingAI : MonoBehaviour
 				myAI.preferredLocation = myPAB.transform.position + new Vector3(Random.Range(-0.5f, 0.5f), 0f, Random.Range(-0.5f, 0.5f));
 				if (myAI.isWallHugger)
 				{
-					myAI.TankSpeed = myAI.OriginalTankSpeed;
+					myAI.TankSpeed = myAI.OriginalTankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 				}
 			}
 			break;

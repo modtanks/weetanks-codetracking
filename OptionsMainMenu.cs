@@ -11,6 +11,10 @@ public class OptionsMainMenu : MonoBehaviour
 	public Dictionary<string, KeyCode> keys = new Dictionary<string, KeyCode>();
 
 	[Header("Options")]
+	public float GlobalTankSpeedModifier = 1.7f;
+
+	public float GlobalBoostSpeedModifier = 1.4f;
+
 	public bool StartPlayer2Mode;
 
 	public bool FriendlyFire;

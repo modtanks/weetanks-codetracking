@@ -360,13 +360,6 @@ public class PlayerKillsUI : MonoBehaviour
 			}
 		}
 		Pkills[0].text = "x " + GameMaster.instance.Playerkills[0];
-		for (int j = 1; j < GameMaster.instance.PlayerJoining.Count; j++)
-		{
-			if (!GameMaster.instance.PlayerJoined[j])
-			{
-				_ = OptionsMainMenu.instance.AIcompanion[j];
-			}
-		}
 	}
 
 	private void SlowUpdate()

@@ -264,7 +264,7 @@ public class NewOrchestra : MonoBehaviour
 					SetSongsVolumes(0);
 					SetInstrumentVolumes(0);
 					SetBaseVolumes(0);
-					lastKnownAmountEnemies = -1;
+					lastKnownAmountEnemies = array.Length;
 					return;
 				}
 				if (array.Length != lastKnownAmountEnemies)
@@ -331,6 +331,7 @@ public class NewOrchestra : MonoBehaviour
 				BaseInstruments[5].volume = 1f;
 			}
 		}
+		Debug.Log("CHANGING MUSIC");
 		foreach (GameObject gameObject in tanks)
 		{
 			int ID = gameObject.GetComponentInChildren<HealthTanks>().EnemyID;

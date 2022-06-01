@@ -305,6 +305,7 @@ public class EnemyAI : MonoBehaviour
 			base.transform.position = new Vector3(base.transform.position.x, 0.1f, base.transform.position.z);
 		}
 		OriginalTankSpeed = TankSpeed;
+		TankSpeed *= OptionsMainMenu.instance.GlobalTankSpeedModifier;
 		source = GetComponent<AudioSource>();
 		OriginalShootSpeed = ShootSpeed;
 		HTscript = GetComponent<HealthTanks>();
@@ -411,7 +412,10 @@ public class EnemyAI : MonoBehaviour
 				Object.Destroy(array[i].gameObject);
 			}
 		}
-		skidMarkCreator.Stop();
+		if ((bool)skidMarkCreator)
+		{
+			skidMarkCreator.Stop();
+		}
 		if (IsCompanion && MyTeam < 0)
 		{
 			MyTeam = 1;
@@ -420,7 +424,7 @@ public class EnemyAI : MonoBehaviour
 		{
 			if (!isLevel70Boss && !isLevel50Boss)
 			{
-				TankSpeed = Mathf.Round(TankSpeed * 1.25f * 100f) / 100f;
+				TankSpeed = Mathf.Round(TankSpeed * 1.25f * 100f) / 100f * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 			}
 			OriginalTankSpeed = TankSpeed;
 			ShootSpeed /= 1.25f;
@@ -438,28 +442,31 @@ public class EnemyAI : MonoBehaviour
 		}
 		NavMeshTimer = (IsCompanion ? Random.Range(1f, 3f) : Random.Range(2f, 6f));
 		DownPlayerTimer = 0f;
-		skidMarkCreator.Stop();
-		ParticleSystem.MainModule main = skidMarkCreator.main;
-		SetArmour();
-		if ((bool)Rush)
+		if ((bool)skidMarkCreator)
 		{
-			originalDurationParticles = skidMarkCreator.main.duration;
-			BoostSource = Rush.GetComponent<AudioSource>();
-		}
-		float num;
-		if (TankSpeed < 80f)
-		{
-			num = 0.85f - TankSpeed / 90f;
-			if (num < 0.12f)
+			skidMarkCreator.Stop();
+			ParticleSystem.MainModule main = skidMarkCreator.main;
+			if ((bool)Rush)
 			{
-				num = 0.12f;
+				originalDurationParticles = skidMarkCreator.main.duration;
+				BoostSource = Rush.GetComponent<AudioSource>();
 			}
+			float num;
+			if (OriginalTankSpeed < 80f)
+			{
+				num = 0.85f - OriginalTankSpeed / 90f;
+				if (num < 0.12f)
+				{
+					num = 0.12f;
+				}
+			}
+			else
+			{
+				num = 0.1f;
+			}
+			main.duration = num;
 		}
-		else
-		{
-			num = 0.1f;
-		}
-		main.duration = num;
+		SetArmour();
 		angle = rotyOriginal;
 		originalLocation = base.transform.position;
 		originalRotation = base.transform.rotation;
@@ -518,8 +525,9 @@ public class EnemyAI : MonoBehaviour
 			OriginalShootSpeed = ShootSpeed;
 			if (!isLevel70Boss && !isLevel50Boss)
 			{
-				TankSpeed *= 1.25f;
+				TankSpeed = OriginalTankSpeed * 1.25f;
 				OriginalTankSpeed = TankSpeed;
+				TankSpeed *= OptionsMainMenu.instance.GlobalTankSpeedModifier;
 			}
 			ETSN.maxFiredBullets *= 2;
 			if (HTscript.EnemyID == 6)
@@ -536,7 +544,7 @@ public class EnemyAI : MonoBehaviour
 
 	private void SetTankBodyTracks()
 	{
-		if (!MapEditorMaster.instance || (HTscript.EnemyID != 7 && (!HTscript.IsCustom || !isInvisible)))
+		if (!MapEditorMaster.instance || !skidMarkCreator || (HTscript.EnemyID != 7 && (!HTscript.IsCustom || !isInvisible)))
 		{
 			return;
 		}
@@ -575,8 +583,11 @@ public class EnemyAI : MonoBehaviour
 		}
 		hasGottenPath = false;
 		isPathfinding = false;
-		skidMarkCreator.Clear();
-		skidMarkCreator.Stop();
+		if ((bool)skidMarkCreator)
+		{
+			skidMarkCreator.Clear();
+			skidMarkCreator.Stop();
+		}
 		OriginalShootSpeed = ShootSpeed;
 		angleSize = 0f;
 		if ((bool)chosenED)
@@ -680,7 +691,7 @@ public class EnemyAI : MonoBehaviour
 			{
 				return;
 			}
-			TankSpeed = OriginalTankSpeed * 1.6f;
+			TankSpeed = OriginalTankSpeed * 1.6f * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 			coolingDown = 5f;
 			TimeBeingAnger += 0.25f;
 			if (TimeBeingAnger >= 40f)
@@ -730,14 +741,14 @@ public class EnemyAI : MonoBehaviour
 		}
 		else if (!isAggro && !ETSN.specialMove && !canBoost && !HTscript.IsCustom)
 		{
-			TankSpeed = OriginalTankSpeed;
+			TankSpeed = OriginalTankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 		}
 	}
 
 	private void DisableAnger()
 	{
 		coolingDown = 0f;
-		TankSpeed = OriginalTankSpeed;
+		TankSpeed = OriginalTankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 		if ((bool)AngerVein && AngerVein.activeSelf)
 		{
 			if (GameMaster.instance.musicScript.Orchestra.RagingCherries <= 1)
@@ -808,11 +819,11 @@ public class EnemyAI : MonoBehaviour
 			float num3 = (source.volume = (source.volume = 0.25f * (float)OptionsMainMenu.instance.masterVolumeLvl / 10f));
 			source.Stop();
 		}
-		if (isInvisible && base.gameObject.active)
+		if (isInvisible && base.gameObject.activeSelf)
 		{
 			StartCoroutine(MakeMeVisible());
 		}
-		if (isElectric && base.gameObject.active)
+		if (isElectric && base.gameObject.activeSelf)
 		{
 			isCharged = false;
 			isTransporting = false;
@@ -1040,7 +1051,7 @@ public class EnemyAI : MonoBehaviour
 		else if (isStunned)
 		{
 			isStunned = false;
-			TankSpeed = OriginalTankSpeed;
+			TankSpeed = OriginalTankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 			if (TankSpeed > 10f)
 			{
 				CanMove = couldMove;
@@ -1188,18 +1199,21 @@ public class EnemyAI : MonoBehaviour
 		}
 		else if (isLevel30Boss && HTscript.health > lvl30Boss2modeLives && !HTscript.IsCustom)
 		{
-			TankSpeed = OriginalTankSpeed;
+			TankSpeed = OriginalTankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 			ShootSpeed = OriginalShootSpeed;
 		}
 		if (GameMaster.instance.GameHasPaused)
 		{
 			return;
 		}
-		if (CanMove && (bool)source)
+		if (CanMove && (bool)source && (bool)rigi)
 		{
 			if (rigi.velocity.magnitude < 0.5f)
 			{
-				skidMarkCreator.Stop();
+				if ((bool)skidMarkCreator)
+				{
+					skidMarkCreator.Stop();
+				}
 				if (source.isPlaying)
 				{
 					StopTankTracks();
@@ -1207,7 +1221,7 @@ public class EnemyAI : MonoBehaviour
 			}
 			else if (rigi.velocity.magnitude >= 0.5f && !GameMaster.instance.GameHasPaused)
 			{
-				if (!skidMarkCreator.isPlaying || !skidMarkCreator.isEmitting)
+				if ((bool)skidMarkCreator && (!skidMarkCreator.isPlaying || !skidMarkCreator.isEmitting))
 				{
 					skidMarkCreator.Play();
 				}
@@ -1220,7 +1234,7 @@ public class EnemyAI : MonoBehaviour
 			{
 				StopTankTracks();
 			}
-			else if (!skidMarkCreator.isPlaying)
+			else if ((bool)skidMarkCreator && !skidMarkCreator.isPlaying)
 			{
 				skidMarkCreator.Play();
 			}
@@ -1231,7 +1245,10 @@ public class EnemyAI : MonoBehaviour
 			{
 				GameMaster.instance.EnemyTankTracksAudio--;
 			}
-			skidMarkCreator.Stop();
+			if ((bool)skidMarkCreator)
+			{
+				skidMarkCreator.Stop();
+			}
 			source.loop = false;
 			source.Stop();
 		}
@@ -1648,7 +1665,7 @@ public class EnemyAI : MonoBehaviour
 		}
 		if (boosting)
 		{
-			TankSpeed = BoostedTankSpeed;
+			TankSpeed = BoostedTankSpeed * OptionsMainMenu.instance.GlobalBoostSpeedModifier;
 		}
 		int num = 0;
 		foreach (EnemyDetection item in Ring1Detection)
@@ -1814,7 +1831,7 @@ public class EnemyAI : MonoBehaviour
 
 	private void ActivateBooster()
 	{
-		TankSpeed = BoostedTankSpeed;
+		TankSpeed = BoostedTankSpeed * OptionsMainMenu.instance.GlobalBoostSpeedModifier;
 		if (!BoostSource.isPlaying)
 		{
 			BoostSource.Play();
@@ -1873,7 +1890,7 @@ public class EnemyAI : MonoBehaviour
 
 	private void DeactivateBooster()
 	{
-		TankSpeed = OriginalTankSpeed;
+		TankSpeed = OriginalTankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 		if (BoostSource.isPlaying)
 		{
 			BoostSource.Stop();

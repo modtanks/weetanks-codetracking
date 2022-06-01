@@ -150,9 +150,9 @@ public class ZombieTankSpawner : MonoBehaviour
 	private IEnumerator Spawner()
 	{
 		float num = 0.5f - (float)(spawnAmount / 100);
-		if (num < 0.1f)
+		if (num < 0.15f)
 		{
-			yield return new WaitForSeconds(0.1f);
+			yield return new WaitForSeconds(0.15f);
 		}
 		else
 		{

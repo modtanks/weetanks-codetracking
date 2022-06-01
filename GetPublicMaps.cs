@@ -89,10 +89,9 @@ public class GetPublicMaps : MonoBehaviour
 		wWWForm.AddField("type", PageType);
 		isLoading = true;
 		UnityWebRequest uwr = UnityWebRequest.Post("https://weetanks.com/get_maps.php", wWWForm);
-		uwr.chunkedTransfer = false;
 		yield return uwr.SendWebRequest();
 		isLoading = false;
-		if (uwr.isNetworkError)
+		if (uwr.result != UnityWebRequest.Result.Success)
 		{
 			isLoading = false;
 			Debug.Log("Error While Sending: " + uwr.error);

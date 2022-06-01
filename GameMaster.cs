@@ -7,6 +7,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using Rewired;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameMaster : MonoBehaviour
 {
@@ -295,9 +296,16 @@ public class GameMaster : MonoBehaviour
 
 	public List<int> PlayerTeamColor = new List<int>();
 
+	[HideInInspector]
+	public bool IsSecretName;
+
 	public int AccountID = -1;
 
 	public int numberOfControllers;
+
+	private int prevWave = -1;
+
+	private int prevKills = -1;
 
 	public static GameMaster instance => _instance;
 
@@ -1380,14 +1388,13 @@ public class GameMaster : MonoBehaviour
 			DisableGame();
 		}
 		Mission_Text.text = LocalizationMaster.instance.GetText("HUD_mission") + " " + (CurrentMission + 1);
-		if (isOfficialCampaign)
+		if (isOfficialCampaign && !IsSecretName)
 		{
 			MissionName_Text.text = "'" + LocalizationMaster.instance.GetText("Mission_" + (CurrentMission + 1)) + "'";
+			return;
 		}
-		else
-		{
-			MissionName_Text.text = "'" + MissionNames[CurrentMission] + "'";
-		}
+		IsSecretName = false;
+		MissionName_Text.text = "'" + MissionNames[CurrentMission] + "'";
 	}
 
 	private IEnumerator LateUpdatePlayerToAI()
@@ -2194,32 +2201,54 @@ public class GameMaster : MonoBehaviour
 
 	public void NewRound()
 	{
-		if (isZombieMode)
+		if (!isZombieMode)
 		{
-			Debug.Log("NEW ROUND!");
-			ZombieTankSpawner component = GetComponent<ZombieTankSpawner>();
-			component.Wave++;
-			AccountMaster.instance.UpdateServerStatus(component.Wave + 100);
-			GameObject[] sun = Sun;
-			for (int i = 0; i < sun.Length; i++)
+			return;
+		}
+		Debug.Log("NEW ROUND!");
+		ZombieTankSpawner component = GetComponent<ZombieTankSpawner>();
+		component.Wave++;
+		if (prevWave == -1)
+		{
+			prevWave = component.Wave;
+		}
+		else
+		{
+			if (prevWave != component.Wave - 1)
 			{
-				sun[i].SetActive(value: true);
+				AccountMaster.instance.SaveCloudData(0, 71, 0, bounceKill: false, 0f);
+				SceneManager.LoadScene(0);
+				return;
 			}
-			component.amountEnemies = 0;
-			component.spawned = 0;
-			component.spawnAmount = Mathf.RoundToInt((float)(component.Wave * 2 + Mathf.RoundToInt(UnityEngine.Random.Range(-(component.Wave / 2), component.Wave / 2))) * component.multiplier);
-			if (component.spawnAmount < 1)
-			{
-				component.spawnAmount = 2;
-			}
-			GameHasStarted = true;
-			Players.Clear();
-			AccountMaster.instance.SaveCloudData(6, component.Wave, 0, bounceKill: false, 0.1f);
-			sun = GameObject.FindGameObjectsWithTag("Player");
-			foreach (GameObject item in sun)
-			{
-				Players.Add(item);
-			}
+			prevWave = component.Wave;
+		}
+		AccountMaster.instance.UpdateServerStatus(component.Wave + 100);
+		GameObject[] sun = Sun;
+		for (int i = 0; i < sun.Length; i++)
+		{
+			sun[i].SetActive(value: true);
+		}
+		if (prevKills > 0 && Playerkills[0] - prevKills > 5210)
+		{
+			AccountMaster.instance.SaveCloudData(0, 72, 0, bounceKill: false, 0f);
+			SceneManager.LoadScene(0);
+			return;
+		}
+		prevKills = Playerkills[0];
+		component.amountEnemies = 0;
+		component.spawned = 0;
+		component.spawnAmount = Mathf.RoundToInt((float)(component.Wave * 2 + Mathf.RoundToInt(UnityEngine.Random.Range(-(component.Wave / 2), component.Wave / 2))) * component.multiplier);
+		if (component.spawnAmount < 1)
+		{
+			component.spawnAmount = 2;
+		}
+		GameHasStarted = true;
+		Players.Clear();
+		AccountMaster.instance.SaveCloudData(6, component.Wave, 0, bounceKill: false, 0.1f);
+		sun = GameObject.FindGameObjectsWithTag("Player");
+		foreach (GameObject item in sun)
+		{
+			Players.Add(item);
 		}
 	}
 }

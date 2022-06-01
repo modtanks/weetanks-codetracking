@@ -479,7 +479,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 			{
 				ElectricCharge.Stop();
 				ElectricCharge.Clear();
-				AIscript.TankSpeed = AIscript.OriginalTankSpeed;
+				AIscript.TankSpeed = AIscript.OriginalTankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 				AIscript.CanMove = true;
 			}
 		}
@@ -591,9 +591,9 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 						turning = false;
 						specialMoveLockedIn = false;
 						specialMove = false;
-						if (AIscript.TankSpeed != AIscript.OriginalTankSpeed && !AIscript.isAggro)
+						if (AIscript.TankSpeed / OptionsMainMenu.instance.GlobalTankSpeedModifier != AIscript.OriginalTankSpeed && !AIscript.isAggro)
 						{
-							AIscript.TankSpeed = AIscript.OriginalTankSpeed;
+							AIscript.TankSpeed = AIscript.OriginalTankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 						}
 					}
 					else if (angleSize <= 0.05f)
@@ -601,9 +601,9 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 						specialMoveLockedIn = true;
 						startingPosition = Vector3.zero;
 						base.transform.rotation = rotation;
-						if (AIscript.CanMove && AIscript.TankSpeed != AIscript.OriginalTankSpeed && !AIscript.isAggro)
+						if (AIscript.CanMove && AIscript.TankSpeed / OptionsMainMenu.instance.GlobalTankSpeedModifier != AIscript.OriginalTankSpeed && !AIscript.isAggro)
 						{
-							AIscript.TankSpeed = AIscript.OriginalTankSpeed;
+							AIscript.TankSpeed = AIscript.OriginalTankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 						}
 						turning = false;
 					}
@@ -1349,9 +1349,9 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 					}
 					StartCoroutine("ShootAtPlayer");
 					specialMoveLockedIn = false;
-					if (AIscript.CanMove && !AIscript.isAggro && AIscript.TankSpeed != AIscript.OriginalTankSpeed)
+					if (AIscript.CanMove && !AIscript.isAggro && AIscript.TankSpeed / OptionsMainMenu.instance.GlobalTankSpeedModifier != AIscript.OriginalTankSpeed)
 					{
-						AIscript.TankSpeed = AIscript.OriginalTankSpeed;
+						AIscript.TankSpeed = AIscript.OriginalTankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 					}
 					specialMove = false;
 					DeflectingBullet = false;
@@ -1630,11 +1630,13 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 		}
 		if (doubleStopper && !AIscript.isLevel30Boss && firePoint.Length < 2)
 		{
+			firedBullets--;
 			Debug.LogError("Doublestopper kicked in");
 			return;
 		}
 		if ((!GameMaster.instance.GameHasStarted || GameMaster.instance.AmountGoodTanks < 1) && !isHuntingEnemies && !GameMaster.instance.CM && !GameMaster.instance.inMenuMode && !MapEditorMaster.instance && !TankeyTownMaster.instance)
 		{
+			firedBullets--;
 			Debug.LogError("End game stopping Bullet Firing");
 			return;
 		}
@@ -1781,7 +1783,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 
 	private IEnumerator preventDouble()
 	{
-		yield return new WaitForSeconds(0.1f);
+		yield return new WaitForSeconds(0.09f);
 		doubleStopper = false;
 		yield return new WaitForSeconds(0.05f);
 	}

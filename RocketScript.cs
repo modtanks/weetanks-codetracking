@@ -265,11 +265,6 @@ public class RocketScript : MonoBehaviour
 		Explode(collision.gameObject, Override: false, GameEnd: false);
 	}
 
-	private void OnTriggerStay(Collider other)
-	{
-		Explode(other.gameObject, Override: false, GameEnd: false);
-	}
-
 	private IEnumerator ActivateParticles(float sec)
 	{
 		yield return new WaitForSeconds(sec);
@@ -291,7 +286,7 @@ public class RocketScript : MonoBehaviour
 
 	private void Explode(GameObject collision, bool Override, bool GameEnd)
 	{
-		if (state == 3 && (collision.transform.tag == "Solid" || collision.transform.tag == "Player" || collision.transform.tag == "Enemy" || collision.transform.tag == "Floor" || Override))
+		if ((state == 3 || state == 2) && (collision.transform.tag == "Solid" || collision.transform.tag == "Player" || collision.transform.tag == "Enemy" || collision.transform.tag == "Floor" || Override))
 		{
 			state = 4;
 			if ((bool)spawnedTarget)

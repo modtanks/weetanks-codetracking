@@ -73,6 +73,7 @@ public class AchievementItemScript : MonoBehaviour
 		Debug.Log("AM_" + AMID);
 		prevLang = LocalizationMaster.instance.CurrentLang;
 		MyTitle.text = LocalizationMaster.instance.GetText("AM_" + AMID);
+		Debug.Log(LocalizationMaster.instance.GetText("AM_desc_34"));
 		MyDescription.text = LocalizationMaster.instance.GetText("AM_desc_" + AMID);
 		myDifficulty = OptionsMainMenu.instance.AMdifficulty[AMID];
 		if (OptionsMainMenu.instance.AM[AMID] == 1)

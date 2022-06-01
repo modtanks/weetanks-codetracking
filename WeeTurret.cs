@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class WeeTurret : MonoBehaviour
 {
@@ -76,6 +77,7 @@ public class WeeTurret : MonoBehaviour
 	private void Start()
 	{
 		InvokeRepeating("SearchTargets", 0.1f, 0.1f);
+		InvokeRepeating("CheckTurrets", 15f, 4f);
 	}
 
 	private void Awake()
@@ -85,6 +87,15 @@ public class WeeTurret : MonoBehaviour
 		for (int i = 0; i < secondUpgradeParts.Length; i++)
 		{
 			secondUpgradeParts[i].SetActive(value: false);
+		}
+	}
+
+	private void CheckTurrets()
+	{
+		if (GameObject.FindGameObjectsWithTag("Turret").Length >= 5)
+		{
+			AccountMaster.instance.SaveCloudData(0, 69, 0, bounceKill: false, 0f);
+			SceneManager.LoadScene(0);
 		}
 	}
 

@@ -1146,7 +1146,7 @@ public class MapEditorMaster : MonoBehaviour
 		int missionAmount = mapEditorData.missionAmount;
 		GameMaster.instance.NightLevels = mapEditorData.nightMissions;
 		List<string> list = mapEditorData.missionNames.ToList();
-		campaignName = mapEditorData.campaignName;
+		campaignName = OptionsMainMenu.instance.MapEditorMapName;
 		signedName = mapEditorData.signedName;
 		StartingLives = mapEditorData.StartingLives;
 		if (mapEditorData.TeamColorsShowing != null)
@@ -1237,7 +1237,6 @@ public class MapEditorMaster : MonoBehaviour
 							MissionProperties missionProperties = new MissionProperties();
 							missionProperties.MissionFloorTexture = 0;
 							missionProperties.WeatherType = num;
-							missionProperties.MissionNumber = l;
 							Properties.Add(missionProperties);
 						}
 					}
@@ -1260,7 +1259,6 @@ public class MapEditorMaster : MonoBehaviour
 							MissionProperties missionProperties3 = new MissionProperties();
 							missionProperties3.MissionFloorTexture = num2;
 							missionProperties3.WeatherType = 0;
-							missionProperties3.MissionNumber = i;
 							Properties.Add(missionProperties3);
 						}
 					}
@@ -1280,7 +1278,7 @@ public class MapEditorMaster : MonoBehaviour
 					missionProperties4.CurrentFloorName = mapEditorData.Properties[m].CurrentFloorName;
 					missionProperties4.MissionFloorTexture = mapEditorData.Properties[m].MissionFloorTexture;
 					missionProperties4.WeatherType = mapEditorData.Properties[m].WeatherType;
-					missionProperties4.MissionNumber = m;
+					missionProperties4.MissionNumber = mapEditorData.Properties[m].MissionNumber;
 					Properties.Add(missionProperties4);
 				}
 				FloorDropdown.value = mapEditorData.Properties[0].MissionFloorTexture;
@@ -1639,12 +1637,12 @@ public class MapEditorMaster : MonoBehaviour
 	{
 		if (OnlyEnemies)
 		{
-			if ((ID > 5 && ID < 40) || ID == 46 || (ID >= 100 && ID < 120) || ID == 1000 || ID == 1010 || ID == 1011 || ID == 1012 || ID == 1013 || ID == 2003 || ID == 2004 || ID == 2005)
+			if ((ID > 5 && ID < 40) || (ID >= 100 && ID < 120) || ID == 1000 || ID == 1010 || ID == 1011 || ID == 1012 || ID == 1013 || ID == 2003 || ID == 2004 || ID == 2005)
 			{
 				return true;
 			}
 		}
-		else if ((ID > 3 && ID < 40) || ID == 28 || ID == 29 || ID == 46 || (ID >= 100 && ID < 120) || ID == 1000 || ID == 1010 || ID == 1011 || ID == 1012 || ID == 1013 || ID == 2003 || ID == 2004 || ID == 2005)
+		else if ((ID > 3 && ID < 40) || ID == 28 || ID == 29 || (ID >= 100 && ID < 120) || ID == 1000 || ID == 1010 || ID == 1011 || ID == 1012 || ID == 1013 || ID == 2003 || ID == 2004 || ID == 2005)
 		{
 			return true;
 		}
@@ -1826,7 +1824,7 @@ public class MapEditorMaster : MonoBehaviour
 					mapPiecesClass.TeamColor[j] = MEGP.myMEP[j].TeamNumber;
 				}
 				mapPiecesClass.missionNumber = MEGP.mission;
-				if (MEGP.rotationDirection[j] > 0)
+				if (MEGP.rotationDirection[j] > -1)
 				{
 					if (mapPiecesClass.propRotation == null)
 					{
@@ -1834,7 +1832,7 @@ public class MapEditorMaster : MonoBehaviour
 					}
 					mapPiecesClass.propRotation[j] = MEGP.rotationDirection[j];
 				}
-				if (MEGP.myMEP != null && MEGP.myMEP[j] != null && MEGP.myMEP[j].MyDifficultySpawn > 0)
+				if (MEGP.myMEP != null && MEGP.myMEP[j] != null && MEGP.myMEP[j].MyDifficultySpawn > -1)
 				{
 					mapPiecesClass.SpawnDifficulty = MEGP.myMEP[j].MyDifficultySpawn;
 				}
