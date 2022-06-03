@@ -177,7 +177,12 @@ public class MapEditorProp : MonoBehaviour
 
 	private void Awake()
 	{
-		if (myRends.Length < 1)
+		if (myRends == null)
+		{
+			Renderer[] array = (myRends = new MeshRenderer[1]);
+			myRends[0] = GetComponent<Renderer>();
+		}
+		else if (myRends.Length < 1)
 		{
 			Renderer[] array = (myRends = new MeshRenderer[1]);
 			myRends[0] = GetComponent<Renderer>();

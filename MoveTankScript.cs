@@ -637,7 +637,7 @@ public class MoveTankScript : MonoBehaviour
 			RectTransform rectTransform = GameMaster.instance.PKU.BoostAmounts[playerId].rectTransform;
 			rectTransform.localScale = new Vector3(boosterFluid * 2f / maxFluid, rectTransform.localScale.y, rectTransform.localScale.z);
 		}
-		float num = TankSpeed;
+		float num = TankNormalSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 		if (canBoost)
 		{
 			if (driving && player.GetButton("Boost"))

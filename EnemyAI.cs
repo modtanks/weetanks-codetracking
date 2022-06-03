@@ -424,7 +424,7 @@ public class EnemyAI : MonoBehaviour
 		{
 			if (!isLevel70Boss && !isLevel50Boss)
 			{
-				TankSpeed = Mathf.Round(TankSpeed * 1.25f * 100f) / 100f * OptionsMainMenu.instance.GlobalTankSpeedModifier;
+				TankSpeed = Mathf.Round(OriginalTankSpeed * 1.15f * 100f) / 100f * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 			}
 			OriginalTankSpeed = TankSpeed;
 			ShootSpeed /= 1.25f;

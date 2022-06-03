@@ -80,7 +80,10 @@ public class TankCustoms : MonoBehaviour
 			texture.LoadImage(data);
 			if ((bool)texture)
 			{
-				ModData = new CustomSkinData();
+				if (!ModData)
+				{
+					ModData = new CustomSkinData();
+				}
 				CustomModMaterial = new Material(Shader.Find("Standard"));
 				CustomModMaterial.mainTexture = texture;
 				ModData.MainMaterial = CustomModMaterial;

@@ -741,6 +741,7 @@ public class AccountMaster : MonoBehaviour
 		{
 			if (PDO.AM[i] == 1)
 			{
+				Debug.Log("Check getting AM " + i);
 				SteamTest.instance.GetAchievement(i);
 			}
 		}
@@ -764,7 +765,7 @@ public class AccountMaster : MonoBehaviour
 		else
 		{
 			Debug.Log("Received: " + uwr.downloadHandler.text);
-			if (!uwr.downloadHandler.text.Contains("FAILED"))
+			if (!uwr.downloadHandler.text.Contains("FAILED") && uwr.downloadHandler.text.Length >= 3)
 			{
 				Inventory = JsonUtility.FromJson<PlayerInventory>("{\"InventoryItems\":" + uwr.downloadHandler.text + "}");
 				uwr.Dispose();

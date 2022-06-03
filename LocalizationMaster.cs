@@ -859,6 +859,8 @@ public class LocalizationMaster : MonoBehaviour
 
 		public string AM_desc_34;
 
+		public string AM_desc_35;
+
 		public string ToolTip_0;
 
 		public string ToolTip_1;

@@ -50,18 +50,10 @@ public class SteamTest : MonoBehaviour
 			{
 				Debug.LogWarning("NEW ACHIEVEMENT SET! AM_" + text);
 			}
-			else
-			{
-				Debug.LogWarning("NEW ACHIEVEMENT FAILED TO SET! AM_" + text);
-			}
 		}
 		else if (SteamUserStats.SetAchievement("AM_" + number))
 		{
 			Debug.LogWarning("NEW ACHIEVEMENT SET! AM_" + number);
-		}
-		else
-		{
-			Debug.LogWarning("NEW ACHIEVEMENT FAILED TO SET! AM_" + number);
 		}
 	}
 
