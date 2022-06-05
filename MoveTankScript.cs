@@ -145,6 +145,7 @@ public class MoveTankScript : MonoBehaviour
 	private void Awake()
 	{
 		player = ReInput.players.GetPlayer(playerId);
+		TankSpeed += 5f;
 		TankNormalSpeed = TankSpeed;
 		BoostSource = Rush.GetComponent<AudioSource>();
 		InvokeRepeating("CheckTypeInput", 0.1f, 0.1f);
@@ -397,6 +398,7 @@ public class MoveTankScript : MonoBehaviour
 		{
 			canBoost = false;
 			TankSpeed = 80f * OptionsMainMenu.instance.GlobalTankSpeedModifier;
+			TankNormalSpeed = 80f;
 		}
 		GetInput();
 		if (GameMaster.instance.isZombieMode && GameMaster.instance.CurrentMission == 3)

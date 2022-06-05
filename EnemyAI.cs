@@ -305,7 +305,6 @@ public class EnemyAI : MonoBehaviour
 			base.transform.position = new Vector3(base.transform.position.x, 0.1f, base.transform.position.z);
 		}
 		OriginalTankSpeed = TankSpeed;
-		TankSpeed *= OptionsMainMenu.instance.GlobalTankSpeedModifier;
 		source = GetComponent<AudioSource>();
 		OriginalShootSpeed = ShootSpeed;
 		HTscript = GetComponent<HealthTanks>();
@@ -424,9 +423,11 @@ public class EnemyAI : MonoBehaviour
 		{
 			if (!isLevel70Boss && !isLevel50Boss)
 			{
-				TankSpeed = Mathf.Round(OriginalTankSpeed * 1.15f * 100f) / 100f * OptionsMainMenu.instance.GlobalTankSpeedModifier;
+				Debug.Log("Before tank speed:" + TankSpeed);
+				TankSpeed = Mathf.Round(OriginalTankSpeed * 1.15f * 100f) / 100f;
+				Debug.Log("After tank speed:" + TankSpeed);
+				OriginalTankSpeed = TankSpeed;
 			}
-			OriginalTankSpeed = TankSpeed;
 			ShootSpeed /= 1.25f;
 			OriginalShootSpeed = ShootSpeed;
 		}
@@ -523,11 +524,9 @@ public class EnemyAI : MonoBehaviour
 		{
 			ShootSpeed /= 2f;
 			OriginalShootSpeed = ShootSpeed;
-			if (!isLevel70Boss && !isLevel50Boss)
+			if (!isLevel70Boss && !isLevel50Boss && !isLevel30Boss && !isLevel10Boss && !isLevel100Boss)
 			{
-				TankSpeed = OriginalTankSpeed * 1.25f;
-				OriginalTankSpeed = TankSpeed;
-				TankSpeed *= OptionsMainMenu.instance.GlobalTankSpeedModifier;
+				OriginalTankSpeed *= 1.1f;
 			}
 			ETSN.maxFiredBullets *= 2;
 			if (HTscript.EnemyID == 6)
@@ -691,7 +690,7 @@ public class EnemyAI : MonoBehaviour
 			{
 				return;
 			}
-			TankSpeed = OriginalTankSpeed * 1.6f * OptionsMainMenu.instance.GlobalTankSpeedModifier;
+			TankSpeed = OriginalTankSpeed * 1.6f;
 			coolingDown = 5f;
 			TimeBeingAnger += 0.25f;
 			if (TimeBeingAnger >= 40f)
@@ -741,14 +740,14 @@ public class EnemyAI : MonoBehaviour
 		}
 		else if (!isAggro && !ETSN.specialMove && !canBoost && !HTscript.IsCustom)
 		{
-			TankSpeed = OriginalTankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
+			TankSpeed = OriginalTankSpeed;
 		}
 	}
 
 	private void DisableAnger()
 	{
 		coolingDown = 0f;
-		TankSpeed = OriginalTankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
+		TankSpeed = OriginalTankSpeed;
 		if ((bool)AngerVein && AngerVein.activeSelf)
 		{
 			if (GameMaster.instance.musicScript.Orchestra.RagingCherries <= 1)
@@ -1051,7 +1050,7 @@ public class EnemyAI : MonoBehaviour
 		else if (isStunned)
 		{
 			isStunned = false;
-			TankSpeed = OriginalTankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
+			TankSpeed = OriginalTankSpeed;
 			if (TankSpeed > 10f)
 			{
 				CanMove = couldMove;
@@ -1199,7 +1198,7 @@ public class EnemyAI : MonoBehaviour
 		}
 		else if (isLevel30Boss && HTscript.health > lvl30Boss2modeLives && !HTscript.IsCustom)
 		{
-			TankSpeed = OriginalTankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
+			TankSpeed = OriginalTankSpeed;
 			ShootSpeed = OriginalShootSpeed;
 		}
 		if (GameMaster.instance.GameHasPaused)
@@ -1665,7 +1664,7 @@ public class EnemyAI : MonoBehaviour
 		}
 		if (boosting)
 		{
-			TankSpeed = BoostedTankSpeed * OptionsMainMenu.instance.GlobalBoostSpeedModifier;
+			TankSpeed = OriginalTankSpeed * OptionsMainMenu.instance.GlobalBoostSpeedModifier;
 		}
 		int num = 0;
 		foreach (EnemyDetection item in Ring1Detection)
@@ -1683,13 +1682,15 @@ public class EnemyAI : MonoBehaviour
 			rotation = Quaternion.LookRotation(forward);
 			if (!rigi.isKinematic)
 			{
+				Debug.Log("++PATHFINDING PATH DOWNED PLAYER!!");
+				float num2 = TankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 				if (DrivingBackwards)
 				{
-					rigi.AddRelativeForce(-Vector3.forward * TankSpeed * Time.deltaTime * 50f);
+					rigi.AddRelativeForce(-Vector3.forward * num2 * Time.deltaTime * 50f);
 				}
 				else
 				{
-					rigi.AddRelativeForce(Vector3.forward * TankSpeed * Time.deltaTime * 50f);
+					rigi.AddRelativeForce(Vector3.forward * num2 * Time.deltaTime * 50f);
 				}
 			}
 			return;
@@ -1734,21 +1735,23 @@ public class EnemyAI : MonoBehaviour
 				rotation = Quaternion.LookRotation(forward2);
 				if (!rigi.isKinematic)
 				{
+					Debug.Log("++PATHFINDING PATH");
+					float num3 = TankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 					if (DrivingBackwards)
 					{
-						rigi.AddRelativeForce(-Vector3.forward * TankSpeed * Time.deltaTime * 50f);
+						rigi.AddRelativeForce(-Vector3.forward * num3 * Time.deltaTime * 50f);
 					}
 					else
 					{
-						rigi.AddRelativeForce(Vector3.forward * TankSpeed * Time.deltaTime * 50f);
+						rigi.AddRelativeForce(Vector3.forward * num3 * Time.deltaTime * 50f);
 					}
 				}
-				float num2 = Vector3.Distance(base.transform.position, preferredLocation);
-				if (num2 < 1.5f)
+				float num4 = Vector3.Distance(base.transform.position, preferredLocation);
+				if (num4 < 1.5f)
 				{
 					PAI.NextPoint();
 				}
-				else if (num2 > 4.5f)
+				else if (num4 > 4.5f)
 				{
 					DisablePathFinding();
 				}
@@ -1757,19 +1760,19 @@ public class EnemyAI : MonoBehaviour
 		}
 		if (isMoving && !noSafeED)
 		{
-			float num3 = Vector3.Distance(chosenED.transform.position, base.transform.position);
+			float num5 = Vector3.Distance(chosenED.transform.position, base.transform.position);
 			if (Ring0Detection.isTargeted && Ring0Detection.Bullets.Count > 0 && (bool)Rush)
 			{
-				float num4 = 100f;
+				float num6 = 100f;
 				foreach (Collider bullet in Ring0Detection.Bullets)
 				{
-					float num5 = Vector3.Distance(bullet.transform.position, base.transform.position);
-					if (num5 < num4)
+					float num7 = Vector3.Distance(bullet.transform.position, base.transform.position);
+					if (num7 < num6)
 					{
-						num4 = num5;
+						num6 = num7;
 					}
 				}
-				if (num4 < 8f && (bool)Rush && !boosting && canBoost)
+				if (num6 < 8f && (bool)Rush && !boosting && canBoost)
 				{
 					ActivateBooster();
 					StartCoroutine(StopBoostingAfter(1.5f));
@@ -1780,7 +1783,7 @@ public class EnemyAI : MonoBehaviour
 				chosenED.isChosen = false;
 				CheckForSafeED(newdir: false);
 			}
-			if (num3 < 0.3f)
+			if (num5 < 0.3f)
 			{
 				isMoving = false;
 				chosenED.isChosen = false;
@@ -1788,7 +1791,7 @@ public class EnemyAI : MonoBehaviour
 			}
 			else
 			{
-				lastKnownDist = num3;
+				lastKnownDist = num5;
 				if (Random.Range(0, 14) == 0 && !changeCooldown)
 				{
 					isMoving = false;
@@ -1819,13 +1822,15 @@ public class EnemyAI : MonoBehaviour
 		Vector3 vector2 = ((!DrivingBackwards) ? (vector - base.transform.position) : (base.transform.position - vector));
 		vector2.y = 0f;
 		rotation = Quaternion.LookRotation(vector2.normalized);
+		Debug.Log("__MOVE AND ROTATE LE TANK");
+		float num = TankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
 		if (DrivingBackwards)
 		{
-			rigi.AddRelativeForce(-Vector3.forward * TankSpeed * Time.deltaTime * 50f);
+			rigi.AddRelativeForce(-Vector3.forward * num * Time.deltaTime * 50f);
 		}
 		else
 		{
-			rigi.AddRelativeForce(Vector3.forward * TankSpeed * Time.deltaTime * 50f);
+			rigi.AddRelativeForce(Vector3.forward * num * Time.deltaTime * 50f);
 		}
 	}
 
@@ -1890,7 +1895,7 @@ public class EnemyAI : MonoBehaviour
 
 	private void DeactivateBooster()
 	{
-		TankSpeed = OriginalTankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
+		TankSpeed = OriginalTankSpeed;
 		if (BoostSource.isPlaying)
 		{
 			BoostSource.Stop();

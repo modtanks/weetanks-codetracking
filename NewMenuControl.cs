@@ -83,6 +83,8 @@ public class NewMenuControl : MonoBehaviour
 
 	public GameObject OnlineMyMapPrefab;
 
+	public GameObject RewardsButton;
+
 	public GameObject OnlineMapParent;
 
 	public GameObject OnlineMyMapParent;
@@ -247,6 +249,8 @@ public class NewMenuControl : MonoBehaviour
 	public float waitingTimeBetweenRequests = 0.8f;
 
 	public PlayerInputsMenu PIM;
+
+	private bool FirstTransition = true;
 
 	private IEnumerator PlayJingle()
 	{
@@ -1773,6 +1777,18 @@ public class NewMenuControl : MonoBehaviour
 		{
 			SetGraphicsText();
 		}
+		if (menunumber == 0 && !FirstTransition)
+		{
+			if (AccountMaster.instance.isSignedIn)
+			{
+				RewardsButton.SetActive(value: true);
+			}
+			else
+			{
+				RewardsButton.SetActive(value: false);
+			}
+		}
+		FirstTransition = false;
 	}
 
 	public string PasswordCheck(string one, string two)

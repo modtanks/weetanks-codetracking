@@ -1274,7 +1274,7 @@ public class PlayerBulletScript : MonoBehaviour
 		{
 			HitWallSound();
 		}
-		else if ((bool)AchievementsTracker.instance)
+		else if ((bool)AchievementsTracker.instance && !isEnemyBullet)
 		{
 			AchievementsTracker.instance.HasMissed = true;
 		}

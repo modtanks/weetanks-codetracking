@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.IO;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -15,6 +16,10 @@ public class LoadModTexture : MonoBehaviour
 	public bool IsModded;
 
 	private AudioClip AC;
+
+	private float tilex = 1f;
+
+	private float tiley = 1f;
 
 	private void Start()
 	{
@@ -107,6 +112,42 @@ public class LoadModTexture : MonoBehaviour
 		}
 	}
 
+	public void GetTileData()
+	{
+		string text = "";
+		text = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace("\\", "/");
+		text += "/My Games/Wee Tanks/mods/mod_settings.txt";
+		if (!File.Exists(text))
+		{
+			return;
+		}
+		StreamReader streamReader = new StreamReader(text);
+		string text2 = streamReader.ReadToEnd();
+		streamReader.Close();
+		string[] array = text2.Split("\n"[0]);
+		for (int i = 0; i < array.Length; i++)
+		{
+			if (array[i].Contains(filename + "_tile_x"))
+			{
+				Debug.Log(array[i]);
+				string[] array2 = Regex.Split(array[i], "(.*)\\=.(.*).\\/(.*)");
+				Debug.Log(array2);
+				if (array2.Length != 0 && array2[2] != null)
+				{
+					float num = (tilex = float.Parse(array2[2]));
+				}
+			}
+			else if (array[i].Contains(filename + "_tile_y"))
+			{
+				string[] array3 = Regex.Split(array[i], "(.*)\\=.(.*).\\/(.*)");
+				if (array3[2] != null)
+				{
+					float num2 = (tiley = float.Parse(array3[2]));
+				}
+			}
+		}
+	}
+
 	public bool ApplyTexture(string filename, int type, string extension)
 	{
 		string text = "";
@@ -149,9 +190,10 @@ public class LoadModTexture : MonoBehaviour
 
 	private void SetTexture(Texture texture)
 	{
+		GetTileData();
 		GetComponent<MeshRenderer>().material.SetTexture("_BumpMap", null);
 		GetComponent<MeshRenderer>().material.mainTexture = texture;
-		GetComponent<MeshRenderer>().material.mainTextureScale = new Vector2(1f, 1f);
+		GetComponent<MeshRenderer>().material.mainTextureScale = new Vector2(tilex, tiley);
 		if (GetComponent<AOcreation>() != null)
 		{
 			base.transform.rotation = Quaternion.Euler(0f, 0f, 0f);

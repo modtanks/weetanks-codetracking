@@ -479,7 +479,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 			{
 				ElectricCharge.Stop();
 				ElectricCharge.Clear();
-				AIscript.TankSpeed = AIscript.OriginalTankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
+				AIscript.TankSpeed = AIscript.OriginalTankSpeed;
 				AIscript.CanMove = true;
 			}
 		}
@@ -593,7 +593,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 						specialMove = false;
 						if (AIscript.TankSpeed / OptionsMainMenu.instance.GlobalTankSpeedModifier != AIscript.OriginalTankSpeed && !AIscript.isAggro)
 						{
-							AIscript.TankSpeed = AIscript.OriginalTankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
+							AIscript.TankSpeed = AIscript.OriginalTankSpeed;
 						}
 					}
 					else if (angleSize <= 0.05f)
@@ -603,7 +603,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 						base.transform.rotation = rotation;
 						if (AIscript.CanMove && AIscript.TankSpeed / OptionsMainMenu.instance.GlobalTankSpeedModifier != AIscript.OriginalTankSpeed && !AIscript.isAggro)
 						{
-							AIscript.TankSpeed = AIscript.OriginalTankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
+							AIscript.TankSpeed = AIscript.OriginalTankSpeed;
 						}
 						turning = false;
 					}
@@ -1351,7 +1351,7 @@ public class EnemyTargetingSystemNew : MonoBehaviour
 					specialMoveLockedIn = false;
 					if (AIscript.CanMove && !AIscript.isAggro && AIscript.TankSpeed / OptionsMainMenu.instance.GlobalTankSpeedModifier != AIscript.OriginalTankSpeed)
 					{
-						AIscript.TankSpeed = AIscript.OriginalTankSpeed * OptionsMainMenu.instance.GlobalTankSpeedModifier;
+						AIscript.TankSpeed = AIscript.OriginalTankSpeed;
 					}
 					specialMove = false;
 					DeflectingBullet = false;
